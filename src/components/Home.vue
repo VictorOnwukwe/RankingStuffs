@@ -1,32 +1,42 @@
 <template>
-  <v-app>
-    
-  </v-app>
+  <div id="main">
+    <div class="cover">
+      <h1>Naija Top Ten</h1>
+    </div>
+  </div>
 </template>
 
 <script>
 export default {
-  name: "HelloWorld",
-  props: {
-    msg: String
+  name: "Home",
+
+  data(){
+    return{
+
+    }
+  },
+
+  methods: {
+
   }
 };
 </script>
 
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
+<style scoped>
+#main{
+  margin-top: 0;
 }
-ul {
-  list-style-type: none;
-  padding: 0;
+
+.cover{
+  background-image: url('./bear.jpg');
+  background-size: 200px 100%;
+  background-repeat: repeat;
+  text-align: center;
 }
-li {
-  display: inline-block;
-  margin: 0 10px;
+
+.cover>h1{
+  font-size: 80px;
 }
-a {
-  color: #42b983;
-}
+
 </style>
+

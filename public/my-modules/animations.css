@@ -1,0 +1,58 @@
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  10%,
+  30%,
+  50%,
+  70% {
+    transform: translateX(-0.4em);
+  }
+  20%,
+  40%,
+  60% {
+    transform: translateX(0.4em);
+  }
+  80% {
+    transform: translateX(0.3em);
+  }
+  90% {
+    transform: translateX(-0.3em);
+  }
+}
+
+.shake {
+  animation: shake 0.1s linear 3;
+}
+
+@keyframes rotate-360 {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+*.is-loading {
+  position: relative;
+  z-index: 1;
+}
+*.is-loading::before {
+  position: relative;
+  content: "";
+  display: block;
+  width: 30px;
+  height: 30px;
+  margin-left: -15px;
+  margin-top: 30px;
+  left: 50%;
+  border-left: 4px solid darkgray;
+  border-top: 4px solid darkgray;
+  border-right: 4px solid darkgray;
+  border-bottom: 4px solid;
+  border-bottom-color: var(--accent);
+  border-radius: 50%;
+  animation: rotate-360 0.5s linear infinite;
+}
