@@ -1,19 +1,24 @@
 <template>
   <v-app id="body">
     <toolbar></toolbar>
+    <div id="router-view">
     <router-view></router-view>
+    <sidebar></sidebar>
+    </div>
   </v-app>
 </template>
 
 <script>
 import Home from "./components/Home";
 import Toolbar from "./components/Toolbar";
+import Sidebar from "./components/Sidebar";
 
 export default {
   name: "App",
   components: {
     Home,
-    Toolbar
+    Toolbar,
+    Sidebar
   },
   data() {
     return {
@@ -26,15 +31,23 @@ export default {
 <style>
 :root {
   box-sizing: border-box;
-  --primary: #eae5e5;
-  --primary-dark: #0288D1;
-  --primary-light: #F5F5F5;
-  --text: #ffffff;
+  --primary: #e8e8e8;
   --text-secondary: #757575;
-  --text-primary: #212121;
-  --accent: #1d74a0;
+  --dark-text: #21242f;
+  --accent: #a70932;
   --divider: #bdbdbd;
-  --background-color: #f4f4f4
+  --background-color: #f4f4f4;
+  --link: #0060AC;
+  --button: #0060AC;
+
+  --border-radius: 0.3em;
+  font-size: 0.75em !important;
+  }
+
+@media (min-width:30em){
+  :root{
+    font-size: 1em !important;
+  }
 }
 
 *,
@@ -45,6 +58,10 @@ export default {
 
 #body{
   background-color: var(--background-color);
+}
+
+#router-view{
+  padding: 1em 2em;
 }
 </style>
 

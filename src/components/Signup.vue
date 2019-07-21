@@ -7,11 +7,11 @@
           label="E-mail"
           :rules="rules.email"
           required
-          color="accent"
+          color="brand"
           validate-on-blur
         ></v-text-field>
 
-        <v-text-field v-model="username" label="Username" color="accent"></v-text-field>
+        <v-text-field v-model="username" label="Username" color="brand"></v-text-field>
 
         <v-text-field
           v-model="password"
@@ -21,12 +21,12 @@
           :rules="rules.password"
           validate-on-blur
           required
-          color="accent"
+          color="brand"
         ></v-text-field>
       </v-form>
 
       <v-layout justify-start mt-3>
-        <v-btn @click="emailSignup" class="mx-0" color="accent">
+        <v-btn @click="emailSignup" class="mx-0" color="button primary--text">
           <span v-if="!is_loading">Sign up</span>
           <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
         </v-btn>
@@ -41,7 +41,7 @@
         </v-card>
       </v-dialog>-->
 
-      <div style="text-align:center; color:var(--accent)">
+      <div style="text-align:center; color:var(--link)">
         <br />OR SIGN UP WITH
       </div>
       <br />
@@ -62,7 +62,7 @@
 
       <p>
         <br />Already a member?
-        <router-link to="/login" class="login-link accent--text text--darken-1">LOGIN</router-link>
+        <router-link to="/login" class="login-link link--text">LOGIN</router-link>
       </p>
     </v-card>
   </div>
@@ -106,7 +106,7 @@ export default {
             displayName: this.username
           })
           .then(() => {
-            this.$router.push({ path: "/userarea" });
+            this.$router.push({ path: "/profile" });
           })
           .catch(error => {
             this.is_loading = false;

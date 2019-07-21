@@ -8,7 +8,7 @@
           validate-on-blur
           label="E-mail"
           required
-          color="accent"
+          color="brand"
           clearable
         ></v-text-field>
 
@@ -20,16 +20,18 @@
           label="Password"
           type="password"
           required
-          color="accent"
+          color="brand"
           clearable
         ></v-text-field>
       </v-form>
       <v-layout justify-start>
-        <v-btn @click="emailLogin" color="accent" id="login-button" class="mt-4 mx-0">
+        <v-btn @click="emailLogin" color="button primary--text" id="login-button" class="mt-4 mx-0">
           <span v-if="!is_loading">Login</span>
           <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
         </v-btn>
       </v-layout>
+
+      <!-- <div style="width:50px; height:50px" class="button darken-2"></div> -->
 
       <v-dialog v-model="wrongEmail" absolute max-width="400">
         <v-card>
@@ -49,7 +51,7 @@
         </v-card>
       </v-dialog>
 
-      <div style="text-align:center; color:var(--accent)">
+      <div style="text-align:center; color:var(--button)">
         <br />OR LOGIN WITH
       </div>
       <br />
@@ -68,7 +70,7 @@
       </v-layout>
       <div>
         <br />Not a member yet?
-        <router-link to="/signup" class="signup-link accent--text text--darken-1">SIGN UP</router-link>
+        <router-link to="/signup" class="signup-link link--text text--darken-1">SIGN UP</router-link>
       </div>
     </v-card>
   </div>
@@ -112,7 +114,7 @@ export default {
             password: this.password
           })
           .then(() => {
-            this.$router.push({ path: "/userarea" });
+            this.$router.push({ path: "/" });
           })
           .catch(error => {
             this.is_loading = false;
@@ -145,5 +147,9 @@ export default {
 
 #main-div {
   background-color: inherit;
+}
+
+#main-div.btn{
+  background-color: red;
 }
 </style>

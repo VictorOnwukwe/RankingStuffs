@@ -11,11 +11,10 @@ let store = new vuex.Store({
   state: {
     user: {
       name: "",
-      image: null,
-      suggestions: []
+      image: null
     },
 
-    authenticated: null
+    authenticated: false
   },
 
   mutations: {
@@ -37,12 +36,10 @@ let store = new vuex.Store({
       return db
         .createUserWithEmailAndPassword(credentials.email, credentials.password)
         .then(async result => {
-          await firebase.auth().currentUser.updateProfile({
-            displayName: credentials.displayName
-          });
+          await firebase.firestore.
+
           commit("setUser", result.user);
           commit("setAuthentication", true);
-          console.log("User: ", result.user);
         })
         .catch(error => {
           console.log("error:", error);
@@ -59,8 +56,6 @@ let store = new vuex.Store({
         .then(result => {
           commit("setUser", result.user);
           commit("setAuthentication", true);
-          console.log("here");
-          console.log("User: ", result.user);
         })
         .catch(error => {
           console.log("error:", error);

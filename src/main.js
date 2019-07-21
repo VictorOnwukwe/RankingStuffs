@@ -13,9 +13,14 @@ Vue.config.productionTip = false;
 
 Vue.use(Vuetify, {
   theme: {
-    primary: '#eae5e5',
-    accent: '#1d74a0',
-    background: '#f4f4f4'
+    primary: '#e8e8e8',
+    brand: '#60aaea',
+    form: '#60aaea',
+    accent: '#a70932',
+    background: '#f4f4f4',
+    dark_text: '#21242f',
+    link: '#0060AC',
+    button: '#0060AC'
   }
 });
 
