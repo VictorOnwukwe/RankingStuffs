@@ -8,6 +8,9 @@ import Login from "../components/Login";
 import Signup from "../components/Signup";
 // @ts-ignore
 import Profile from "../components/Profile";
+// @ts-ignore
+import Create from "../components/Create";
+import DisplayList from "../components/DisplayList";
 
 Vue.use(Router);
 
@@ -28,6 +31,14 @@ export default new Router({
     {
       path: "/profile",
       component: Profile
+    },
+    {
+      path: "/create",
+      component: Create
+    },
+    {
+      path: "/lists/:id",
+      component: DisplayList
     }
   ]
 });

@@ -31,6 +31,11 @@
         </div>
 
         <div>
+          <a @click="goCreate()" class="link--text">Create List</a>
+          <a @click="goList()" class="link--text">Test List</a>
+        </div>
+
+        <div>
           <a @click="goLogin()" class="dark_text--text">Login</a>
           <a @click="goSignup()" class="dark_text--text">Sign up</a>
         </div>
@@ -59,8 +64,16 @@ export default {
     goHome() {
       this.$router.push({ path: "/" });
     },
+
     goUserProfile() {
       this.$router.push({ path: "/profile" });
+    },
+
+    goCreate(){
+      this.$router.push({path: "/create"});
+    },
+    goList(){
+      this.$router.push({path: "/lists/CkrqnYt3p30VKcG0u0Y8"}) ;
     }
   },
 

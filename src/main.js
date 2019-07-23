@@ -37,7 +37,7 @@ new Vue({
       authDomain: "top-ten-534ca.firebaseapp.com",
       databaseURL: "https://top-ten-534ca.firebaseio.com",
       projectId: "top-ten-534ca",
-      storageBucket: "",
+      storageBucket: "top-ten-534ca.appspot.com",
       messagingSenderId: "943719914188",
       appId: "1:943719914188:web:dd4aacbc348e47f9"
     };
