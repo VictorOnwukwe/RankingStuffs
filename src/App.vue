@@ -34,7 +34,7 @@ export default {
 <style>
 :root {
   box-sizing: border-box;
-  --primary: #e8e8e8;
+  --primary: #F9F9FA;
   --text-secondary: #757575;
   --dark-text: #21242f;
   --accent: #a70932;

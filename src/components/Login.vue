@@ -15,7 +15,7 @@
         <v-text-field
           v-model="password"
           :rules="rules.password"
-          validate
+          validate-on-blur
           :counter="8"
           label="Password"
           type="password"
@@ -33,20 +33,11 @@
 
       <!-- <div style="width:50px; height:50px" class="button darken-2"></div> -->
 
-      <v-dialog v-model="wrongEmail" absolute max-width="400">
+      <v-dialog v-model="errorExists" absolute max-width="400" transition="scale-transition" origin="center center">
         <v-card>
-          <v-card-text>The Email has not been registered on this site. Please recheck your email...</v-card-text>
+          <v-card-text>{{errorMessage}}</v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn flat color="whtie" @click="wrongEmail = false">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
-      <v-dialog v-model="wrongPassword" absolute max-width="400">
-        <v-card>
-          <v-card-text>The password is incorrect please retype it...</v-card-text>
-          <v-card-actions class="justify-center">
-            <v-btn flat color="white" @click="wrongPassword = false">OK</v-btn>
+            <v-btn flat class="white black--text" @click="errorExists = false">OK</v-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -84,8 +75,8 @@ export default {
   data() {
     return {
       email: "",
-      wrongEmail: false,
-      wrongPassword: false,
+      errorExists: false,
+      errorMessage: "",
       valid: false,
       password: "",
       rules: Rules,
@@ -117,11 +108,18 @@ export default {
             this.$router.push({ path: "/" });
           })
           .catch(error => {
-            this.is_loading = false;
             if (error.code == "auth/wrong-password") {
-              this.wrongPassword = true;
+              this.errorMessage = "The password is incorrect. Did you signup with your social account? Try our social login";
+              setTimeout(() => {
+                this.errorExists = true;
+                this.is_loading = false;
+              }, 1000)
             } else if (error.code == "auth/user-not-found") {
-              this.wrongEmail = true;
+              this.errorMessage = "The Email has not been registered on this site. Please recheck your email...";
+              setTimeout(() => {
+                this.errorExists = true;
+                this.is_loading = false;
+              }, 1000)
             }
           });
       }

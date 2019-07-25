@@ -26,20 +26,20 @@
       </v-form>
 
       <v-layout justify-start mt-3>
-        <v-btn @click="emailSignup" class="mx-0" color="button primary--text">
+        <v-btn @click="emailSignup()" class="mx-0" color="button primary--text">
           <span v-if="!is_loading">Sign up</span>
           <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
         </v-btn>
       </v-layout>
 
-      <!-- <v-dialog v-model="emailExists" absolute max-width="400">
+      <v-dialog v-model="errorExists" absolute max-width="400" transition="scale-transition" origin="center center">
         <v-card>
-          <v-card-text>This E-mail already exists in our database</v-card-text>
+          <v-card-text>{{errorMessage}}</v-card-text>
           <v-card-actions class="justify-center">
-            <v-btn flat color="white" @click="emailExists = false">OK</v-btn>
+            <v-btn flat class="black--text" @click="errorExists = false">OK</v-btn>
           </v-card-actions>
         </v-card>
-      </v-dialog>-->
+      </v-dialog>
 
       <div style="text-align:center; color:var(--link)">
         <br />OR SIGN UP WITH
@@ -75,7 +75,8 @@ export default {
   data() {
     return {
       email: "",
-      emailExists: false,
+      errorExists: false,
+      errorMessage: "",
       password: "",
       username: "",
       correct: false,
@@ -86,7 +87,7 @@ export default {
   },
 
   methods: {
-    emailSignup() {
+    async emailSignup() {
       if (!this.valid) {
         let form = document.getElementById("form");
 
@@ -99,24 +100,33 @@ export default {
 
         this.is_loading = true;
 
-        this.$store
+        await this.$store
           .dispatch("emailSignup", {
             email: this.email,
             password: this.password,
-            displayName: this.username
+            username: this.username
           })
           .then(() => {
             this.$router.push({ path: "/profile" });
           })
           .catch(error => {
-            this.is_loading = false;
             if (error.code == "auth/email-already-in-use") {
-              console.log("Sorry. Email exists already");
+              this.errorMessage = "Sorry. This email already exists"
               setTimeout(() => {
-                this.emailExists = true;
+                this.errorExists = true;
+                this.is_loading = false;
+              }, 2000);
+            }
+            else if(error.message == "username exists"){
+              this.errorMessage = "Sorry. This username already exists";
+              setTimeout(() => {
+                this.errorExists = true;
+                this.is_loading = false;
               }, 2000);
             }
           });
+
+
       }
     },
 

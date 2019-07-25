@@ -1,30 +1,31 @@
 <template>
     <div>
         <div id="container">
-            <label for="title">Title</label>
             <h2>{{list.title}}</h2>
 
             <p>{{list.created.toDate()}}</p>
 
-            <div
+            <Item
                 v-for="item in list.items"
                 :key="item.id"
-                id="item"
-            >
-                <p>{{item.title}}</p>
-                <img :src="item.image" style="height:200px;width:150px">
-                <p>{{item.about}}</p>
-                <p>{{item.votes}}</p>
-            </div>
+                :item="item"
+                :list_id="list.id"
+            ></Item>
         </div>
     </div>
 </template>
 
 <script>
+import { setTimeout } from 'timers';
+import Item from './Item';
+
 export default {
+    components: {
+        Item
+    },
     data(){
         return{
-            index: null
+            index: null,
         }
     },
 
@@ -42,30 +43,35 @@ export default {
             return this.list.created.toDate();
         },
         list(){
-            return this.$store.state.lists[this.index];
+            return this.$store.state.lists[0];
         }
     },
 
-    created: async function(){
-        let id = this.$route.params.id;
+    mounted: async function(){
+        let id = await this.$route.params.id;
 
-        let index = this.$store.state.lists.findIndex(list => list.id == id)
+        let index = await this.$store.state.lists.findIndex(list => list.id == id);
 
-        if(index>=0){
-            this.index = index;
-            console.log("In Store!")
-        }else{
-            this.$store.dispatch("fetch_complete_list", id).then(() => {
-                this.index = this.$store.state.lists.length - 1;
-            })
-        }
-    }
+        this.$store.dispatch("fetch_complete_list", id);
+
+        // if(index>=0){
+        //     this.list = await this.$store.state.lists[index];
+        //     this.gotList = true;
+        // }else{
+        //     await this.$store.dispatch("fetch_complete_list", id).then(async () => {
+        //         this.list = await this.$store.state.lists[this.$store.state.lists.length - 1];
+        //         this.gotList = true;
+        //     })
+            
+        // }
+    },
+
 }
 </script>
 
 <style scoped>
 #container{
-    max-width: 400px;
+    max-width: 800px;
     margin: 0 auto;
 }
 #item{

@@ -10,7 +10,10 @@ import Signup from "../components/Signup";
 import Profile from "../components/Profile";
 // @ts-ignore
 import Create from "../components/Create";
+// @ts-ignore
 import DisplayList from "../components/DisplayList";
+// @ts-ignore
+// import Item from "../components/Item";
 
 Vue.use(Router);
 
