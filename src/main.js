@@ -8,6 +8,7 @@ import router from "./routers/router-main";
 // import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import firebase from "firebase/app";
 import store from "./store";
+import swal from "sweetalert";
 
 Vue.config.productionTip = false;
 

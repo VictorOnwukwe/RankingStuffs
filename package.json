@@ -13,6 +13,7 @@
     "firebase": "^6.3.0",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.26",
+    "sweetalert": "^2.1.2",
     "vue": "^2.6.10",
     "vue-router": "^3.0.7",
     "vuetify": "^1.5.5",

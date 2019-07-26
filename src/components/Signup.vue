@@ -11,7 +11,14 @@
           validate-on-blur
         ></v-text-field>
 
-        <v-text-field v-model="username" label="Username" color="brand"></v-text-field>
+        <v-text-field
+          v-model="username"
+          label="Username"
+          validate-on-blur
+          color="brand"
+          @focus="getUsernames()"
+          :rules="username_rules"
+        ></v-text-field>
 
         <v-text-field
           v-model="password"
@@ -31,15 +38,6 @@
           <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
         </v-btn>
       </v-layout>
-
-      <v-dialog v-model="errorExists" absolute max-width="400" transition="scale-transition" origin="center center">
-        <v-card>
-          <v-card-text>{{errorMessage}}</v-card-text>
-          <v-card-actions class="justify-center">
-            <v-btn flat class="black--text" @click="errorExists = false">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
 
       <div style="text-align:center; color:var(--link)">
         <br />OR SIGN UP WITH
@@ -75,18 +73,38 @@ export default {
   data() {
     return {
       email: "",
-      errorExists: false,
-      errorMessage: "",
       password: "",
       username: "",
       correct: false,
       valid: false,
       rules: Rules,
-      is_loading: false
+      is_loading: false,
+      usernames: [],
+      username_rules: [
+        v =>
+          (!this.usernames.includes(v)) || "This username is already taken",
+
+        v => (v=="" || v.length >= 3) || "Sorry. Username must have at least three characters"
+      ],
+      fetched_usernames: false
     };
   },
 
   methods: {
+    async getUsernames() {
+      if (!this.fetched_usernames) {
+        this.$store
+          .dispatch("fetch_all_usernames")
+          .then(result => {
+            this.usernames = result;
+            this.fetched_usernames = true;
+            console.log("Fetched Users");
+          })
+          .catch(error => {});
+      }
+      return;
+    },
+
     async emailSignup() {
       if (!this.valid) {
         let form = document.getElementById("form");
@@ -101,38 +119,44 @@ export default {
         this.is_loading = true;
 
         await this.$store
-          .dispatch("emailSignup", {
+          .dispatch("emailSignup", {credentials: {
             email: this.email,
             password: this.password,
-            username: this.username
+            username: this.username.toLowerCase()
+          },
+          all_usernames: this.usernames
           })
           .then(() => {
-            this.$router.push({ path: "/profile" });
+            this.$router.go(-1);
           })
           .catch(error => {
-            if (error.code == "auth/email-already-in-use") {
-              this.errorMessage = "Sorry. This email already exists"
-              setTimeout(() => {
-                this.errorExists = true;
-                this.is_loading = false;
-              }, 2000);
-            }
-            else if(error.message == "username exists"){
-              this.errorMessage = "Sorry. This username already exists";
-              setTimeout(() => {
-                this.errorExists = true;
-                this.is_loading = false;
-              }, 2000);
+            if (error.code === "auth/email-already-in-use") {
+              swal(
+                "Sorry. This email already exists. Did you signup with your social account? Try our social login",
+                {
+                  error: "warning"
+                }
+              );
+            } else if (error.message === "username exists") {
+              swal("Sorry. This username already exists", {
+                error: "warning"
+              });
             }
           });
-
-
       }
     },
 
     async socialSignup(type) {
-      await this.$store.dispatch("socialLogin", type);
-      this.$router.push({ path: "/userarea" });
+      this.$store
+        .dispatch("socialLogin", type)
+        .then(() => {
+          this.$router.push(-1);
+        })
+        .catch(error => {
+          swal("Signup Unsuccessful", {
+            icon: "error"
+          });
+        });
     }
   }
 };

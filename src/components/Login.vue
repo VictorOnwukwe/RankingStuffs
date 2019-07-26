@@ -33,7 +33,13 @@
 
       <!-- <div style="width:50px; height:50px" class="button darken-2"></div> -->
 
-      <v-dialog v-model="errorExists" absolute max-width="400" transition="scale-transition" origin="center center">
+      <v-dialog
+        v-model="errorExists"
+        absolute
+        max-width="400"
+        transition="scale-transition"
+        origin="center center"
+      >
         <v-card>
           <v-card-text>{{errorMessage}}</v-card-text>
           <v-card-actions class="justify-center">
@@ -70,6 +76,9 @@
 <script>
 import Rules from "../rules";
 import { setTimeout } from "timers";
+import firebase from "firebase/app";
+import "firebase/auth";
+
 
 export default {
   data() {
@@ -109,23 +118,29 @@ export default {
           })
           .catch(error => {
             if (error.code == "auth/wrong-password") {
-              this.errorMessage = "The password is incorrect. Did you signup with your social account? Try our social login";
+              this.errorMessage =
+                "The password is incorrect. Did you signup with your social account? Try our social login";
               setTimeout(() => {
                 this.errorExists = true;
                 this.is_loading = false;
-              }, 1000)
+              }, 1000);
             } else if (error.code == "auth/user-not-found") {
-              this.errorMessage = "The Email has not been registered on this site. Please recheck your email...";
+              this.errorMessage =
+                "The Email has not been registered on this site. Please recheck your email...";
               setTimeout(() => {
                 this.errorExists = true;
                 this.is_loading = false;
-              }, 1000)
+              }, 1000);
             }
           });
       }
     },
     socialLogin(type) {
-      this.$store.dispatch("socialLogin", type);
+      this.$store.dispatch("socialLogin", type).catch(error => {
+        swal("Login Unsuccessful", {
+          icon: "error"
+        })
+      });
     }
   }
 };
@@ -147,7 +162,7 @@ export default {
   background-color: inherit;
 }
 
-#main-div.btn{
+#main-div.btn {
   background-color: red;
 }
 </style>
