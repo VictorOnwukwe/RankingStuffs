@@ -32,6 +32,8 @@ export default {
 </script>
 
 <style>
+</style>
+<style>
 :root {
   box-sizing: border-box;
   --primary: #F9F9FA;
@@ -45,6 +47,10 @@ export default {
 
   --border-radius: 0.3em;
   font-size: 0.75em !important;
+}
+
+html{
+  scroll-behavior: smooth;
 }
 
 @media (min-width: 30em) {
@@ -66,6 +72,25 @@ export default {
 
 #router-view {
   padding: 1em 2em;
+}
+
+.alert-button {
+  color: var(--primary);
+  padding: 0.6em 0;
+  width: 60%;
+  margin-top: 1em;
+  border-radius: 0.2em;
+  box-shadow: 0px 2px 2px black;
+}
+
+.alert-button:hover{
+  filter: brightness(110%);
+}
+
+.alert-font{
+  font-family: 'Roboto', sans-serif;
+  font-weight: bold;
+  font-size: 1em;
 }
 </style>
 

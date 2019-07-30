@@ -73,7 +73,7 @@ export default {
       this.$router.push({path: "/create"});
     },
     goList(){
-      this.$router.push({path: "/lists/CkrqnYt3p30VKcG0u0Y8"}) ;
+      this.$router.push({path: "/lists/jknM6pu73V7xtxP7pguV"}) ;
     }
   },
 

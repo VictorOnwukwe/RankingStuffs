@@ -9,6 +9,9 @@ import router from "./routers/router-main";
 import firebase from "firebase/app";
 import store from "./store";
 import swal from "sweetalert";
+import Swal from "sweetalert2";
+
+window.Swal = Swal;
 
 Vue.config.productionTip = false;
 
@@ -23,7 +26,7 @@ Vue.use(Vuetify, {
     link: '#0060AC',
     button: '#0060AC'
   }
-});
+}, Swal);
 
 // @ts-ignore
 new Vue({

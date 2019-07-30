@@ -31,23 +31,6 @@
         </v-btn>
       </v-layout>
 
-      <!-- <div style="width:50px; height:50px" class="button darken-2"></div> -->
-
-      <v-dialog
-        v-model="errorExists"
-        absolute
-        max-width="400"
-        transition="scale-transition"
-        origin="center center"
-      >
-        <v-card>
-          <v-card-text>{{errorMessage}}</v-card-text>
-          <v-card-actions class="justify-center">
-            <v-btn flat class="white black--text" @click="errorExists = false">OK</v-btn>
-          </v-card-actions>
-        </v-card>
-      </v-dialog>
-
       <div style="text-align:center; color:var(--button)">
         <br />OR LOGIN WITH
       </div>
@@ -79,13 +62,10 @@ import { setTimeout } from "timers";
 import firebase from "firebase/app";
 import "firebase/auth";
 
-
 export default {
   data() {
     return {
       email: "",
-      errorExists: false,
-      errorMessage: "",
       valid: false,
       password: "",
       rules: Rules,
@@ -98,13 +78,10 @@ export default {
       if (!this.valid) {
         let form = document.getElementById("form");
 
-        //add shake animation to form on failure to validate
-        form.classList.add("shake");
-
-        //remove shake animation after 0.8 secs
-        setTimeout(() => {
-          form.classList.remove("shake");
-        }, 300);
+        form.classList.add("animated", "shake", "faster");
+        form.addEventListener("animationend", () => {
+          form.classList.remove("animated", "shake", "faster");
+        });
       } else {
         this.is_loading = true;
 
@@ -117,20 +94,32 @@ export default {
             this.$router.push({ path: "/" });
           })
           .catch(error => {
+            this.is_loading = false;
             if (error.code == "auth/wrong-password") {
-              this.errorMessage =
-                "The password is incorrect. Did you signup with your social account? Try our social login";
-              setTimeout(() => {
-                this.errorExists = true;
-                this.is_loading = false;
-              }, 1000);
+              const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+              });
+
+              Toast.fire({
+                type: "error",
+                title: "Incorrect Password..."
+              });
             } else if (error.code == "auth/user-not-found") {
-              this.errorMessage =
-                "The Email has not been registered on this site. Please recheck your email...";
-              setTimeout(() => {
-                this.errorExists = true;
-                this.is_loading = false;
-              }, 1000);
+              const Toast = Swal.mixin({
+                toast: true,
+                position: "center",
+                showConfirmButton: false,
+                timer: 3000
+              });
+
+              Toast.fire({
+                type: "error",
+                html:
+                  '<div style="margin-left:8px" class="alert-font">Incorrect email... Please check your email</div>'
+              });
             }
           });
       }
@@ -139,7 +128,7 @@ export default {
       this.$store.dispatch("socialLogin", type).catch(error => {
         swal("Login Unsuccessful", {
           icon: "error"
-        })
+        });
       });
     }
   }

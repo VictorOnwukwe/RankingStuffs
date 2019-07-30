@@ -1,24 +1,28 @@
 import vuex from "vuex";
 import Vue from "vue";
-import firebase from "firebase/app";
+import firebase, { firestore } from "firebase/app";
 import "firebase/firestore";
 import "firebase/storage";
 import "firebase/auth";
 import { setPriority } from "os";
 import { async } from "q";
 import myDate from "../public/my-modules/myDate";
+import swalErrors from "../public/my-modules/swalErrors";
 import { stat } from "fs";
-import swal from "sweetalert";
 
 Vue.use(vuex);
 
 let store = new vuex.Store({
   state: {
-    user: null,
+    user: {
+      profile_pic: "",
+      user_id: "",
+      username: ""
+    },
 
-    lists: null,
+    list: {},
 
-    authenticated: true,
+    authenticated: false,
     voted: false
   },
 
@@ -32,7 +36,7 @@ let store = new vuex.Store({
     },
 
     setLists(state, payload) {
-      state.lists.push(payload);
+      state.list = payload;
       console.log("Pushed to list");
     },
 
@@ -119,7 +123,7 @@ let store = new vuex.Store({
         });
     },
 
-    socialLogin({ commit }, authType) {
+    socialLogin({ commit, state }, authType) {
       let provider;
       let auth = firebase.auth();
       let db = firebase.firestore().collection("users");
@@ -134,8 +138,18 @@ let store = new vuex.Store({
         .signInWithPopup(provider)
         .then(async result => {
           let displayName;
+          let methods = await auth.fetchSignInMethodsForEmail(
+            result.user.email
+          );
 
-          if (result.user.email === "") {
+          if (methods.length > 0) {
+            await db
+              .doc(result.user.uid)
+              .get()
+              .then(user => {
+                displayName = user.data().username;
+              });
+          } else if (result.user.email === "") {
             displayName = "user" + Math.floor(Math.random() * 1000);
           } else {
             displayName = result.user.email.slice(
@@ -144,7 +158,7 @@ let store = new vuex.Store({
             );
           }
 
-          user = { username: displayName };
+          user = { username: displayName, user_id: result.user.uid };
 
           if (result.user.photoURL !== "") {
             user = { profile_pic: result.user.photoURL, ...user };
@@ -159,6 +173,7 @@ let store = new vuex.Store({
           }
           commit("setUser", user);
           commit("setAuthentication", true);
+          console.log(state.user);
         })
         .catch(error => {
           if (error.code === "auth/account-exists-with-different-credential") {
@@ -199,8 +214,8 @@ let store = new vuex.Store({
                       .catch(error => {
                         throw error;
                       });
-                    return;
                   });
+                return;
               }
               // All the other cases are external providers.
               // Construct provider object for that provider.
@@ -219,11 +234,13 @@ let store = new vuex.Store({
               }
 
               // @ts-ignore
-              swal(popupMessage, {
-                buttons: {
-                  cancel: "NO",
-                  confirm: "YES"
-                }
+              Swal.fire({
+                text: popupMessage,
+                type: "question",
+                showConfirmButton: true,
+                confirmButtonText: "YES",
+                showCancelButton: true,
+                cancelButtonText: "NO"
               }).then(value => {
                 if (value) {
                   auth
@@ -235,9 +252,7 @@ let store = new vuex.Store({
                       // Step 4b.
                       // Link to Facebook credential.
                       // As we have access to the pending credential, we can directly call the link method.
-                      result.user.linkAndRetrieveDataWithCredential(
-                        pendingCred
-                      );
+                      result.user.linkWithCredential(pendingCred);
                     })
                     .then(() => {
                       commit("setUser", user);
@@ -264,6 +279,7 @@ let store = new vuex.Store({
     async upload_list({ commit }, payload) {
       let db = firebase.firestore();
 
+      let items_no = payload.items.length;
       let list_key = "";
       let item_key = "";
 
@@ -272,22 +288,24 @@ let store = new vuex.Store({
         .collection("lists")
         .add({
           //add title to list
-          title: payload.title
+          title: payload.title,
+          votes: (items_no * (items_no + 1)) / 2,
+          created: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(async docRef => {
           //assign list id to list_key variable. We'd use the id later to update list
           list_key = docRef.id;
 
           //loops through all items received. Uploads each item as a new document in lists/list id/items collection
-          for (let i = 0; i < 10; i++) {
+          for (let i = 0; i < payload.items.length; i++) {
             await docRef
               .collection("items")
               .add({
                 about: payload.items[i].about,
                 title: payload.items[i].title,
-                votes: 0,
+                votes: items_no - i,
                 list_id: list_key,
-                comment_count: 0
+                comments_count: 0
               })
               .then(docRef2 => {
                 item_key = docRef2.id;
@@ -317,48 +335,49 @@ let store = new vuex.Store({
                 throw error;
               });
           }
-        })
-        .then(() => {
-          db.collection("lists")
-            .doc(list_key)
-            .update({
-              created: firebase.firestore.FieldValue.serverTimestamp()
-            });
         });
     },
 
     async add_comment({ commit, state }, payload) {
-      let db = firebase
-        .firestore()
-        .collection("lists")
-        .doc(payload.list_id)
-        .collection("items")
-        .doc(payload.item_id);
+      if (state.authenticated) {
+        let db = firebase
+          .firestore()
+          .collection("lists")
+          .doc(payload.list_id)
+          .collection("items")
+          .doc(payload.item_id);
 
-      db.get()
-        .then(docRef => {
-          return docRef.data().comments_count + 1;
-        })
-        .then(comments_count => {
-          db.collection("comments").add({
-            content: payload.comment,
-            user: {
-              username: state.user.username,
-              profile_pic: state.user.profile_pic
-            },
-            created: firebase.firestore.FieldValue.serverTimestamp(),
-            index: comments_count
+        db.get()
+          .then(async docRef => {
+            db.collection("comments").add({
+              content: payload.comment,
+              user: {
+                id: state.user.user_id,
+                username: state.user.username,
+                profile_pic: state.user.profile_pic
+              },
+              created: firebase.firestore.FieldValue.serverTimestamp(),
+              index: (await docRef.data().comments_count) + 1,
+              likes: 0,
+              replies_count: 0,
+              replies: []
+            });
+          })
+          .then(() => {
+            db.update(
+              "comments_count",
+              firebase.firestore.FieldValue.increment(1)
+            );
+          })
+          .then(() => {
+            console.log("Uploaded");
+          })
+          .catch(error => {
+            console.log(error);
           });
-          return comments_count;
-        })
-        .then(comments_count => {
-          db.update({
-            comments_count: comments_count
-          });
-        })
-        .catch(error => {
-          console.log(error);
-        });
+      } else {
+        swalErrors.showAuthenticationError();
+      }
     },
 
     async add_vote({ commit }, payload) {
@@ -371,15 +390,7 @@ let store = new vuex.Store({
         .doc(payload.item_id);
 
       item
-        .get()
-        .then(docRef => {
-          return docRef.data().votes;
-        })
-        .then(votes => {
-          item.update({
-            votes: votes + 1
-          });
-        })
+        .update("votes", firebase.firestore.FieldValue.increment(1))
         .then(() => {
           commit("setVoted", true);
         })
@@ -396,7 +407,31 @@ let store = new vuex.Store({
     async fetch_comments({ commit }, payload) {
       let db = firebase.firestore();
 
-      db.collection("lists").doc(payload.list).get;
+      if(payload.timestamp === "now"){
+        payload.timestamp = new firebase.firestore.Timestamp.fromDate(new Date());
+      }
+
+      return await db
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .where("created", "<", payload.timestamp)
+        .orderBy("created", "desc")
+        .limit(payload.num)
+        .get()
+        .then(async querySnapshot => {
+          return await querySnapshot.docs.map(doc => {
+            return {
+              id: doc.id,
+              ...doc.data()
+            };
+          });
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
 
     async fetch_complete_list({ commit }, payload) {
@@ -417,6 +452,7 @@ let store = new vuex.Store({
           db.collection("lists")
             .doc(payload)
             .collection("items")
+            .orderBy("votes", "desc")
             .get()
             .then(querySnapshot => {
               list.items = querySnapshot.docs.map(doc => {

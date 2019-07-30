@@ -45,18 +45,20 @@
       <br />
 
       <v-layout wrap>
-        <v-flex xs8 offset-xs2>
-          <v-btn @click="socialSignup('G')" block class="red--text" color="primary darken-1">GOOGLE</v-btn>
+        <v-flex xs6 offset-xs3>
+          <v-btn @click="socialSignup('G')" block class="primary--text" color="#F14336">GOOGLE</v-btn>
         </v-flex>
-        <v-flex xs8 offset-xs2>
+        <v-flex xs6 offset-xs3>
           <v-btn
             @click="socialSignup('F')"
             block
-            class="blue--text text--darken-3"
-            color="primary darken-1"
+            class="primary--text"
+            color="blue darken-3"
           >FACEBOOK</v-btn>
         </v-flex>
       </v-layout>
+
+      <v-btn @click="testSwal()">Test swal</v-btn>
 
       <p>
         <br />Already a member?
@@ -82,65 +84,95 @@ export default {
       usernames: [],
       username_rules: [
         v =>
-          (!this.usernames.includes(v)) || "This username is already taken",
+          !this.usernames.includes(v) ||
+          "Sorry. This username is already taken",
 
-        v => (v=="" || v.length >= 3) || "Sorry. Username must have at least three characters"
+        v =>
+          v == "" ||
+          v.length >= 3 ||
+          "Sorry. Username must have at least three characters"
       ],
       fetched_usernames: false
     };
   },
 
   methods: {
-    async getUsernames() {
-      if (!this.fetched_usernames) {
-        this.$store
-          .dispatch("fetch_all_usernames")
-          .then(result => {
-            this.usernames = result;
-            this.fetched_usernames = true;
-            console.log("Fetched Users");
-          })
-          .catch(error => {});
-      }
-      return;
+    testSwal() {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 3000
+      });
+
+      Toast.fire({
+        type: 'error',
+        html: '<div style="margin-left:8px" class="alert-font">Incorrect Password. Please check your password</div>',
+        background: 'primary'
+      });
     },
 
     async emailSignup() {
       if (!this.valid) {
         let form = document.getElementById("form");
 
-        form.classList.add("shake");
-        setTimeout(() => {
-          form.classList.remove("shake");
-        }, 300);
+        form.classList.add("animated", "shake", "faster");
+        form.addEventListener("animationend", () => {
+          form.classList.remove("animated", "shake", "faster");
+        });
       } else {
         let element = document.getElementById("form");
 
         this.is_loading = true;
 
         await this.$store
-          .dispatch("emailSignup", {credentials: {
-            email: this.email,
-            password: this.password,
-            username: this.username.toLowerCase()
-          },
-          all_usernames: this.usernames
+          .dispatch("emailSignup", {
+            credentials: {
+              email: this.email,
+              password: this.password,
+              username: this.username.toLowerCase()
+            },
+            all_usernames: this.usernames
           })
           .then(() => {
             this.$router.go(-1);
           })
           .catch(error => {
+            this.is_loading = false;
             if (error.code === "auth/email-already-in-use") {
-              swal(
-                "Sorry. This email already exists. Did you signup with your social account? Try our social login",
-                {
-                  error: "warning"
+              Swal.fire({
+                type: "info",
+                html:
+                  "<div>" +
+                  '<h1 style="margin-top:-10px; margin-bottom:10px">Oops...</h1>' +
+                  "<p>This email already exists. You may have previously signed in with a social platform. Continue to sign in with Facebook or google</p>" +
+                  '<button id="facebook" style="background-color:#1565C0" class="alert-button">FACEBOOK</button><br>' +
+                  '<button id="google" style="background-color:#F14336" class="alert-button">GOOGLE</button>' +
+                  "</div>",
+                showCloseButton: true,
+                showConfirmButton: false,
+                focusCancel: true,
+                background: "#f4f4f4",
+                onBeforeOpen: () => {
+                  const content = Swal.getContent();
+                  const $ = content.querySelector.bind(content);
+
+                  const facebook = $("#facebook");
+                  const google = $("#google");
+
+                  facebook.addEventListener("click", () => {
+                    this.socialSignup("F");
+                    Swal.close();
+                  });
+
+                  google.addEventListener("click", () => {
+                    this.socialSignup("G");
+                    Swal.close();
+                  });
                 }
-              );
-            } else if (error.message === "username exists") {
-              swal("Sorry. This username already exists", {
-                error: "warning"
               });
+            } else {
+              console.log(error);
             }
           });
       }
@@ -175,7 +207,14 @@ export default {
   text-decoration: underline;
 }
 
-#icon {
+a {
+  text-decoration: none;
+}
+
+.my-facebook {
+  background-color: blue;
+  color: white;
+  padding: 0.5em 1em;
 }
 </style>
 

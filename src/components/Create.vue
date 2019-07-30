@@ -1,71 +1,20 @@
 <template>
-  <div>
+  <div id="main">
     <div style="margin:0 auto;max-width:600px">
       <div>
         <label for="list-title">Title</label>
         <input placeholder="List Title" type="text" v-model="list.title" />
       </div>
 
-      <div class="item">
-        <h3>Item 1</h3>
+      <div class="item animated bounceIn" v-for="(item, index) in list.items" :key="index">
+        <h3>Item {{index + 1}}</h3>
         <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[0].title" />
-        <textarea placeholder="About Item" v-model="list.items[0].about"></textarea>
+        <input placeholder="Item Title" type="text" v-model="list.items[index].title" />
+        <textarea placeholder="About Item" v-model="list.items[index].about"></textarea>
       </div>
 
-      <div class="item">
-        <h3>Item 2</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[1].title" />        
-        <textarea placeholder="About Item" v-model="list.items[1].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 3</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[2].title" />
-        <textarea placeholder="About Item" v-model="list.items[2].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 4</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[3].title" />
-        <textarea placeholder="About Item" v-model="list.items[3].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 5</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[4].title" />
-        <textarea placeholder="About Item" v-model="list.items[4].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 6</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[5].title" />
-        <textarea placeholder="About Item" v-model="list.items[5].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 7</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[6].title" />
-        <textarea placeholder="About Item" v-model="list.items[6].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 8</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[7].title" />
-        <textarea placeholder="About Item" v-model="list.items[7].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 9</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[8].title" />
-        <textarea placeholder="About Item" v-model="list.items[8].about"></textarea>
-      </div>
-      <div class="item">
-        <h3>Item 10</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="list.items[9].title" />
-        <textarea placeholder="About Item" v-model="list.items[9].about"></textarea>
+      <div v-if="list.items.length <= 9" id="plus-button">
+        <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
       </div>
 
       <v-btn @click="upload()">Upload</v-btn>
@@ -78,27 +27,20 @@
 export default {
   data() {
     return {
-        list: {
-            created: null,
-            title: "Worthy Title",
-            user_id: null,
-            items: [
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-                {image:null, about:"This is a good boy", title:"boy"},
-            ]
-        },
+      list: {
+        title: "Worthy Title",
+        user_id: null,
+        items: [
+          {
+            title: "",
+            about: "",
+            image: undefined
+          }
+        ]
+      },
 
-        imageUrl: null,
-        n: 0
-
+      imageUrl: null,
+      n: 0
     };
   },
 
@@ -119,21 +61,32 @@ export default {
       this.n++;
     },
 
-    async upload(){
+    async upload() {
+      await this.$store.dispatch("upload_list", this.list);
 
-        await this.$store.dispatch("upload_list", this.list);
+      alert("Upload done");
 
-        alert("Upload done");
-
-        this.$router.go(-1);
+      this.$router.go(-1);
     },
 
-    async get(){
+    async get() {
+      this.$store
+        .dispatch("fetch_complete_list", "aTXawHzZOZyEZAB7a3Cy")
+        .then(() => {
+          console.log("done");
+        });
+    },
 
-        this.$store.dispatch("fetch_complete_list", "aTXawHzZOZyEZAB7a3Cy").then(() => {
-            console.log("done");
+    addItem() {
+        this.list.items.push({
+          title: "",
+          about: "",
+          image: undefined
         });
 
+        setTimeout(() => {
+          window.scrollTo(0,document.querySelector('#main').scrollHeight);
+        }, 1);
     }
   }
 };
@@ -157,5 +110,11 @@ textarea {
   display: grid;
   grid-template-columns: 1fr;
   margin-top: 2em;
+}
+
+#plus-button {
+  display: flex;
+  margin: 1em 0;
+  justify-content: center;
 }
 </style>
