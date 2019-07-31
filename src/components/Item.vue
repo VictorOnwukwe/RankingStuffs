@@ -27,32 +27,22 @@
     </v-layout>
 
     <div id="comments">
-      <a
-        v-if="comments[0] && comments[0].index!==1"
-        class="links"
-        @click="fetchComments(5, comments[0].created)"
-      >Previous Comments...</a>
-
-      <div>
-        <a
+      <div class="comments-header">
+        <a style="float:left"
+          v-if="comments[0] && comments[0].index!==1 && display_comments===true"
           class="links"
-          v-if="display_comments = true"
-          @click="display_comments = !display_comments"
-        >
-          <span v-if="display_comments==true">Hide comments...</span>
-          <span v-if="display_comments==false">Show comments...</span>
+          @click="fetchComments(5, comments[0].created)"
+        >Previous Comments</a>
+
+        <a style="float:right" class="links" v-if="comments.length>0" @click="display_comments = !display_comments">
+          <span v-if="display_comments==true">Hide comments</span>
+          <span v-if="display_comments==false">Show comments</span>
         </a>
       </div>
 
-      <div v-for="(comment, index) in comments" :key="index" v-if="display_comments">
-        <div style="margin:0.5em 1em">
-          <v-avatar size="24" class="mr-2">
-            <img :src="comment.user.profile_pic" />
-          </v-avatar>
-          <a class="links">{{comment.user.username}}</a>
-          <div
-            style="background-color:#F4F4F4; padding:0.5em; margin:0.5em; border-radius:0.2em"
-          >{{comment.content}}</div>
+      <div class="clear-float" v-for="(compComment, index) in comments" :key="index">
+        <div v-if="display_comments">
+          <comment :comment="compComment" :list_id="list_id" :item_id="item.id"></comment>
         </div>
       </div>
       <div id="comment_container">
@@ -64,7 +54,13 @@
 </template>
 
 <script>
+import comment from "./comment";
+import swalErrors from "../../public/my-modules/swalErrors";
+
 export default {
+  components: {
+    comment
+  },
   props: {
     item: Object,
     list_id: String
@@ -79,13 +75,20 @@ export default {
 
   methods: {
     async addComment() {
-      await this.$store.dispatch("add_comment", {
-        item_id: this.item.id,
-        list_id: this.list_id,
-        comment: this.user_comment
-      });
 
-      this.comments.push(this.user_comment);
+      if(this.$store.state.authenticated){
+        await this.$store
+        .dispatch("add_comment", {
+          item_id: this.item.id,
+          list_id: this.list_id,
+          comment: this.user_comment
+        })
+        .then(comment => {
+          this.comments.push(comment);
+        });
+      }else{
+        swalErrors.showAuthenticationError();
+      }
     },
 
     addVote() {
@@ -149,11 +152,12 @@ export default {
   justify-content: center;
 }
 
-.links {
-  color: var(--link);
-  text-decoration: none;
+.clear-float{
+  clear: both;
 }
-.links:hover {
-  text-decoration: underline;
+
+.comments-header{
+  display: block;
+  margin-bottom: 1em
 }
 </style>

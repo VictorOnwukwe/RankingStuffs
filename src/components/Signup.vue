@@ -97,6 +97,9 @@ export default {
   },
 
   methods: {
+    async getUsernames(){
+     this.usernames = await this.$store.dispatch("fetch_all_usernames")
+    },
     testSwal() {
       const Toast = Swal.mixin({
         toast: true,

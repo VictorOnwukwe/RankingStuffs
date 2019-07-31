@@ -9,16 +9,16 @@ import { async } from "q";
 import myDate from "../public/my-modules/myDate";
 import swalErrors from "../public/my-modules/swalErrors";
 import { stat } from "fs";
+import { METHODS } from "http";
 
 Vue.use(vuex);
 
+let no_profile =
+  "https://firebasestorage.googleapis.com/v0/b/top-ten-534ca.appspot.com/o/profile_pictures%2Fno_profile.jpg?alt=media&token=a2fe3931-d790-4b30-838e-ef9bb877978b";
+
 let store = new vuex.Store({
   state: {
-    user: {
-      profile_pic: "",
-      user_id: "",
-      username: ""
-    },
+    user: {},
 
     list: {},
 
@@ -50,6 +50,7 @@ let store = new vuex.Store({
       let auth = firebase.auth();
       let db = firebase.firestore();
 
+      let user;
       let username = "";
 
       //get username
@@ -80,17 +81,22 @@ let store = new vuex.Store({
             .doc(result.user.uid)
             .set({
               username: username,
+              profile_pic: no_profile,
               created: firebase.firestore.FieldValue.serverTimestamp()
             });
-          payload.all_usernames.push(username);
-          commit("setUser", { username: username });
+
+          commit("setUser", {
+            username: username,
+            profile_pic: no_profile,
+            id: result.user.uid
+          });
           commit("setAuthentication", true);
         })
         .then(() => {
           db.collection("usernames")
             .doc("array")
             .update({
-              names: payload.all_usernames
+              names: firebase.firestore.FieldValue.arrayUnion(username)
             });
         })
         .then(() => {
@@ -110,13 +116,22 @@ let store = new vuex.Store({
     },
 
     emailLogin({ commit }, credentials) {
-      let db = firebase.auth();
+      let auth = firebase.auth();
+      let db = firebase.firestore();
 
-      return db
+      return auth
         .signInWithEmailAndPassword(credentials.email, credentials.password)
         .then(result => {
-          commit("setUser", result.user);
-          commit("setAuthentication", true);
+          db.collection("users")
+            .doc(result.user.uid)
+            .get()
+            .then(user => {
+              commit("setUser", {
+                id: result.user.uid,
+                ...user.data()
+              });
+              commit("setAuthentication", true);
+            });
         })
         .catch(error => {
           throw error;
@@ -128,6 +143,7 @@ let store = new vuex.Store({
       let auth = firebase.auth();
       let db = firebase.firestore().collection("users");
       let user;
+      let methods;
       if (authType === "G") {
         provider = new firebase.auth.GoogleAuthProvider();
       } else {
@@ -138,9 +154,7 @@ let store = new vuex.Store({
         .signInWithPopup(provider)
         .then(async result => {
           let displayName;
-          let methods = await auth.fetchSignInMethodsForEmail(
-            result.user.email
-          );
+          methods = await auth.fetchSignInMethodsForEmail(result.user.email);
 
           if (methods.length > 0) {
             await db
@@ -152,28 +166,41 @@ let store = new vuex.Store({
           } else if (result.user.email === "") {
             displayName = "user" + Math.floor(Math.random() * 1000);
           } else {
-            displayName = result.user.email.slice(
-              0,
-              result.user.email.indexOf("@")
-            );
+            displayName = result.user.email
+              .slice(0, result.user.email.indexOf("@"))
+              .toLowerCase();
           }
 
-          user = { username: displayName, user_id: result.user.uid };
+          user = { username: displayName, id: result.user.uid };
 
+          let user_pic;
           if (result.user.photoURL !== "") {
-            user = { profile_pic: result.user.photoURL, ...user };
-            await db.doc(result.user.uid).set({
-              username: displayName,
-              profile_pic: result.user.photoURL
-            });
+            user_pic = result.user.photoURL;
           } else {
-            await db.doc(result.user.uid).set({
-              username: displayName
-            });
+            user_pic = no_profile;
           }
+
+          await db.doc(result.user.uid).set({
+            username: displayName,
+            profile_pic: user_pic,
+            created: firebase.firestore.FieldValue.serverTimestamp()
+          });
+
           commit("setUser", user);
           commit("setAuthentication", true);
           console.log(state.user);
+          return displayName;
+        })
+        .then(displayName => {
+          if (methods.length === 0) {
+            firebase
+              .firestore()
+              .collection("usernames")
+              .doc("array")
+              .update({
+                names: firebase.firestore.FieldValue.arrayUnion(displayName)
+              });
+          }
         })
         .catch(error => {
           if (error.code === "auth/account-exists-with-different-credential") {
@@ -276,7 +303,7 @@ let store = new vuex.Store({
         });
     },
 
-    async upload_list({ commit }, payload) {
+    async upload_list({ commit, dispatch }, payload) {
       let db = firebase.firestore();
 
       let items_no = payload.items.length;
@@ -293,91 +320,120 @@ let store = new vuex.Store({
           created: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(async docRef => {
-          //assign list id to list_key variable. We'd use the id later to update list
-          list_key = docRef.id;
-
           //loops through all items received. Uploads each item as a new document in lists/list id/items collection
           for (let i = 0; i < payload.items.length; i++) {
-            await docRef
-              .collection("items")
-              .add({
-                about: payload.items[i].about,
+            dispatch("add_list_item", {
+              list_id: docRef.id,
+              item: {
                 title: payload.items[i].title,
-                votes: items_no - i,
-                list_id: list_key,
-                comments_count: 0
-              })
-              .then(docRef2 => {
-                item_key = docRef2.id;
-                return item_key;
-              })
-              .then(key => {
-                const fileName = payload.items[i].image.name;
-                const ext = fileName.slice(fileName.lastIndexOf("."));
-                return firebase
-                  .storage()
-                  .ref("item_images/" + key + ext)
-                  .put(payload.items[i].image);
-              })
-              .then(fileData => {
-                return fileData.ref.getDownloadURL();
-              })
-              .then(theUrl => {
-                db.collection("lists")
-                  .doc(list_key)
-                  .collection("items")
-                  .doc(item_key)
-                  .update({
-                    image: theUrl
-                  });
-              })
-              .catch(error => {
-                throw error;
-              });
+                about: payload.items[i].about,
+                votes: payload.items.length - i,
+                image: payload.items[i].image
+              }
+            });
           }
+        })
+        .catch(error => {
+          throw error;
+        });
+    },
+
+    async add_list_item({ commit }, payload) {
+      let item_key = "";
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id);
+
+      await db
+        .collection("items")
+        .add({
+          about: payload.item.about,
+          title: payload.item.title,
+          votes: payload.item.votes,
+          list_id: payload.list_id,
+          comments_count: 0,
+          created: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(docRef2 => {
+          item_key = docRef2.id;
+          return item_key;
+        })
+        .then(key => {
+          const fileName = payload.item.image.name;
+          const ext = fileName.slice(fileName.lastIndexOf("."));
+          return firebase
+            .storage()
+            .ref("item_images/" + key + ext)
+            .put(payload.item.image);
+        })
+        .then(fileData => {
+          return fileData.ref.getDownloadURL();
+        })
+        .then(theUrl => {
+          db.collection("items")
+            .doc(item_key)
+            .update({
+              image: theUrl
+            });
+        })
+        .catch(error => {
+          throw error;
         });
     },
 
     async add_comment({ commit, state }, payload) {
-      if (state.authenticated) {
-        let db = firebase
-          .firestore()
-          .collection("lists")
-          .doc(payload.list_id)
-          .collection("items")
-          .doc(payload.item_id);
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id);
 
-        db.get()
-          .then(async docRef => {
-            db.collection("comments").add({
-              content: payload.comment,
-              user: {
-                id: state.user.user_id,
-                username: state.user.username,
-                profile_pic: state.user.profile_pic
-              },
-              created: firebase.firestore.FieldValue.serverTimestamp(),
-              index: (await docRef.data().comments_count) + 1,
-              likes: 0,
-              replies_count: 0,
-              replies: []
-            });
-          })
-          .then(() => {
-            db.update(
-              "comments_count",
-              firebase.firestore.FieldValue.increment(1)
-            );
-          })
-          .then(() => {
-            console.log("Uploaded");
-          })
-          .catch(error => {
-            console.log(error);
+      let index;
+
+      return db
+        .get()
+        .then(async docRef => {
+          index = docRef.data().comments_count + 1;
+          db.collection("comments").add({
+            content: payload.comment,
+            user: {
+              id: state.user.id,
+              username: state.user.username,
+              profile_pic: state.user.profile_pic
+            },
+            created: firebase.firestore.FieldValue.serverTimestamp(),
+            index: index,
+            likes: 0,
+            replies_count: 0,
+            replies: []
           });
-      } else {
-        swalErrors.showAuthenticationError();
-      }
+        })
+        .then(() => {
+          db.update(
+            "comments_count",
+            firebase.firestore.FieldValue.increment(1)
+          );
+        })
+        .then(() => {
+          console.log("Uploaded");
+          return {
+            content: payload.comment,
+            user: {
+              id: state.user.id,
+              username: state.user.username,
+              profile_pic: state.user.profile_pic
+            },
+            index: index,
+            likes: 0,
+            replies_count: 0,
+            replies: []
+          };
+        })
+        .catch(error => {
+          console.log(error);
+        });
     },
 
     async add_vote({ commit }, payload) {
@@ -407,8 +463,10 @@ let store = new vuex.Store({
     async fetch_comments({ commit }, payload) {
       let db = firebase.firestore();
 
-      if(payload.timestamp === "now"){
-        payload.timestamp = new firebase.firestore.Timestamp.fromDate(new Date());
+      if (payload.timestamp === "now") {
+        payload.timestamp = new firebase.firestore.Timestamp.fromDate(
+          new Date()
+        );
       }
 
       return await db
@@ -432,6 +490,42 @@ let store = new vuex.Store({
         .catch(error => {
           console.log(error);
         });
+    },
+
+    async likeComment({ commit, state }, payload) {
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id);
+
+      await db
+        .update({
+          likes: firebase.firestore.FieldValue.increment(1),
+          likers: firebase.firestore.FieldValue.arrayUnion(state.user.id)
+        })
+        .then(() => {});
+    },
+
+    async dislikeComment({ commit, state }, payload) {
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id);
+
+      await db
+        .update({
+          likes: firebase.firestore.FieldValue.increment(-1),
+          likers: firebase.firestore.FieldValue.arrayRemove(state.user.id)
+        })
+        .then(() => {});
     },
 
     async fetch_complete_list({ commit }, payload) {

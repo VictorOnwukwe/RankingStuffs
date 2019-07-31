@@ -92,5 +92,13 @@ html{
   font-weight: bold;
   font-size: 1em;
 }
+
+.links {
+  color: var(--link);
+  text-decoration: none;
+}
+.links:hover {
+  text-decoration: underline;
+}
 </style>
 

@@ -5,20 +5,26 @@
 
       <p>{{list.created}}</p>
 
-      <Item v-for="item in list.items" :key="item.id" :item="item" :list_id="list.id"></Item>
+      <div v-for="(item, index) in list.items" :key="index">
+        <Item :item="item" :list_id="list.id"></Item>
+        <div class="divide" v-if="index===9">
+        </div>
+      </div>
 
       <div>Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list</div>
 
-      <div class="item animated bounceIn" v-for="(item, index) in items" :key="index">
-        <h3>Item {{list.items.length +1}}</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="items[index].title" />
-        <textarea placeholder="About Item" v-model="items[index].about"></textarea>
+      <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
+          <h3>Item {{list.items.length +index + 1}}</h3>
+          <input type="file" accept="image/*" @change="onFileSelect" />
+          <input placeholder="Item Title" type="text" v-model="items[index].title" />
+          <textarea placeholder="About Item" v-model="items[index].about"></textarea>
       </div>
 
       <div id="plus-button">
         <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
       </div>
+
+      <v-btn @click="upload_item()">Submit</v-btn>
     </div>
   </div>
 </template>
@@ -63,6 +69,30 @@ export default {
       this.items[this.n].image = files[0];
       this.n++;
     },
+
+    addItem() {
+      this.items.push({
+        title: "",
+        about: "",
+        image: undefined
+      });
+
+      setTimeout(() => {
+        window.scrollTo(0, document.querySelector("#main").scrollHeight);
+      }, 1);
+    },
+
+    upload_item() {
+      for (let item of this.items) {
+        this.$store.dispatch("add_list_item", {
+          list_id: this.listID,
+          item: {
+            votes: 1,
+            ...item
+          }
+        });
+      }
+    }
   },
 
   computed: {
@@ -78,22 +108,7 @@ export default {
   },
 
   mounted: async function() {
-    let id = await this.$route.params.id;
-
-    // let index = await this.$store.state.lists.findIndex(list => list.id == id);
-
-    this.$store.dispatch("fetch_complete_list", id);
-
-    // if(index>=0){
-    //     this.list = await this.$store.state.lists[index];
-    //     this.gotList = true;
-    // }else{
-    //     await this.$store.dispatch("fetch_complete_list", id).then(async () => {
-    //         this.list = await this.$store.state.lists[this.$store.state.lists.length - 1];
-    //         this.gotList = true;
-    //     })
-
-    // }
+    this.$store.dispatch("fetch_complete_list", this.$route.params.id);
   }
 };
 </script>
@@ -131,4 +146,12 @@ textarea {
   resize: none;
   height: 10em;
 }
+
+.divide{
+    display: block;
+    height: 1em;
+    background-color: grey;
+    margin-top: 1em;
+}
+
 </style>
