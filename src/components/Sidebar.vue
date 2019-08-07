@@ -2,7 +2,7 @@
   <div id="main">
     <div id="sidebar">
         <div id="trending" class="sidebar-element">
-            <h3>Popular</h3>
+            <h3>Trending</h3>
             <v-divider></v-divider>
             <p>Top ten biggest men in the world</p>
             <p>Top ten biggest men in the world</p>
@@ -12,7 +12,7 @@
         </div>
 
         <div id="latest" class="sidebar-element">
-            <h3>Popular</h3>
+            <h3>Latest</h3>
             <v-divider></v-divider>
             <p>Top ten biggest men in the world</p>
             <p>Top ten biggest men in the world</p>
@@ -21,7 +21,7 @@
             <p>Top ten biggest men in the world</p>
         </div>
 
-        <div id="rending" class="sidebar-element">
+        <div id="trending" class="sidebar-element">
             <h3>Popular</h3>
             <v-divider></v-divider>
             <p>Top ten biggest men in the world</p>
@@ -47,8 +47,6 @@ export default {};
 #sidebar{
     width: 16em;
     height: auto;
-    margin-left: 2em;
-    margin-right: 1em;
 }
 
 #sidebar div+div{

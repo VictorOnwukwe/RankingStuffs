@@ -1,6 +1,6 @@
 <template>
   <div id="main-div">
-    <v-card class="mx-auto mt-4 px-2" flat max-width="500px" color="background">
+    <v-card class="mx-auto px-2 py-4" flat max-width="500px" color="background">
       <v-form v-model="valid" id="form">
         <v-text-field
           v-model="email"
@@ -9,6 +9,7 @@
           label="E-mail"
           required
           color="brand"
+          outline
           clearable
         ></v-text-field>
 
@@ -21,6 +22,7 @@
           type="password"
           required
           color="brand"
+          outline
           clearable
         ></v-text-field>
       </v-form>
@@ -89,9 +91,6 @@ export default {
           .dispatch("emailLogin", {
             email: this.email,
             password: this.password
-          })
-          .then(() => {
-            this.$router.push({ path: "/" });
           })
           .catch(error => {
             this.is_loading = false;

@@ -11,6 +11,8 @@ import swalErrors from "../public/my-modules/swalErrors";
 import { stat } from "fs";
 import { METHODS } from "http";
 
+let moment = require("moment");
+
 Vue.use(vuex);
 
 let no_profile =
@@ -22,8 +24,7 @@ let store = new vuex.Store({
 
     list: {},
 
-    authenticated: false,
-    voted: false
+    authenticated: false
   },
 
   mutations: {
@@ -40,12 +41,44 @@ let store = new vuex.Store({
       console.log("Pushed to list");
     },
 
-    setVoted(state, payload) {
-      state.voted = payload;
+    auth_success(state, payload) {
+      state.user = payload;
+      state.authenticated = true;
     }
   },
 
+  getters: {
+    getAuthenticated: state => {
+      return state.authenticated;
+    },
+    getUser: state => state.user
+  },
+
   actions: {
+    async setState() {
+      let users = firebase.firestore().collection("users");
+      let auth = firebase.auth();
+      auth.onAuthStateChanged(() => {
+        if (auth.currentUser) {
+          users
+            .doc(auth.currentUser.uid)
+            .get()
+            .then(user => {
+              console.log(user.data().username);
+              this.commit("auth_success", {
+                id: auth.currentUser.uid,
+                ...user.data()
+              });
+            });
+        } else {
+          console.log("no user");
+        }
+      });
+    },
+
+    /********************************************************************************************************************/
+    //ALL ABOUT SIGNUP
+
     async emailSignup({ commit }, payload) {
       let auth = firebase.auth();
       let db = firebase.firestore();
@@ -76,13 +109,21 @@ let store = new vuex.Store({
           payload.credentials.email,
           payload.credentials.password
         )
-        .then(result => {
+        .then(async result => {
           db.collection("users")
             .doc(result.user.uid)
             .set({
               username: username,
               profile_pic: no_profile,
-              created: firebase.firestore.FieldValue.serverTimestamp()
+              created: firebase.firestore.FieldValue.serverTimestamp(),
+              favorites_count: 0,
+              created_count: 0
+            })
+            .then(() => {
+              auth.currentUser.updateProfile({
+                displayName: username,
+                photoURL: no_profile
+              });
             });
 
           commit("setUser", {
@@ -117,20 +158,23 @@ let store = new vuex.Store({
 
     emailLogin({ commit }, credentials) {
       let auth = firebase.auth();
-      let db = firebase.firestore();
 
-      return auth
-        .signInWithEmailAndPassword(credentials.email, credentials.password)
-        .then(result => {
-          db.collection("users")
-            .doc(result.user.uid)
-            .get()
-            .then(user => {
+      return firebase
+        .auth()
+        .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+          return auth
+            .signInWithEmailAndPassword(credentials.email, credentials.password)
+            .then(result => {
               commit("setUser", {
                 id: result.user.uid,
-                ...user.data()
+                profile_pic: no_profile,
+                username: result.user.displayName
               });
               commit("setAuthentication", true);
+            })
+            .catch(error => {
+              throw error;
             });
         })
         .catch(error => {
@@ -150,165 +194,190 @@ let store = new vuex.Store({
         provider = new firebase.auth.FacebookAuthProvider();
       }
 
-      return auth
-        .signInWithPopup(provider)
-        .then(async result => {
-          let displayName;
-          methods = await auth.fetchSignInMethodsForEmail(result.user.email);
+      return firebase
+        .auth()
+        .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+        .then(() => {
+          return auth
+            .signInWithPopup(provider)
+            .then(async result => {
+              let displayName;
+              methods = await auth.fetchSignInMethodsForEmail(
+                result.user.email
+              );
 
-          if (methods.length > 0) {
-            await db
-              .doc(result.user.uid)
-              .get()
-              .then(user => {
-                displayName = user.data().username;
-              });
-          } else if (result.user.email === "") {
-            displayName = "user" + Math.floor(Math.random() * 1000);
-          } else {
-            displayName = result.user.email
-              .slice(0, result.user.email.indexOf("@"))
-              .toLowerCase();
-          }
-
-          user = { username: displayName, id: result.user.uid };
-
-          let user_pic;
-          if (result.user.photoURL !== "") {
-            user_pic = result.user.photoURL;
-          } else {
-            user_pic = no_profile;
-          }
-
-          await db.doc(result.user.uid).set({
-            username: displayName,
-            profile_pic: user_pic,
-            created: firebase.firestore.FieldValue.serverTimestamp()
-          });
-
-          commit("setUser", user);
-          commit("setAuthentication", true);
-          console.log(state.user);
-          return displayName;
-        })
-        .then(displayName => {
-          if (methods.length === 0) {
-            firebase
-              .firestore()
-              .collection("usernames")
-              .doc("array")
-              .update({
-                names: firebase.firestore.FieldValue.arrayUnion(displayName)
-              });
-          }
-        })
-        .catch(error => {
-          if (error.code === "auth/account-exists-with-different-credential") {
-            // Step 2.
-            // User's email already exists.
-            // The pending Facebook credential.
-            let pendingCred = error.credential;
-            // The provider account's email address.
-            let email = error.email;
-            // Get sign-in methods for this email.
-            auth.fetchSignInMethodsForEmail(email).then(methods => {
-              // Step 3.
-              // If the user has several sign-in methods,
-              // the first method in the list will be the "recommended" method to use.
-              if (methods[0] === "password" && methods.length <= 1) {
-                // Asks the user their password.
-                // @ts-ignore
-                swal(
-                  "You previously logged in with email and password. Please enter your password",
-                  {
-                    content: {
-                      element: "input",
-                      attributes: {
-                        placeholder: "Enter your password here...",
-                        type: "password"
-                      }
-                    }
-                  }
-                ) // TODO: implement promptUserForPassword.
-                  .then(value => {
-                    console.log(value);
-                    auth
-                      .signInWithEmailAndPassword(email, value)
-                      .then(() => {
-                        // Step 4a.
-                        auth.currentUser.linkWithCredential(pendingCred);
-                      })
-                      .catch(error => {
-                        throw error;
-                      });
+              if (methods.length > 0) {
+                await db
+                  .doc(result.user.uid)
+                  .get()
+                  .then(user => {
+                    displayName = user.data().username;
                   });
-                return;
-              }
-              // All the other cases are external providers.
-              // Construct provider object for that provider.
-              // TODO: implement getProviderForProviderId.
-              let new_provider;
-              let popupMessage;
-
-              if (methods[0] === "google.com") {
-                new_provider = new firebase.auth.GoogleAuthProvider();
-                popupMessage =
-                  "You have already signed up with Google. Do you want to continue?";
-              } else if (methods[0] === "facebook.com") {
-                new_provider = new firebase.auth.FacebookAuthProvider();
-                popupMessage =
-                  "You have already signed up with Facebook. Do you want to continue?";
+              } else if (result.user.email === "") {
+                displayName = "user" + Math.floor(Math.random() * 1000);
+              } else {
+                displayName = result.user.email
+                  .slice(0, result.user.email.indexOf("@"))
+                  .toLowerCase();
               }
 
-              // @ts-ignore
-              Swal.fire({
-                text: popupMessage,
-                type: "question",
-                showConfirmButton: true,
-                confirmButtonText: "YES",
-                showCancelButton: true,
-                cancelButtonText: "NO"
-              }).then(value => {
-                if (value) {
-                  auth
-                    .signInWithPopup(new_provider)
-                    .then(result => {
-                      // Remember that the user may have signed in with an account that has a different email
-                      // address than the first one. This can happen as Firebase doesn't control the provider's
-                      // sign in flow and the user is free to login using whichever account he owns.
-                      // Step 4b.
-                      // Link to Facebook credential.
-                      // As we have access to the pending credential, we can directly call the link method.
-                      result.user.linkWithCredential(pendingCred);
-                    })
-                    .then(() => {
-                      commit("setUser", user);
-                      commit("setAuthentication", true);
-                    })
-                    .catch(error => {
-                      throw error;
-                    });
-                } else {
-                  throw Error("No login");
-                }
+              user = { username: displayName, id: result.user.uid };
+
+              let user_pic;
+              if (result.user.photoURL !== "") {
+                user_pic = result.user.photoURL;
+              } else {
+                user_pic = no_profile;
+              }
+
+              await db.doc(result.user.uid).set({
+                username: displayName,
+                profile_pic: user_pic,
+                created: firebase.firestore.FieldValue.serverTimestamp(),
+                favorites_count: 0,
+                created_count: 0
               });
-              // At this point, you should let the user know that he already has an account
-              // but with a different provider, and let him validate the fact he wants to
-              // sign in with this provider.
-              // Sign in to provider. Note: browsers usually block popup triggered asynchronously,
-              // so in real scenario you should ask the user to click on a "continue" button
-              // that will trigger the signInWithPopup.
+
+              commit("setUser", {
+                profile_pic: user_pic,
+                ...user
+              });
+              commit("setAuthentication", true);
+              console.log(state.user);
+              return displayName;
+            })
+            .then(displayName => {
+              if (methods.length === 0) {
+                firebase
+                  .firestore()
+                  .collection("usernames")
+                  .doc("array")
+                  .update({
+                    names: firebase.firestore.FieldValue.arrayUnion(displayName)
+                  });
+              }
+            })
+            .catch(error => {
+              if (
+                error.code === "auth/account-exists-with-different-credential"
+              ) {
+                // Step 2.
+                // User's email already exists.
+                // The pending Facebook credential.
+                let pendingCred = error.credential;
+                // The provider account's email address.
+                let email = error.email;
+                // Get sign-in methods for this email.
+                auth.fetchSignInMethodsForEmail(email).then(methods => {
+                  // Step 3.
+                  // If the user has several sign-in methods,
+                  // the first method in the list will be the "recommended" method to use.
+                  if (methods[0] === "password" && methods.length <= 1) {
+                    // Asks the user their password.
+                    // @ts-ignore
+                    swal(
+                      "You previously logged in with email and password. Please enter your password",
+                      {
+                        content: {
+                          element: "input",
+                          attributes: {
+                            placeholder: "Enter your password here...",
+                            type: "password"
+                          }
+                        }
+                      }
+                    ) // TODO: implement promptUserForPassword.
+                      .then(value => {
+                        console.log(value);
+                        auth
+                          .signInWithEmailAndPassword(email, value)
+                          .then(() => {
+                            // Step 4a.
+                            auth.currentUser.linkWithCredential(pendingCred);
+                          })
+                          .catch(error => {
+                            throw error;
+                          });
+                      });
+                    return;
+                  }
+                  // All the other cases are external providers.
+                  // Construct provider object for that provider.
+                  // TODO: implement getProviderForProviderId.
+                  let new_provider;
+                  let popupMessage;
+
+                  if (methods[0] === "google.com") {
+                    new_provider = new firebase.auth.GoogleAuthProvider();
+                    popupMessage =
+                      "You have already signed up with Google. Do you want to continue?";
+                  } else if (methods[0] === "facebook.com") {
+                    new_provider = new firebase.auth.FacebookAuthProvider();
+                    popupMessage =
+                      "You have already signed up with Facebook. Do you want to continue?";
+                  }
+
+                  // @ts-ignore
+                  Swal.fire({
+                    text: popupMessage,
+                    type: "question",
+                    showConfirmButton: true,
+                    confirmButtonText: "YES",
+                    showCancelButton: true,
+                    cancelButtonText: "NO"
+                  }).then(value => {
+                    if (value) {
+                      auth
+                        .signInWithPopup(new_provider)
+                        .then(result => {
+                          // Remember that the user may have signed in with an account that has a different email
+                          // address than the first one. This can happen as Firebase doesn't control the provider's
+                          // sign in flow and the user is free to login using whichever account he owns.
+                          // Step 4b.
+                          // Link to Facebook credential.
+                          // As we have access to the pending credential, we can directly call the link method.
+                          result.user.linkWithCredential(pendingCred);
+                        })
+                        .then(() => {
+                          commit("setUser", user);
+                          commit("setAuthentication", true);
+                        })
+                        .catch(error => {
+                          throw error;
+                        });
+                    } else {
+                      throw Error("No login");
+                    }
+                  });
+                  // At this point, you should let the user know that he already has an account
+                  // but with a different provider, and let him validate the fact he wants to
+                  // sign in with this provider.
+                  // Sign in to provider. Note: browsers usually block popup triggered asynchronously,
+                  // so in real scenario you should ask the user to click on a "continue" button
+                  // that will trigger the signInWithPopup.
+                });
+              }
             });
-          }
         });
     },
 
-    async upload_list({ commit, dispatch }, payload) {
+    logout() {
+      firebase
+        .auth()
+        .signOut()
+        .then(() => {
+          console.log("signed out");
+        });
+    },
+
+    /******************************************************************************************************************/
+
+    // ALL ABOUT LIST
+
+    async upload_list({ state, dispatch }, payload) {
       let db = firebase.firestore();
 
       let items_no = payload.items.length;
-      let list_key = "";
-      let item_key = "";
 
       //add list to database
       return db
@@ -317,7 +386,14 @@ let store = new vuex.Store({
           //add title to list
           title: payload.title,
           votes: (items_no * (items_no + 1)) / 2,
-          created: firebase.firestore.FieldValue.serverTimestamp()
+          comments: 0,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          user: {
+            id: state.user.id,
+            username: state.user.username,
+            profile_pic: state.user.profile_pic
+          },
+          voters: [state.user.id]
         })
         .then(async docRef => {
           //loops through all items received. Uploads each item as a new document in lists/list id/items collection
@@ -332,9 +408,102 @@ let store = new vuex.Store({
               }
             });
           }
+          return docRef.id;
+        })
+        .then(list_id => {
+          firebase
+            .firestore()
+            .collection("users")
+            .doc(state.user.id)
+            .collection("created")
+            .add({
+              id: list_id,
+              title: payload.title
+            });
         })
         .catch(error => {
           throw error;
+        });
+    },
+
+    async fetch_complete_list({ commit }, payload) {
+      let db = firebase.firestore();
+      let list = {};
+
+      return db
+        .collection("lists")
+        .doc(payload)
+        .get()
+        .then(doc => {
+          list = {
+            id: doc.id,
+            ...doc.data()
+          };
+        })
+        .then(() => {
+          db.collection("lists")
+            .doc(payload)
+            .collection("items")
+            .orderBy("votes", "desc")
+            .get()
+            .then(querySnapshot => {
+              list.items = querySnapshot.docs.map(doc => {
+                return {
+                  id: doc.id,
+                  ...doc.data()
+                };
+              });
+            })
+            .then(() => {
+              console.log("Fetched!");
+            });
+        })
+        .then(() => {
+          return list;
+        });
+    },
+
+    async fetch_popular() {
+      let lists = firebase.firestore().collection("lists");
+      let date = new firebase.firestore.Timestamp.fromDate(
+        new Date(
+          moment()
+            .subtract(20, "days")
+            .calendar()
+        )
+      );
+
+      return lists
+        .where("votes", ">=", 60)
+        .get()
+        .then(querySnapshot => {
+          return querySnapshot.docs.map(doc => {
+            return {
+              id: doc.id,
+              ...doc.data()
+            };
+          });
+        });
+    },
+
+    async fetch_latest({ commit }, timestamp) {
+      let lists = firebase.firestore().collection("lists");
+
+      if (timestamp === "now") {
+        timestamp = new firebase.firestore.Timestamp.fromDate(new Date());
+      }
+
+      return lists
+        .where("created", "<", timestamp)
+        .orderBy("created", "desc")
+        .get()
+        .then(querySnapshot => {
+          return querySnapshot.docs.map(doc => {
+            return {
+              id: doc.id,
+              ...doc.data()
+            };
+          });
         });
     },
 
@@ -344,6 +513,8 @@ let store = new vuex.Store({
         .firestore()
         .collection("lists")
         .doc(payload.list_id);
+
+      let photoURL;
 
       await db
         .collection("items")
@@ -377,12 +548,60 @@ let store = new vuex.Store({
               image: theUrl
             });
         })
+        .then(() => {
+          db.update({
+            votes: firebase.firestore.FieldValue.increment(payload.votes)
+          });
+        })
         .catch(error => {
           throw error;
         });
     },
 
-    async add_comment({ commit, state }, payload) {
+    add_favorite({ state }, payload) {
+      let user = firebase
+        .firestore()
+        .collection("users")
+        .doc(state.user.id);
+
+      user
+        .collection("favorites")
+        .add({
+          title: payload.list_title,
+          id: payload.list_id,
+          preview_image: payload.preview_image,
+          created: firebase.firestore.FieldValue.serverTimestamp()
+        })
+        .then(() => {
+          user.update({
+            favorites_count: firebase.firestore.FieldValue.increment(1)
+          });
+        });
+    },
+
+    async fetch_user_lists() {
+      console.log("here");
+      return await firebase
+        .firestore()
+        .collection("users")
+        .doc(this.state.user.id)
+        .collection("created")
+        .get()
+        .then(async querySnapshot => {
+          return await querySnapshot.docs.map(doc => {
+            console.log(doc.data());
+            return doc.data();
+          });
+        })
+        .catch(error => {
+          console.log("error: ", error);
+        });
+    },
+
+    /**************************************************************************************************************/
+    //    ALL ABOUT COMMENTS
+
+    async upload_comment({ commit, state }, payload) {
       let db = firebase
         .firestore()
         .collection("lists")
@@ -405,9 +624,7 @@ let store = new vuex.Store({
             },
             created: firebase.firestore.FieldValue.serverTimestamp(),
             index: index,
-            likes: 0,
-            replies_count: 0,
-            replies: []
+            likes: 0
           });
         })
         .then(() => {
@@ -417,7 +634,7 @@ let store = new vuex.Store({
           );
         })
         .then(() => {
-          console.log("Uploaded");
+          console.log("Comment Uploaded");
           return {
             content: payload.comment,
             user: {
@@ -426,37 +643,11 @@ let store = new vuex.Store({
               profile_pic: state.user.profile_pic
             },
             index: index,
-            likes: 0,
-            replies_count: 0,
-            replies: []
+            likes: 0
           };
         })
         .catch(error => {
           console.log(error);
-        });
-    },
-
-    async add_vote({ commit }, payload) {
-      let db = firebase.firestore();
-      let item = firebase
-        .firestore()
-        .collection("lists")
-        .doc(payload.list_id)
-        .collection("items")
-        .doc(payload.item_id);
-
-      item
-        .update("votes", firebase.firestore.FieldValue.increment(1))
-        .then(() => {
-          commit("setVoted", true);
-        })
-        .then(() => {
-          db.collection("lists")
-            .doc(payload.list_id)
-            .collection("voters")
-            .add({
-              username: this.state.user.username
-            });
         });
     },
 
@@ -510,7 +701,7 @@ let store = new vuex.Store({
         .then(() => {});
     },
 
-    async dislikeComment({ commit, state }, payload) {
+    async unlikeComment({ commit, state }, payload) {
       let db = firebase
         .firestore()
         .collection("lists")
@@ -528,40 +719,196 @@ let store = new vuex.Store({
         .then(() => {});
     },
 
-    async fetch_complete_list({ commit }, payload) {
-      let db = firebase.firestore();
-      let list = {};
-
-      return db
+    async upload_reply({ commit, state }, payload) {
+      let item = firebase
+        .firestore()
         .collection("lists")
-        .doc(payload)
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id);
+
+      let comment = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id);
+
+      let index;
+
+      return comment
         .get()
-        .then(doc => {
-          list = {
-            id: doc.id,
-            ...doc.data()
-          };
+        .then(result => {
+          if (result.data().replies_count) {
+            index = result.data().replies_count + 1;
+          } else {
+            index = 1;
+          }
         })
         .then(() => {
-          db.collection("lists")
-            .doc(payload)
-            .collection("items")
-            .orderBy("votes", "desc")
-            .get()
-            .then(querySnapshot => {
-              list.items = querySnapshot.docs.map(doc => {
-                return {
-                  id: doc.id,
-                  ...doc.data()
-                };
-              });
+          comment
+            .collection("replies")
+            .add({
+              content: payload.reply,
+              user: {
+                profile_pic: state.user.profile_pic,
+                username: state.user.username
+              },
+              created: firebase.firestore.FieldValue.serverTimestamp(),
+              index: index
             })
             .then(() => {
-              commit("setLists", list);
-              console.log("Fetched!");
+              comment.update({
+                replies_count: firebase.firestore.FieldValue.increment(1)
+              });
             });
+        })
+        .then(() => {
+          console.log("Reply uploaded");
+          return {
+            content: payload.reply,
+            user: {
+              id: state.user.id,
+              username: state.user.username,
+              profile_pic: state.user.profile_pic
+            },
+            index: index,
+            likes: 0
+          };
         });
     },
+
+    fetchReplies({ commit }, payload) {
+      if (payload.timestamp === "now") {
+        payload.timestamp = new firebase.firestore.Timestamp.fromDate(
+          new Date()
+        );
+      }
+
+      let replies = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id)
+        .collection("replies");
+
+      return replies
+        .where("created", "<", payload.timestamp)
+        .orderBy("created", "desc")
+        .limit(payload.num)
+        .get()
+        .then(querySnapshot => {
+          return querySnapshot.docs.map(doc => {
+            return {
+              id: doc.id,
+              ...doc.data()
+            };
+          });
+        });
+    },
+
+    async likeReply({ commit, state }, payload) {
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id)
+        .collection("replies")
+        .doc(payload.reply_id);
+
+      await db
+        .update({
+          likes: firebase.firestore.FieldValue.increment(1),
+          likers: firebase.firestore.FieldValue.arrayUnion(state.user.id)
+        })
+        .then(() => {});
+    },
+
+    async unlikeReply({ state }, payload) {
+      let db = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id)
+        .collection("replies")
+        .doc(payload.reply_id);
+
+      await db
+        .update({
+          likes: firebase.firestore.FieldValue.increment(-1),
+          likers: firebase.firestore.FieldValue.arrayRemove(state.user.id)
+        })
+        .then(() => {});
+    },
+
+    /********************************************************************************************************************/
+    //     ALL ABOUT VOTES
+
+    async add_vote({ commit, state }, payload) {
+      let list = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id);
+
+      let item = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id);
+
+      item
+        .update({
+          votes: firebase.firestore.FieldValue.increment(1),
+          voters: firebase.firestore.FieldValue.arrayUnion(state.user.id)
+        })
+        .then(() => {
+          list.update({
+            votes: firebase.firestore.FieldValue.increment(1),
+            voters: firebase.firestore.FieldValue.arrayUnion(state.user.id)
+          });
+        });
+    },
+
+    async remove_vote({ commit, state }, payload) {
+      let list = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id);
+
+      let item = firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id);
+
+      item
+        .update({
+          votes: firebase.firestore.FieldValue.increment(-1),
+          voters: firebase.firestore.FieldValue.arrayRemove(state.user.id)
+        })
+        .then(() => {
+          list.update({
+            votes: firebase.firestore.FieldValue.increment(-1),
+            voters: firebase.firestore.FieldValue.arrayRemove(state.user.id)
+          });
+        });
+    },
+
+    /*****************************************************************************************************************/
+    //    ALL ABOUT USERNAME
 
     fetch_all_usernames({ commit }) {
       let db = firebase.firestore();

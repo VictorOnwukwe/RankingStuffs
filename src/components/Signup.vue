@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card class="mx-auto mt-4 px-2" max-width="500px" flat color="background">
+    <v-card class="mx-auto px-2 py-4" max-width="500px" flat color="background">
       <v-form id="form" v-model="valid">
         <v-text-field
           v-model="email"
@@ -9,6 +9,8 @@
           required
           color="brand"
           validate-on-blur
+          outline
+          clearable
         ></v-text-field>
 
         <v-text-field
@@ -18,6 +20,8 @@
           color="brand"
           @focus="getUsernames()"
           :rules="username_rules"
+          outline
+          clearable
         ></v-text-field>
 
         <v-text-field
@@ -29,6 +33,8 @@
           validate-on-blur
           required
           color="brand"
+          outline
+          clearable
         ></v-text-field>
       </v-form>
 
@@ -58,7 +64,7 @@
         </v-flex>
       </v-layout>
 
-      <v-btn @click="testSwal()">Test swal</v-btn>
+      <!-- <v-btn @click="testSwal()">Test swal</v-btn> -->
 
       <p>
         <br />Already a member?
@@ -133,12 +139,9 @@ export default {
             credentials: {
               email: this.email,
               password: this.password,
-              username: this.username.toLowerCase()
+              username: this.username.toLowerCase().replace(/\s/g, '')
             },
             all_usernames: this.usernames
-          })
-          .then(() => {
-            this.$router.go(-1);
           })
           .catch(error => {
             this.is_loading = false;
@@ -184,9 +187,6 @@ export default {
     async socialSignup(type) {
       this.$store
         .dispatch("socialLogin", type)
-        .then(() => {
-          this.$router.push(-1);
-        })
         .catch(error => {
           swal("Signup Unsuccessful", {
             icon: "error"

@@ -1,23 +1,30 @@
 <template>
   <div>
-    <div id="container">
+    <div v-if="fetched" id="container">
+      <div style="position:relative">
       <h2>{{list.title}}</h2>
-
-      <p>{{list.created}}</p>
-
-      <div v-for="(item, index) in list.items" :key="index">
-        <Item :item="item" :list_id="list.id"></Item>
-        <div class="divide" v-if="index===9">
-        </div>
+      <v-icon class="dots">mdi-dots-vertical</v-icon>
+      <div class="list-menu">
+        <button @click="favoriteList()">Favorite</button>
+        <button @click="favoriteList()">Report</button>
+      </div>
       </div>
 
-      <div>Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list</div>
+      <div v-for="(item, index) in list.items" :key="index">
+        <Item :item="item" :list="list"></Item>
+        <div class="divide" v-if="index===9"></div>
+      </div>
+
+      <div style="margin-top:2em">Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list.</div>
 
       <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
-          <h3>Item {{list.items.length +index + 1}}</h3>
-          <input type="file" accept="image/*" @change="onFileSelect" />
-          <input placeholder="Item Title" type="text" v-model="items[index].title" />
-          <textarea placeholder="About Item" v-model="items[index].about"></textarea>
+        <div class="close-container" v-if="index>0 || items.length>1" @click="deleteItem(index)">
+          <v-icon class="close-button" size="18">mdi-close</v-icon>
+        </div>
+        <h3>Item {{list.items.length +index + 1}}</h3>
+        <input type="file" accept="image/*" @change="onFileSelect" />
+        <input placeholder="Item Title" type="text" v-model="items[index].title" />
+        <textarea placeholder="Tell your viewers why you placed this item here" v-model="items[index].about"></textarea>
       </div>
 
       <div id="plus-button">
@@ -40,6 +47,7 @@ export default {
   data() {
     return {
       index: null,
+      list: null,
       items: [
         {
           title: "",
@@ -47,13 +55,12 @@ export default {
           image: undefined
         }
       ],
+      fetched: false,
       n: 0
     };
   },
 
   methods: {
-    fetchList() {},
-
     onFileSelect(event) {
       const files = event.target.files;
       let fileName = files[0].name;
@@ -92,6 +99,31 @@ export default {
           }
         });
       }
+    },
+
+    async fetchList() {
+      await this.$store
+        .dispatch("fetch_complete_list", this.$route.params.id)
+        .then(list => {
+          this.list = list;
+          setTimeout(() => {
+            this.fetched = true;
+          }, 1000);
+        }).catch(error => {
+          console.log(error);
+        })
+    },
+
+    async favoriteList(){
+      this.$store.dispatch("add_favorite", {
+        list_id: this.listID,
+        list_title: this.list.title,
+        preview_image: this.list.items[0].image
+      })
+    },
+
+    deleteItem(index){
+      this.items.splice(index,1);
     }
   },
 
@@ -101,14 +133,11 @@ export default {
     },
     getDate() {
       return this.list.created.toDate();
-    },
-    list() {
-      return this.$store.state.list;
     }
   },
 
   mounted: async function() {
-    this.$store.dispatch("fetch_complete_list", this.$route.params.id);
+    this.fetchList();
   }
 };
 </script>
@@ -129,6 +158,7 @@ export default {
 }
 
 .item {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   margin-top: 2em;
@@ -147,11 +177,55 @@ textarea {
   height: 10em;
 }
 
-.divide{
-    display: block;
-    height: 1em;
-    background-color: grey;
-    margin-top: 1em;
+.divide {
+  display: block;
+  height: 1em;
+  background-color: grey;
+  margin-top: 1em;
 }
 
+.close-container{
+  display:none;
+}
+.item:hover .close-container{
+  display: block;
+}
+.close-button{
+  position: absolute;
+  right: 3px;
+  top: 7px
+}
+.close-button:hover{
+  color: rgb(172, 5, 5);
+  cursor: pointer;
+}
+
+.dots{
+  position: absolute;
+  top: 3px;
+  right: 0px;
+  border-radius: 50%;
+  color: black;
+  padding: 3px;
+}
+.dots:hover{
+  background-color: white;
+  cursor: pointer;
+}
+
+.list-menu{
+  position: absolute;
+  right: 0px;
+  top: 38px;
+  z-index: 2;
+}
+.list-menu button{
+  display: block;
+  background-color: grey;
+  padding: 0.8em 4em;
+  transition: all 0.1s linear;
+}
+.list-menu button:hover{
+  transform: translateX(3px)
+}
 </style>

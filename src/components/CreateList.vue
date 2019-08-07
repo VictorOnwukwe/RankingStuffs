@@ -7,6 +7,9 @@
       </div>
 
       <div class="item animated bounceIn" v-for="(item, index) in list.items" :key="index">
+        <div class="close-container" v-if="index>0||list.items.length>1" @click="deleteItem(index)">
+          <v-icon class="close-button">mdi-close</v-icon>
+        </div>
         <h3>Item {{index + 1}}</h3>
         <input type="file" accept="image/*" @change="onFileSelect" />
         <input placeholder="Item Title" type="text" v-model="list.items[index].title" />
@@ -38,8 +41,6 @@ export default {
           }
         ]
       },
-
-      imageUrl: null,
       n: 0
     };
   },
@@ -52,9 +53,11 @@ export default {
         return alert("Invalid File Selected...");
       }
 
+      let imageUrl;
+
       const fileReader = new FileReader();
       fileReader.addEventListener("load", () => {
-        this.imageUrl = fileReader.result;
+        imageUrl = fileReader.result;
       });
       fileReader.readAsDataURL(files[0]);
       this.list.items[this.n].image = files[0];
@@ -87,6 +90,10 @@ export default {
         setTimeout(() => {
           window.scrollTo(0,document.querySelector('#main').scrollHeight);
         }, 1);
+    },
+
+    deleteItem(index){
+      this.list.items.splice(index,1);
     }
   }
 };
@@ -107,6 +114,7 @@ textarea {
 }
 
 .item {
+  position: relative;
   display: grid;
   grid-template-columns: 1fr;
   margin-top: 2em;
@@ -116,5 +124,20 @@ textarea {
   display: flex;
   margin: 1em 0;
   justify-content: center;
+}
+
+.close-container{
+  display:none;
+}
+.item:hover .close-container{
+  display: block;
+}
+.close-button{
+  position: absolute;
+  right: 2px;
+}
+.close-button:hover{
+  color: rgb(172, 5, 5);
+  cursor: pointer;
 }
 </style>

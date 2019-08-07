@@ -9,11 +9,13 @@ import Signup from "../components/Signup";
 // @ts-ignore
 import Profile from "../components/Profile";
 // @ts-ignore
-import Create from "../components/Create";
+import CreateList from "../components/CreateList";
 // @ts-ignore
 import DisplayList from "../components/DisplayList";
 // @ts-ignore
-// import Item from "../components/Item";
+import PopularLists from "../components/PopularLists";
+// @ts-ignore
+import LatestLists from "../components/LatestLists";
 
 Vue.use(Router);
 
@@ -37,11 +39,19 @@ export default new Router({
     },
     {
       path: "/create",
-      component: Create
+      component: CreateList
     },
     {
       path: "/lists/:id",
       component: DisplayList
+    },
+    {
+      path: "/popular-lists",
+      component: PopularLists
+    },
+    {
+      path: "/latest-lists",
+      component: LatestLists
     }
   ]
 });

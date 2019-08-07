@@ -10,6 +10,7 @@ import firebase from "firebase/app";
 import store from "./store";
 import swal from "sweetalert";
 import Swal from "sweetalert2";
+import autosize from "autosize";
 
 window.Swal = Swal;
 
@@ -48,5 +49,6 @@ new Vue({
     // Initialize Firebase
     // @ts-ignore
     firebase.initializeApp(firebaseConfig);
+    store.dispatch("setState");
   }
 }).$mount("#app");

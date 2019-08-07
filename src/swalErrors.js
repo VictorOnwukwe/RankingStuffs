@@ -1,10 +1,11 @@
 import Swal from "sweetalert2";
+import router from "./routers/router-main";
 
 let functions = {
-  showAuthenticationError: function(isLoggedIn) {
-    if (isLoggedIn) {
-      return;
-    }
+  showAuthenticationError: function() {
+    // if (isLoggedIn) {
+    //   return;
+    // }
     const Toast = Swal.mixin({
       toast: true,
       position: "top",
@@ -28,11 +29,11 @@ let functions = {
         const signup = $("#signup");
 
         login.addEventListener("click", function() {
-          this.$router.push({ path: "/login" });
+          router.push({ path: "/login" });
         });
 
         signup.addEventListener("click", function() {
-          this.$router.push({ path: "/signup" });
+          router.push({ path: "/signup" });
         });
       }
     });

@@ -1,11 +1,12 @@
 <template>
   <div id="main">
-  <v-app id="body">
-    <toolbar></toolbar>
-    <div id="router-view">
-      <router-view></router-view>
-    </div>
-  </v-app>
+    <v-app id="body">
+      <toolbar></toolbar>
+      <div id="view-container">
+        <router-view id="router-view"></router-view>
+        <Sidebar id="sidebar"></Sidebar>
+      </div>
+    </v-app>
   </div>
 </template>
 
@@ -27,16 +28,18 @@ export default {
     return {
       //
     };
+  },
+
+  created: function() {
+    // this.$store.dispatch("setState");
   }
 };
 </script>
 
 <style>
-</style>
-<style>
 :root {
   box-sizing: border-box;
-  --primary: #F9F9FA;
+  --primary: #f9f9fa;
   --text-secondary: #757575;
   --dark-text: #21242f;
   --accent: #a70932;
@@ -44,18 +47,27 @@ export default {
   --background-color: #f4f4f4;
   --link: #0060ac;
   --button: #0060ac;
+  --brand: #60aaea;
 
   --border-radius: 0.3em;
   font-size: 0.75em !important;
 }
 
-html{
+h1,
+h2,
+h3,
+p,
+span {
+  color: var(--dark-text);
+}
+
+html {
   scroll-behavior: smooth;
 }
 
 @media (min-width: 30em) {
   :root {
-    font-size: 1em !important;
+    font-size: 0.9em !important;
   }
 }
 
@@ -69,9 +81,19 @@ html{
   background-color: var(--background-color);
   height: auto;
 }
+#view-container{
+  padding: 0.5em;
+}
 
-#router-view {
-  padding: 1em 2em;
+@media (min-width: 30em) {
+  #view-container {
+    padding: 1em 1em;
+    display: flex;
+  }
+}
+
+#router-view{
+  flex-grow: 1;
 }
 
 .alert-button {
@@ -83,12 +105,12 @@ html{
   box-shadow: 0px 2px 2px black;
 }
 
-.alert-button:hover{
+.alert-button:hover {
   filter: brightness(110%);
 }
 
-.alert-font{
-  font-family: 'Roboto', sans-serif;
+.alert-font {
+  font-family: "Roboto", sans-serif;
   font-weight: bold;
   font-size: 1em;
 }
@@ -99,6 +121,18 @@ html{
 }
 .links:hover {
   text-decoration: underline;
+}
+
+#sidebar{
+  display: none;
+  margin-left: 0.5em;
+  margin-right: 0.5em;
+}
+
+@media (min-width: 42.5em){
+  #sidebar{
+    display: block;
+  }
 }
 </style>
 
