@@ -1,65 +1,22 @@
 <template>
-  <div>
-    <div id="brand-header" class="brand">
-      <h1 @click="goHome()" class="primary--text">Naija Top Ten</h1>
-      <div id="search" class="primary">
-        <input type="text" placeholder="Search..." />
-        <v-icon>mdi-magnify</v-icon>
-      </div>
-    </div>
-    <!-- <v-toolbar color="primary">
-      <v-toolbar-items>
-        <div class="center">
-          <a href="#" class="link--text">Newest</a>
-          <a href="#" class="link--text">Suggest List</a>
-        </div>
-      </v-toolbar-items>
-      <v-spacer></v-spacer>
-      <v-toolbar-items>
-        <div class="flex center">
-          <a @click="goLogin()" class="dark_text--text">Login</a>
-          <a @click="goSignup()" class="dark_text--text">Sign up</a>
-        </div>
-      </v-toolbar-items>
-    </v-toolbar>-->
+  <div class="affix">
+  <div id="main">
 
     <div id="navbar-container">
       <div id="navbar">
         <div>
-          <a @click="goPopular()" class="link--text">Popular</a>
-          <a @click="goLatest()" class="link--text">Latest</a>
+          <a @click="goPopular()" class="">Popular</a>
+          <a @click="goLatest()" class="">Latest</a>
+          <a @click="goLatest()" class="">On Demand</a>
         </div>
 
         <div>
-          <a @click="goCreate()" class="link--text">Create List</a>
-          <a @click="goList()" class="link--text">Test List</a>
-        </div>
-
-        <div style="display:flex">
-          <div v-if="!authenticated">
-            <a @click="login_dialog=!login_dialog" class="dark_text--text">Login</a>
-            <a @click="signup_dialog=!signup_dialog" class="dark_text--text">Sign up</a>
-          </div>
-          <div class="user-details" v-if="authenticated">
-            <v-avatar size="24" @click="goUserProfile()">
-              <img :src="user.profile_pic" />
-            </v-avatar>
-            <!-- <a @click="goUserProfile()" class="links" style="color:dark_text">{{user.username}}</a> -->
-          </div>
-          <div v-if="authenticated">
-            <a @click="logout()" class="dark_text--text">Logout</a>
-          </div>
+          <a @click="goCreate()" class="">Create List</a>
+          <a @click="goList()" class="">Test List</a>
         </div>
       </div>
-      <v-dialog v-if="!authenticated" v-model="login_dialog" max-width="500px">
-        <Login></Login>
-      </v-dialog>
-
-      <v-dialog v-if="!authenticated" v-model="signup_dialog" max-width="500px">
-        <Signup></Signup>
-      </v-dialog>
-      
     </div>
+  </div>
   </div>
 </template>
 
@@ -80,9 +37,6 @@ export default {
   },
 
   methods: {
-    goLogin() {
-      this.$router.push({ path: "/login" });
-    },
 
     goPopular() {
       this.$router.push({ path: "/popular-lists" });
@@ -90,10 +44,6 @@ export default {
 
     goLatest() {
       this.$router.push({ path: "/latest-lists" });
-    },
-
-    goSignup() {
-      this.$router.push({ path: "/signup" });
     },
 
     goHome() {
@@ -128,6 +78,20 @@ export default {
 </script>
 
 <style scoped>
+.affix{
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+#main{
+  width: calc(100% + 2em);
+}
+div>a{
+  padding-bottom: 0.2em;
+}
+div>a:hover{
+  border-bottom: 5px solid var(--brand);
+}
 #brand-header {
   padding: 0.6em;
   position: relative;
@@ -160,15 +124,17 @@ div.flex {
 
 #navbar-container {
   padding: 0.9em 1.2em;
-  box-shadow: 0px 3px 5px darkgrey;
-  background-color: var(--primary);
+  /* box-shadow: 0px 3px 5px darkgrey; */
+  background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99));
+  height: 50px;
+  border-bottom: 5px solid var(--brand);
 }
 #navbar {
   display: flex;
   max-width: 1080px;
   margin: 0 auto;
   align-items: center;
-  justify-content: space-between;
+  justify-content: space-around;
 }
 
 a {

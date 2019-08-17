@@ -3,36 +3,33 @@ import Vue from "vue";
 import "./plugins/vuetify";
 // @ts-ignore
 import App from "./App.vue";
-import Vuetify from "vuetify";
+import vuetify from "./plugins/vuetify";
 import router from "./routers/router-main";
 // import 'material-design-icons-iconfont/dist/material-design-icons.css';
 import firebase from "firebase/app";
 import store from "./store";
-import swal from "sweetalert";
 import Swal from "sweetalert2";
 import autosize from "autosize";
+import anime from "animejs/lib/anime.es.js";
+import OverlayScrollbars from "os-vue";
 
-window.Swal = Swal;
+import VueGlide from "vue-glide-js";
+// import "vue-glide-js/dist/vue-glide.css";
+
+// window.Swal = Swal;
 
 Vue.config.productionTip = false;
 
-Vue.use(Vuetify, {
-  theme: {
-    primary: '#F9F9FA',
-    brand: '#60aaea',
-    form: '#60aaea',
-    accent: '#a70932',
-    background: '#f4f4f4',
-    dark_text: '#21242f',
-    link: '#0060AC',
-    button: '#0060AC'
-  }
-}, Swal);
+Vue.use(
+  VueGlide,
+  OverlayScrollbars
+);
 
 // @ts-ignore
 new Vue({
   store,
   router,
+  vuetify,
   render: h => h(App),
 
   created: function() {
@@ -49,6 +46,5 @@ new Vue({
     // Initialize Firebase
     // @ts-ignore
     firebase.initializeApp(firebaseConfig);
-    store.dispatch("setState");
   }
 }).$mount("#app");

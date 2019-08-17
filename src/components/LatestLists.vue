@@ -1,18 +1,16 @@
 <template>
     <div>
-        <PreviewList
-            v-for="list in lists"
-            :key="list.id"
-            :list="list"
-        ></PreviewList>
+        <div v-if="lists.length>0">
+            <DisplayPreviews :lists="lists"></DisplayPreviews>
+        </div>
     </div>
 </template>
 
 <script>
-import PreviewList from "./PreviewList";
+import DisplayPreviews from "./DisplayPreviews";
 export default {
     components: {
-        PreviewList
+        DisplayPreviews
     },
     data(){
         return {
@@ -21,14 +19,17 @@ export default {
     },
 
     methods: {
-        fetchLists(timestamp){
-            this.$store.dispatch("fetch_latest",timestamp).then(lists => {
+        fetchLists(timestamp, limit){
+            this.$store.dispatch("fetch_latest",{
+                timestamp: timestamp,
+                limit: limit
+            }).then(lists => {
                 this.lists = lists;
             })
         }
     },
     created: function(){
-        this.fetchLists("now");
+        this.fetchLists("now", 20);
     }
 }
 </script>

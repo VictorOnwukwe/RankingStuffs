@@ -16,10 +16,10 @@
         <v-text-field
           v-model="username"
           label="Username"
-          validate-on-blur
           color="brand"
-          @focus="getUsernames()"
-          :rules="username_rules"
+          :rules="[usernameRules]"
+          validate-on-blur
+          @blur="checkUsername()"
           outline
           clearable
         ></v-text-field>
@@ -76,6 +76,7 @@
 
 <script>
 import Rules from "../rules";
+import { setTimeout } from "timers";
 
 export default {
   data() {
@@ -87,24 +88,17 @@ export default {
       valid: false,
       rules: Rules,
       is_loading: false,
-      usernames: [],
-      username_rules: [
-        v =>
-          !this.usernames.includes(v) ||
-          "Sorry. This username is already taken",
-
-        v =>
-          v == "" ||
-          v.length >= 3 ||
-          "Sorry. Username must have at least three characters"
-      ],
-      fetched_usernames: false
+      usernameValid: true
     };
   },
 
   methods: {
-    async getUsernames(){
-     this.usernames = await this.$store.dispatch("fetch_all_usernames")
+    usernameRules(username) {
+        if (username == "" || username.length < 3 || this.usernameValid) {
+          return true;
+        } else {
+          return "Sorry. This username is already taken...";
+        }
     },
     testSwal() {
       const Toast = Swal.mixin({
@@ -115,9 +109,10 @@ export default {
       });
 
       Toast.fire({
-        type: 'error',
-        html: '<div style="margin-left:8px" class="alert-font">Incorrect Password. Please check your password</div>',
-        background: 'primary'
+        type: "error",
+        html:
+          '<div style="margin-left:8px" class="alert-font">Incorrect Password. Please check your password</div>',
+        background: "primary"
       });
     },
 
@@ -136,12 +131,9 @@ export default {
 
         await this.$store
           .dispatch("emailSignup", {
-            credentials: {
-              email: this.email,
-              password: this.password,
-              username: this.username.toLowerCase().replace(/\s/g, '')
-            },
-            all_usernames: this.usernames
+            email: this.email,
+            password: this.password,
+            username: this.username.toLowerCase().replace(/\s/g, "")
           })
           .catch(error => {
             this.is_loading = false;
@@ -185,15 +177,20 @@ export default {
     },
 
     async socialSignup(type) {
-      this.$store
-        .dispatch("socialLogin", type)
-        .catch(error => {
-          swal("Signup Unsuccessful", {
-            icon: "error"
-          });
+      this.$store.dispatch("socialLogin", type).catch(error => {
+        swal("Signup Unsuccessful", {
+          icon: "error"
         });
+      });
+    },
+
+    async checkUsername() {
+      await this.$store.dispatch("username_valid", this.username).then(a => {
+        this.usernameValid = a;
+      })
     }
-  }
+  },
+  computed: {}
 };
 </script>
 

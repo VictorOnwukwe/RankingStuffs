@@ -1,24 +1,28 @@
 <template>
   <div id="main">
     <v-app id="body">
+      <User></User>
       <toolbar></toolbar>
       <div id="view-container">
         <router-view id="router-view"></router-view>
-        <Sidebar id="sidebar"></Sidebar>
       </div>
+      <!-- <Footer></Footer> -->
     </v-app>
   </div>
 </template>
 
 <script>
 import Home from "./components/Home";
+import User from "./components/User";
 import Toolbar from "./components/Toolbar";
 import Sidebar from "./components/Sidebar";
 import Footer from "./components/Footer";
+import { setTimeout } from 'timers';
 
 export default {
   name: "App",
   components: {
+    User,
     Home,
     Toolbar,
     Sidebar,
@@ -26,12 +30,18 @@ export default {
   },
   data() {
     return {
-      //
+      sidebar: null
     };
   },
 
-  created: function() {
-    // this.$store.dispatch("setState");
+  computed: {
+    showSidebar(){
+      return this.$store.getters.getSidebar;
+    }
+  },
+
+  mounted: function() {
+    
   }
 };
 </script>
@@ -42,12 +52,12 @@ export default {
   --primary: #f9f9fa;
   --text-secondary: #757575;
   --dark-text: #21242f;
-  --accent: #a70932;
+  --accent: #082f63;
   --divider: #bdbdbd;
   --background-color: #f4f4f4;
   --link: #0060ac;
   --button: #0060ac;
-  --brand: #60aaea;
+  --brand: #c8c803;
 
   --border-radius: 0.3em;
   font-size: 0.75em !important;
@@ -82,7 +92,7 @@ html {
   height: auto;
 }
 #view-container{
-  padding: 0.5em;
+  padding: 1em;
 }
 
 @media (min-width: 30em) {

@@ -2,7 +2,7 @@
   <div>
     <v-layout>
       <v-flex xs12 mt-3>
-        <v-card class="pa-0">
+        <v-card class="pa-0" color="#262F3B">
           <v-card-title primary-title>
             <v-layout>
               <v-flex xs-2>

@@ -16,6 +16,8 @@ import DisplayList from "../components/DisplayList";
 import PopularLists from "../components/PopularLists";
 // @ts-ignore
 import LatestLists from "../components/LatestLists";
+// @ts-ignore
+import HomeDisplay from "../components/HomeDisplay";
 
 Vue.use(Router);
 
@@ -23,7 +25,21 @@ export default new Router({
   routes: [
     {
       path: "/",
-      component: Home
+      component: Home,
+      children: [
+        {
+          path: "",
+          component: HomeDisplay
+        },
+        {
+          path: "/popular-lists",
+          component: PopularLists
+        },
+        {
+          path: "/latest-lists",
+          component: LatestLists
+        }
+      ]
     },
     {
       path: "/login",
@@ -44,14 +60,6 @@ export default new Router({
     {
       path: "/lists/:id",
       component: DisplayList
-    },
-    {
-      path: "/popular-lists",
-      component: PopularLists
-    },
-    {
-      path: "/latest-lists",
-      component: LatestLists
     }
   ]
 });

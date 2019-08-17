@@ -1,37 +1,47 @@
 <template>
   <div>
-    <div v-if="fetched" id="container">
-      <div style="position:relative">
-      <h2>{{list.title}}</h2>
-      <v-icon class="dots">mdi-dots-vertical</v-icon>
-      <div class="list-menu">
-        <button @click="favoriteList()">Favorite</button>
-        <button @click="favoriteList()">Report</button>
+    <div style="display:flex;">
+      <div>
+        <Sidebar></Sidebar>
       </div>
-      </div>
-
-      <div v-for="(item, index) in list.items" :key="index">
-        <Item :item="item" :list="list"></Item>
-        <div class="divide" v-if="index===9"></div>
-      </div>
-
-      <div style="margin-top:2em">Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list.</div>
-
-      <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
-        <div class="close-container" v-if="index>0 || items.length>1" @click="deleteItem(index)">
-          <v-icon class="close-button" size="18">mdi-close</v-icon>
+      <div v-if="fetched" id="container">
+        <div style="position:relative">
+          <h2 class="primary--text">{{list.title}}</h2>
+          <v-icon class="dots">mdi-dots-vertical</v-icon>
+          <div class="list-menu">
+            <button @click="favoriteList()">Favorite</button>
+            <button @click="favoriteList()">Report</button>
+          </div>
         </div>
-        <h3>Item {{list.items.length +index + 1}}</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" />
-        <input placeholder="Item Title" type="text" v-model="items[index].title" />
-        <textarea placeholder="Tell your viewers why you placed this item here" v-model="items[index].about"></textarea>
-      </div>
 
-      <div id="plus-button">
-        <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
-      </div>
+        <div v-for="(item, index) in list.items" :key="index">
+          <Item :item="item" :list="list"></Item>
+          <div class="divide" v-if="index===9"></div>
+        </div>
 
-      <v-btn @click="upload_item()">Submit</v-btn>
+        <div
+          style="margin-top:2em"
+        >Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list.</div>
+
+        <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
+          <div class="close-container" v-if="index>0 || items.length>1" @click="deleteItem(index)">
+            <v-icon class="close-button" size="18">mdi-close</v-icon>
+          </div>
+          <h3>Item {{list.items.length +index + 1}}</h3>
+          <input type="file" accept="image/*" @change="onFileSelect" />
+          <input placeholder="Item Title" type="text" v-model="items[index].title" />
+          <textarea
+            placeholder="Tell your viewers why you placed this item here"
+            v-model="items[index].about"
+          ></textarea>
+        </div>
+
+        <div id="plus-button">
+          <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
+        </div>
+
+        <v-btn @click="upload_item()">Submit</v-btn>
+      </div>
     </div>
   </div>
 </template>
@@ -39,10 +49,12 @@
 <script>
 import { setTimeout } from "timers";
 import Item from "./Item";
+import Sidebar from "./Sidebar";
 
 export default {
   components: {
-    Item
+    Item,
+    Sidebar
   },
   data() {
     return {
@@ -107,23 +119,25 @@ export default {
         .then(list => {
           this.list = list;
           setTimeout(() => {
+            console.log("fetched");
             this.fetched = true;
           }, 1000);
-        }).catch(error => {
-          console.log(error);
         })
+        .catch(error => {
+          console.log(error);
+        });
     },
 
-    async favoriteList(){
+    async favoriteList() {
       this.$store.dispatch("add_favorite", {
         list_id: this.listID,
         list_title: this.list.title,
         preview_image: this.list.items[0].image
-      })
+      });
     },
 
-    deleteItem(index){
-      this.items.splice(index,1);
+    deleteItem(index) {
+      this.items.splice(index, 1);
     }
   },
 
@@ -137,6 +151,20 @@ export default {
   },
 
   mounted: async function() {
+    // let index=-1;
+    // index = this.$store.state.lists.findIndex(list => {
+    //   return list.id === this.listID;
+    // })
+    // if(index>=0){
+    //   console.log(this.$store.state.lists[index]);
+    //   this.list = this.$store.state.lists[index];
+    //   setTimeout(() => {
+    //     this.fetched = true;
+    //   },1000);
+    // }else{
+    //   this.fetchList();
+    // }
+
     this.fetchList();
   }
 };
@@ -146,6 +174,7 @@ export default {
 #container {
   max-width: 800px;
   margin: 0 auto;
+  margin-bottom: 2em;
 }
 #item {
   margin-top: 2em;
@@ -184,23 +213,23 @@ textarea {
   margin-top: 1em;
 }
 
-.close-container{
-  display:none;
+.close-container {
+  display: none;
 }
-.item:hover .close-container{
+.item:hover .close-container {
   display: block;
 }
-.close-button{
+.close-button {
   position: absolute;
   right: 3px;
-  top: 7px
+  top: 7px;
 }
-.close-button:hover{
+.close-button:hover {
   color: rgb(172, 5, 5);
   cursor: pointer;
 }
 
-.dots{
+.dots {
   position: absolute;
   top: 3px;
   right: 0px;
@@ -208,24 +237,24 @@ textarea {
   color: black;
   padding: 3px;
 }
-.dots:hover{
+.dots:hover {
   background-color: white;
   cursor: pointer;
 }
 
-.list-menu{
+.list-menu {
   position: absolute;
   right: 0px;
   top: 38px;
   z-index: 2;
 }
-.list-menu button{
+.list-menu button {
   display: block;
   background-color: grey;
   padding: 0.8em 4em;
   transition: all 0.1s linear;
 }
-.list-menu button:hover{
-  transform: translateX(3px)
+.list-menu button:hover {
+  transform: translateX(3px);
 }
 </style>
