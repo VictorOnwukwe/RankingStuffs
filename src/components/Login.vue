@@ -1,59 +1,62 @@
 <template>
   <div id="main-div">
     <v-card class="mx-auto px-2 py-4" flat max-width="500px" color="background">
-      <v-form v-model="valid" id="form">
-        <v-text-field
-          v-model="email"
-          :rules="rules.email"
-          validate-on-blur
-          label="E-mail"
-          required
-          color="brand"
-          outline
-          clearable
-        ></v-text-field>
+      <v-card-title class="font-weight-bold grey--text">Login</v-card-title>
+      <v-card-text>
+        <v-form v-model="valid" id="form">
+          <v-text-field
+            v-model="email"
+            :rules="rules.email"
+            validate-on-blur
+            label="E-mail"
+            required
+            color="brand"
+            outlined
+            clearable
+          ></v-text-field>
 
-        <v-text-field
-          v-model="password"
-          :rules="rules.password"
-          validate-on-blur
-          :counter="8"
-          label="Password"
-          type="password"
-          required
-          color="brand"
-          outline
-          clearable
-        ></v-text-field>
-      </v-form>
-      <v-layout justify-start>
-        <v-btn @click="emailLogin" color="button primary--text" id="login-button" class="mt-4 mx-0">
-          <span v-if="!is_loading">Login</span>
-          <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
-        </v-btn>
-      </v-layout>
+          <v-text-field
+            v-model="password"
+            :rules="rules.password"
+            validate-on-blur
+            :counter="8"
+            label="Password"
+            type="password"
+            required
+            color="brand"
+            outlined
+            clearable
+          ></v-text-field>
+        </v-form>
+        <v-layout justify-start>
+          <v-btn @click="emailLogin" color="button primary--text" id="login-button" class="mx-0">
+            <span class="primary--text font-weight-bold" v-if="!is_loading">Login</span>
+            <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
+          </v-btn>
+        </v-layout>
 
-      <div style="text-align:center; color:var(--button)">
-        <br />OR LOGIN WITH
-      </div>
-      <br />
-      <v-layout wrap>
-        <v-flex xs8 offset-xs2>
-          <v-btn @click="socialLogin('G')" block class="red--text" color="primary darken-1">GOOGLE</v-btn>
-        </v-flex>
-        <v-flex xs8 offset-xs2>
-          <v-btn
-            @click="socialLogin('F')"
-            block
-            class="blue--text text--darken-3"
-            color="primary darken-1"
-          >FACEBOOK</v-btn>
-        </v-flex>
-      </v-layout>
-      <div>
-        <br />Not a member yet?
-        <router-link to="/signup" class="signup-link link--text text--darken-1">SIGN UP</router-link>
-      </div>
+        <div style="text-align:center; color:var(--button)">
+          <br />OR LOGIN WITH
+        </div>
+        <br />
+        <v-layout wrap>
+          <v-flex xs6 offset-xs3>
+            <v-btn @click="socialLogin('G')" block class="primary--text font-weight-bold" color="#F14336">GOOGLE</v-btn>
+          </v-flex>
+          <v-flex xs6 offset-xs3>
+            <v-btn
+              @click="socialLogin('F')"
+              block
+              class="primary--text mt-3 font-weight-bold"
+              color="blue darken-3"
+            >FACEBOOK</v-btn>
+          </v-flex>
+        </v-layout>
+        <div>
+          <br />Not a member yet?
+          <router-link to="/signup" class="signup-link link--text text--darken-1">SIGN UP</router-link>
+        </div>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -99,7 +102,7 @@ export default {
                 toast: true,
                 position: "top-end",
                 showConfirmButton: false,
-                timer: 3000,
+                timer: 3000
               });
 
               Toast.fire({

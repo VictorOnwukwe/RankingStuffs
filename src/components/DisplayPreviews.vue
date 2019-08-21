@@ -26,7 +26,7 @@ export default {
 
 @media (min-width: 1000px) {
     #preview{
-        grid-template-columns: 1fr 1fr;
+        grid-template-columns: 1fr;
     }
 }
 

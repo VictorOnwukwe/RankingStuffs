@@ -1,77 +1,121 @@
 <template>
-  <div>
-    <v-layout>
-      <v-flex xs12 mt-3>
-        <v-card class="pa-0" color="#262F3B">
-          <v-card-title primary-title>
-            <v-layout>
-              <v-flex xs-2>
-                <img :src="item.image" class="image mb-2 mr-2">
-              </v-flex>
-              <v-flex xs-10>
-                <div>
-                  <h2
-                    class="headline mb-0"
-                    style="font-size:0.5em"
-                  >{{item.title}} votes: {{votePercentage()}}%</h2>
-                  <div style="font-size: 0.9em">{{ item.about }}</div>
+  <div id="main">
+    <v-layout mt-12>
+      <v-card tile width="100%">
+        <v-layout row-reverse>
+          <v-flex shrink pa-2>
+            <v-card max-width="250px" class="pr-0" flat height="100%" style>
+              <v-layout column>
+                <v-flex shrink>
+                  <v-card-title class="pl-0">
+                    <v-layout>
+                      <v-flex shrink mr-2>
+                        <div class="numeric-box" style="font-size:0.7em"><span>{{index}}</span></div>
+                      </v-flex>
+                      <v-flex>
+                        <a class="title blue--text">{{item.title}}</a>
+                      </v-flex>
+                    </v-layout>
+                  </v-card-title>
+                </v-flex>
+                <v-flex>
+                  <v-card-text>
+                    <v-img
+                      :src="item.image"
+                      width="150px"
+                      class="mb-2"
+                      style="border-radius:4px"
+                      aspect-ratio="1"
+                    ></v-img>
+                    <div
+                      class="grey--text"
+                    >{{item.about}} he has been of great use in the Nigerian movie industry. From generation to generation</div>
+                  </v-card-text>
+                </v-flex>
+              </v-layout>
+            </v-card>
+          </v-flex>
+          <v-divider vertical></v-divider>
+          <v-flex>
+            <v-card tile flat height="100%">
+              <v-card-text>
+                <div></div>
+                <div v-if="comments.length == 0" class="mt-3">Be the first to comment...</div>
+                <div v-else>
+                  <comment
+                    v-for="(comment, index) in comments"
+                    :key="index"
+                    :comment="comment"
+                    :list_id="list.id"
+                    :item_id="item.id"
+                  ></comment>
                 </div>
-              </v-flex>
-            </v-layout>
-          </v-card-title>
+              </v-card-text>
+            </v-card>
 
-          <v-card-actions>
-            <div id="bottom-nav">
-              <v-icon v-if="!voted" @click="toggleVote()" color="primary">mdi-thumb-up</v-icon>
-            </div>
-          </v-card-actions>
-        </v-card>
-      </v-flex>
+            <!-- <div id="comments">
+              <div class="comments-header">
+                <a
+                  style="float:left"
+                  v-if="comments[0] && comments[0].index!==1 && display_comments===true"
+                  class="links"
+                  @click="fetchComments(5, comments[0].created)"
+                >Load more...</a>
+
+                <a
+                  style="float:right"
+                  class="links"
+                  v-if="comments.length>0"
+                  @click="display_comments = !display_comments"
+                >
+                  <span v-if="display_comments==true" class="blue--text">Hide comments</span>
+                  <span v-if="display_comments==false">Show comments</span>
+                </a>
+              </div>
+
+              <div v-if="loading" style="display:flex; justify-content:center">
+                <v-btn flat color="grey">
+                  <v-progress-circular indeterminate :value="80" :size="25" :width="3"></v-progress-circular>
+                </v-btn>
+              </div>
+
+              <div v-for="(compComment, index) in comments" :key="index">
+                <div v-if="display_comments">
+                  <comment :comment="compComment" :list_id="list.id" :item_id="item.id"></comment>
+                </div>
+              </div>
+              <div id="comment_container">
+                <textarea id="comment_box" v-model="user_comment" rows="2"></textarea>
+                <v-btn @click="addComment()">Add comment</v-btn>
+              </div>
+            </div>-->
+          </v-flex>
+        </v-layout>
+        <v-bottom-navigation tile grow depressed>
+          <v-btn value="recent">
+            <span>Recent</span>
+            <v-icon>history</v-icon>
+          </v-btn>
+
+          <v-btn value="favorites">
+            <span>Favorite</span>
+            <v-icon>favorite</v-icon>
+          </v-btn>
+
+          <v-btn value="nearby">
+            <span>Nearby</span>
+            <v-icon>place</v-icon>
+          </v-btn>
+        </v-bottom-navigation>
+      </v-card>
     </v-layout>
-
-    <div id="comments">
-      <div class="comments-header">
-        <a
-          style="float:left"
-          v-if="comments[0] && comments[0].index!==1 && display_comments===true"
-          class="links"
-          @click="fetchComments(5, comments[0].created)"
-        >Load more...</a>
-
-        <a
-          style="float:right"
-          class="links"
-          v-if="comments.length>0"
-          @click="display_comments = !display_comments"
-        >
-          <span v-if="display_comments==true">Hide comments</span>
-          <span v-if="display_comments==false">Show comments</span>
-        </a>
-      </div>
-
-      <div v-if="loading" style="display:flex; justify-content:center">
-        <v-btn flat color="grey">
-          <v-progress-circular indeterminate :value="80" :size="25" :width="3"></v-progress-circular>
-        </v-btn>
-      </div>
-
-      <div v-for="(compComment, index) in comments" :key="index">
-        <div v-if="display_comments">
-          <comment :comment="compComment" :list_id="list.id" :item_id="item.id"></comment>
-        </div>
-      </div>
-      <div id="comment_container">
-        <textarea id="comment_box" v-model="user_comment" rows="2"></textarea>
-        <v-btn @click="addComment()">Add comment</v-btn>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import comment from "./comment";
 import swalErrors from "../../public/my-modules/swalErrors";
-import { setTimeout } from 'timers';
+import { setTimeout } from "timers";
 
 export default {
   components: {
@@ -79,7 +123,8 @@ export default {
   },
   props: {
     item: Object,
-    list: Object
+    list: Object,
+    index: Number
   },
   data() {
     return {
@@ -109,7 +154,6 @@ export default {
     },
 
     toggleVote() {
-
       if (this.$store.state.authenticated) {
         if (this.voted) {
           this.$store.dispatch("remove_vote", {
@@ -129,8 +173,7 @@ export default {
       setTimeout(() => {
         this.checkVote();
         console.log(this.voted);
-      },1000);
-
+      }, 1000);
     },
 
     votePercentage() {
@@ -168,10 +211,18 @@ export default {
     }
   },
 
-  computed: {},
+  computed: {
+    aboutTruncated() {
+      let element = document.querySelector(".text-ellipsis");
+      return (
+        element.scrollHeight > element.clientHeight ||
+        element.scrollWidth > element.clientWidth
+      );
+    }
+  },
 
   mounted: function() {
-    this.fetchComments(1, "now");
+    this.fetchComments(5, "now");
     this.checkVote();
   }
 };
@@ -184,6 +235,17 @@ export default {
 }
 
 #comment_container {
+}
+
+.text-ellipsis {
+  display: block;
+  display: -webkit-box;
+  height: 80px;
+  margin: 0 auto;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 #comment_box {
@@ -208,7 +270,7 @@ export default {
   margin-bottom: 3em;
 }
 
-.image{
+.image {
   width: 100px;
   height: 100px;
   object-fit: cover;

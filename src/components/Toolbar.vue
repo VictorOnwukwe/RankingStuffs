@@ -125,7 +125,8 @@ div.flex {
 #navbar-container {
   padding: 0.9em 1.2em;
   /* box-shadow: 0px 3px 5px darkgrey; */
-  background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99));
+  /* background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99)); */
+  background-color: grey;
   height: 50px;
   border-bottom: 5px solid var(--brand);
 }

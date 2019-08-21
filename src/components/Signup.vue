@@ -1,75 +1,78 @@
 <template>
   <div>
     <v-card class="mx-auto px-2 py-4" max-width="500px" flat color="background">
-      <v-form id="form" v-model="valid">
-        <v-text-field
-          v-model="email"
-          label="E-mail"
-          :rules="rules.email"
-          required
-          color="brand"
-          validate-on-blur
-          outline
-          clearable
-        ></v-text-field>
+      <v-card-title class="font-weight-bold grey--text">Signup</v-card-title>
+      <v-card-text>
+        <v-form id="form" v-model="valid">
+          <v-text-field
+            v-model="email"
+            label="E-mail"
+            :rules="rules.email"
+            required
+            color="brand"
+            validate-on-blur
+            outlined
+            clearable
+          ></v-text-field>
 
-        <v-text-field
-          v-model="username"
-          label="Username"
-          color="brand"
-          :rules="[usernameRules]"
-          validate-on-blur
-          @blur="checkUsername()"
-          outline
-          clearable
-        ></v-text-field>
+          <v-text-field
+            v-model="username"
+            label="Username"
+            color="brand"
+            :rules="[usernameRules]"
+            validate-on-blur
+            @blur="checkUsername()"
+            outlined
+            clearable
+          ></v-text-field>
 
-        <v-text-field
-          v-model="password"
-          :counter="8"
-          label="Password"
-          type="password"
-          :rules="rules.password"
-          validate-on-blur
-          required
-          color="brand"
-          outline
-          clearable
-        ></v-text-field>
-      </v-form>
+          <v-text-field
+            v-model="password"
+            :counter="8"
+            label="Password"
+            type="password"
+            :rules="rules.password"
+            validate-on-blur
+            required
+            color="brand"
+            outlined
+            clearable
+          ></v-text-field>
+        </v-form>
 
-      <v-layout justify-start mt-3>
-        <v-btn @click="emailSignup()" class="mx-0" color="button primary--text">
-          <span v-if="!is_loading">Sign up</span>
-          <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
-        </v-btn>
-      </v-layout>
+        <v-layout justify-start>
+          <v-btn @click="emailSignup()" class="mx-0" color="button primary--text">
+            <span class="primary--text font-weight-bold" v-if="!is_loading">Sign up</span>
+            <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
+          </v-btn>
+        </v-layout>
 
-      <div style="text-align:center; color:var(--link)">
-        <br />OR SIGN UP WITH
-      </div>
-      <br />
+        <div style="text-align:center; color:var(--link)">
+          <br />OR SIGN UP WITH
+        </div>
+        <br />
 
-      <v-layout wrap>
-        <v-flex xs6 offset-xs3>
-          <v-btn @click="socialSignup('G')" block class="primary--text" color="#F14336">GOOGLE</v-btn>
-        </v-flex>
-        <v-flex xs6 offset-xs3>
-          <v-btn
-            @click="socialSignup('F')"
-            block
-            class="primary--text"
-            color="blue darken-3"
-          >FACEBOOK</v-btn>
-        </v-flex>
-      </v-layout>
+        <v-layout wrap>
+          <v-flex xs6 offset-xs3>
+            <v-btn @click="socialSignup('G')" block class="primary--text font-weight-bold" color="#F14336">GOOGLE</v-btn>
+          </v-flex>
+          <v-flex xs6 offset-xs3>
+            <v-btn
+              @click="socialSignup('F')"
+              block
+              class="primary--text mt-3 font-weight-bold"
+              color="blue darken-3"
+            >FACEBOOK</v-btn>
+          </v-flex>
+        </v-layout>
 
-      <!-- <v-btn @click="testSwal()">Test swal</v-btn> -->
+        <!-- <v-btn @click="testSwal()">Test swal</v-btn> -->
 
-      <p>
-        <br />Already a member?
-        <router-link to="/login" class="login-link link--text">LOGIN</router-link>
-      </p>
+        <p>
+          <br />Already a member?
+          <router-link to="/login" class="login-link link--text">LOGIN</router-link>
+        </p>
+      </v-card-text>
     </v-card>
   </div>
 </template>
@@ -94,11 +97,11 @@ export default {
 
   methods: {
     usernameRules(username) {
-        if (username == "" || username.length < 3 || this.usernameValid) {
-          return true;
-        } else {
-          return "Sorry. This username is already taken...";
-        }
+      if (username == "" || username.length < 3 || this.usernameValid) {
+        return true;
+      } else {
+        return "Sorry. This username is already taken...";
+      }
     },
     testSwal() {
       const Toast = Swal.mixin({
@@ -187,7 +190,7 @@ export default {
     async checkUsername() {
       await this.$store.dispatch("username_valid", this.username).then(a => {
         this.usernameValid = a;
-      })
+      });
     }
   },
   computed: {}

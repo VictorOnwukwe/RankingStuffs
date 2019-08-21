@@ -1,48 +1,72 @@
 <template>
   <div>
-    <div style="display:flex;">
-      <div>
-        <Sidebar></Sidebar>
-      </div>
-      <div v-if="fetched" id="container">
-        <div style="position:relative">
-          <h2 class="primary--text">{{list.title}}</h2>
-          <v-icon class="dots">mdi-dots-vertical</v-icon>
-          <div class="list-menu">
-            <button @click="favoriteList()">Favorite</button>
-            <button @click="favoriteList()">Report</button>
+    <div v-if="fetched">
+      <div id="popout"></div>
+      <div id="title-nav" class="inherit">
+        <div
+          style="max-width:800px; align-items:center; justify-content:space-between"
+          class="mx-auto"
+        >
+          <div
+            style="font-size:1.8em;font-weight:bold;"
+            class="blue--text text--darken-2"
+          >{{list.title}}</div>
+          <p>
+            <span class>Created by</span>
+            <span @click="showUser=true" style="font-weight:bold">&nbsp;{{creator.username}}</span>
+          </p>
+          <div class="mt-n4 ml-n1">
+            <v-rating
+              :value="3"
+              color="yellow darken-3"
+              background-color="grey darken-1"
+              half-increments
+              :size="18"
+              dense
+              readonly
+            ></v-rating>
           </div>
         </div>
+        <div></div>
+      </div>
 
+      <div id="container">
         <div v-for="(item, index) in list.items" :key="index">
-          <Item :item="item" :list="list"></Item>
+          <Item :item="item" :list="list" :index="index + 1"></Item>
           <div class="divide" v-if="index===9"></div>
         </div>
 
-        <div
-          style="margin-top:2em"
-        >Didn't find your favorite? Add to the voting list to make them stand a chance to appear in the voting list.</div>
+        <v-card tile class="mt-12">
+          <v-card-title
+            class="brand darken-2 primary--text title pa-1"
+          >Didn't find your option? Add to the List</v-card-title>
+          <v-card-text>
+            <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
+              <AddItem
+                :parentLength="list.items.length"
+                :index="index"
+                @deleteMe="deleteItem"
+                @receiveTitle="setItemTitle"
+                @receiveAbout="setItemAbout"
+              ></AddItem>
+            </div>
 
-        <div class="item animated bounceIn" v-for="(item, index) in items" :key="item.id">
-          <div class="close-container" v-if="index>0 || items.length>1" @click="deleteItem(index)">
-            <v-icon class="close-button" size="18">mdi-close</v-icon>
-          </div>
-          <h3>Item {{list.items.length +index + 1}}</h3>
-          <input type="file" accept="image/*" @change="onFileSelect" />
-          <input placeholder="Item Title" type="text" v-model="items[index].title" />
-          <textarea
-            placeholder="Tell your viewers why you placed this item here"
-            v-model="items[index].about"
-          ></textarea>
-        </div>
+            <div id="plus-button">
+              <div @click="addItem()" class="numeric-box circle" style="cursor:pointer">
+                <span style="font-size:2.4em; color:white; font-weight:normal">+</span>
+              </div>
+            </div>
+          </v-card-text>
 
-        <div id="plus-button">
-          <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
-        </div>
-
-        <v-btn @click="upload_item()">Submit</v-btn>
+          <v-card-actions>
+            <v-btn @click="upload_item()">Submit</v-btn>
+          </v-card-actions>
+        </v-card>
       </div>
     </div>
+    <v-dialog v-model="showUser" max-width="300px">
+      <PreviewUser :user="creator" @closeDialog="showUser=false"></PreviewUser>
+    </v-dialog>
   </div>
 </template>
 
@@ -50,11 +74,15 @@
 import { setTimeout } from "timers";
 import Item from "./Item";
 import Sidebar from "./Sidebar";
+import AddItem from "./AddItem";
+import PreviewUser from "./PreviewUser";
 
 export default {
   components: {
     Item,
-    Sidebar
+    Sidebar,
+    AddItem,
+    PreviewUser
   },
   data() {
     return {
@@ -68,7 +96,9 @@ export default {
         }
       ],
       fetched: false,
-      n: 0
+      n: 0,
+      creator: {},
+      showUser: false
     };
   },
 
@@ -113,6 +143,14 @@ export default {
       }
     },
 
+    setItemTitle(index, title) {
+      this.items[index].title = title;
+    },
+    setItemAbout(index, about) {
+      this.items[index].about = about;
+      console.log(this.items[index].about);
+    },
+
     async fetchList() {
       await this.$store
         .dispatch("fetch_complete_list", this.$route.params.id)
@@ -137,7 +175,12 @@ export default {
     },
 
     deleteItem(index) {
-      this.items.splice(index, 1);
+      this.items.splice(index - this.list.items.length, 1);
+    },
+    fetchCreator() {
+      this.$store.dispatch("fetch_user", this.list.user).then(user => {
+        this.creator = user;
+      });
     }
   },
 
@@ -151,21 +194,25 @@ export default {
   },
 
   mounted: async function() {
-    // let index=-1;
-    // index = this.$store.state.lists.findIndex(list => {
-    //   return list.id === this.listID;
-    // })
-    // if(index>=0){
-    //   console.log(this.$store.state.lists[index]);
-    //   this.list = this.$store.state.lists[index];
-    //   setTimeout(() => {
-    //     this.fetched = true;
-    //   },1000);
-    // }else{
-    //   this.fetchList();
-    // }
+    let index = -1;
+    index = this.$store.state.lists.findIndex(list => {
+      return list.id === this.listID;
+    });
+    if (index >= 0) {
+      console.log(this.$store.state.lists[index]);
+      this.list = this.$store.state.lists[index];
+      setTimeout(() => {
+        this.fetched = true;
+      }, 1000);
+    } else {
+      console.log("here too");
+      this.fetchList();
+    }
 
-    this.fetchList();
+    this.fetchCreator();
+    // this.fetchList().then(() => {
+    //   this.fetchCreator();
+    // });
   }
 };
 </script>
@@ -178,6 +225,10 @@ export default {
 }
 #item {
   margin-top: 2em;
+}
+
+#title-nav {
+  width: 100%;
 }
 
 #plus-button {
@@ -227,34 +278,5 @@ textarea {
 .close-button:hover {
   color: rgb(172, 5, 5);
   cursor: pointer;
-}
-
-.dots {
-  position: absolute;
-  top: 3px;
-  right: 0px;
-  border-radius: 50%;
-  color: black;
-  padding: 3px;
-}
-.dots:hover {
-  background-color: white;
-  cursor: pointer;
-}
-
-.list-menu {
-  position: absolute;
-  right: 0px;
-  top: 38px;
-  z-index: 2;
-}
-.list-menu button {
-  display: block;
-  background-color: grey;
-  padding: 0.8em 4em;
-  transition: all 0.1s linear;
-}
-.list-menu button:hover {
-  transform: translateX(3px);
 }
 </style>

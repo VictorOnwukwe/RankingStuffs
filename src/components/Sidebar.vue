@@ -5,14 +5,14 @@
         <div style>
           <div class="entity">
             <div @click="toggle('cat')">
-              <a class="tile">Categories</a>
-              <v-icon v-if="!showCategories" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showCategories" class="menu-icon">mdi-menu-down</v-icon>
+              <a @click="fetchCategories()" class="tile">Categories</a>
+              <v-icon v-if="!showCategories" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showCategories" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showCategories" class="sub-display">
                 <a
-                  class="underline"
+                  class="highlight pl-2"
                   style="display:block"
                   v-for="(category, i) in categories"
                   :key="i"
@@ -22,9 +22,12 @@
           </div>
           <div class="entity">
             <div @click="toggle('tag')">
-              <a class="tile">Tags</a>
-              <v-icon v-if="!showTags" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showTags" class="menu-icon">mdi-menu-down</v-icon>
+              <div style="position:relative">
+                <a class="tile">Tags</a>
+                <v-icon class="prepend-icon" small>mdi-tag-multiple</v-icon>
+              </div>
+              <v-icon v-if="!showTags" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showTags" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showTags" style="display:flex; flex-wrap:wrap" class="sub-display">
@@ -34,35 +37,49 @@
           </div>
           <div class="entity">
             <div @click="toggle('pop')">
-              <a @click="fetchPopular()" class="tile">Popular</a>
-              <v-icon v-if="!showPopular" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showPopular" class="menu-icon">mdi-menu-down</v-icon>
+              <div style="position:relative">
+                <a @click="fetchPopular()" class="tile">Popular</a>
+                <v-icon class="prepend-icon" small>mdi-format-list-numbered</v-icon>
+              </div>
+              <v-icon v-if="!showPopular" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showPopular" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showPopular" class="sub-display">
-                <a class="border-link" style="display:block;" v-for="(popular, i) in populars" :key="i">{{popular.title}}</a>
+                <a
+                  class="border-link"
+                  style="display:block;"
+                  v-for="(popular, i) in populars"
+                  :key="i"
+                >{{popular.title}}</a>
               </div>
             </transition>
           </div>
           <div class="entity">
             <div @click="toggle('lat')">
-              <a @click="fetchLatest()" class="tile">Latest</a>
-              <v-icon v-if="!showLatest" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showLatest" class="menu-icon">mdi-menu-down</v-icon>
+              <div style="position:relative">
+                <a @click="fetchLatest()" class="tile">Latest</a>
+                <v-icon class="prepend-icon" small>mdi-format-list-numbered</v-icon>
+              </div>
+              <v-icon v-if="!showLatest" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showLatest" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showLatest" class="sub-display">
-                <a class="border-link" style="display:block" v-for="(latest, i) in latests" :key="i">
-                  {{latest.title}}
-                </a>
+                <a
+                  class="border-link"
+                  style="display:block"
+                  v-for="(latest, i) in latests"
+                  :key="i"
+                >{{latest.title}}</a>
               </div>
             </transition>
           </div>
           <div class="entity">
             <div @click="toggle('dem')">
               <a class="tile">On Demand</a>
-              <v-icon v-if="!showOnDemand" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showOnDemand" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="!showOnDemand" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showOnDemand" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showOnDemand" class="sub-display">
@@ -72,9 +89,12 @@
           </div>
           <div class="entity">
             <div @click="toggle('trend')">
-              <a class="tile">Trending</a>
-              <v-icon v-if="!showTrending" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showTrending" class="menu-icon">mdi-menu-down</v-icon>
+              <div style="position:relative">
+                <a class="tile">Trending</a>
+                <v-icon class="prepend-icon" small>mdi-format-list-numbered</v-icon>
+              </div>
+              <v-icon v-if="!showTrending" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showTrending" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showTrending" class="sub-display">
@@ -84,9 +104,12 @@
           </div>
           <div class="entity">
             <div @click="toggle('top')">
-              <a class="tile">Top Rated</a>
-              <v-icon v-if="!showTopRated" class="menu-icon">mdi-menu-right</v-icon>
-              <v-icon v-if="showTopRated" class="menu-icon">mdi-menu-down</v-icon>
+              <div style="position:relative">
+                <a class="tile">Top Rated</a>
+                <v-icon class="prepend-icon" small>mdi-format-list-numbered</v-icon>
+              </div>
+              <v-icon v-if="!showTopRated" class="menu-icon">mdi-menu-down</v-icon>
+              <v-icon v-if="showTopRated" class="menu-icon">mdi-menu-up</v-icon>
             </div>
             <transition name="sub-trans">
               <div v-if="showTopRated" class="sub-display">
@@ -101,7 +124,6 @@
 </template>
 
 <script>
-
 export default {
   data() {
     return {
@@ -114,7 +136,8 @@ export default {
       showTopRated: false,
       populars: [],
       latests: [],
-      loading: false
+      loading: false,
+      categories: []
     };
   },
   methods: {
@@ -223,7 +246,7 @@ export default {
       this.$store.dispatch("add_categories", categories);
     },
     fetchPopular() {
-      if(this.showPopular){
+      if (this.showPopular) {
         return;
       }
       this.loading = true;
@@ -232,40 +255,39 @@ export default {
           this.loading = false;
           this.populars = populars;
         });
-      }else{
-        console.log("here")
+      } else {
+        console.log("here");
         this.populars = this.$store.state.popular;
       }
     },
     fetchLatest() {
-      if(this.showLatest){
+      if (this.showLatest) {
         return;
       }
       this.loading = true;
       if (this.$store.state.latest.length == 0) {
-        this.$store.dispatch("fetch_latest", {
-          timestamp: "now",
-          limit: 10
-        }).then(latests => {
-          this.loading = false;
-          this.latests = latests;
-        });
-      }else{
-        console.log("here Latest")
-        this.populars = this.$store.state.latest;
+        this.$store
+          .dispatch("fetch_latest", {
+            timestamp: "now",
+            limit: 10
+          })
+          .then(latests => {
+            this.loading = false;
+            this.latests = latests;
+          });
+      } else {
+        console.log("here Latest");
+        this.latests = this.$store.state.latest;
       }
+    },
+    fetchCategories() {
+      this.$store.dispatch("fetch_categories").then(result => {
+        this.categories = result;
+      });
     }
   },
   computed: {
-    categories() {
-      if (this.$store.state.categories.length == 0) {
-        return this.$store.dispatch("fetch_categories");
-      } else {
-        return this.$store.state.categories.sort((a, b) =>
-          a.name > b.name ? 1 : -1
-        );
-      }
-    }
+    
   }
 };
 </script>
@@ -275,12 +297,24 @@ export default {
   position: sticky;
   top: 50px;
   scrollbar-color: #051b38 #051b38;
-  scrollbar-width: 5px;
-  background-color: var(--accent);
-  opacity: 0.8;
+  scrollbar-width: 3px;
+  /* background-color: var(--accent); */
+  background-color: #375680;
+  /* opacity: 0.8; */
   margin-left: -1em;
+  margin-right: 1em;
   margin-top: -1em;
   width: 25vw;
+  overflow-y: scroll;
+  height: calc(100vh - 50px);
+  min-width: 200px;
+  max-width: 325px;
+  display: none;
+}
+@media (min-width: 42.5em) {
+  #main {
+    display: block;
+  }
 }
 .tile {
   border-bottom: 1px solid var(--brand);
@@ -289,11 +323,7 @@ export default {
 }
 
 #sidebar {
-  overflow-y: scroll;
-  min-width: 200px;
-  color: white;
   padding: 1.5em;
-  height: calc(100vh);
 }
 
 #sidebar div + div {
@@ -312,14 +342,20 @@ export default {
 }
 .menu-icon {
   position: absolute;
-  color: var(--brand);
+  color: var(--primary);
   top: 0.25em;
   right: 0em;
   cursor: pointer;
 }
+.prepend-icon {
+  color: var(--primary);
+  position: absolute;
+  top: 0.6em;
+  left: -1.2em;
+}
 .sub-display {
   width: 100%;
-  background-color: #051b38;
+  background-color: #35465e;
   padding: 1em;
 }
 .entity {
@@ -342,14 +378,14 @@ export default {
   }
 }
 
-.underline:hover {
-  text-decoration: underline;
+.highlight:hover {
+  background-color: #051b38;
 }
-.border-link{
+.border-link {
   padding: 0.5em 0;
 }
-.border-link + .border-link{
-  border-top:1px solid var(--brand);
+.border-link + .border-link {
+  border-top: 1px solid var(--brand);
 }
 </style>
 

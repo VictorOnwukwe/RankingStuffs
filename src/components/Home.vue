@@ -126,10 +126,10 @@ h2 {
 #router-view {
 }
 #top-container {
-  width: calc(100% + 1em);
+  width: calc(100% + 2em);
   height: calc(100vh - 70px);
   background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99));
-  margin-left: -0.5em;
+  margin-left: -1em;
   margin-top: -1em;
   display: flex;
   flex-direction: column;
@@ -197,7 +197,7 @@ h2 {
 }
 #hooper {
   height: 200px;
-  width: calc(1600px + 13em);
+  width: calc(1600px + 16em);
   position: absolute;
 }
 #slide-child {

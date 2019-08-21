@@ -4,6 +4,7 @@
       <User></User>
       <toolbar></toolbar>
       <div id="view-container">
+        <Sidebar v-if="['home'].indexOf($route.name) < 0"></Sidebar>
         <router-view id="router-view"></router-view>
       </div>
       <!-- <Footer></Footer> -->
@@ -57,10 +58,10 @@ export default {
   --background-color: #f4f4f4;
   --link: #0060ac;
   --button: #0060ac;
-  --brand: #c8c803;
+  --brand: #2196F3;
 
   --border-radius: 0.3em;
-  font-size: 0.75em !important;
+  font-size: 0.9em !important;
 }
 
 h1,
@@ -77,7 +78,7 @@ html {
 
 @media (min-width: 30em) {
   :root {
-    font-size: 0.9em !important;
+    font-size: 1em !important;
   }
 }
 
@@ -92,15 +93,41 @@ html {
   height: auto;
 }
 #view-container{
-  padding: 1em;
+  padding: 0.5em 0.5em 0 0.5em;
+  display: flex;
 }
 
-@media (min-width: 30em) {
+@media (min-width:50em) {
+  #view-container{
+    padding: 1em 1em 0 1em;
+  }
+}
+
+.numeric-box{
+  background-color: var(--brand);
+  width: 2.5em;
+  height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary);
+  border-radius: 0.3em;
+}
+.numeric-box>span{
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--primary);
+}
+.circle{
+  border-radius: 50%;
+}
+
+/* @media (min-width: 30em) {
   #view-container {
     padding: 1em 1em;
     display: flex;
   }
-}
+} */
 
 #router-view{
   flex-grow: 1;
@@ -143,6 +170,18 @@ html {
   #sidebar{
     display: block;
   }
+}
+.minus-one{
+  margin-top: -1em;
+}
+.minus-one-five{
+  margin-top: -1.5em;
+}
+.minus-two{
+  margin-top: -2em;
+}
+.minus-three{
+  margin-top: -3em;
 }
 </style>
 

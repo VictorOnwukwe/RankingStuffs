@@ -1,35 +1,128 @@
 <template>
   <div id="main">
     <div id="container">
-    <div>
-      <Sidebar></Sidebar>
-    </div>
-    <div style="margin:0 auto;max-width:600px; flex-grow:1;margin-bottom:2em">
-      <div>
-        <v-text-field background-color="blue" outlined label="Title" v-model="list.title"></v-text-field>
-      </div>
+      <div style="flex-grow:1">
+        <div style="margin-bottom:2em"></div>
+        <div style="margin:0 auto;max-width:700px;">
+          <v-card tile class>
+            <v-card-title class="brand darken-2 primary--text pa-1 title">1. Heads-Up</v-card-title>
+            <v-card-text>
+              <ol class="mt-5">
+                <li>
+                  <p>Is the list you are about to post offensive? It probably will not be accepted.</p>
+                </li>
+                <li>
+                  <p>Is the list you are about to post offensive? It probably will not be accepted.</p>
+                </li>
+                <li>
+                  <p>Is the list you are about to post offensive? It probably will not be accepted.</p>
+                </li>
+                <li>
+                  <p>Is the list you are about to post offensive? It probably will not be accepted.</p>
+                </li>
+                <li>
+                  <p>Is the list you are about to post offensive? It probably will not be accepted.</p>
+                </li>
+              </ol>
+            </v-card-text>
+          </v-card>
 
-      <div>
-        <v-textarea no-resize :rows="6" outlined label="About List" background-color="brand" v-model="list.about" style="width:100%"></v-textarea>
-      </div>
+          <v-card tile class="mt-4">
+            <v-card-title class="brand darken-2 primary--text title pa-1">2. Add List Description</v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12 style class>
+                    <v-text-field color="brand" outlined label="Title" v-model="list.title"></v-text-field>
+                  </v-flex>
 
-      <div class="item" v-for="(item, index) in list.items" :key="index">
-        <div class="close-container" v-if="index>0||list.items.length>1" @click="deleteItem(index)">
-          <v-icon class="close-button">mdi-close</v-icon>
+                  <v-flex xs12 class>
+                    <v-textarea
+                      no-resize
+                      outlined
+                      auto-grow
+                      label="Description"
+                      color="brand"
+                      v-model="list.about"
+                      style="width:100%"
+                    ></v-textarea>
+                  </v-flex>
+
+                  <v-flex sm6>
+                    <v-select
+                      :items="categories"
+                      placeholder="Optional"
+                      color="brand"
+                      outlined
+                      label="Category"
+                    ></v-select>
+                  </v-flex>
+
+                  <v-flex sm6>
+                    <v-select
+                      :items="categories"
+                      placeholder="Optional"
+                      color="brand"
+                      outlined
+                      label="Sub-Category"
+                    ></v-select>
+                  </v-flex>
+                  <v-flex xs12>
+                    <v-textarea
+                      @keyup.space="pushTag()"
+                      @keyup.delete="pushTag()"
+                      v-model="userTags"
+                      outlined
+                      :rows="1"
+                      placeholder="e.g. Happy Grooving Cool"
+                      no-resize
+                      label="Tags"
+                      color="brand"
+                      class
+                    ></v-textarea>
+                  </v-flex>
+                  <v-flex>
+                    <v-layout wrap class="mt-n8">
+                      <span
+                        v-for="(tag, i) in tags"
+                        :key="i"
+                        class="brand lighten-1 mr-2 mt-2 px-3 py-1"
+                        style="border-radius:999px"
+                      >{{tag}}</span>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+              </v-container>
+            </v-card-text>
+          </v-card>
+
+          <v-card tile class="mt-4">
+            <v-card-title class="brand darken-2 primary--text pa-1 title">3. Add List Items</v-card-title>
+            <v-card-text>
+              <v-container grid-list-md>
+                <div class="item" v-for="(item, index) in list.items" :key="index">
+                  <AddItem
+                    :parentLength="0"
+                    :index="index"
+                    @deleteMe="deleteItem"
+                    @receiveTitle="setItemTitle"
+                    @receiveAbout="setItemAbout"
+                  ></AddItem>
+                </div>
+
+                <div v-if="list.items.length <= 9" id="plus-button">
+                  <div @click="addItem()" class="numeric-box circle" style="cursor:pointer">
+                    <span style="font-size:2.4em; color:white; font-weight:normal">+</span>
+                  </div>
+                </div>
+              </v-container>
+            </v-card-text>
+          </v-card>
+
+          <v-btn @click="upload()">Upload</v-btn>
+          <v-btn @click="get()">get</v-btn>
         </div>
-        <h3>Item {{index + 1}}</h3>
-        <input type="file" accept="image/*" @change="onFileSelect" style="margin-bottom:2em" />
-        <v-text-field label="Item Title" outlined color="accent" v-model="list.items[index].title"></v-text-field>
-        <v-textarea label="About Item" outlined no-resize color="accent" v-model="list.items[index].about"></v-textarea>
       </div>
-
-      <div v-if="list.items.length <= 9" id="plus-button">
-        <v-icon @click="addItem()" large>mdi-plus-circle</v-icon>
-      </div>
-
-      <v-btn @click="upload()">Upload</v-btn>
-      <v-btn @click="get()">get</v-btn>
-    </div>
     </div>
   </div>
 </template>
@@ -37,16 +130,18 @@
 <script>
 import Toolbar from "./Toolbar";
 import Sidebar from "./Sidebar";
+import AddItem from "./AddItem";
 export default {
   components: {
     Toolbar,
-    Sidebar
+    Sidebar,
+    AddItem
   },
   data() {
     return {
       list: {
-        title: "Worthy Title",
-        about: "About List",
+        title: "",
+        about: "",
         items: [
           {
             title: "",
@@ -55,7 +150,10 @@ export default {
           }
         ]
       },
-      n: 0
+      n: 0,
+      categories: [],
+      userTags: "",
+      tags: []
     };
   },
 
@@ -97,8 +195,7 @@ export default {
     addItem() {
       this.list.items.push({
         title: "",
-        about: "",
-        image: undefined
+        about: ""
       });
 
       setTimeout(() => {
@@ -106,15 +203,39 @@ export default {
       }, 1);
     },
 
+    setItemTitle(index, title) {
+      this.list.items[index].title = title;
+    },
+    setItemAbout(index, about) {
+      this.list.items[index].about = about;
+      console.log(this.list.items[index].about + index);
+    },
+
     deleteItem(index) {
       this.list.items.splice(index, 1);
+    },
+
+    fetchCategories() {
+      this.$store.dispatch("fetch_categories").then(result => {
+        this.categories = result.map(category => category.name);
+      });
+    },
+    pushTag() {
+      if (this.userTags[this.userTags.length - 2] == " ") {
+        return;
+      }
+      this.tags = this.userTags.split(" ");
+      this.tags = this.tags.filter(tag => tag != " " && tag != "");
     }
+  },
+  created: function() {
+    this.fetchCategories();
   }
 };
 </script>
 
 <style scoped>
-#container{
+#container {
   display: flex;
 }
 input {
@@ -129,9 +250,11 @@ textarea {
   resize: none;
   height: 10em;
 }
+.item{
+  position:relative;
+}
 
-.item {
-  position: relative;
+.item + .item {
   display: grid;
   grid-template-columns: 1fr;
   margin-top: 2em;
@@ -141,20 +264,5 @@ textarea {
   display: flex;
   margin: 1em 0;
   justify-content: center;
-}
-
-.close-container {
-  display: none;
-}
-.item:hover .close-container {
-  display: block;
-}
-.close-button {
-  position: absolute;
-  right: 2px;
-}
-.close-button:hover {
-  color: rgb(172, 5, 5);
-  cursor: pointer;
 }
 </style>

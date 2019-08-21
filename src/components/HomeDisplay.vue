@@ -1,22 +1,32 @@
 <template>
   <div id="main">
     <div id="container">
-      <p>Categories</p>
+      <div v-if="authenticated">
+        <Timeline></Timeline>
+      </div>
     </div>
   </div>
 </template>
 
 <script>
 import Sidebar from "./Sidebar";
+import Timeline from "./Timeline";
 export default {
   components: {
-    Sidebar
+    Sidebar,
+    Timeline
   },
   data() {
     return {};
   },
 
-  methods: {}
+  methods: {},
+
+  computed: {
+    authenticated(){
+      return this.$store.getters.getAuthenticated;
+    }
+  }
 };
 </script>
 

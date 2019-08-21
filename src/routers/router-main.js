@@ -18,6 +18,10 @@ import PopularLists from "../components/PopularLists";
 import LatestLists from "../components/LatestLists";
 // @ts-ignore
 import HomeDisplay from "../components/HomeDisplay";
+// @ts-ignore
+import ProfileSetting from "../components/ProfileSetting";
+// @ts-ignore
+import Notifications from "../components/Notifications";
 
 Vue.use(Router);
 
@@ -29,15 +33,8 @@ export default new Router({
       children: [
         {
           path: "",
+          name: "home",
           component: HomeDisplay
-        },
-        {
-          path: "/popular-lists",
-          component: PopularLists
-        },
-        {
-          path: "/latest-lists",
-          component: LatestLists
         }
       ]
     },
@@ -51,7 +48,17 @@ export default new Router({
     },
     {
       path: "/profile",
-      component: Profile
+      component: Profile,
+      children: [
+        {
+          path: "/settings",
+          component: ProfileSetting
+        },
+        {
+          path: "",
+          component: Notifications
+        }
+      ]
     },
     {
       path: "/create",
@@ -60,6 +67,14 @@ export default new Router({
     {
       path: "/lists/:id",
       component: DisplayList
+    },
+    {
+      path: "/popular-lists",
+      component: PopularLists
+    },
+    {
+      path: "/latest-lists",
+      component: LatestLists
     }
   ]
 });

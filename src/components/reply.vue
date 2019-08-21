@@ -1,23 +1,34 @@
 <template>
-  <div>
-    <div class="my-2">
-      <v-avatar size="20" class="mr-2">
-        <img :src="reply.user.profile_pic" />
-      </v-avatar>
-      <a class="links"><strong>{{reply.user.username}}</strong></a>
-      <div class="content-container">{{reply.content}}</div>
-      <div @click="toggleLike()">
-        <v-icon class="like-button" v-if="!liked" small @click="">mdi-thumb-up</v-icon>
-        <v-icon class="like-button" v-if="liked" small @click="" color="blue">mdi-thumb-up</v-icon>
+  <div id="reply">
+    <div id="container" class="my-2">
+      <div>
+        <v-avatar size="20" class="mr-2">
+          <img :src="user.profile_pic" />
+        </v-avatar>
+      </div>
+
+      <div>
+        <p>
+          <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{user.username}}</a>
+          - {{reply.content}}
+        </p>
+        <div @click="toggleLike()" class="mt-n4">
+        <v-icon class="like-button" v-if="!liked" small @click>mdi-thumb-up</v-icon>
+        <v-icon class="like-button" v-if="liked" small @click color="blue">mdi-thumb-up</v-icon>
         <span v-if="reply.likes>0" class="mx-1">{{reply.likes}}</span>
       </div>
+      </div>
     </div>
+    <v-dialog v-model="showUser" max-width="300px">
+      <PreviewUser :user="replier" @closeDialog="showUser=false"></PreviewUser>
+    </v-dialog>
   </div>
 </template>
 
 <script>
-import { setTimeout } from 'timers';
-import swalErrors from '../../public/my-modules/swalErrors'
+import { setTimeout } from "timers";
+import swalErrors from "../../public/my-modules/swalErrors";
+import PreviewUser from "./PreviewUser";
 export default {
   props: {
     path: Object,
@@ -26,7 +37,9 @@ export default {
 
   data() {
     return {
-      liked: false
+      liked: false,
+      showUser: false,
+      replier
     };
   },
 
@@ -49,10 +62,15 @@ export default {
           comment_id: this.path.comment_id,
           reply_id: this.reply.id
         });
-
       } else {
         swalErrors.showAuthenticationError();
       }
+    },
+
+    fetchReplier(){
+      this.$store.dispatch("fetch_user", this.reply.user).then(user => {
+        this.Replier = user;
+      });
     },
 
     setLikedState() {
@@ -67,23 +85,33 @@ export default {
   },
 
   mounted: function() {
+    this.fetchReplier();
     setTimeout(() => {
-        this.setLikedState()
-    },1000)
+      this.setLikedState();
+    }, 1000);
   }
 };
 </script>
 
 <style scoped>
-.like-button{
+#reply{
+  padding: 0.3em;
+}
+#reply:hover{
+  background-color: hsl(207, 90%, 95%);
+}
+#container {
+  display: flex;
+}
+.like-button {
   transition: all 0.2s linear;
 }
 
-.like-button:hover{
+.like-button:hover {
   transform: scale(1.2);
 }
 
-.like-button:active{
+.like-button:active {
   transform: scale(0.9);
 }
 </style>

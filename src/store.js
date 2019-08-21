@@ -23,6 +23,8 @@ let store = new vuex.Store({
   state: {
     user: {},
 
+    otherUsers: [],
+
     lists: [],
 
     authenticated: false,
@@ -45,6 +47,10 @@ let store = new vuex.Store({
       state.user = payload;
     },
 
+    setOtherUsers(state, payload) {
+      state.otherUsers.push(payload);
+    },
+
     setSidebar(state, payload) {
       state.showSidebar = payload;
     },
@@ -54,6 +60,7 @@ let store = new vuex.Store({
     },
 
     setLists(state, payload) {
+      state.lists = [];
       state.lists.push(payload);
       console.log("Pushed to list");
     },
@@ -364,6 +371,28 @@ let store = new vuex.Store({
 
     /******************************************************************************************************************/
 
+    //ALL ABOUT USER
+
+    fetch_user({ commit }, userID) {
+      return firebase
+        .firestore()
+        .collection("users")
+        .doc(userID)
+        .get()
+        .then(documentSnapshot => {
+          commit("setOtherUsers", {
+            id: documentSnapshot.id,
+            ...documentSnapshot.data()
+          });
+          return {
+            id: documentSnapshot.id,
+            ...documentSnapshot.data()
+          };
+        });
+    },
+
+    /******************************************************************************************************************/
+
     // ALL ABOUT LIST
 
     async upload_list({ state, dispatch }, payload) {
@@ -462,55 +491,63 @@ let store = new vuex.Store({
     },
 
     async fetch_popular({ commit }, limit) {
-      let lists = firebase.firestore().collection("lists");
-      let date = new firebase.firestore.Timestamp.fromDate(
-        new Date(
-          moment()
-            .subtract(30, "days")
-            .calendar()
-        )
-      );
+      if (this.state.popular.length >= 0) {
+        return this.state.popular;
+      } else {
+        let lists = firebase.firestore().collection("lists");
+        let date = new firebase.firestore.Timestamp.fromDate(
+          new Date(
+            moment()
+              .subtract(30, "days")
+              .calendar()
+          )
+        );
 
-      return lists
-        .orderBy("votes", "desc")
-        .limit(limit)
-        .get()
-        .then(querySnapshot => {
-          let result = querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
+        return lists
+          .orderBy("votes", "desc")
+          .limit(limit)
+          .get()
+          .then(querySnapshot => {
+            let result = querySnapshot.docs.map(doc => {
+              return {
+                id: doc.id,
+                ...doc.data()
+              };
+            });
+            commit("setPopular", result);
+            return result;
           });
-          commit("setPopular", result);
-          return result;
-        });
+      }
     },
 
     async fetch_latest({ commit }, payload) {
-      let lists = firebase.firestore().collection("lists");
+      if (this.state.latest.length > 3) {
+        return this.state.latest;
+      } else {
+        let lists = firebase.firestore().collection("lists");
 
-      if (payload.timestamp === "now") {
-        payload.timestamp = new firebase.firestore.Timestamp.fromDate(
-          new Date()
-        );
-      }
+        if (payload.timestamp === "now") {
+          payload.timestamp = new firebase.firestore.Timestamp.fromDate(
+            new Date()
+          );
+        }
 
-      return lists
-        .where("created", "<", payload.timestamp)
-        .limit(payload.limit)
-        .orderBy("created", "desc")
-        .get()
-        .then(querySnapshot => {
-          let result = querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
+        return lists
+          .where("created", "<", payload.timestamp)
+          .limit(payload.limit)
+          .orderBy("created", "desc")
+          .get()
+          .then(querySnapshot => {
+            let result = querySnapshot.docs.map(doc => {
+              return {
+                id: doc.id,
+                ...doc.data()
+              };
+            });
+            commit("setLatest", result);
+            return result;
           });
-          commit("setLatest", result);
-          return result;
-        });
+      }
     },
 
     async add_list_item({ state, commit }, payload) {
@@ -628,11 +665,7 @@ let store = new vuex.Store({
           index = docRef.data().comments_count + 1;
           db.collection("comments").add({
             content: payload.comment,
-            user: {
-              id: state.user.id,
-              username: state.user.username,
-              profile_pic: state.user.profile_pic
-            },
+            user: state.user.id,
             created: firebase.firestore.FieldValue.serverTimestamp(),
             index: index,
             likes: 0
@@ -763,10 +796,7 @@ let store = new vuex.Store({
             .collection("replies")
             .add({
               content: payload.reply,
-              user: {
-                profile_pic: state.user.profile_pic,
-                username: state.user.username
-              },
+              user: state.user.id,
               created: firebase.firestore.FieldValue.serverTimestamp(),
               index: index
             })
@@ -956,19 +986,23 @@ let store = new vuex.Store({
       }
     },
 
-    fetch_categories({ commit }) {
-      let categories = firebase.firestore().collection("categories");
+    async fetch_categories({ state, commit }) {
+      if (state.categories.length > 0) {
+        return state.categories.sort((a, b) => (a.name > b.name ? 1 : -1));
+      } else {
+        let categories = firebase.firestore().collection("categories");
 
-      return categories.get().then(querySnapshot => {
-        let result = querySnapshot.docs.map(doc => {
-          return {
-            id: doc.id,
-            name: doc.data().name
-          };
+        return categories.get().then(querySnapshot => {
+          let result = querySnapshot.docs.map(doc => {
+            return {
+              id: doc.id,
+              name: doc.data().name
+            };
+          });
+          commit("setCategories", result);
+          return result.sort((a, b) => (a.name > b.name ? 1 : -1));
         });
-        commit("setCategories", result);
-        return result;
-      });
+      }
     }
   },
 
