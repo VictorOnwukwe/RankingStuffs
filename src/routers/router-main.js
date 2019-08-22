@@ -22,6 +22,8 @@ import HomeDisplay from "../components/HomeDisplay";
 import ProfileSetting from "../components/ProfileSetting";
 // @ts-ignore
 import Notifications from "../components/Notifications";
+// @ts-ignore
+import UserFavorites from "../components/UserFavorites";
 
 Vue.use(Router);
 
@@ -51,12 +53,16 @@ export default new Router({
       component: Profile,
       children: [
         {
-          path: "/settings",
+          path: "",
+          component: Notifications
+        },
+        {
+          path: "/profile/settings",
           component: ProfileSetting
         },
         {
-          path: "",
-          component: Notifications
+          path: "/profile/favorites",
+          component: UserFavorites
         }
       ]
     },

@@ -117,10 +117,11 @@
                 </div>
               </v-container>
             </v-card-text>
-          </v-card>
 
-          <v-btn @click="upload()">Upload</v-btn>
-          <v-btn @click="get()">get</v-btn>
+            <v-card-actions>
+              <v-btn @click="upload()" class="brand primary--text">Upload</v-btn>
+            </v-card-actions>
+          </v-card>
         </div>
       </div>
     </div>
@@ -184,14 +185,6 @@ export default {
       this.$router.go(-1);
     },
 
-    async get() {
-      this.$store
-        .dispatch("fetch_complete_list", "aTXawHzZOZyEZAB7a3Cy")
-        .then(() => {
-          console.log("done");
-        });
-    },
-
     addItem() {
       this.list.items.push({
         title: "",
@@ -250,8 +243,8 @@ textarea {
   resize: none;
   height: 10em;
 }
-.item{
-  position:relative;
+.item {
+  position: relative;
 }
 
 .item + .item {

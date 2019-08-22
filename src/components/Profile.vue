@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="main">
     <div id="profile-container">
       <v-card tile flat height="100%">
         <v-card-text>
@@ -28,21 +28,21 @@
       </v-card>
       <div id="interact-container">
         <div id="interact-nav">
-          <div class="nav-item">
+          <div @click="goSetting(), toggleActive('set')" class="nav-item brand" :class="{'darken-2': set, brand: !set}">
             <a>Settings</a>
           </div>
-          <div class="nav-item">
+          <div @click="goNotification(), toggleActive('not')" class="nav-item brand" :class="{'darken-2': not, brand: !not}">
             <a>Notifications</a>
           </div>
-          <div class="nav-item">
-            <a>My Lists</a>
+          <div @click="goFavorites(), toggleActive('fav')" class="nav-item brand" :class="{'darken-2': fav, brand: !fav}">
+            <a>Favorites</a>
           </div>
-          <div class="nav-item">
-            <a>My Lists</a>
-          </div>
+          <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
+            <a>Activities</a>
+          </div> -->
         </div>
       </div>
-      <v-card>
+      <v-card tile>
         <v-card-text>
           <v-layout justify-center>
               <router-view></router-view>
@@ -59,6 +59,14 @@ let moment = require("moment");
 export default {
   components: {
     Sidebar
+  },
+  data(){
+    return{
+      act: false,
+      not: false,
+      set: false,
+      fav: true
+    }
   },
   methods: {
     selectImage() {
@@ -85,6 +93,34 @@ export default {
     },
     hideSidebar() {
       this.$store.commit("setSidebar", false);
+    },
+    goSetting(){
+      this.$router.push({path: "/profile/settings"});
+    },
+    goNotification(){
+      this.$router.push({path: "/profile"});
+    },
+    goFavorites(){
+      this.$router.push({path: "/profile/favorites"});
+    },
+    goActivities(){
+      return;
+    },
+    toggleActive(bar){
+      switch(bar){
+        case "set": this.set = true;
+                    this.act = this.fav = this.not = false;
+                    break;
+        case "act": this.act = true;
+                    this.set = this.fav = this.not = false;
+                    break;
+        case "not": this.not = true;
+                    this.act = this.fav = this.set = false;
+                    break;
+        case "fav": this.fav = true;
+                    this.act = this.set = this.not = false;
+                    break;
+      }
     }
   },
   computed: {
@@ -101,6 +137,9 @@ export default {
 </script>
 
 <style scoped>
+#main{
+  scroll-behavior: smooth;
+}
 #container {
   display: flex;
 }
@@ -125,11 +164,9 @@ export default {
   display: flex;
   justify-content: center;
   padding: 1em;
-  background-color: var(--brand);
 }
 .nav-item:hover {
-  filter: brightness(85%);
-  color: white;
+  background-color: #0064BA;
 }
 .nav-item > a {
   color: var(--primary);

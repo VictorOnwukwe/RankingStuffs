@@ -1,23 +1,26 @@
 <template>
   <div id="main">
-    <v-layout mt-12>
+    <v-layout mt-4>
       <v-card tile width="100%">
-        <v-layout row-reverse>
-          <v-flex shrink pa-2>
-            <v-card max-width="250px" class="pr-0" flat height="100%" style>
+        <v-card-title class="pl-2 py-2">
+          <v-layout align-center>
+            <v-flex shrink mr-2>
+              <div class="numeric-box" style="font-size:0.7em">
+                <span>{{index}}</span>
+              </div>
+            </v-flex>
+            <v-flex>
+              <a class="title blue--text">{{item.title}}</a>
+            </v-flex>
+            <v-spacer></v-spacer>
+            <div>Vote</div>
+          </v-layout>
+        </v-card-title>
+        <v-divider></v-divider>
+        <v-layout wrap>
+          <v-flex xs12 sm4 xl3>
+            <v-card tile class="pr-0" flat height="100%" style>
               <v-layout column>
-                <v-flex shrink>
-                  <v-card-title class="pl-0">
-                    <v-layout>
-                      <v-flex shrink mr-2>
-                        <div class="numeric-box" style="font-size:0.7em"><span>{{index}}</span></div>
-                      </v-flex>
-                      <v-flex>
-                        <a class="title blue--text">{{item.title}}</a>
-                      </v-flex>
-                    </v-layout>
-                  </v-card-title>
-                </v-flex>
                 <v-flex>
                   <v-card-text>
                     <v-img
@@ -35,11 +38,11 @@
               </v-layout>
             </v-card>
           </v-flex>
-          <v-divider vertical></v-divider>
-          <v-flex>
+          <v-flex xs12 sm8 xl9 id="comment-border">
+            <v-divider class="hidden-sm-and-up"></v-divider>
+            <!-- <v-divider vertical class="hidden-xs-only"></v-divider> -->
             <v-card tile flat height="100%">
               <v-card-text>
-                <div></div>
                 <div v-if="comments.length == 0" class="mt-3">Be the first to comment...</div>
                 <div v-else>
                   <comment
@@ -52,61 +55,8 @@
                 </div>
               </v-card-text>
             </v-card>
-
-            <!-- <div id="comments">
-              <div class="comments-header">
-                <a
-                  style="float:left"
-                  v-if="comments[0] && comments[0].index!==1 && display_comments===true"
-                  class="links"
-                  @click="fetchComments(5, comments[0].created)"
-                >Load more...</a>
-
-                <a
-                  style="float:right"
-                  class="links"
-                  v-if="comments.length>0"
-                  @click="display_comments = !display_comments"
-                >
-                  <span v-if="display_comments==true" class="blue--text">Hide comments</span>
-                  <span v-if="display_comments==false">Show comments</span>
-                </a>
-              </div>
-
-              <div v-if="loading" style="display:flex; justify-content:center">
-                <v-btn flat color="grey">
-                  <v-progress-circular indeterminate :value="80" :size="25" :width="3"></v-progress-circular>
-                </v-btn>
-              </div>
-
-              <div v-for="(compComment, index) in comments" :key="index">
-                <div v-if="display_comments">
-                  <comment :comment="compComment" :list_id="list.id" :item_id="item.id"></comment>
-                </div>
-              </div>
-              <div id="comment_container">
-                <textarea id="comment_box" v-model="user_comment" rows="2"></textarea>
-                <v-btn @click="addComment()">Add comment</v-btn>
-              </div>
-            </div>-->
           </v-flex>
         </v-layout>
-        <v-bottom-navigation tile grow depressed>
-          <v-btn value="recent">
-            <span>Recent</span>
-            <v-icon>history</v-icon>
-          </v-btn>
-
-          <v-btn value="favorites">
-            <span>Favorite</span>
-            <v-icon>favorite</v-icon>
-          </v-btn>
-
-          <v-btn value="nearby">
-            <span>Nearby</span>
-            <v-icon>place</v-icon>
-          </v-btn>
-        </v-bottom-navigation>
       </v-card>
     </v-layout>
   </div>
@@ -234,7 +184,10 @@ export default {
   padding: 1em 1em;
 }
 
-#comment_container {
+@media (min-width: 600px) {
+  #comment-border {
+    border-left: 1px solid lightgrey;
+  }
 }
 
 .text-ellipsis {

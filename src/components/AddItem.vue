@@ -1,6 +1,5 @@
 <template>
-  <div>
-    <v-container grid-list-md>
+  <div style="position:relative">
       <div v-if="index!=0" class="close-container" @click="deleteItem()">
         <div class>
           <span class="close-span close-button"></span>
@@ -19,11 +18,11 @@
           outlined
           no-resize
           color="brand"
+          prepend-inner-icon="mdi-information-variant"
           v-model="about"
           @blur="emitAbout()"
         ></v-textarea>
       </div>
-    </v-container>
   </div>
 </template>
 
@@ -54,6 +53,9 @@ export default {
 </script>
 
 <style scoped>
+.close-container{
+  position: relative;
+}
 .close-button {
   position: absolute;
   right: 0.5em;

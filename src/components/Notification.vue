@@ -1,5 +1,5 @@
 <template>
-    <v-card width="100%">
+    <v-card tile outlined flat width="100%">
         <v-card-text>This is the first notification</v-card-text>
     </v-card>
 </template>

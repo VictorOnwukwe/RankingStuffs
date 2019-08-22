@@ -53,7 +53,7 @@ export default {
   --primary: #f9f9fa;
   --text-secondary: #757575;
   --dark-text: #21242f;
-  --accent: #082f63;
+  --accent: hsl(39, 90%, 50%);
   --divider: #bdbdbd;
   --background-color: #f4f4f4;
   --link: #0060ac;
@@ -93,7 +93,7 @@ html {
   height: auto;
 }
 #view-container{
-  padding: 0.5em 0.5em 0 0.5em;
+  padding: 0;
   display: flex;
 }
 
@@ -104,7 +104,8 @@ html {
 }
 
 .numeric-box{
-  background-color: var(--brand);
+  /* background-color: hsl(0, 90%, 72%); */
+  background-color: hsl(39, 90%, 50%);
   width: 2.5em;
   height: 2.5em;
   display: flex;

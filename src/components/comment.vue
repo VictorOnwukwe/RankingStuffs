@@ -5,14 +5,14 @@
         <div id="comment" style="display:flex">
           <div>
             <v-avatar size="26" class="ma-2">
-              <img :src="user.profile_pic" />
+              <img :src="comment.user.profile_pic" />
             </v-avatar>
           </div>
           <div>
             <div class="mt-2 mr-2">
               <p>
-                <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{user.username}}</a>
-                - {{comment.content}}
+                <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{comment.user.username}}</a>
+                 {{comment.content}}
               </p>
             </div>
             <div style="display:flex" class="mt-n2">
@@ -131,7 +131,7 @@ export default {
     },
 
     fetchCommenter(){
-      this.$store.dispatch("fetch_user", this.comment.user).then(user => {
+      this.$store.dispatch("fetch_user", this.comment.user.id).then(user => {
         this.commenter = user;
       });
     },

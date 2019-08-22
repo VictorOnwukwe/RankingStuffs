@@ -8,7 +8,7 @@
           class="mx-auto"
         >
           <div
-            style="font-size:1.8em;font-weight:bold;"
+            style="font-size:1.4em;font-weight:bold;"
             class="blue--text text--darken-2"
           >{{list.title}}</div>
           <p>
@@ -59,7 +59,7 @@
           </v-card-text>
 
           <v-card-actions>
-            <v-btn @click="upload_item()">Submit</v-btn>
+            <v-btn class="brand primary--text" @click="upload_item()">Submit</v-btn>
           </v-card-actions>
         </v-card>
       </div>
@@ -210,9 +210,6 @@ export default {
     }
 
     this.fetchCreator();
-    // this.fetchList().then(() => {
-    //   this.fetchCreator();
-    // });
   }
 };
 </script>
