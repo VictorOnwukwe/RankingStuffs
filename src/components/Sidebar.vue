@@ -298,8 +298,8 @@ export default {
   top: 50px;
   scrollbar-color: #051b38 #051b38;
   scrollbar-width: 3px;
-  /* background-color: var(--accent); */
-  background-color: #375680;
+  background-color: rgb(194, 192, 192);
+  /* background-color: #375680; */
   /* opacity: 0.8; */
   margin-left: -1em;
   margin-right: 1em;
@@ -311,7 +311,7 @@ export default {
   max-width: 325px;
   display: none;
 }
-@media (min-width: 42.5em) {
+@media (min-width: 1000px) {
   #main {
     display: block;
   }
@@ -320,6 +320,7 @@ export default {
   border-bottom: 1px solid var(--brand);
   padding: 0.5em 0;
   display: block;
+  color: black
 }
 
 #sidebar {
@@ -342,13 +343,13 @@ export default {
 }
 .menu-icon {
   position: absolute;
-  color: var(--primary);
+  color: black;
   top: 0.25em;
   right: 0em;
   cursor: pointer;
 }
 .prepend-icon {
-  color: var(--primary);
+  color: rgb(19, 18, 18);
   position: absolute;
   top: 0.6em;
   left: -1.2em;

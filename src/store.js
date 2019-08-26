@@ -8,6 +8,7 @@ import { setPriority } from "os";
 import { async } from "q";
 import myDate from "../public/my-modules/myDate";
 import swalErrors from "../public/my-modules/swalErrors";
+import generateID from "../public/my-modules/generate-id";
 import { stat } from "fs";
 import { METHODS } from "http";
 import createPersistedState from "vuex-persistedstate";
@@ -29,8 +30,6 @@ let store = new vuex.Store({
 
     authenticated: false,
 
-    showSidebar: true,
-
     categories: [],
 
     popular: [],
@@ -49,10 +48,6 @@ let store = new vuex.Store({
 
     setOtherUsers(state, payload) {
       state.otherUsers.push(payload);
-    },
-
-    setSidebar(state, payload) {
-      state.showSidebar = payload;
     },
 
     setAuthenticated(state, payload) {
@@ -85,6 +80,10 @@ let store = new vuex.Store({
     },
     setOnDemand(state, payload) {
       state.onDemand = payload;
+    },
+    clearState(state) {
+      state.popular = [];
+      state.latest = [];
     }
   },
 
@@ -92,11 +91,13 @@ let store = new vuex.Store({
     getAuthenticated: state => {
       return state.authenticated;
     },
-    getUser: state => state.user,
-    getSidebar: state => state.showSidebar
+    getUser: state => state.user
   },
 
   actions: {
+    clear_state({ commit }) {
+      commit("clearState");
+    },
     /********************************************************************************************************************/
     //ALL ABOUT SIGNUP
 
@@ -395,56 +396,170 @@ let store = new vuex.Store({
 
     // ALL ABOUT LIST
 
-    async upload_list({ state, dispatch }, payload) {
-      let db = firebase.firestore();
+    async upload_list({ state, dispatch }, list) {
+      let db;
+      let creationData = firebase
+        .firestore()
+        .collection("users")
+        .doc(state.user.id)
+        .collection("creations")
+        .doc("data");
 
-      let items_no = payload.items.length;
+      let votable;
+      let personal;
+
+      switch (list.listType) {
+        case "general":
+          votable = true;
+          personal = false;
+          break;
+        case "personal":
+          votable = false;
+          personal = true;
+          break;
+        case "personal-votable":
+          votable = true;
+          personal = true;
+          break;
+      }
+      let items_no = list.items.length;
+
+      if (personal) {
+        db = firebase
+          .firestore()
+          .collection("users")
+          .doc(state.user.id)
+          .collection("creations")
+          .doc("data")
+          .collection("personal");
+      } else {
+        db = firebase.firestore().collection("lists");
+      }
 
       //add list to database
       return db
-        .collection("lists")
         .add({
           //add properties to list
-          title: payload.title,
-          about: payload.about,
-          votes: (items_no * (items_no + 1)) / 2,
-          comments: 0,
+          personal: personal,
+          title: list.title,
+          about: list.about,
+          vote_count: (items_no * (items_no + 1)) / 2,
+          comment_count: 0,
           created: firebase.firestore.FieldValue.serverTimestamp(),
           rating: 0,
-          user: {
-            id: state.user.id,
-            username: state.user.username,
-            profile_pic: state.user.profile_pic
-          },
-          raters: [],
-          raters_count: 0,
-          voters: [state.user.id]
+          user: state.user.id,
+          rate_count: 0,
+          votable: votable
         })
         .then(async docRef => {
           //loops through all items received. Uploads each item as a new document in lists/list id/items collection
-          for (let i = 0; i < payload.items.length; i++) {
+          for (let i = 0; i < list.items.length; i++) {
             await dispatch("add_list_item", {
               list_id: docRef.id,
-              item: {
-                title: payload.items[i].title,
-                about: payload.items[i].about,
-                votes: payload.items.length - i,
-                image: payload.items[i].image
-              }
+              votes: list.items.length - i,
+              personal: personal,
+              item: list.items[i]
             });
           }
           return docRef.id;
         })
         .then(list_id => {
-          firebase
-            .firestore()
-            .collection("users")
-            .doc(state.user.id)
-            .collection("created")
-            .add({
+          if (!personal) {
+            creationData.collection("general").add({
               id: list_id,
-              title: payload.title
+              title: list.title
             });
+          }
+        })
+        .then(() => {
+          if (personal) {
+            creationData.update({
+              personal_count: firebase.firestore.FieldValue.increment(1)
+            });
+          } else {
+            creationData.update({
+              general_count: firebase.firestore.FieldValue.increment(1)
+            });
+          }
+        })
+        .catch(error => {
+          throw error;
+        });
+    },
+
+    async add_list_item({ state, commit }, payload) {
+      let comment_count;
+      let db = firebase.firestore();
+
+      let list;
+
+      if (payload.personal) {
+        list = firebase
+          .firestore()
+          .collection("users")
+          .doc(state.user.id)
+          .collection("creations")
+          .doc("data")
+          .collection("personal")
+          .doc(payload.list_id);
+      } else {
+        list = firebase
+          .firestore()
+          .collection("lists")
+          .doc(payload.list_id);
+      }
+
+      if (!payload.item.exists) {
+        await db
+          .collection("items")
+          .add({
+            name: payload.item.name
+          })
+          .then(docref => {
+            payload.item.name = docref.id;
+          });
+      }
+
+      if (payload.item.comment === "") {
+        comment_count = 0;
+      } else {
+        comment_count = 1;
+      }
+
+      await list
+        .collection("items")
+        .add({
+          info: payload.item.name,
+          vote_count: payload.votes,
+          list_id: payload.list_id,
+          comment_count: comment_count,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          user: state.user.id
+        })
+        .then(async docref => {
+          if (comment_count === 1) {
+            await this.dispatch("upload_comment", {
+              personal: payload.personal,
+              list_id: payload.list_id,
+              item_id: docref.id,
+              comment: payload.item.comment
+            });
+          }
+          list.update({
+            vote_count: firebase.firestore.FieldValue.increment(payload.votes)
+          });
+          return docref.id;
+        })
+        .then(id => {
+          list
+            .collection("items")
+            .doc(id)
+            .collection("voters")
+            .add({
+              id: state.user.id
+            });
+
+            console.log("Added List");
         })
         .catch(error => {
           throw error;
@@ -550,62 +665,6 @@ let store = new vuex.Store({
       }
     },
 
-    async add_list_item({ state, commit }, payload) {
-      let item_key = "";
-      let db = firebase
-        .firestore()
-        .collection("lists")
-        .doc(payload.list_id);
-
-      let photoURL;
-
-      await db
-        .collection("items")
-        .add({
-          about: payload.item.about,
-          title: payload.item.title,
-          votes: payload.item.votes,
-          list_id: payload.list_id,
-          comments_count: 0,
-          created: firebase.firestore.FieldValue.serverTimestamp(),
-          user: state.user.id
-        })
-        .then(docRef2 => {
-          item_key = docRef2.id;
-          return item_key;
-        })
-        .then(key => {
-          const fileName = payload.item.image.name;
-          const ext = fileName.slice(fileName.lastIndexOf("."));
-          return firebase
-            .storage()
-            .ref("item_images/" + key + ext)
-            .put(payload.item.image);
-        })
-        .then(fileData => {
-          return fileData.ref.getDownloadURL();
-        })
-        .then(theUrl => {
-          db.collection("items")
-            .doc(item_key)
-            .update({
-              image: theUrl
-            });
-        })
-        .then(() => {
-          db.update({
-            votes: firebase.firestore.FieldValue.increment(payload.votes),
-            item_titles: firebase.firestore.FieldValue.arrayUnion({
-              title: payload.item.title,
-              id: item_key
-            })
-          });
-        })
-        .catch(error => {
-          throw error;
-        });
-    },
-
     add_favorite({ state }, payload) {
       let user = firebase
         .firestore()
@@ -650,19 +709,34 @@ let store = new vuex.Store({
     //    ALL ABOUT COMMENTS
 
     async upload_comment({ commit, state }, payload) {
-      let db = firebase
-        .firestore()
-        .collection("lists")
-        .doc(payload.list_id)
-        .collection("items")
-        .doc(payload.item_id);
+      let db;
 
       let index;
+
+      if (payload.personal) {
+        db = firebase
+          .firestore()
+          .collection("users")
+          .doc(state.user.id)
+          .collection("creations")
+          .doc("data")
+          .collection("personal")
+          .doc(payload.list_id)
+          .collection("items")
+          .doc(payload.item_id);
+      } else {
+        db = firebase
+          .firestore()
+          .collection("lists")
+          .doc(payload.list_id)
+          .collection("items")
+          .doc(payload.item_id);
+      }
 
       return db
         .get()
         .then(async docRef => {
-          index = docRef.data().comments_count + 1;
+          index = docRef.data().comment_count + 1;
           db.collection("comments").add({
             content: payload.comment,
             user: state.user.id,

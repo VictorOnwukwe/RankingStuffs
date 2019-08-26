@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <v-card tile class="mt-2" flat>
+    <v-card tile class flat>
       <div>
         <div id="comment" style="display:flex">
           <div>
@@ -11,8 +11,17 @@
           <div>
             <div class="mt-2 mr-2">
               <p>
-                <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{comment.user.username}}</a>
-                 {{comment.content}}
+                <a
+                  @click="showUser=true"
+                  class="blue--text subtitle-2 font-weight-bold"
+                >{{comment.user.username}}</a>
+                {{comment.content.slice(0,50)}}
+                <span
+                  @click="showComment=true"
+                  v-if="comment.content.length>50"
+                  class="brand--text"
+                  style="cursor:pointer"
+                >...read more</span>
               </p>
             </div>
             <div style="display:flex" class="mt-n2">
@@ -31,7 +40,7 @@
             </div>
           </div>
         </div>
-        <div id="replies-display" class="mt-2 ml-11 pl-2" v-if="repliesVisible">
+        <div id="replies-display" class="my-2 ml-11 pl-2" v-if="repliesVisible">
           <div v-if="replies.length>0 && replies[0].index!=1">
             <a class="accent--text" @click="fetchReplies(5,replies[0].created)">Load more...</a>
           </div>
@@ -42,18 +51,23 @@
             </v-btn>
           </div>
 
-          <Reply
-            v-for="reply in replies"
-            :key="reply.id"
-            :path="{list_id: list_id, item_id: item_id, comment_id: comment.id}"
-            :reply="reply"
-          ></Reply>
+          <div v-for="(reply, index) in replies" :key="reply.id">
+            <Reply
+              :path="{list_id: list_id, item_id: item_id, comment_id: comment.id}"
+              :reply="reply"
+            ></Reply>
+            <v-divider v-if="index!=replies.length - 1"></v-divider>
+          </div>
         </div>
       </div>
     </v-card>
 
     <v-dialog v-model="showUser" max-width="300px">
       <PreviewUser :user="commenter" @closeDialog="showUser=false"></PreviewUser>
+    </v-dialog>
+
+    <v-dialog v-model="showComment" max-width="500px">
+      <PreviewComment :comment="comment"></PreviewComment>
     </v-dialog>
   </div>
 </template>
@@ -63,11 +77,13 @@ import swalErrors from "../../public/my-modules/swalErrors";
 import autosize from "autosize";
 import Reply from "./reply";
 import PreviewUser from "./PreviewUser";
+import PreviewComment from "./PreviewComment";
 
 export default {
   components: {
     Reply,
-    PreviewUser
+    PreviewUser,
+    PreviewComment
   },
   props: {
     comment: Object,
@@ -85,7 +101,8 @@ export default {
       loading: false,
       repliesShown: false,
       commenter: {},
-      showUser: false
+      showUser: false,
+      showComment: false
     };
   },
 
@@ -130,7 +147,7 @@ export default {
       }
     },
 
-    fetchCommenter(){
+    fetchCommenter() {
       this.$store.dispatch("fetch_user", this.comment.user.id).then(user => {
         this.commenter = user;
       });
@@ -192,10 +209,11 @@ export default {
 
 <style scoped>
 #comment:hover {
-  background-color: hsl(207, 90%, 95%);
+  /* background-color: hsl(207, 90%, 95%); */
+  background-color: #F5F5F5;
 }
 #replies-display {
-  border-left: 1px solid grey;
+  /* border-left: 1px solid lightgrey; */
 }
 .content-container {
   overflow-wrap: break-word;
@@ -218,29 +236,6 @@ export default {
   position: absolute;
   right: 0;
   bottom: 0;
-}
-
-.like-button {
-  transition: all 0.05s linear;
-}
-
-.like-button:hover {
-  transform: scale(1.1);
-}
-
-.like-button:active {
-  transform: scale(0.9);
-}
-
-.reply-button {
-  transition: all 0.05s linear;
-}
-.reply-button:hover {
-  transform: scale(1.1);
-}
-
-.reply-button:active {
-  transform: scale(0.9);
 }
 </style>
 

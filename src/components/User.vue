@@ -17,13 +17,7 @@
       </div>
     </div>
 
-    <v-dialog v-if="!authenticated" v-model="login_dialog" max-width="500px">
-      <Login></Login>
-    </v-dialog>
-
-    <v-dialog v-if="!authenticated" v-model="signup_dialog" max-width="500px">
-      <Signup></Signup>
-    </v-dialog>
+    
   </div>
 </template>
 
@@ -53,9 +47,6 @@ export default {
     logout() {
       this.$store.dispatch("logout");
     },
-    goProfile(){
-        this.$router.push({path: "/profile"});
-    }
   }
 };
 </script>

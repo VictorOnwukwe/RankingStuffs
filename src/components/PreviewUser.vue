@@ -15,11 +15,11 @@
             <span class="link--text">Following</span>
           </p>
         </v-layout>
-        <v-btn small rounded class="accent white--text">Follow</v-btn>
+        <v-btn small rounded class="accent grey--text text--darken-4">Follow</v-btn>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn small depressed>View profile</v-btn>
+        <v-btn small depressed @click="goUser()">View profile</v-btn>
         <v-spacer></v-spacer>
         <v-btn small depressed @click="closeUserDialog()">Close</v-btn>
       </v-card-actions>
@@ -39,6 +39,10 @@ export default {
   methods: {
     closeUserDialog() {
       this.$emit("closeDialog");
+    },
+    goUser(){
+      let link = "/"  + this.user.id + "/profile";
+      this.$router.push({path: link});
     }
   },
   computed: {

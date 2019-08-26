@@ -30,30 +30,94 @@
                       style="border-radius:4px"
                       aspect-ratio="1"
                     ></v-img>
-                    <div
-                      class="grey--text"
-                    >{{item.about}} he has been of great use in the Nigerian movie industry. From generation to generation</div>
+                    <div class="grey--text">
+                      {{windowSmall? item.about.slice(0,250) : item.about.slice(0,150)}}
+                      <div v-if="windowSmall">
+                        <span v-if="item.about.length>250" class="brand--text">...read more</span>
+                      </div>
+                      <div v-else>
+                        <span v-if="item.about.length>150" class="brand--text">...read more</span>
+                      </div>
+                    </div>
                   </v-card-text>
                 </v-flex>
               </v-layout>
+              <v-card-actions>
+                <v-layout>
+                  <v-flex>
+                    <v-layout justify-center>
+                      <v-icon>mdi-eye-circle</v-icon>
+                    </v-layout>
+                  </v-flex>
+                  <v-flex>
+                    <v-layout justify-center>
+                      <v-icon>favorite</v-icon>
+                    </v-layout>
+                  </v-flex>
+                  <v-flex>
+                    <v-layout justify-center>
+                      <v-icon>add</v-icon>
+                    </v-layout>
+                  </v-flex>
+                </v-layout>
+              </v-card-actions>
             </v-card>
           </v-flex>
           <v-flex xs12 sm8 xl9 id="comment-border">
             <v-divider class="hidden-sm-and-up"></v-divider>
-            <!-- <v-divider vertical class="hidden-xs-only"></v-divider> -->
             <v-card tile flat height="100%">
-              <v-card-text>
-                <div v-if="comments.length == 0" class="mt-3">Be the first to comment...</div>
-                <div v-else>
-                  <comment
-                    v-for="(comment, index) in comments"
-                    :key="index"
-                    :comment="comment"
-                    :list_id="list.id"
-                    :item_id="item.id"
-                  ></comment>
-                </div>
+              <v-card-text style class="mb-12">
+                <v-card
+                  flat
+                  tile
+                  v-if="comments.length == 0"
+                >Be the first to comment...</v-card>
+                <v-card
+                  flat
+                  tile
+                  v-else
+                >
+                  <div v-for="(comment, index) in comments" :key="index">
+                    <comment id="comment" :comment="comment" :list_id="list.id" :item_id="item.id"></comment>
+                    <v-divider v-if="comments.length>1"></v-divider>
+                  </div>
+                </v-card>
+                <!-- <p v-for="n in 12">good</p> -->
               </v-card-text>
+              <div style="width:100%; position:absolute; bottom:0; background-color:white">
+                <v-card-actions>
+                  <v-layout>
+                    <v-flex xs10 offset-xs-1>
+                      <v-layout class align-center>
+                        <v-flex>
+                          <v-layout>
+                            <v-textarea
+                              id="comment-reply"
+                              class="comment-box"
+                              v-model="user_comment"
+                              rounded
+                              outlined
+                              :rows="Rows"
+                              no-resize
+                              @keydown="checkGrow()"
+                              :auto-grow="autoGrow"
+                              color="brand"
+                              clearable
+                              append-icon="send"
+                              @click:append="addComment"
+                            ></v-textarea>
+                          </v-layout>
+                        </v-flex>
+                        <v-flex shrink>
+                          <v-layout align-content-end>
+                            <v-icon>comment</v-icon>
+                          </v-layout>
+                        </v-flex>
+                      </v-layout>
+                    </v-flex>
+                  </v-layout>
+                </v-card-actions>
+              </div>
             </v-card>
           </v-flex>
         </v-layout>
@@ -82,7 +146,10 @@ export default {
       comments: [],
       display_comments: true,
       voted: null,
-      loading: false
+      loading: false,
+      commentHeight: null,
+      autoGrow: true,
+      Rows: 1
     };
   },
 
@@ -93,6 +160,7 @@ export default {
           .dispatch("upload_comment", {
             item_id: this.item.id,
             list_id: this.list.id,
+            personal: this.list.personal,
             comment: this.user_comment
           })
           .then(comment => {
@@ -100,6 +168,19 @@ export default {
           });
       } else {
         swalErrors.showAuthenticationError();
+      }
+
+      this.user_comment = "";
+    },
+
+    checkGrow() {
+      console.log(document.querySelector("#comment-reply").scrollHeight > 100);
+      if (document.querySelector("#comment-reply").scrollHeight > 100) {
+        setTimeout(() => {
+          {
+            this.autoGrow = false;
+          }
+        }, 500);
       }
     },
 
@@ -162,12 +243,13 @@ export default {
   },
 
   computed: {
-    aboutTruncated() {
-      let element = document.querySelector(".text-ellipsis");
-      return (
-        element.scrollHeight > element.clientHeight ||
-        element.scrollWidth > element.clientWidth
-      );
+    windowSmall() {
+      return screen.width < 600;
+    },
+    checkHeight() {
+      setTimeout(() => {
+        return document.getElementById("comment-reply").scrollHeight < 130;
+      }, 3000);
     }
   },
 
@@ -178,7 +260,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 #comments {
   background-color: white;
   padding: 1em 1em;
@@ -227,5 +309,23 @@ export default {
   width: 100px;
   height: 100px;
   object-fit: cover;
+}
+
+.comment-box.v-text-field--outlined > .v-input__control > .v-input__slot {
+  min-height: 0px;
+}
+.comment-box .v-input__control {
+  /* background-color: lightblue; */
+}
+.comment-box .v-text-field__details {
+  flex: 0;
+  min-height: 0;
+}
+.comment-box .v-messages {
+  min-height: 0;
+}
+
+.comment-box.v-text-field.v-text-field--enclosed .v-text-field__details {
+  margin-bottom: 0;
 }
 </style>

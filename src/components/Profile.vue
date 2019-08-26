@@ -28,24 +28,42 @@
       </v-card>
       <div id="interact-container">
         <div id="interact-nav">
-          <div @click="goSetting(), toggleActive('set')" class="nav-item brand" :class="{'darken-2': set, brand: !set}">
+          <div
+            v-if="isProfile"
+            @click="setActive('settings')"
+            class="nav-item brand"
+            :class="{'darken-2': (active === 'settings'), brand: (active !== 'settings')}"
+          >
+            <v-icon color="primary" class="mr-1">mdi-settings</v-icon>
             <a>Settings</a>
           </div>
-          <div @click="goNotification(), toggleActive('not')" class="nav-item brand" :class="{'darken-2': not, brand: !not}">
+          <div
+            v-if="isProfile"
+            @click="setActive('notifications')"
+            class="nav-item brand"
+            :class="{'darken-2': (active === 'notifications'), brand: (active !== 'notifications')}"
+          >
+            <v-icon color="primary" class="mr-1">mdi-bell</v-icon>
             <a>Notifications</a>
           </div>
-          <div @click="goFavorites(), toggleActive('fav')" class="nav-item brand" :class="{'darken-2': fav, brand: !fav}">
-            <a>Favorites</a>
+          <div
+            @click="setActive('favorites')"
+            class="nav-item brand"
+            :class="{'darken-2': (active === 'favorites'), brand: (active !== 'favorites')}"
+          >
+            <v-icon color="primary" class="mr-1">favorite</v-icon>
+            <a v-if="isProfile">My Favorites</a>
+            <a v-else>Favorites</a>
           </div>
           <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
             <a>Activities</a>
-          </div> -->
+          </div>-->
         </div>
       </div>
       <v-card tile>
         <v-card-text>
           <v-layout justify-center>
-              <router-view></router-view>
+            <router-view></router-view>
           </v-layout>
         </v-card-text>
       </v-card>
@@ -60,15 +78,36 @@ export default {
   components: {
     Sidebar
   },
-  data(){
-    return{
-      act: false,
-      not: false,
-      set: false,
-      fav: true
-    }
+  data() {
+    return {
+      user: {},
+      isProfile: false,
+      active: ""
+    };
   },
   methods: {
+    async fetchUser(id) {
+      await this.$store.dispatch("fetch_user", id).then(user => {
+        this.user = user;
+      });
+    },
+    matchProfile() {
+      if (this.userID === this.$store.getters.getUser.id) {
+        this.isProfile = true;
+      }
+      if (!this.isProfile) {
+        this.goFavorites();
+        this.setActive("favorites");
+      } else {
+        this.goNotification();
+        this.setActive("notifications");
+      }
+    },
+    setActive(val) {
+      console.log("active");
+      this.active = val;
+      this.$router.push({path: this.homeLink + val});
+    },
     selectImage() {
       this.$refs.profile.click();
     },
@@ -94,50 +133,50 @@ export default {
     hideSidebar() {
       this.$store.commit("setSidebar", false);
     },
-    goSetting(){
-      this.$router.push({path: "/profile/settings"});
+    goSetting() {
+      this.$router.push({ path: this.homeLink + "/settings" });
     },
-    goNotification(){
-      this.$router.push({path: "/profile"});
+    goNotification() {
+      this.$router.push({ path: this.homeLink + "/notifications" });
     },
-    goFavorites(){
-      this.$router.push({path: "/profile/favorites"});
+    goFavorites() {
+      this.$router.push({ path: this.homeLink + "/favorites" });
+      console.log("To favorites");
     },
-    goActivities(){
+    goActivities() {
       return;
-    },
-    toggleActive(bar){
-      switch(bar){
-        case "set": this.set = true;
-                    this.act = this.fav = this.not = false;
-                    break;
-        case "act": this.act = true;
-                    this.set = this.fav = this.not = false;
-                    break;
-        case "not": this.not = true;
-                    this.act = this.fav = this.set = false;
-                    break;
-        case "fav": this.fav = true;
-                    this.act = this.set = this.not = false;
-                    break;
-      }
     }
   },
   computed: {
-    user() {
-      return this.$store.getters.getUser;
+    userID() {
+      return this.$route.params.id;
     },
     joined() {
       return moment(this.user.created.toDate()).format("MMMM YYYY");
       // return moment(this.user.created.toDate()).calendar();
+    },
+    homeLink() {
+      return "/" + this.user.id + "/profile/";
     }
   },
-  mounted: function() {}
+  watch: {
+    'userID'(){
+        console.log("true");
+        this.fetchUser(this.$route.params.id).then(() => {
+          this.matchProfile();
+        })
+    }
+  },
+  mounted: function() {
+    this.fetchUser(this.userID).then(() => {
+      this.matchProfile();
+    });
+  }
 };
 </script>
 
 <style scoped>
-#main{
+#main {
   scroll-behavior: smooth;
 }
 #container {
@@ -164,11 +203,10 @@ export default {
   display: flex;
   justify-content: center;
   padding: 1em;
+  color: var(--primary);
+  cursor: pointer;
 }
 .nav-item:hover {
-  background-color: #0064BA;
-}
-.nav-item > a {
-  color: var(--primary);
+  filter: brightness(95%);
 }
 </style>

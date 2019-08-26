@@ -1,15 +1,15 @@
 <template>
   <div id="reply">
-    <div id="container" class="my-2">
+    <div id="container">
       <div>
         <v-avatar size="20" class="mr-2">
-          <img :src="user.profile_pic" />
+          <img :src="reply.user.profile_pic" />
         </v-avatar>
       </div>
 
       <div>
         <p>
-          <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{user.username}}</a>
+          <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{reply.user.username}}</a>
           - {{reply.content}}
         </p>
         <div @click="toggleLike()" class="mt-n4">
@@ -98,20 +98,10 @@ export default {
   padding: 0.3em;
 }
 #reply:hover{
-  background-color: hsl(207, 90%, 95%);
+  /* background-color: hsl(207, 90%, 95%); */
+  background-color: #F5F5F5;
 }
 #container {
   display: flex;
-}
-.like-button {
-  transition: all 0.2s linear;
-}
-
-.like-button:hover {
-  transform: scale(1.2);
-}
-
-.like-button:active {
-  transform: scale(0.9);
 }
 </style>

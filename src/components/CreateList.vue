@@ -28,7 +28,30 @@
           </v-card>
 
           <v-card tile class="mt-4">
-            <v-card-title class="brand darken-2 primary--text title pa-1">2. Add List Description</v-card-title>
+            <v-card-title class="brand darken-2 primary--text pa-1 title">2. List Type</v-card-title>
+            <v-card-text>
+              <v-radio-group v-model="list.listType">
+                <v-radio
+                  color="blue"
+                  label="General - List can be seen and voted on by everybody."
+                  value="general"
+                ></v-radio>
+                <v-radio
+                  color="red"
+                  label="Personal - List can be seen by your followers and cannot be voted on."
+                  value="Personal"
+                ></v-radio>
+                <v-radio
+                  color="green"
+                  label="Personal Votable - List can be seen by your followers and can be voted on."
+                  value="personal-votable"
+                ></v-radio>
+              </v-radio-group>
+            </v-card-text>
+          </v-card>
+
+          <v-card tile class="mt-4">
+            <v-card-title class="brand darken-2 primary--text title pa-1">3. Add List Description</v-card-title>
             <v-card-text>
               <v-container grid-list-md>
                 <v-layout wrap>
@@ -36,7 +59,7 @@
                     <v-text-field color="brand" outlined label="Title" v-model="list.title"></v-text-field>
                   </v-flex>
 
-                  <v-flex xs12 class>
+                  <v-flex xs12 class mt-n5>
                     <v-textarea
                       no-resize
                       outlined
@@ -48,7 +71,7 @@
                     ></v-textarea>
                   </v-flex>
 
-                  <v-flex sm6>
+                  <v-flex sm6 mt-n5>
                     <v-select
                       :items="categories"
                       placeholder="Optional"
@@ -58,7 +81,7 @@
                     ></v-select>
                   </v-flex>
 
-                  <v-flex sm6>
+                  <v-flex sm6 mt-n5>
                     <v-select
                       :items="categories"
                       placeholder="Optional"
@@ -67,7 +90,7 @@
                       label="Sub-Category"
                     ></v-select>
                   </v-flex>
-                  <v-flex xs12>
+                  <v-flex xs12 mt-n5>
                     <v-textarea
                       @keyup.space="pushTag()"
                       @keyup.delete="pushTag()"
@@ -97,16 +120,18 @@
           </v-card>
 
           <v-card tile class="mt-4">
-            <v-card-title class="brand darken-2 primary--text pa-1 title">3. Add List Items</v-card-title>
+            <v-card-title class="brand darken-2 primary--text pa-1 title">4. Add List Items</v-card-title>
             <v-card-text>
               <v-container grid-list-md>
-                <div class="item" v-for="(item, index) in list.items" :key="index">
+                <div>
                   <AddItem
+                    class="item"
+                    v-for="(item, index) in list.items"
+                    :key="index"
                     :parentLength="0"
                     :index="index"
-                    @deleteMe="deleteItem"
-                    @receiveTitle="setItemTitle"
-                    @receiveAbout="setItemAbout"
+                    @receiveItem="setItem"
+                    @receiveComment="setItemComment"
                   ></AddItem>
                 </div>
 
@@ -145,11 +170,12 @@ export default {
         about: "",
         items: [
           {
-            title: "",
-            about: "",
-            image: undefined
+            name: "",
+            exists: false,
+            comment: ""
           }
-        ]
+        ],
+        listType: "general"
       },
       n: 0,
       categories: [],
@@ -187,8 +213,9 @@ export default {
 
     addItem() {
       this.list.items.push({
-        title: "",
-        about: ""
+        name: "",
+        exists: false,
+        comment: ""
       });
 
       setTimeout(() => {
@@ -196,16 +223,12 @@ export default {
       }, 1);
     },
 
-    setItemTitle(index, title) {
-      this.list.items[index].title = title;
+    setItem(index, item) {
+      this.list.items[index].name = item.name;
+      this.list.items[index].exists = item.exists;
     },
-    setItemAbout(index, about) {
-      this.list.items[index].about = about;
-      console.log(this.list.items[index].about + index);
-    },
-
-    deleteItem(index) {
-      this.list.items.splice(index, 1);
+    setItemComment(index, comment) {
+      this.list.items[index].comment = comment;
     },
 
     fetchCategories() {

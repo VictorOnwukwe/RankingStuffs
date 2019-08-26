@@ -49,19 +49,19 @@ export default new Router({
       component: Signup
     },
     {
-      path: "/profile",
+      path: "/:id/profile",
       component: Profile,
       children: [
         {
-          path: "",
+          path: "/:id/profile/notifications",
           component: Notifications
         },
         {
-          path: "/profile/settings",
+          path: "/:id/profile/settings",
           component: ProfileSetting
         },
         {
-          path: "/profile/favorites",
+          path: "/:id/profile/favorites",
           component: UserFavorites
         }
       ]

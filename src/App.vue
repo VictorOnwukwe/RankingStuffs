@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <v-app id="body">
-      <User></User>
+      <!-- <User></User> -->
       <toolbar></toolbar>
       <div id="view-container">
         <Sidebar v-if="['home'].indexOf($route.name) < 0"></Sidebar>
@@ -42,7 +42,7 @@ export default {
   },
 
   mounted: function() {
-    
+    this.$store.dispatch("clear_state");
   }
 };
 </script>
@@ -61,7 +61,7 @@ export default {
   --brand: #2196F3;
 
   --border-radius: 0.3em;
-  font-size: 0.9em !important;
+  font-size: 0.85em !important;
 }
 
 h1,
@@ -76,7 +76,17 @@ html {
   scroll-behavior: smooth;
 }
 
-@media (min-width: 30em) {
+@media (min-width: 400px) {
+  :root {
+    font-size: 0.9em !important;
+  }
+}
+@media (min-width: 600px) {
+  :root {
+    font-size: 0.95em !important;
+  }
+}
+@media (min-width: 900px) {
   :root {
     font-size: 1em !important;
   }
@@ -105,7 +115,7 @@ html {
 
 .numeric-box{
   /* background-color: hsl(0, 90%, 72%); */
-  background-color: hsl(39, 90%, 50%);
+  background-color: #f2a10c;
   width: 2.5em;
   height: 2.5em;
   display: flex;
@@ -183,6 +193,29 @@ html {
 }
 .minus-three{
   margin-top: -3em;
+}
+
+.like-button {
+  transition: all 0.05s linear;
+}
+
+.like-button:hover {
+  transform: scale(1.1);
+}
+
+.like-button:active {
+  transform: scale(0.9);
+}
+
+.reply-button {
+  transition: all 0.05s linear;
+}
+.reply-button:hover {
+  transform: scale(1.1);
+}
+
+.reply-button:active {
+  transform: scale(0.9);
 }
 </style>
 

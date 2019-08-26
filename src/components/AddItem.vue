@@ -1,6 +1,6 @@
 <template>
   <div style="position:relative">
-      <div v-if="index!=0" class="close-container" @click="deleteItem()">
+      <div class="close-container" @click="deleteItem()">
         <div class>
           <span class="close-span close-button"></span>
         </div>
@@ -9,18 +9,18 @@
         <span>{{parentLength + index + 1}}</span>
       </div>
       <div class>
-        <v-text-field label="Item Name" outlined color="brand" v-model="title" @blur="emitTitle()"></v-text-field>
+        <v-text-field label="Item Name" outlined color="brand" v-model="item.name" @blur="emitItem()"></v-text-field>
       </div>
       <div class="mt-n3">
         <v-textarea
-          label="About Item"
+          label="Comment"
           placeholder="(Optional) Tell us why you placed this item at this position"
           outlined
           no-resize
           color="brand"
           prepend-inner-icon="mdi-information-variant"
-          v-model="about"
-          @blur="emitAbout()"
+          v-model="comment"
+          @blur="emitComment()"
         ></v-textarea>
       </div>
   </div>
@@ -34,19 +34,24 @@ export default {
   },
   data() {
     return {
-      title: "",
-      about: ""
+      item: {
+        name: "",
+        exists: false
+      },
+      comment: ""
     };
   },
   methods: {
-    emitTitle() {
-      this.$emit("receiveTitle", this.index, this.title);
+    emitItem() {
+      this.$emit("receiveItem", this.index, this.item);
     },
-    emitAbout() {
-      this.$emit("receiveAbout", this.index, this.about);
+    emitComment() {
+      this.$emit("receiveComment", this.index, this.comment);
     },
     deleteItem() {
-      this.$emit("deleteMe", this.index);
+      this.item.name = "";
+      this.item.exists = false;
+      this.comment = "";
     }
   }
 };

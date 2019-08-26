@@ -45,7 +45,6 @@
               <AddItem
                 :parentLength="list.items.length"
                 :index="index"
-                @deleteMe="deleteItem"
                 @receiveTitle="setItemTitle"
                 @receiveAbout="setItemAbout"
               ></AddItem>
@@ -172,10 +171,6 @@ export default {
         list_title: this.list.title,
         preview_image: this.list.items[0].image
       });
-    },
-
-    deleteItem(index) {
-      this.items.splice(index - this.list.items.length, 1);
     },
     fetchCreator() {
       this.$store.dispatch("fetch_user", this.list.user).then(user => {
