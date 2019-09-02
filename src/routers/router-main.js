@@ -24,6 +24,12 @@ import ProfileSetting from "../components/ProfileSetting";
 import Notifications from "../components/Notifications";
 // @ts-ignore
 import UserFavorites from "../components/UserFavorites";
+//@ts-ignore
+import Item from "../components/Item";
+//@ts-ignore
+import DisplayDemanded from "../components/DisplayDemanded";
+// @ts-ignore
+import Demand from "../components/Demand";
 
 Vue.use(Router);
 
@@ -72,6 +78,7 @@ export default new Router({
     },
     {
       path: "/lists/:id",
+      name: "list-display",
       component: DisplayList
     },
     {
@@ -81,6 +88,18 @@ export default new Router({
     {
       path: "/latest-lists",
       component: LatestLists
+    },
+    {
+      path: "/items/:id",
+      component: Item
+    },
+    {
+      path: "/demanded",
+      component: DisplayDemanded
+    },
+    {
+      path: "/demand",
+      component: Demand
     }
   ]
 });

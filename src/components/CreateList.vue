@@ -1,11 +1,13 @@
 <template>
-  <div id="main">
+  <div id="main" class>
     <div id="container">
       <div style="flex-grow:1">
-        <div style="margin-bottom:2em"></div>
-        <div style="margin:0 auto;max-width:700px;">
-          <v-card tile class>
-            <v-card-title class="brand darken-2 primary--text pa-1 title">1. Heads-Up</v-card-title>
+        <div style="margin:0 auto;max-width:900px;">
+          <v-card-title class="grey--text text--darken-2 ml-n4 mb-4">Create List</v-card-title>
+          <v-card tile>
+            <v-card elevation="1" style="position:sticky; top:3.275em;" tile>
+              <v-card-title class="top-bar pa-1 title">1. Heads-Up</v-card-title>
+            </v-card>
             <v-card-text>
               <ol class="mt-5">
                 <li>
@@ -28,32 +30,43 @@
           </v-card>
 
           <v-card tile class="mt-4">
-            <v-card-title class="brand darken-2 primary--text pa-1 title">2. List Type</v-card-title>
+            <v-card elevation="1" tile style="position:sticky; top:3.125em;z-index:3">
+              <v-card-title class="top-bar pa-1 title">2. List Type</v-card-title>
+            </v-card>
             <v-card-text>
-              <v-radio-group v-model="list.listType">
+              <v-radio-group v-model="list.personal">
                 <v-radio
                   color="blue"
-                  label="General - List can be seen and voted on by everybody."
-                  value="general"
+                  label="General - List appears in public search."
+                  :value="false"
                 ></v-radio>
                 <v-radio
-                  color="red"
-                  label="Personal - List can be seen by your followers and cannot be voted on."
-                  value="Personal"
+                  color="blue"
+                  label="Personal - List only appears on your timeline and cannot appear in public search."
+                  :value="true"
+                ></v-radio>
+              </v-radio-group>
+              <v-radio-group v-model="list.votable">
+                <v-radio
+                  color="green"
+                  label="Votable - List can be interacted with by others through voting."
+                  :value="true"
                 ></v-radio>
                 <v-radio
                   color="green"
-                  label="Personal Votable - List can be seen by your followers and can be voted on."
-                  value="personal-votable"
+                  label="Not Votable - List cannot be interacted with through voting. Suitable for factual, statistical lists."
+                  :value="false"
                 ></v-radio>
               </v-radio-group>
             </v-card-text>
           </v-card>
 
           <v-card tile class="mt-4">
-            <v-card-title class="brand darken-2 primary--text title pa-1">3. Add List Description</v-card-title>
+            <v-card elevation="1" tile style="position:sticky; top:3.375em; z-index:3;">
+              <v-card-title class="top-bar title pa-1">3. Add List Description</v-card-title>
+            </v-card>
             <v-card-text>
-              <v-container grid-list-md>
+              <v-container grid-list-md pa-0>
                 <v-layout wrap>
                   <v-flex xs12 style class>
                     <v-text-field color="brand" outlined label="Title" v-model="list.title"></v-text-field>
@@ -97,7 +110,7 @@
                       v-model="userTags"
                       outlined
                       :rows="1"
-                      placeholder="e.g. Happy Grooving Cool"
+                      placeholder="Separate with space e.g. Happy Grooving Cool"
                       no-resize
                       label="Tags"
                       color="brand"
@@ -105,13 +118,13 @@
                     ></v-textarea>
                   </v-flex>
                   <v-flex>
-                    <v-layout wrap class="mt-n8">
-                      <span
+                    <v-layout wrap class="mt-n9">
+                      <v-chip
                         v-for="(tag, i) in tags"
                         :key="i"
-                        class="brand lighten-1 mr-2 mt-2 px-3 py-1"
-                        style="border-radius:999px"
-                      >{{tag}}</span>
+                        close
+                        class="mr-2 mt-2"
+                      >{{tag}}</v-chip>
                     </v-layout>
                   </v-flex>
                 </v-layout>
@@ -120,20 +133,20 @@
           </v-card>
 
           <v-card tile class="mt-4">
-            <v-card-title class="brand darken-2 primary--text pa-1 title">4. Add List Items</v-card-title>
+            <v-card elevation="1" tile style="position:sticky; top:3.125em; z-index:3">
+              <v-card-title class="top-bar pa-1 title">4. Add List Items</v-card-title>
+            </v-card>
             <v-card-text>
-              <v-container grid-list-md>
-                <div>
-                  <AddItem
-                    class="item"
-                    v-for="(item, index) in list.items"
-                    :key="index"
-                    :parentLength="0"
-                    :index="index"
-                    @receiveItem="setItem"
-                    @receiveComment="setItemComment"
-                  ></AddItem>
-                </div>
+              <v-container grid-list-md pa-0>
+                <AddItem
+                  class="item"
+                  v-for="(item, index) in list.items"
+                  :key="index"
+                  :parentLength="0"
+                  :index="index"
+                  @receiveItem="setItem"
+                  @receiveComment="setItemComment"
+                ></AddItem>
 
                 <div v-if="list.items.length <= 9" id="plus-button">
                   <div @click="addItem()" class="numeric-box circle" style="cursor:pointer">
@@ -144,7 +157,7 @@
             </v-card-text>
 
             <v-card-actions>
-              <v-btn @click="upload()" class="brand primary--text">Upload</v-btn>
+              <v-btn @click="upload()" color="brand darken-1" class="primary--text">Submit</v-btn>
             </v-card-actions>
           </v-card>
         </div>
@@ -175,7 +188,8 @@ export default {
             comment: ""
           }
         ],
-        listType: "general"
+        personal: false,
+        votable: true
       },
       n: 0,
       categories: [],
@@ -204,7 +218,21 @@ export default {
     },
 
     async upload() {
-      await this.$store.dispatch("upload_list", this.list);
+      await this.$store.dispatch("upload_list", {
+          tags: this.tags,
+          ...this.list
+        }).then(list_id => {
+        if (this.$route.query.demanded) {
+          this.dispatch("send_notification", {
+            type: "demand-created",
+            list_id: list_id,
+            demand_id: this.$route.query.id,
+            title: this.$route.query.title
+          }).then(() => {
+            this.$store.dispatch("delete_demand", this.$route.query.id);
+          });
+        }
+      });
 
       alert("Upload done");
 
@@ -246,6 +274,10 @@ export default {
   },
   created: function() {
     this.fetchCategories();
+
+    if (this.$route.query.title) {
+      this.list.title = this.$route.query.title;
+    }
   }
 };
 </script>
@@ -253,18 +285,6 @@ export default {
 <style scoped>
 #container {
   display: flex;
-}
-input {
-  border: 1px solid black;
-  display: block;
-  margin-top: 0.3em;
-}
-
-textarea {
-  border: 1px solid black;
-  margin-top: 0.3em;
-  resize: none;
-  height: 10em;
 }
 .item {
   position: relative;

@@ -65,46 +65,67 @@
             >Add a List</div>
           </v-layout>
           <div v-if="addList" class="px-3">
-            <v-card flat tile>
-              <p class="title grey--text mt-1">Add Category</p>
-              <v-layout wrap>
-                <v-flex xs12>
-                  <v-text-field
-                    outlined
-                    label="Title"
-                    placeholder="e.g. My Top Ten Favorite Movies"
-                    color="brand"
-                  ></v-text-field>
-                </v-flex>
-                <v-flex xs12 mt-n3>
-                  <v-textarea
-                    label="Comment"
-                    placeholder="Add a comment on your list..."
-                    prepend-inner-icon="mdi-comment"
-                    no-resize
-                    outlined
-                    color="brand"
-                  ></v-textarea>
-                </v-flex>
-              </v-layout>
+            <v-card flat tile outlined class="mt-8 pa-3">
+              <p class="title grey--text mt-1">List Type</p>
+              <v-radio-group v-model="list.votable">
+                <v-radio color="green" label="Votable - List can be interacted with by others through voting." :value="true"></v-radio>
+                <v-radio
+                  color="green"
+                  label="Not Votable - List cannot be interacted with through voting. Suitable for factual, statistical lists."
+                  :value="false"
+                ></v-radio>
+              </v-radio-group>
+            </v-card>
+            <v-card class="mt-5" outlined flat tile>
+              <p class="title grey--text ml-3 mt-1">Add Category</p>
+              <v-container grid-list-md>
+                <v-layout wrap>
+                  <v-flex xs12>
+                    <v-text-field
+                      outlined
+                      label="Title"
+                      placeholder="e.g. My Top Ten Favorite Movies"
+                      color="brand"
+                      v-model="list.title"
+                    ></v-text-field>
+                  </v-flex>
+                  <v-flex xs12 mt-n5>
+                    <v-textarea
+                      label="Comment"
+                      placeholder="Add a comment on your list..."
+                      prepend-inner-icon="mdi-comment"
+                      no-resize
+                      outlined
+                      color="brand"
+                      v-model="list.about"
+                    ></v-textarea>
+                  </v-flex>
+                  <v-flex xs6 mt-n5>
+                    <v-select label="Category" :items="['Good', 'Bad', 'Sad']" outlined></v-select>
+                  </v-flex>
+                  <v-flex xs6 mt-n5>
+                    <v-select label="Sub-Category" :items="['Good', 'Bad', 'Sad']" outlined></v-select>
+                  </v-flex>
+                </v-layout>
+              </v-container>
             </v-card>
 
-            <v-card flat tile>
+            <v-card class="pa-3 mt-5" outlined flat tile>
               <p class="title grey--text">Add Items</p>
               <div v-for="(item, index) in list.items" :key="index">
                 <AddItem
                   :parentLength="0"
                   :index="index"
-                  @receiveTitle="setItemTitle"
-                  @receiveAbout="setItemAbout"
+                  @receiveItem="setItem"
+                  @receiveComment="setItemComment"
                 ></AddItem>
               </div>
 
-              <v-layout justify-center>
+              <v-layout v-if="list.items.length<=10" justify-center>
                 <v-icon color="accent" size="40" @click="addItem()">mdi-plus-circle</v-icon>
               </v-layout>
               <v-card-actions>
-                <v-btn class="brand primary--text">Add</v-btn>
+                <v-btn @click="uploadList()" class="brand primary--text">Submit</v-btn>
               </v-card-actions>
             </v-card>
           </div>
@@ -124,13 +145,16 @@ export default {
     return {
       list: {
         title: "",
-        comment: "",
+        about: "",
         items: [
           {
-            title: "",
+            name: "",
+            exists: false,
             comment: ""
           }
-        ]
+        ],
+        votable: false,
+        personal: true
       },
       addFavorites: false,
       addList: false
@@ -139,7 +163,8 @@ export default {
   methods: {
     addItem() {
       this.list.items.push({
-        title: "",
+        name: "",
+        exists: false,
         comment: ""
       });
 
@@ -147,18 +172,19 @@ export default {
         window.scrollTo(0, document.querySelector("#main").scrollHeight);
       }, 1);
     },
-    setItemTitle(index, title) {
-      this.list.items[index].title = title;
+    uploadList(){
+      this.$store.dispatch("upload_list", this.list)
     },
-    setItemAbout(index, about) {
-      this.list.items[index].about = about;
+    setItem(index, item) {
+      this.list.items[index].name = item.name;
+      this.list.items[index].exists = item.exists;
+    },
+    setItemComment(index, comment) {
+      this.list.items[index].comment = comment;
     }
   }
 };
 </script>
 
 <style scoped>
-#main {
-  scroll-behavior: smooth;
-}
 </style>

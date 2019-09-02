@@ -13,7 +13,7 @@
           - {{reply.content}}
         </p>
         <div @click="toggleLike()" class="mt-n4">
-        <v-icon class="like-button" v-if="!liked" small @click>mdi-thumb-up</v-icon>
+        <v-icon class="like-button" v-if="!liked" small @click color="grey">mdi-thumb-up</v-icon>
         <v-icon class="like-button" v-if="liked" small @click color="blue">mdi-thumb-up</v-icon>
         <span v-if="reply.likes>0" class="mx-1">{{reply.likes}}</span>
       </div>
@@ -39,7 +39,7 @@ export default {
     return {
       liked: false,
       showUser: false,
-      replier
+      replier: {}
     };
   },
 
@@ -85,6 +85,7 @@ export default {
   },
 
   mounted: function() {
+    console.log("Reply: ",this.reply.user)
     this.fetchReplier();
     setTimeout(() => {
       this.setLikedState();

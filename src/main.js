@@ -12,6 +12,7 @@ import Swal from "sweetalert2";
 import autosize from "autosize";
 import anime from "animejs/lib/anime.es.js";
 import OverlayScrollbars from "os-vue";
+import VueTextareaAutosize from "vue-textarea-autosize";
 
 import VueGlide from "vue-glide-js";
 // import "vue-glide-js/dist/vue-glide.css";
@@ -20,10 +21,7 @@ import VueGlide from "vue-glide-js";
 
 Vue.config.productionTip = false;
 
-Vue.use(
-  VueGlide,
-  OverlayScrollbars
-);
+Vue.use(VueGlide, OverlayScrollbars, VueTextareaAutosize);
 
 // @ts-ignore
 new Vue({

@@ -4,7 +4,7 @@
       <!-- <User></User> -->
       <toolbar></toolbar>
       <div id="view-container">
-        <Sidebar v-if="['home'].indexOf($route.name) < 0"></Sidebar>
+        <Sidebar v-if="['home', 'list-display'].indexOf($route.name) < 0"></Sidebar>
         <router-view id="router-view"></router-view>
       </div>
       <!-- <Footer></Footer> -->
@@ -99,23 +99,29 @@ html {
 }
 
 #body {
-  background-color: var(--background-color);
+  background: radial-gradient(#f1f5f8, white);
   height: auto;
 }
 #view-container{
   padding: 0;
   display: flex;
+  margin-top: 3.125em;
 }
 
 @media (min-width:50em) {
   #view-container{
-    padding: 1em 1em 0 1em;
+    padding: 0 1em;
   }
+}
+
+.top-bar{
+  background: linear-gradient(180deg, #1565C0, #1976D2);
+  color: white;
 }
 
 .numeric-box{
   /* background-color: hsl(0, 90%, 72%); */
-  background-color: #f2a10c;
+  background-color: #FFA500;
   width: 2.5em;
   height: 2.5em;
   display: flex;
@@ -132,13 +138,6 @@ html {
 .circle{
   border-radius: 50%;
 }
-
-/* @media (min-width: 30em) {
-  #view-container {
-    padding: 1em 1em;
-    display: flex;
-  }
-} */
 
 #router-view{
   flex-grow: 1;
@@ -169,18 +168,6 @@ html {
 }
 .links:hover {
   text-decoration: underline;
-}
-
-#sidebar{
-  display: none;
-  margin-left: 0.5em;
-  margin-right: 0.5em;
-}
-
-@media (min-width: 42.5em){
-  #sidebar{
-    display: block;
-  }
 }
 .minus-one{
   margin-top: -1em;
@@ -216,6 +203,12 @@ html {
 
 .reply-button:active {
   transform: scale(0.9);
+}
+.underline:hover{
+  text-decoration: underline;
+}
+.pointer{
+    cursor: pointer;
 }
 </style>
 

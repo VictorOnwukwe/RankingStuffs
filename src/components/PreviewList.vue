@@ -7,7 +7,7 @@
         </v-flex>
         <v-flex>
           <v-card tile height="100%" flat>
-            <v-card-title class="title brand--text text--darken-2">{{list.title}}</v-card-title>
+            <v-card-title @click="goList()" class="title brand--text text--darken-2">{{list.title}}</v-card-title>
             <v-card-text>
               <div>
                 <p @click="showUser=true" class="mt-n3 subtitle-1 link--text">{{user.username}}</p>

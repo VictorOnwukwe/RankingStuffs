@@ -3,30 +3,47 @@
     <div id="profile-container">
       <v-card tile flat height="100%">
         <v-card-text>
-          <v-row class>
+          <v-layout>
             <div class="mx-3">
               <v-avatar tile size="150px">
                 <img :src="user.profile_pic" />
               </v-avatar>
+              <v-icon style="position:absolute; bottom:1em; right:1em;">camera</v-icon>
             </div>
             <div>
               <p class="title">@{{user.username}}</p>
-              <div class="mt-n4">Joined</div>
-              <div class="mt-2 black--text" style="display:flex">
+              <div class="mt-n4">Joined {{joined}}</div>
+              <v-layout class="mt-2 black--text">
                 <div class>
-                  120
-                  <a class="brand--text font-weight-bold text--darken-2" style>Followers</a>
+                  {{user.followers}}
+                  <a class="brand--text font-weight-bold text--darken-2">Followers</a>
                 </div>
                 <div class="ml-2">
-                  243
+                  {{user.following}}
                   <a class="brand--text font-weight-bold text--darken-2">Following</a>
                 </div>
+              </v-layout>
+              <div v-if="!isUser">
+                <v-btn
+                  v-if="!following"
+                  @click="follow()"
+                  small
+                  rounded
+                  class="accent grey--text text--darken-4"
+                >Follow</v-btn>
+                <v-btn
+                  v-else
+                  @click="unfollow()"
+                  small
+                  rounded
+                  class="accent grey--text text--darken-4"
+                >UnFollow</v-btn>
               </div>
             </div>
-          </v-row>
+          </v-layout>
         </v-card-text>
       </v-card>
-      <div id="interact-container">
+      <div id="interact-container" class="pa-4 white">
         <div id="interact-nav">
           <div
             v-if="isProfile"
@@ -60,7 +77,7 @@
           </div>-->
         </div>
       </div>
-      <v-card tile>
+      <v-card tile flat>
         <v-card-text>
           <v-layout justify-center>
             <router-view></router-view>
@@ -82,7 +99,8 @@ export default {
     return {
       user: {},
       isProfile: false,
-      active: ""
+      active: "",
+      following: null
     };
   },
   methods: {
@@ -90,6 +108,12 @@ export default {
       await this.$store.dispatch("fetch_user", id).then(user => {
         this.user = user;
       });
+    },
+    follow() {
+      this.$store.dispatch("follow_user", this.user).then(() => {});
+    },
+    unfollow() {
+      this.$store.dispatch("unfollow_user", this.user.id).then(() => {});
     },
     matchProfile() {
       if (this.userID === this.$store.getters.getUser.id) {
@@ -106,7 +130,7 @@ export default {
     setActive(val) {
       console.log("active");
       this.active = val;
-      this.$router.push({path: this.homeLink + val});
+      this.$router.push({ path: this.homeLink + val });
     },
     selectImage() {
       this.$refs.profile.click();
@@ -145,6 +169,15 @@ export default {
     },
     goActivities() {
       return;
+    },
+    checkFollowing() {
+      this.$store.dispatch("check_following", this.user.id).then(query => {
+        if (query.length > 0) {
+          this.following = true;
+        } else {
+          this.following = false;
+        }
+      });
     }
   },
   computed: {
@@ -157,14 +190,17 @@ export default {
     },
     homeLink() {
       return "/" + this.user.id + "/profile/";
+    },
+    isUser() {
+      return this.$store.getters.getUser === this.user.id;
     }
   },
   watch: {
-    'userID'(){
-        console.log("true");
-        this.fetchUser(this.$route.params.id).then(() => {
-          this.matchProfile();
-        })
+    userID() {
+      console.log("true");
+      this.fetchUser(this.$route.params.id).then(() => {
+        this.matchProfile();
+      });
     }
   },
   mounted: function() {

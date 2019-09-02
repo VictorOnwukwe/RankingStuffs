@@ -1,28 +1,27 @@
 <template>
   <div style="position:relative">
-      <div class="close-container" @click="deleteItem()">
-        <div class>
-          <span class="close-span close-button"></span>
-        </div>
-      </div>
-      <div class="numeric-box mb-4">
+    <v-layout class="mb-3 pa-1">
+      <div class="numeric-box" v-if="['list-display'].indexOf($route.name) < 0">
         <span>{{parentLength + index + 1}}</span>
       </div>
-      <div class>
-        <v-text-field label="Item Name" outlined color="brand" v-model="item.name" @blur="emitItem()"></v-text-field>
-      </div>
-      <div class="mt-n3">
-        <v-textarea
-          label="Comment"
-          placeholder="(Optional) Tell us why you placed this item at this position"
-          outlined
-          no-resize
-          color="brand"
-          prepend-inner-icon="mdi-information-variant"
-          v-model="comment"
-          @blur="emitComment()"
-        ></v-textarea>
-      </div>
+      <v-spacer></v-spacer>
+      <v-icon @click="deleteItem()">close</v-icon>
+    </v-layout>
+    <div class>
+      <v-text-field label="Item Name" outlined color="brand" v-model="item.name" @blur="emitItem()"></v-text-field>
+    </div>
+    <div class="mt-n3">
+      <v-textarea
+        label="Comment"
+        placeholder="(Optional) Tell us why you placed this item at this position"
+        outlined
+        no-resize
+        color="brand"
+        prepend-inner-icon="mdi-information-variant"
+        v-model="comment"
+        @blur="emitComment()"
+      ></v-textarea>
+    </div>
   </div>
 </template>
 
@@ -58,11 +57,10 @@ export default {
 </script>
 
 <style scoped>
-.close-container{
+.close-container {
   position: relative;
 }
 .close-button {
-  position: absolute;
   right: 0.5em;
   top: 1em;
 }

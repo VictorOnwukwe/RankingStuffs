@@ -7,15 +7,30 @@
         <p class="subtitle-1 grey--text mt-n4">Joined {{userCreated}}</p>
         <v-layout justify-start class="mt-n4">
           <p>
-            154
+            {{user.followers}}
             <span class="link--text">Followers</span>
           </p>
           <p class="ml-4">
-            128
+            {{user.following}}
             <span class="link--text">Following</span>
           </p>
         </v-layout>
-        <v-btn small rounded class="accent grey--text text--darken-4">Follow</v-btn>
+        <div v-if="!isUser">
+          <v-btn
+            v-if="!following"
+            @click="follow()"
+            small
+            rounded
+            class="accent grey--text text--darken-4"
+          >Follow</v-btn>
+          <v-btn
+            v-else
+            @click="unfollow()"
+            small
+            rounded
+            class="accent grey--text text--darken-4"
+          >UnFollow</v-btn>
+        </div>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
@@ -34,20 +49,40 @@ export default {
     user: Object
   },
   data() {
-    return {};
+    return {
+      following: null
+    };
   },
   methods: {
     closeUserDialog() {
       this.$emit("closeDialog");
     },
-    goUser(){
-      let link = "/"  + this.user.id + "/profile";
-      this.$router.push({path: link});
+    goUser() {
+      let link = "/" + this.user.id + "/profile";
+      this.$router.push({ path: link });
+    },
+    follow() {
+      this.$store.dispatch("follow_user", this.user).then(() => {});
+    },
+    unfollow() {
+      this.$store.dispatch("unfollow_user", this.user.id).then(() => {});
+    },
+    checkFollowing() {
+      this.$store.dispatch("check_following", this.user.id).then(query => {
+        if (query.length > 0) {
+          this.following = true;
+        } else {
+          this.following = false;
+        }
+      });
     }
   },
   computed: {
     userCreated() {
       return moment(this.user.created.toDate()).calendar();
+    },
+    isUser() {
+      return this.$store.getters.getUser === this.user.id;
     }
   }
 };

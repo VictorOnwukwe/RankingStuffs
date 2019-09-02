@@ -16,7 +16,8 @@ const vuetify = new Vuetify({
         background: "#f4f4f4",
         dark_text: "#21242f",
         link: "#0060AC",
-        button: "#0060AC"
+        button: "#0060AC",
+        item_title: "#BBDEFB"
       }
     }
   }

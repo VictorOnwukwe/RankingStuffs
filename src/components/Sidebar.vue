@@ -298,18 +298,13 @@ export default {
   top: 50px;
   scrollbar-color: #051b38 #051b38;
   scrollbar-width: 3px;
-  background-color: rgb(194, 192, 192);
-  /* background-color: #375680; */
-  /* opacity: 0.8; */
   margin-left: -1em;
   margin-right: 1em;
-  margin-top: -1em;
-  width: 25vw;
+  width: 280px;
   overflow-y: scroll;
   height: calc(100vh - 50px);
-  min-width: 200px;
-  max-width: 325px;
   display: none;
+  background-color: #e9ebee;
 }
 @media (min-width: 1000px) {
   #main {
@@ -317,10 +312,10 @@ export default {
   }
 }
 .tile {
-  border-bottom: 1px solid var(--brand);
+  border-bottom: 1px solid #424242;
   padding: 0.5em 0;
   display: block;
-  color: black
+  color: #424242
 }
 
 #sidebar {

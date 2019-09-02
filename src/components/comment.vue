@@ -26,12 +26,17 @@
             </div>
             <div style="display:flex" class="mt-n2">
               <div @click="toggleLike()" style="display:flex">
-                <v-icon class="like-button" @click v-if="!liked" small>mdi-thumb-up</v-icon>
+                <v-icon class="like-button" @click v-if="!liked" color="grey" small>mdi-thumb-up</v-icon>
                 <v-icon class="like-button" @click v-if="liked" color="blue" small>mdi-thumb-up</v-icon>
                 <span v-if="comment.likes>0" class="ml-1">{{comment.likes}}</span>
               </div>
               <div @click="replyInput=!replyInput">
-                <v-icon @click small class="mx-2 reply-button">mdi-reply</v-icon>
+                <v-icon
+                  @click="showReplyBox=!showReplyBox"
+                  small
+                  class="mx-2 reply-button"
+                  color="grey"
+                >mdi-reply</v-icon>
               </div>
 
               <div v-if="comment.replies_count>0" @click="showReplies()">
@@ -40,24 +45,30 @@
             </div>
           </div>
         </div>
-        <div id="replies-display" class="my-2 ml-11 pl-2" v-if="repliesVisible">
-          <div v-if="replies.length>0 && replies[0].index!=1">
-            <a class="accent--text" @click="fetchReplies(5,replies[0].created)">Load more...</a>
-          </div>
+        <div id="replies-display" class="my-2 ml-11 pl-2" v-if="repliesVisible || showReplyBox">
+          <div v-if="repliesVisible">
+            <div v-if="comment.replies_count > replies.length">
+              <a class="accent--text" @click="fetchReplies(5,replies[0].created)">Load more...</a>
+            </div>
 
-          <div v-if="loading" style="display:flex; justify-content:center">
-            <v-btn depressed color="white">
-              <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
-            </v-btn>
-          </div>
+            <div v-if="loading" style="display:flex; justify-content:center">
+              <v-btn depressed color="white">
+                <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
+              </v-btn>
+            </div>
 
-          <div v-for="(reply, index) in replies" :key="reply.id">
-            <Reply
-              :path="{list_id: list_id, item_id: item_id, comment_id: comment.id}"
-              :reply="reply"
-            ></Reply>
-            <v-divider v-if="index!=replies.length - 1"></v-divider>
+            <div v-for="(reply, index) in replies" :key="reply.id">
+              <Reply
+                :path="{list_id: list_id, item_id: item_id, comment_id: comment.id}"
+                :reply="reply"
+              ></Reply>
+              <v-divider v-if="index!=replies.length - 1"></v-divider>
+            </div>
           </div>
+          <v-card>
+            <v-textarea v-model="reply" outlined rows="1" auto-grow rounded></v-textarea>
+            <v-btn @click="replyComment()">Send</v-btn>
+          </v-card>
         </div>
       </div>
     </v-card>
@@ -75,7 +86,7 @@
 <script>
 import swalErrors from "../../public/my-modules/swalErrors";
 import autosize from "autosize";
-import Reply from "./reply";
+import Reply from "./Reply";
 import PreviewUser from "./PreviewUser";
 import PreviewComment from "./PreviewComment";
 
@@ -102,7 +113,8 @@ export default {
       repliesShown: false,
       commenter: {},
       showUser: false,
-      showComment: false
+      showComment: false,
+      showReplyBox: false
     };
   },
 
@@ -141,6 +153,15 @@ export default {
           .then(reply => {
             this.replies.push(reply);
             this.comment.replies_count++;
+          })
+          .then(() => {
+            this.$store.dispatch("send_notification", {
+              type: "reply",
+              user: this.comment.user,
+              item: this.item,
+              list: this.list,
+              comment: this.comment
+            });
           });
       } else {
         swalErrors.showAuthenticationError();
@@ -210,7 +231,7 @@ export default {
 <style scoped>
 #comment:hover {
   /* background-color: hsl(207, 90%, 95%); */
-  background-color: #F5F5F5;
+  background-color: #f5f5f5;
 }
 #replies-display {
   /* border-left: 1px solid lightgrey; */
