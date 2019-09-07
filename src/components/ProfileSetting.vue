@@ -104,7 +104,7 @@
             </v-layout>
           </v-container>
           <v-card-actions>
-            <v-btn @click="setProfile()">Save</v-btn>
+            <v-btn color="brand" @click="setProfile()">Save</v-btn>
           </v-card-actions>
         </v-card>
       </v-flex>
@@ -182,7 +182,7 @@
           <v-card-actions>
             <v-layout>
               <v-flex xs12 lg10 offset-lg-1>
-                <v-btn class="brand" color="primary" text @click="dialog = false">Save</v-btn>
+                <v-btn class="brand" text @click="setPermissions()">Save</v-btn>
               </v-flex>
             </v-layout>
           </v-card-actions>
@@ -194,7 +194,7 @@
 
 <script>
 export default {
-  main() {
+  data() {
     return {
       date: null,
       menu: false,
@@ -235,6 +235,16 @@ export default {
       if (this.interests.length > 0) {
         data = { interests: this.interests };
       }
+
+      data = {
+        main: main,
+        ...data
+      };
+
+      this.$store.dispatch("set_profile", main).then(() => {});
+    },
+    setPermissions(){
+      let main;
       switch(this.g_favorites){
         case "Everyone": this.g_favorites = true; break;
         case "Followers": this.g_favorites = false; break;
@@ -251,14 +261,8 @@ export default {
       main = {
         g_favorites: this.g_favorites,
         g_lists: this.g_lists,
-        g_DOB: this.g_DOB,
-        ...main
+        g_DOB: this.g_DOB
       }
-
-      data = {
-        main: main,
-        ...data
-      };
 
       this.$store.dispatch("set_profile", main).then(() => {});
     }

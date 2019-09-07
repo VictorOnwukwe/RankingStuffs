@@ -8,12 +8,12 @@
       <v-icon @click="deleteItem()">close</v-icon>
     </v-layout>
     <div class>
-      <v-text-field label="Item Name" outlined color="brand" v-model="item.name" @blur="emitItem()"></v-text-field>
+      <v-text-field label="Name" outlined color="brand" v-model="item.name" @blur="emitItem()"></v-text-field>
     </div>
     <div class="mt-n3">
       <v-textarea
         label="Comment"
-        placeholder="(Optional) Tell us why you placed this item at this position"
+        placeholder="[Optional] Tell us why you placed this item at this position"
         outlined
         no-resize
         color="brand"
@@ -35,7 +35,7 @@ export default {
     return {
       item: {
         name: "",
-        exists: false
+        info: undefined
       },
       comment: ""
     };

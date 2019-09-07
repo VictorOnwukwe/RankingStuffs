@@ -1,5 +1,5 @@
 <template>
-    <div class="py-4">
+    <div class="py-2 gridder">
         <Demanded v-for="(demand, index) in demands" :key="index" :demand="demand"></Demanded>
     </div>
 </template>
@@ -33,5 +33,15 @@ export default {
 </script>
 
 <style scoped>
-
+.gridder{
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-gap: 0.5em;
+}
+@media (min-width:700px){
+    .gridder{
+        grid-template-columns: 1fr 1fr;
+        grid-gap: 0.5em;
+    }
+}
 </style>

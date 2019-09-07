@@ -25,7 +25,6 @@ export default {
     async fetchNotifications(){
       this.$store.dispatch("fetch_notifications").then(notifications => {
         this.notifications = notifications;
-        console.log(notifications);
       })
     }
   },

@@ -1,27 +1,32 @@
 <template>
-  <v-card class="mt-4">
-    <v-card-title class="title brand--text text--darken-1">{{demand.title}}</v-card-title>
-    <v-card-text>
-      <div class="mt-n3">
-        <span class="subtitle-2 brand--text text--darken-1" style="opacity:0.8">
-          {{demand.waiters_count}}
-          <span
-            v-if="demand.waiters_count<2"
-            class="subtitle-2"
-          >person is</span>
-          <span v-else class="subtitle-2">people are</span> waiting for this list
+  <v-card tile class="primary">
+    <v-card-title class="primary-text-dark" style>
+      <v-layout column>
+        <h6 class="title" style="line-height: 1.3">{{demand.title}}</h6>
+        <span class="subtitle-2 secondary-text-dark" style="">
+          <span class="subtitle-2 font-weight-bold secondary-text-dark">{{demand.waiters_count}} </span>
+          <span v-if="demand.waiters_count<2" class="secondary-text-dark subtitle-2">person</span>
+          <span v-else class="subtitle-2 secondary-text-dark">people</span> waiting for this list
         </span>
-        <p class="mt-2 grey--text text--darken-2">{{demand.comment}}</p>
+      </v-layout>
+    </v-card-title>
+    <v-card-text style="margin-bottom:1.5em">
+      <div class="">
+        <p class="secondary-text-dark subtitle-1">{{demand.comment}}</p>
       </div>
     </v-card-text>
-    <v-card-actions class="mt-n8">
-      <v-layout justify-start>
+    <v-card-actions style="position:absolute; bottom:0" class="mt-n8">
+      <v-layout>
         <v-btn
           @click="joinWaiters()"
-          class="join pointer orange--text white"
+          class="join pointer brand--text white font-weight-bold"
           depressed
-        >Join the Queue</v-btn>
-        <v-btn depressed @click="create()" class="make pointer green--text white">Make their day</v-btn>
+        >Queue</v-btn>
+        <v-btn
+          depressed
+          @click="create()"
+          class="make pointer brand--text white font-weight-bold"
+        >Create</v-btn>
       </v-layout>
     </v-card-actions>
   </v-card>
@@ -48,10 +53,10 @@ export default {
 
 <style scoped>
 .make:hover {
-  text-shadow: 1px 1px 8px green;
+  text-shadow: 1px 1px 8px #e2e8f7;
 }
 .join:hover {
-  text-shadow: 1px 1px 8px orange;
+  text-shadow: 1px 1px 8px #e2e8f7;
 }
 p {
   line-height: 0.8em;

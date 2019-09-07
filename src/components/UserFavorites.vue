@@ -5,8 +5,8 @@
         <v-card flat tile class="mt-6">
           <p>No Favorites</p>
         </v-card>
-        <v-card tile flat>
-          <v-layout class align-center pl-1 py-1 style="border-top:1px solid grey;">
+        <v-card tile :flat="addFavorites ? false : true">
+          <v-layout :class ="{'top-bar': addFavorites}" align-center pl-1 py-1 style="border-top:1px solid grey;">
             <v-icon
               @click="addFavorites=!addFavorites, addList=false"
               :class="{'accent--text': addFavorites, 'grey--text': !addFavorites}"
@@ -51,8 +51,8 @@
         <v-card tile flat class="mt-8">
           <p>No lists</p>
         </v-card>
-        <v-card flat tile>
-          <v-layout class align-center pl-1 py-1 style="border-top:1px solid grey;">
+        <v-card :flat="addList? false : true" tile>
+          <v-layout :class="{'top-bar': addList}" align-center pl-1 py-1 style="border-top:1px solid grey;">
             <v-icon
               style="cursor:pointer"
               @click="addList=!addList, addFavorites=false"
@@ -65,19 +65,19 @@
             >Add a List</div>
           </v-layout>
           <div v-if="addList" class="px-3">
-            <v-card flat tile outlined class="mt-8 pa-3">
-              <p class="title grey--text mt-1">List Type</p>
+            <v-card tile flat outlined class="mt-8 pa-3">
+              <p class="title grey--text mt-1">1. List Type</p>
               <v-radio-group v-model="list.votable">
-                <v-radio color="green" label="Votable - List can be interacted with by others through voting." :value="true"></v-radio>
+                <v-radio color="brand" label="Votable" :value="true"></v-radio>
                 <v-radio
-                  color="green"
-                  label="Not Votable - List cannot be interacted with through voting. Suitable for factual, statistical lists."
+                  color="brand"
+                  label="Non-Votable"
                   :value="false"
                 ></v-radio>
               </v-radio-group>
             </v-card>
-            <v-card class="mt-5" outlined flat tile>
-              <p class="title grey--text ml-3 mt-1">Add Category</p>
+            <v-card class="mt-5" flat outlined tile>
+              <p class="title grey--text ml-3 mt-1">2. Add Category</p>
               <v-container grid-list-md>
                 <v-layout wrap>
                   <v-flex xs12>
@@ -110,8 +110,8 @@
               </v-container>
             </v-card>
 
-            <v-card class="pa-3 mt-5" outlined flat tile>
-              <p class="title grey--text">Add Items</p>
+            <v-card class="pa-3 mt-5 mb-4" flat outlined tile>
+              <p class="title grey--text">3. Add Items</p>
               <div v-for="(item, index) in list.items" :key="index">
                 <AddItem
                   :parentLength="0"
@@ -181,6 +181,9 @@ export default {
     },
     setItemComment(index, comment) {
       this.list.items[index].comment = comment;
+    },
+    getFavorites(){
+      this.$store.dispatch("fetch_user_favorites")
     }
   }
 };

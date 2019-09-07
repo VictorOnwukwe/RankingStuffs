@@ -1,56 +1,73 @@
 <template>
   <div>
     <div v-if="fetched">
-      <v-layout reverse>
+      <v-layout>
         <transition name="list-nav">
-          <v-flex style shrink class="mr-n4 ml-4 list-info">
+          <v-flex style shrink class="mr-4 list-info">
             <v-card
-              style="position:sticky; top:3.0625em; height:calc(100vh - 3em); overflow-y:scroll;"
+              style="height:calc(100vh - 3em); overflow-y:scroll;"
               color="nav-bg"
-              class
+              width="100%"
               tile
-              flat
             >
               <v-card-title>
                 <v-layout justify-space-between>
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-icon color="grey darken-3" v-on="on">favorite</v-icon>
+                      <v-icon color="grey lighten-1" v-on="on">favorite</v-icon>
                     </template>
                     <span class="white--text">Add List to Favorites</span>
                   </v-tooltip>
-                  
+
                   <v-tooltip bottom>
                     <template v-slot:activator="{ on }">
-                      <v-icon color="#4CAF50" v-on="on">share</v-icon>
+                      <v-icon color="brand lighten-2" v-on="on">share</v-icon>
                     </template>
                     <span class="white--text">Share</span>
                   </v-tooltip>
                 </v-layout>
               </v-card-title>
 
+              <v-card flat tile class="nav-bg">
+                <v-divider class="grey"></v-divider>
+                <v-card-title class="title grey--text text--lighten-2">Creator</v-card-title>
+                <v-card-text>
+                  <v-layout column class="ml-2">
+                    <v-avatar size="45">
+                      <img :src="creator.profile_pic" />
+                    </v-avatar>
+                    <a class="secondary-text-light mt-2 font-weight-bold" style="font-size:1.2em">{{creator.username}}</a>
+                  </v-layout>
+                </v-card-text>
+              </v-card>
+
               <v-card tile flat class="nav-bg">
-                <v-card-title class="title">Rate</v-card-title>
+                <v-divider class="grey"></v-divider>
+                <v-card-title class="title grey--text text--lighten-2">Rate</v-card-title>
                 <v-card-text>
                   <v-rating
-                    color="yellow darken-3"
+                    color="accent darken-1"
                     half-increments
                     :size="18"
                     dense
-                    background-color="brand darken-3"
+                    background-color="grey"
                     v-model="userRating"
                   ></v-rating>
                 </v-card-text>
               </v-card>
 
               <v-card flat tile color="nav-bg">
-                <v-card-title style="position:sticky; top:0" class="title nav-bg">Featured</v-card-title>
+                <v-divider class="grey"></v-divider>
+                <v-card-title
+                  style="position:sticky; top:0"
+                  class="title nav-bg grey--text text--lighten-2"
+                >Featured</v-card-title>
                 <v-card-text>
-                  <ol class="brand--text text--darken-1">
+                  <ol class="font-weight-bold">
                     <li v-for="(item, index) in featured" :key="index">
                       <a
                         @click="scrollTo(item.id)"
-                        class="ml-2 brand--text underline"
+                        class="ml-2 grey--text text--lighten-2 underline"
                       >{{item.name}}</a>
                     </li>
                   </ol>
@@ -61,25 +78,24 @@
           </v-flex>
         </transition>
 
-        <v-flex class="list-view">
+        <v-flex @click="hideInfo()" class="list-view">
           <v-flex class="mx-auto mt-4">
             <div id="title-nav" class="inherit">
               <div
                 style="max-width:900px; padding:0.5em; align-items:center; justify-content:space-between"
                 class="mx-auto"
               >
-                <div
-                  id="title"
-                  style="font-size:1.4em;font-weight:bold;"
-                  class="blue--text text--darken-2"
-                >{{list.title}}</div>
-                <p>
+                <h1
+                  style="font-size:2em; font-weight:normal"
+                  class="sidebar--text text--darken-2"
+                >{{list.title}}</h1>
+                <!-- <p>
                   <span class>Created by</span>
                   <span @click="showUser=true" style="font-weight:bold">&nbsp;{{creator.username}}</span>
-                </p>
-                <div class="mt-n4 ml-n1">
+                </p>-->
+                <div class="">
                   <v-rating
-                    :value="3"
+                    :value="list.rating"
                     color="yellow darken-3"
                     background-color="grey darken-4"
                     half-increments
@@ -94,17 +110,17 @@
 
             <div id="container">
               <div v-for="(item, index) in list.items" :key="index">
-                <ListItem :id="item.id" :item="item" :list="list" :index="index + 1"></ListItem>
+                <ListItem :id="item.id" :item="item" :list="list" :voted="voted" :index="index + 1"></ListItem>
                 <v-card
                   tile
                   class="mt-6 mb-6 brand primary--text title pa-1 top-bar"
-                  v-if="index===9"
+                  v-if="index===9 && list.items.length>10"
                 >Close Contenders</v-card>
               </div>
 
-              <v-card tile class="mt-12">
+              <v-card tile class="mt-12 primary">
                 <v-card-title
-                  class="top-bar primary--text title pa-1"
+                  class="top-bar title pa-1"
                 >Didn't find your option? Add to the List</v-card-title>
                 <v-card-text>
                   <AddItem
@@ -127,7 +143,9 @@
           </v-flex>
         </v-flex>
       </v-layout>
-      <div @click="toggle()" class="pull-push"></div>
+      <div @click="toggle()" class="pull-push accent">
+          <v-icon class="pull-push-icon grey--text text--lighten-4" size="35">mdi-chevron-right</v-icon>
+      </div>
     </div>
   </div>
 </template>
@@ -159,7 +177,9 @@ export default {
       n: 0,
       creator: {},
       showUser: false,
-      featured: []
+      featured: [],
+      userRating: 0,
+      voted: false
     };
   },
 
@@ -174,6 +194,14 @@ export default {
 
     toggle() {
       document.querySelector(".list-info").classList.toggle("show");
+      document.querySelector(".pull-push").classList.toggle("slide");
+      document.querySelector(".pull-push-icon").classList.toggle("rotate");
+    },
+
+    hideInfo() {
+      document.querySelector(".list-info").classList.remove("show");
+      document.querySelector(".pull-push").classList.remove("slide");
+      document.querySelector(".pull-push-icon").classList.remove("rotate");
     },
 
     setItem(index, item) {
@@ -191,15 +219,14 @@ export default {
         .then(list => {
           this.list = list;
           setTimeout(() => {
-            console.log("fetched");
             this.fetched = true;
-            this.$store.dispatch("set_loading", false)
-          }, 1000);
+            this.$store.dispatch("set_loading", false);
+          }, 30);
         })
         .then(() => {
           this.featured = this.list.items.map(item => {
             return {
-              name: item.title,
+              name: item.name,
               id: item.id
             };
           });
@@ -207,6 +234,12 @@ export default {
         .catch(error => {
           console.log(error);
         });
+    },
+
+    checkVote() {
+      this.$store.dispatch("check_voted", this.listID).then(voted => {
+        this.voted = voted;
+      })
     },
 
     async favoriteList() {
@@ -240,8 +273,8 @@ export default {
     }
   },
 
-  mounted: function() {
-    this.fetchList();
+  mounted: async function() {
+    await this.fetchList();
 
     if (this.$route.query.notification) {
       setTimeout(() => {
@@ -250,6 +283,7 @@ export default {
     }
 
     this.fetchCreator();
+    this.checkVote();
   }
 };
 </script>
@@ -261,7 +295,8 @@ export default {
   margin-bottom: 2em;
 }
 .nav-bg {
-  background: linear-gradient(90deg, rgb(243, 241, 241), rgb(248, 247, 247));
+  /* background: linear-gradient(90deg, rgb(241, 241, 243), rgb(247, 247, 248)); */
+  background: #363640;
 }
 #item {
   margin-top: 2em;
@@ -271,29 +306,72 @@ export default {
   width: 100%;
 }
 
+li > a {
+  font-weight: normal;
+}
+
+ol {
+  counter-reset: my-awesome-counter;
+  list-style: none;
+}
+
+ol > li {
+  margin: 0 0 0.5em 0;
+  counter-increment: my-awesome-counter;
+  position: relative;
+}
+
+ol > li::before {
+  content: counter(my-awesome-counter);
+  color: #E0E0E0;
+  font-size: 1.2em;
+  position: absolute;
+  --size: 22px;
+  left: calc(-1 * var(--size));
+  line-height: var(--size);
+  width: var(--size);
+  height: var(--size);
+  top: 0;
+  /* background: black; */
+  border-radius: 50%;
+  text-align: center;
+  /* box-shadow: 1px 1px 0 #999; */
+}
+
 .pull-push {
-  width: 25px;
-  height: 40px;
-  background-color: grey;
+  display: flex;
+  width: 3em;
+  height: 3em;
+  background-color: var(--accent);
   position: fixed;
-  top: 4.5em;
-  right: 0em;
+  top: 17.5em;
+  left: -1.5em;
   z-index: 6;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.6;
+  border-radius: 50%;
+  cursor: pointer;
+}
+.pull-push-icon{
+  margin-left: 1rem
 }
 
 .list-info {
   display: none;
   position: fixed;
   z-index: 5;
-  border-left: 1px solid var(--brand);
   width: 200px;
+  margin-left: -0.3em;
+  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
 @media (min-width: 800px) {
   .list-info {
     display: block;
+    margin-left: -1em;
   }
   .list-view {
-    margin-right: 200px;
+    margin-left: 200px;
   }
   .pull-push {
     display: none;
@@ -336,16 +414,47 @@ export default {
 }
 
 .list-info {
-  animation: slide 0.1s ease-in;
-  transform-origin: right;
+  animation: expand-in 0.1s ease-in;
+  transform-origin: left;
 }
 
-@keyframes slide {
+@keyframes expand-in {
   0% {
     transform: scaleX(0);
   }
   100% {
     transform: scaleX(1);
+  }
+}
+
+.slide {
+  animation: slide 0.1s ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes slide {
+  0% {
+    transform: translateX(0);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateX(200px);
+    opacity: 1;
+  }
+}
+
+.rotate {
+  animation: rotate-180 0.1s ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes rotate-180 {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(180deg);
+    margin-right: 0.5em;
   }
 }
 </style>

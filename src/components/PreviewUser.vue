@@ -21,6 +21,7 @@
             @click="follow()"
             small
             rounded
+            outlined
             class="accent grey--text text--darken-4"
           >Follow</v-btn>
           <v-btn
@@ -28,15 +29,16 @@
             @click="unfollow()"
             small
             rounded
+            outlined
             class="accent grey--text text--darken-4"
           >UnFollow</v-btn>
         </div>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn small depressed @click="goUser()">View profile</v-btn>
+        <v-btn small color="accent" @click="goUser()">View profile</v-btn>
         <v-spacer></v-spacer>
-        <v-btn small depressed @click="closeUserDialog()">Close</v-btn>
+        <v-btn small color="accent" outlined @click="closeUserDialog()">Close</v-btn>
       </v-card-actions>
     </v-card>
   </div>
@@ -82,7 +84,7 @@ export default {
       return moment(this.user.created.toDate()).calendar();
     },
     isUser() {
-      return this.$store.getters.getUser === this.user.id;
+      return this.$store.getters.getUser.id === this.user.id;
     }
   }
 };

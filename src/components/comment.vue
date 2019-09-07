@@ -5,7 +5,7 @@
         <div id="comment" style="display:flex">
           <div>
             <v-avatar size="26" class="ma-2">
-              <img :src="comment.user.profile_pic" />
+              <img :src="commenter.profile_pic" />
             </v-avatar>
           </div>
           <div>
@@ -13,8 +13,8 @@
               <p>
                 <a
                   @click="showUser=true"
-                  class="blue--text subtitle-2 font-weight-bold"
-                >{{comment.user.username}}</a>
+                  class="brand--text text--darken-1 subtitle-2 font-weight-bold"
+                >{{commenter.username}}</a>
                 {{comment.content.slice(0,50)}}
                 <span
                   @click="showComment=true"
@@ -26,8 +26,7 @@
             </div>
             <div style="display:flex" class="mt-n2">
               <div @click="toggleLike()" style="display:flex">
-                <v-icon class="like-button" @click v-if="!liked" color="grey" small>mdi-thumb-up</v-icon>
-                <v-icon class="like-button" @click v-if="liked" color="blue" small>mdi-thumb-up</v-icon>
+                <v-icon class="like-button" @click="toggleLike()" :color="liked? 'grey' : 'blue'" small>mdi-thumb-up</v-icon>
                 <span v-if="comment.likes>0" class="ml-1">{{comment.likes}}</span>
               </div>
               <div @click="replyInput=!replyInput">
@@ -59,14 +58,14 @@
 
             <div v-for="(reply, index) in replies" :key="reply.id">
               <Reply
-                :path="{list_id: list_id, item_id: item_id, comment_id: comment.id}"
+                :path="{list_id: list.id, item_id: item.id, comment_id: comment.id}"
                 :reply="reply"
               ></Reply>
               <v-divider v-if="index!=replies.length - 1"></v-divider>
             </div>
           </div>
-          <v-card>
-            <v-textarea v-model="reply" outlined rows="1" auto-grow rounded></v-textarea>
+          <v-card flat tile>
+            <v-textarea v-model="reply" outlined rows="1" color="brand" auto-grow rounded></v-textarea>
             <v-btn @click="replyComment()">Send</v-btn>
           </v-card>
         </div>
@@ -98,8 +97,8 @@ export default {
   },
   props: {
     comment: Object,
-    list_id: String,
-    item_id: String
+    list: Object,
+    item: Object
   },
 
   data() {
@@ -145,8 +144,8 @@ export default {
       if (this.$store.getters.getAuthenticated) {
         this.$store
           .dispatch("upload_reply", {
-            list_id: this.list_id,
-            item_id: this.item_id,
+            list_id: this.list.id,
+            item_id: this.item.id,
             comment_id: this.comment.id,
             reply: this.reply
           })
@@ -157,7 +156,7 @@ export default {
           .then(() => {
             this.$store.dispatch("send_notification", {
               type: "reply",
-              user: this.comment.user,
+              user: this.commenter,
               item: this.item,
               list: this.list,
               comment: this.comment
@@ -169,7 +168,7 @@ export default {
     },
 
     fetchCommenter() {
-      this.$store.dispatch("fetch_user", this.comment.user.id).then(user => {
+      this.$store.dispatch("fetch_user", this.comment.user).then(user => {
         this.commenter = user;
       });
     },
@@ -178,8 +177,8 @@ export default {
       this.loading = true;
       this.$store
         .dispatch("fetchReplies", {
-          list_id: this.list_id,
-          item_id: this.item_id,
+          list_id: this.list.id,
+          item_id: this.item.id,
           comment_id: this.comment.id,
           num: num,
           timestamp: timestamp

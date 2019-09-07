@@ -12,7 +12,7 @@
           <v-layout style="height:3.125em" align-center>
             <v-flex class="hidden-xs-only">
               <v-layout justify-center>
-                <a @click="goPopular()">Popular</a>
+                <a @click="goPopular()" class="accent--text text--lighten-1">Popular</a>
                 <a @click="goLatest()">Latest</a>
                 <a @click="goDemanded()">On-Demand</a>
               </v-layout>
@@ -31,9 +31,10 @@
               </v-layout>
               <v-layout v-else justify-end>
                 <v-icon color="primary" @click="search = !search">search</v-icon>
-                <v-avatar class="mx-4" @click="goProfile()" size="25">
+                <v-avatar class="ml-4 mr-8" @click="goProfile()" size="30">
                   <img :src="user.profile_pic" />
                 </v-avatar>
+                <a @click="logout()" class="">Logout</a>
               </v-layout>
             </v-flex>
           </v-layout>
@@ -42,15 +43,42 @@
       <v-divider></v-divider>
     </div>
     <div v-if="loading" class="loader-bar loading"></div>
-    <div v-else class="loader-bar"></div>
+    <!-- <div v-else class="loader-bar"></div> -->
     <transition name="search-bar">
-      <div v-show="search" class="search" style>
-        <input
-          style="height:3em; padding: 0.2em 0.4em; width: 100%"
-          class="white"
-          type="text"
-        />
-        <v-icon style="position:absolute; right:0.5em; top:7px">search</v-icon>
+      <div v-if="search" class="search" style>
+        <div class="search-field">
+          <input
+            style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
+            type="text"
+            @blur="action()"
+            v-model="keyword"
+            @keyup="fetchResults()"
+          />
+          <v-icon style="position:absolute; right:0.5em; top:1rem">search</v-icon>
+        </div>
+        <div class="search-results">
+          <div v-if="results.length > 0" style="border: 4px solid #bbdefb">
+            <v-card
+              v-for="(result, index) in results"
+              :key="index"
+              flat
+              tile
+              class="primary-text-dark"
+            >
+              <v-card-text class="title">{{result.title}}</v-card-text>
+              <v-divider></v-divider>
+            </v-card>
+          </div>
+          <div v-if="results.length === 0 && keyword.length >= 5" style="border: 4px solid #bbdefb">
+            <v-card tile flat class="primary-text-dark">
+              <v-card-text class="">Sorry. This list does not exist yet. Be the first to create or demand it.</v-card-text>
+              <v-card-actions>
+                <v-btn class="brand white--text" @click="goSearchedCreate()">Create</v-btn>
+                <v-btn class="sidebar white--text" @click="goSearchedDemand()">Demand</v-btn>
+              </v-card-actions>
+            </v-card>
+          </div>
+        </div>
       </div>
     </transition>
 
@@ -67,6 +95,7 @@
 <script>
 import Login from "./Login";
 import Signup from "./Signup";
+import { setTimeout } from "timers";
 export default {
   components: {
     Login,
@@ -77,7 +106,9 @@ export default {
       navDrawer: null,
       login_dialog: false,
       signup_dialog: false,
-      search: false
+      search: false,
+      results: [],
+      keyword: ""
     };
   },
 
@@ -88,6 +119,14 @@ export default {
 
     goLatest() {
       this.$router.push({ path: "/latest-lists" });
+    },
+
+    action() {
+      setTimeout(() => {
+        this.search = false;
+        this.results = [];
+        this.keyword = "";
+      }, 200);
     },
 
     goDemanded() {
@@ -103,20 +142,43 @@ export default {
       this.$router.push({ path: link });
     },
 
-    goCreate() {
-      this.$router.push({ path: "/create" });
+    goCreate(){
+      this.$router.push({path: "/create"});
+    },
+    goSearchedCreate() {
+      this.$router.push({
+        path: "/create",
+        query: { demanded: true, id: "jdsfbsijbfjd", title: this.keyword }
+      });
     },
 
     goList() {
-      this.$router.push({ path: "/lists/jknM6pu73V7xtxP7pguV" });
+      this.$router.push({ path: "/lists/DQY7CKizZs527PvdmIbD" });
     },
 
-    goDemand() {
-      this.$router.push({ path: "/demand" });
+    goDemand(){
+      this.$router.push({path: "/demand"});
+    },
+    goSearchedDemand() {
+      this.$router.push({
+        path: "/demand",
+        query: {
+          searched: true,
+          title: this.keyword
+        }
+      });
     },
 
     logout() {
       this.$store.dispatch("logout");
+    },
+    fetchResults() {
+      if (this.keyword.length < 5) {
+        return;
+      }
+      this.results = this.$store.getters.getDemands.filter(demand => {
+        return demand.title.toLowerCase().includes(this.keyword.toLowerCase().trim());
+      });
     }
   },
 
@@ -128,8 +190,7 @@ export default {
     user() {
       return this.$store.getters.getUser;
     },
-    loading(){
-      console.log("here: ", this.$store.getters.getLoading);
+    loading() {
       return this.$store.getters.getLoading;
     }
   }
@@ -137,21 +198,32 @@ export default {
 </script>
 
 <style scoped>
-.loader-bar{
+.loader-bar {
   height: 4px;
   width: 100%;
-  background-color: #64B5F6;
+  background-color: white;
+  border-bottom: 1px solid #E2E8F7;
 }
 .search {
   position: absolute;
-  top: 3.125em;
+  top: 3.175em;
   padding: 0px;
   right: 0;
   width: 100%;
-  border: 3px solid grey;
+  background-color: #e3f2fd;
+}
+.search-field {
+  border: 4px solid #bbdefb;
+}
+
+.search-result {
+  width: 100%;
+  background: lightgrey;
+  padding: 0.5em 0.5em;
+  border-bottom: 1px solid gray;
 }
 @media (min-width: 600px) {
-  .search{
+  .search {
     width: 50%;
   }
 }
@@ -164,7 +236,7 @@ export default {
 #main {
   width: calc(100%);
   /* background-color: grey; */
-  background: linear-gradient(180deg, #1565C0, #1976D2);
+  background: linear-gradient(180deg, #1565c0, #1976d2);
 }
 div > a {
   padding-bottom: 0.2em;
@@ -190,34 +262,39 @@ div a + a {
   margin-left: 1em;
 }
 
-.search-bar-enter-active{
+.search-bar-enter-active {
   animation: slide 0.1s ease-in;
   transform-origin: top;
 }
-.search-bar-leave-active{
+.search-bar-leave-active {
   animation: slide 0.1s ease-in reverse;
   transform-origin: top;
 }
 
 @keyframes slide {
-  0%{
-    transform: scaleY(0)
+  0% {
+    transform: scaleY(0);
   }
-  100%{
+  100% {
     transform: scaleY(1);
   }
 }
-.loading{
+.loading {
   /* background-image: linear-gradient(90deg, var(--brand) 30%, #75CCFF 50%, var(--brand) 70%); */
-  background-image: linear-gradient(90deg, var(--brand) 30%, #95E8FF 50%, var(--brand) 70%);
-  background-size: 400%;
+  background-image: linear-gradient(
+    90deg,
+    white 30%,
+    var(--sidebar) 50%,
+    white
+  );
+  background-size: 300%;
   animation: loading 1s ease-in-out infinite;
 }
 @keyframes loading {
-  0%{
+  0% {
     background-position: 100% 50%;
   }
-  100%{
+  100% {
     background-position: 0 50%;
   }
 }

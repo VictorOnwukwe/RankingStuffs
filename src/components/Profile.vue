@@ -4,23 +4,23 @@
       <v-card tile flat height="100%">
         <v-card-text>
           <v-layout>
-            <div class="mx-3">
+            <div class="mx-3" style="position:relative">
               <v-avatar tile size="150px">
                 <img :src="user.profile_pic" />
               </v-avatar>
-              <v-icon style="position:absolute; bottom:1em; right:1em;">camera</v-icon>
+              <v-icon color="accent" style="position:absolute; bottom:8px; right:8px;">mdi-camera</v-icon>
             </div>
             <div>
               <p class="title">@{{user.username}}</p>
               <div class="mt-n4">Joined {{joined}}</div>
               <v-layout class="mt-2 black--text">
-                <div class>
-                  {{user.followers}}
-                  <a class="brand--text font-weight-bold text--darken-2">Followers</a>
+                <div>
+                  <span class="brand--text text--darken-2 font-weight-bold">{{user.followers}} </span>
+                  <a class="brand--text text--darken-2">Followers</a>
                 </div>
                 <div class="ml-2">
-                  {{user.following}}
-                  <a class="brand--text font-weight-bold text--darken-2">Following</a>
+                  <span class="brand--text text--darken-2 font-weight-bold">{{user.following}} </span>
+                  <a class="brand--text text--darken-2">Following</a>
                 </div>
               </v-layout>
               <div v-if="!isUser">
@@ -128,7 +128,6 @@ export default {
       }
     },
     setActive(val) {
-      console.log("active");
       this.active = val;
       this.$router.push({ path: this.homeLink + val });
     },
@@ -165,7 +164,6 @@ export default {
     },
     goFavorites() {
       this.$router.push({ path: this.homeLink + "/favorites" });
-      console.log("To favorites");
     },
     goActivities() {
       return;
@@ -186,18 +184,16 @@ export default {
     },
     joined() {
       return moment(this.user.created.toDate()).format("MMMM YYYY");
-      // return moment(this.user.created.toDate()).calendar();
     },
     homeLink() {
       return "/" + this.user.id + "/profile/";
     },
     isUser() {
-      return this.$store.getters.getUser === this.user.id;
+      return this.$store.getters.getUser.id === this.user.id;
     }
   },
   watch: {
     userID() {
-      console.log("true");
       this.fetchUser(this.$route.params.id).then(() => {
         this.matchProfile();
       });

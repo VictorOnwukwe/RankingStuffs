@@ -300,11 +300,12 @@ export default {
   scrollbar-width: 3px;
   margin-left: -1em;
   margin-right: 1em;
-  width: 280px;
+  max-width: 250px;
+  min-width: 250px;
   overflow-y: scroll;
   height: calc(100vh - 50px);
   display: none;
-  background-color: #e9ebee;
+  background-color: #363640;
 }
 @media (min-width: 1000px) {
   #main {

@@ -3,13 +3,13 @@
     <div id="container">
       <div>
         <v-avatar size="20" class="mr-2">
-          <img :src="reply.user.profile_pic" />
+          <img :src="replier.profile_pic" />
         </v-avatar>
       </div>
 
       <div>
         <p>
-          <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{reply.user.username}}</a>
+          <a @click="showUser=true" class="brand--text text--darken-1 subtitle-2 font-weight-bold">{{replier.username}}</a>
           - {{reply.content}}
         </p>
         <div @click="toggleLike()" class="mt-n4">
@@ -69,7 +69,7 @@ export default {
 
     fetchReplier(){
       this.$store.dispatch("fetch_user", this.reply.user).then(user => {
-        this.Replier = user;
+        this.replier = user;
       });
     },
 
@@ -85,7 +85,6 @@ export default {
   },
 
   mounted: function() {
-    console.log("Reply: ",this.reply.user)
     this.fetchReplier();
     setTimeout(() => {
       this.setLikedState();

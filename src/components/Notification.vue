@@ -24,7 +24,7 @@ export default {
   },
   methods: {
     goNotification() {
-      switch (notification.type) {
+      switch (this.notification.type) {
         case "reply":
           this.$router.push({
             path: "/lists/" + this.notification.list_id,
@@ -37,7 +37,7 @@ export default {
 
         case "follow":
           this.$router.push({
-            path: "/" + notification.user + "/profile"
+            path: "/" + this.notification.user + "/profile"
           });
           break;
 
@@ -53,6 +53,9 @@ export default {
     created() {
       return moment(this.notification.created.toDate()).fromNow();
     }
+  },
+  created(){
+    
   }
 };
 </script>
