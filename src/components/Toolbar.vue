@@ -1,6 +1,7 @@
 <template>
-  <div class="affix">
+  <div class="affix elevation-3">
     <div id="main">
+      <div style="max-width:1200px" class="mx-auto">
       <v-layout>
         <v-flex shrink>
           <v-layout align-center>
@@ -26,11 +27,12 @@
             <v-flex>
               <v-layout v-if="!authenticated" justify-end class="mr-2">
                 <v-icon @click="search = !search">search</v-icon>
-                <a @click="login_dialog=true">Login</a>
-                <a @click="signup_dialog=true">Signup</a>
+                <a @click="loginDialog=true">Login</a>
+                <a @click="signupDialog=true">Signup</a>
               </v-layout>
               <v-layout v-else justify-end>
-                <v-icon color="primary" @click="search = !search">search</v-icon>
+                <v-icon color="white" @click.prevent="search = !search" size="25">search</v-icon>
+                <v-icon @click="notification=!notification" class="ml-4" color="white" size="25">mdi-bell</v-icon>
                 <v-avatar class="ml-4 mr-8" @click="goProfile()" size="30">
                   <img :src="user.profile_pic" />
                 </v-avatar>
@@ -40,7 +42,7 @@
           </v-layout>
         </v-flex>
       </v-layout>
-      <v-divider></v-divider>
+      </div>
     </div>
     <div v-if="loading" class="loader-bar loading"></div>
     <!-- <div v-else class="loader-bar"></div> -->
@@ -50,7 +52,6 @@
           <input
             style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
             type="text"
-            @blur="action()"
             v-model="keyword"
             @keyup="fetchResults()"
           />
@@ -82,12 +83,18 @@
       </div>
     </transition>
 
-    <v-dialog v-if="!authenticated" v-model="login_dialog" max-width="500px">
-      <Login></Login>
+    <transition name="notification-bar">
+      <div v-if="notification" @click="notification = false" class="notification">
+        <Notifications></Notifications>
+      </div>
+    </transition>
+
+    <v-dialog v-if="!authenticated" v-model="loginDialog" max-width="500px">
+      <Login @close="loginDialog = false" v-if="loginDialog"></Login>
     </v-dialog>
 
-    <v-dialog v-if="!authenticated" v-model="signup_dialog" max-width="500px">
-      <Signup></Signup>
+    <v-dialog v-if="!authenticated" v-model="signupDialog" max-width="500px">
+      <Signup @close="signupDialog = false" v-if="signupDialog"></Signup>
     </v-dialog>
   </div>
 </template>
@@ -96,19 +103,25 @@
 import Login from "./Login";
 import Signup from "./Signup";
 import { setTimeout } from "timers";
+import Notifications from "./Notifications";
 export default {
   components: {
     Login,
-    Signup
+    Signup,
+    Notifications
+  },
+  props: {
+    closeSearch: Boolean
   },
   data() {
     return {
       navDrawer: null,
-      login_dialog: false,
-      signup_dialog: false,
+      loginDialog: false,
+      signupDialog: false,
       search: false,
       results: [],
-      keyword: ""
+      keyword: "",
+      notification: false
     };
   },
 
@@ -153,7 +166,7 @@ export default {
     },
 
     goList() {
-      this.$router.push({ path: "/lists/DQY7CKizZs527PvdmIbD" });
+      this.$router.push({ path: "/lists/pTt8MoCSxEyJxEYwEqRQ" });
     },
 
     goDemand(){
@@ -170,7 +183,11 @@ export default {
     },
 
     logout() {
-      this.$store.dispatch("logout");
+      this.signupDialog = false;
+      this.loginDialog = false;
+      this.$store.dispatch("logout").then(() => {
+        this.$router.push({path: "/"});
+      });
     },
     fetchResults() {
       if (this.keyword.length < 5) {
@@ -179,6 +196,12 @@ export default {
       this.results = this.$store.getters.getDemands.filter(demand => {
         return demand.title.toLowerCase().includes(this.keyword.toLowerCase().trim());
       });
+    }
+  },
+
+  watch: {
+    'closeSearch'(){
+      this.closeSearch ? this.action() : null;
     }
   },
 
@@ -227,23 +250,34 @@ export default {
     width: 50%;
   }
 }
+
+.notification{
+  position: absolute;
+  top: 3.175em;
+  padding: 0px;
+  right: 0;
+  width: 50%;
+  background-color: #e3f2fd;
+}
 .affix {
   position: fixed;
   top: 0;
   z-index: 10;
   width: 100%;
+  /* box-shadow: 0px 2px 4px rgba(0,0,0,0.5); */
 }
 #main {
   width: calc(100%);
   /* background-color: grey; */
   background: linear-gradient(180deg, #1565c0, #1976d2);
+  /* background: #E9E9ED; */
 }
 div > a {
   padding-bottom: 0.2em;
 }
 a {
-  color: hsl(206, 60%, 96%) !important;
-  font-weight: bold;
+  color: rgba(255,255,255,0.9) !important;
+  /* font-weight: bold; */
 }
 
 .center {
@@ -267,6 +301,15 @@ div a + a {
   transform-origin: top;
 }
 .search-bar-leave-active {
+  animation: slide 0.1s ease-in reverse;
+  transform-origin: top;
+}
+
+.notification-bar-enter-active {
+  animation: slide 0.1s ease-in;
+  transform-origin: top;
+}
+.notification-bar-leave-active {
   animation: slide 0.1s ease-in reverse;
   transform-origin: top;
 }

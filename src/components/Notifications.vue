@@ -1,11 +1,12 @@
 <template>
   <div id="main">
       <v-layout>
-        <v-flex xs12 lg10 offset-lg-1>
-          <v-card tile flat>
-              <Notification v-for="(notification, index) in notifications" :key="index" :notification="notification"></Notification>
+        <div style="max-height:400px; overflow-y:scroll">
+          <v-card v-for="(notification, index) in notifications" :key="index" tile flat>
+              <Notification :notification="notification"></Notification>
+              <v-divider class="grey "></v-divider>
           </v-card>
-        </v-flex>
+        </div>
       </v-layout>
   </div>
 </template>
@@ -30,7 +31,7 @@ export default {
   },
   created(){
     this.fetchNotifications().then(() => {
-      this.$store.dispatch("update_notification_last_seen");
+      // this.$store.dispatch("update_notification_last_seen");
     })
   }
 };
@@ -39,5 +40,6 @@ export default {
 <style scoped>
 #main {
   width: 100%;
+  max-height: 350px;
 }
 </style>

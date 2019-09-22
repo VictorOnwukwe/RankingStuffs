@@ -30,6 +30,8 @@ import Item from "../components/Item";
 import DisplayDemanded from "../components/DisplayDemanded";
 // @ts-ignore
 import Demand from "../components/Demand";
+// @ts-ignore
+import Timeline from "../components/Timeline";
 
 Vue.use(Router);
 
@@ -63,11 +65,11 @@ export default new Router({
           component: Notifications
         },
         {
-          path: "/:id/profile/settings",
-          component: ProfileSetting
+          path: "/:id/profile/timeline",
+          component: Timeline
         },
         {
-          path: "/:id/profile/favorites",
+          path: "/:id/profile/",
           component: UserFavorites
         }
       ]

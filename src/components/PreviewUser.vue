@@ -1,10 +1,10 @@
 <template>
   <div>
-    <v-card max-width="300px">
+    <v-card v-if="fetched">
       <v-img :src="user.profile_pic" width="100%" aspect-ratio="1.8"></v-img>
       <v-card-title class="title">@{{user.username}}</v-card-title>
       <v-card-text>
-        <p class="subtitle-1 grey--text mt-n4">Joined {{userCreated}}</p>
+        <p class="subtitle-2 secondary-text-dark">Joined {{userCreated}}</p>
         <v-layout justify-start class="mt-n4">
           <p>
             {{user.followers}}
@@ -15,32 +15,27 @@
             <span class="link--text">Following</span>
           </p>
         </v-layout>
-        <div v-if="!isUser">
-          <v-btn
-            v-if="!following"
-            @click="follow()"
-            small
-            rounded
-            outlined
-            class="accent grey--text text--darken-4"
-          >Follow</v-btn>
-          <v-btn
-            v-else
-            @click="unfollow()"
-            small
-            rounded
-            outlined
-            class="accent grey--text text--darken-4"
-          >UnFollow</v-btn>
+        <div style="position:relative;" v-if="!isProfile">
+          <v-btn v-if="!following" @click="follow()" small outlined color="brand">Follow</v-btn>
+          <v-hover v-else v-slot:default="{ hover }">
+            <v-btn
+              @click="unfollow()"
+              small
+              rounded
+              dark
+              :color="hover ? 'accent' : 'brand'"
+            >{{hover ? 'unfollow' : 'Following'}}</v-btn>
+          </v-hover>
         </div>
       </v-card-text>
       <v-divider></v-divider>
       <v-card-actions>
-        <v-btn small color="accent" @click="goUser()">View profile</v-btn>
         <v-spacer></v-spacer>
         <v-btn small color="accent" outlined @click="closeUserDialog()">Close</v-btn>
+        <v-btn small color="accent" @click="goUser()">Profile</v-btn>
       </v-card-actions>
     </v-card>
+    <v-card v-else>Loading...</v-card>
   </div>
 </template>
 
@@ -52,7 +47,9 @@ export default {
   },
   data() {
     return {
-      following: null
+      following: null,
+      isProfile: false,
+      fetched: false
     };
   },
   methods: {
@@ -64,19 +61,28 @@ export default {
       this.$router.push({ path: link });
     },
     follow() {
-      this.$store.dispatch("follow_user", this.user).then(() => {});
+      this.$store.dispatch("follow_user", this.user).then(() => {
+        this.following = true;
+      });
     },
     unfollow() {
-      this.$store.dispatch("unfollow_user", this.user.id).then(() => {});
-    },
-    checkFollowing() {
-      this.$store.dispatch("check_following", this.user.id).then(query => {
-        if (query.length > 0) {
-          this.following = true;
-        } else {
-          this.following = false;
-        }
+      this.$store.dispatch("unfollow_user", this.user.id).then(() => {
+        this.following = false;
       });
+    },
+    async checkFollowing() {
+      await this.$store
+        .dispatch("check_following", this.user.id)
+        .then(result => {
+          this.following = result;
+        });
+    },
+    async matchUser() {
+      this.$store.getters.getUser.id === this.user.id
+        ? (this.isProfile = true)
+        : (this.isProfile = false);
+
+      await this.checkFollowing();
     }
   },
   computed: {
@@ -86,6 +92,11 @@ export default {
     isUser() {
       return this.$store.getters.getUser.id === this.user.id;
     }
+  },
+  mounted: function() {
+    this.matchUser().then(() => {
+      this.fetched = true;
+    });
   }
 };
 </script>

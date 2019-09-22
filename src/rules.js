@@ -7,8 +7,11 @@ let Rules = {
       ) || "Please enter a valid email"
   ],
   minLength: len => v =>
-    (v || "").length >= len ||
-    `This field must contain at least ${len} characters`,
+    (v || "").length >= len
+      ? true
+      : len == 1
+      ? "This field cannot be empty"
+      : `This field must contain at least ${len} characters`,
   maxLength: len => v =>
     (v || "").length <= len ||
     `This field must contain at most ${len} characters`,

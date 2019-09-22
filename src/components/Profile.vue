@@ -1,106 +1,147 @@
 <template>
   <div id="main">
-    <div id="profile-container">
-      <v-card tile flat height="100%">
+    <div v-if="fetched" id="profile-container">
+      <v-card v-if="user!== {}" tile flat height="100%">
+        <v-icon
+          v-if="isProfile"
+          color="accent"
+          style="position:absolute; top:1em;right:1em"
+          @click="showSetting = true"
+        >mdi-pencil</v-icon>
         <v-card-text>
-          <v-layout>
-            <div class="mx-3" style="position:relative">
-              <v-avatar tile size="150px">
+          <v-layout :column="$vuetify.breakpoint.xs ? true : false">
+            <v-flex shrink>
+            <v-layout class="ml-3 mr-6 mb-6" column :align-center="$vuetify.breakpoint.xs ? true : false">
+              <v-avatar size="150px" class="mb-3">
                 <img :src="user.profile_pic" />
               </v-avatar>
-              <v-icon color="accent" style="position:absolute; bottom:8px; right:8px;">mdi-camera</v-icon>
-            </div>
-            <div>
-              <p class="title">@{{user.username}}</p>
-              <div class="mt-n4">Joined {{joined}}</div>
-              <v-layout class="mt-2 black--text">
-                <div>
-                  <span class="brand--text text--darken-2 font-weight-bold">{{user.followers}} </span>
-                  <a class="brand--text text--darken-2">Followers</a>
-                </div>
-                <div class="ml-2">
-                  <span class="brand--text text--darken-2 font-weight-bold">{{user.following}} </span>
-                  <a class="brand--text text--darken-2">Following</a>
-                </div>
-              </v-layout>
-              <div v-if="!isUser">
+
+              <div v-if="!isProfile" class="mt-4">
                 <v-btn
                   v-if="!following"
                   @click="follow()"
                   small
                   rounded
-                  class="accent grey--text text--darken-4"
+                  outlined
+                  color="brand"
                 >Follow</v-btn>
-                <v-btn
-                  v-else
-                  @click="unfollow()"
-                  small
-                  rounded
-                  class="accent grey--text text--darken-4"
-                >UnFollow</v-btn>
+                
+                <v-hover v-else v-slot:default="{ hover }">
+                  <v-btn @click="unfollow()" small rounded dark :color="hover ? 'accent' : 'brand'">{{hover ? 'unfollow' : 'Following'}}</v-btn>
+                </v-hover>
               </div>
-            </div>
+            </v-layout>
+            </v-flex>
+            <v-layout :justify-center="$vuetify.breakpoint.xs ? true : false">
+              <div>
+              <h2 v-if="user.name" class="title font-weight-black" style="line-height:1.1em">{{user.name}}</h2>
+              <p :class="user.name ? 'subtitle-1 secondary-text-dark mt-n1 font-weight-bold' : 'title font-weight-black'">@{{user.username}}</p>
+              <div v-if="user.bio" style="white-space:pre-wrap; max-width:30em">
+                <p
+                  class="subtitle-2 primary-text-dark text-justify text-break font-weight-medium"
+                >{{user.bio}}</p>
+              </div>
+              <v-layout justify-start align-center wrap>
+                <v-flex v-if="this.user.created">
+                  <v-icon color="grey">mdi-calendar-month</v-icon>
+                  <span class="secondary-text-dark font-weight-medium">&nbsp;Joined {{joined}}</span>
+                </v-flex>
+                <v-flex v-if="user.country">
+                <v-layout class="ml-2">
+                  <v-icon color="grey" class="mr-2">mdi-map-marker-outline</v-icon>
+                  <country-flag :country="user.country.code"/>
+                </v-layout>
+                </v-flex>
+                <v-flex v-if="user.DOB">
+                <v-layout>
+                  <v-icon>mdi-balloon</v-icon>
+                  <span class="secondary-text-dark font-weight-medium">Born {{DOB}}</span>
+                </v-layout>
+                </v-flex>
+              </v-layout>
+              <v-layout class="mt-2 black--text">
+                <div>
+                  <span class="subtitle-1 primary-text-dark font-weight-black">{{user.followers}}</span>
+                  <a class="subtitle-1 secondary-text-dark font-weight-medium">&nbsp;{{user.followers == 1 ? 'Follower' : 'Followers'}}</a>
+                </div>
+                <div class="ml-3">
+                  <span class="subtitle-1 primary-text-dark font-weight-black">{{user.following}}</span>
+                  <a class="subtitle-1 secondary-text-dark font-weight-medium">&nbsp;Following</a>
+                </div>
+              </v-layout>
+              </div>
+            </v-layout>
           </v-layout>
         </v-card-text>
       </v-card>
-      <div id="interact-container" class="pa-4 white">
-        <div id="interact-nav">
-          <div
-            v-if="isProfile"
-            @click="setActive('settings')"
-            class="nav-item brand"
-            :class="{'darken-2': (active === 'settings'), brand: (active !== 'settings')}"
-          >
-            <v-icon color="primary" class="mr-1">mdi-settings</v-icon>
-            <a>Settings</a>
-          </div>
-          <div
-            v-if="isProfile"
-            @click="setActive('notifications')"
-            class="nav-item brand"
-            :class="{'darken-2': (active === 'notifications'), brand: (active !== 'notifications')}"
-          >
-            <v-icon color="primary" class="mr-1">mdi-bell</v-icon>
-            <a>Notifications</a>
-          </div>
-          <div
-            @click="setActive('favorites')"
-            class="nav-item brand"
-            :class="{'darken-2': (active === 'favorites'), brand: (active !== 'favorites')}"
-          >
-            <v-icon color="primary" class="mr-1">favorite</v-icon>
-            <a v-if="isProfile">My Favorites</a>
-            <a v-else>Favorites</a>
-          </div>
-          <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
-            <a>Activities</a>
-          </div>-->
+      <v-layout
+        justify-space-around
+        style="border-bottom:1px solid var(--dark-divider)"
+        class="mt-4"
+      >
+        <div
+          v-if="isProfile"
+          @click="setActive('notifications')"
+          class="nav-item"
+          :class="active === 'notifications' ? 'border' : null"
+        >
+          <a
+            class="primary-text-dark subtitle-1 font-weight-medium"
+            :class="active=== 'notifications' ? 'brand--text' : null"
+          >Creations</a>
         </div>
-      </div>
+        <div @click="setActive('')" class="nav-item" :class="active === '' ? 'border' : null">
+          <a
+            class="primary-text-dark subtitle-1 font-weight-medium"
+            :class="active=== '' ? 'brand--text' : null"
+          >Favorites</a>
+        </div>
+        <div
+          @click="setActive('timeline')"
+          class="nav-item"
+          :class="active === 'timeline' ? 'border' : null"
+        >
+          <a
+            class="primary-text-dark subtitle-1 font-weight-medium"
+            :class="active=== 'timeline' ? 'brand--text' : null"
+          >Timeline</a>
+        </div>
+        <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
+            <a>Activities</a>
+        </div>-->
+      </v-layout>
       <v-card tile flat>
         <v-card-text>
           <v-layout justify-center>
-            <router-view></router-view>
+            <router-view :user="userID" :isProfile="isProfile"></router-view>
           </v-layout>
         </v-card-text>
       </v-card>
     </div>
+    <div v-else>Loading...</div>
+    <v-dialog v-model="showSetting" max-width="600px" persistent>
+      <Settings v-if="showSetting" @closeMe="showSetting = false"></Settings>
+    </v-dialog>
   </div>
 </template>
 
 <script>
-import Sidebar from "./Sidebar";
+import Settings from "./ProfileSetting";
+import CountryFlag from "vue-country-flag";
 let moment = require("moment");
 export default {
   components: {
-    Sidebar
+    Settings,
+    CountryFlag
   },
   data() {
     return {
       user: {},
       isProfile: false,
       active: "",
-      following: null
+      following: null,
+      showSetting: false,
+      fetched: false
     };
   },
   methods: {
@@ -110,26 +151,28 @@ export default {
       });
     },
     follow() {
-      this.$store.dispatch("follow_user", this.user).then(() => {});
+      this.$store.dispatch("follow_user", this.user).then(() => {
+        this.following = true;
+      });
     },
     unfollow() {
-      this.$store.dispatch("unfollow_user", this.user.id).then(() => {});
+      this.$store.dispatch("unfollow_user", this.user.id).then(() => {
+        this.following = false;
+      });
     },
-    matchProfile() {
+    async matchProfile() {
       if (this.userID === this.$store.getters.getUser.id) {
         this.isProfile = true;
-      }
-      if (!this.isProfile) {
-        this.goFavorites();
-        this.setActive("favorites");
       } else {
-        this.goNotification();
-        this.setActive("notifications");
+        await this.checkFollowing();
       }
+      return;
     },
     setActive(val) {
       this.active = val;
-      this.$router.push({ path: this.homeLink + val });
+      this.$router.push({
+        path: this.homeLink + val
+      });
     },
     selectImage() {
       this.$refs.profile.click();
@@ -159,23 +202,24 @@ export default {
     goSetting() {
       this.$router.push({ path: this.homeLink + "/settings" });
     },
-    goNotification() {
+    goCreation() {
       this.$router.push({ path: this.homeLink + "/notifications" });
     },
     goFavorites() {
-      this.$router.push({ path: this.homeLink + "/favorites" });
+      this.$router.push({
+        path: this.homeLink + "/favorites"
+      });
     },
+    goTimeline() {},
     goActivities() {
       return;
     },
-    checkFollowing() {
-      this.$store.dispatch("check_following", this.user.id).then(query => {
-        if (query.length > 0) {
-          this.following = true;
-        } else {
-          this.following = false;
-        }
-      });
+    async checkFollowing() {
+      await this.$store
+        .dispatch("check_following", this.userID)
+        .then(result => {
+          this.following = result;
+        });
     }
   },
   computed: {
@@ -184,6 +228,9 @@ export default {
     },
     joined() {
       return moment(this.user.created.toDate()).format("MMMM YYYY");
+    },
+    DOB(){
+      return moment(this.user.DOB).format("MMMM D, YYYY");
     },
     homeLink() {
       return "/" + this.user.id + "/profile/";
@@ -194,51 +241,55 @@ export default {
   },
   watch: {
     userID() {
-      this.fetchUser(this.$route.params.id).then(() => {
-        this.matchProfile();
+      this.fetched = false;
+      this.isProfile = false;
+      this.following = false;
+      this.fetchUser(this.$route.params.id).then(async () => {
+        this.matchProfile()
+          .then(() => {
+            let path = window.location.href;
+            let to = path.slice(path.lastIndexOf("/") + 1);
+            console.log(to);
+            to = "profile"
+              ? this.setActive("")
+              : this.setActive(path.slice(path.lastIndexOf("/") + 1));
+          })
+          .then(() => {
+            this.fetched = true;
+          });
       });
     }
   },
   mounted: function() {
     this.fetchUser(this.userID).then(() => {
-      this.matchProfile();
+      this.matchProfile()
+        .then(() => {
+          let path = window.location.href;
+          let to = path.slice(path.lastIndexOf("/") + 1);
+          console.log(to);
+          to = "profile" ? this.setActive("") : this.setActive(to);
+        })
+        .then(() => {
+          this.fetched = true;
+        });
     });
   }
 };
 </script>
 
 <style scoped>
-#main {
-  scroll-behavior: smooth;
-}
 #container {
   display: flex;
 }
 #profile-container {
   /* background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99)); */
   margin: 0 auto;
-  flex-grow: 1;
+  max-width: 950px;
 }
 #user-details {
   display: flex;
 }
-#interact-container {
-}
-#interact-nav {
-  display: flex;
-  background-color: var(--brand);
-}
-#interact-nav > * {
-  flex-grow: 1;
-}
-.nav-item {
-  display: flex;
-  justify-content: center;
-  padding: 1em;
-  color: var(--primary);
-  cursor: pointer;
-}
-.nav-item:hover {
-  filter: brightness(95%);
+.border {
+  border-bottom: 5px solid var(--brand);
 }
 </style>

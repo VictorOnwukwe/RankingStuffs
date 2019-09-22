@@ -1,7 +1,8 @@
 <template>
     <div>
+        <div class="page-title">Latest Lists</div>
         <div v-if="lists.length>0">
-            <DisplayPreviews :lists="lists"></DisplayPreviews>
+            <display-lists :lists="lists"></display-lists>
         </div>
     </div>
 </template>

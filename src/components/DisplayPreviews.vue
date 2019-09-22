@@ -1,7 +1,7 @@
 <template>
   <div id="main">
-    <div id="preview">
-      <PreviewList v-for="list in lists" :key="list.id" :list="list"></PreviewList>
+    <div id="preview" class="mt-4">
+      <PreviewList v-for="list in lists" :key="list.id" :list="list" :sub="sub"></PreviewList>
     </div>
   </div>
 </template>
@@ -13,7 +13,8 @@ export default {
     PreviewList
   },
   props: {
-    lists: Array
+    lists: Array,
+    sub: Boolean
   }
 };
 </script>
@@ -22,11 +23,12 @@ export default {
 #preview {
     display: grid;
     grid-template-columns: 1fr;
+    grid-gap: 0.5em;
 }
 
-@media (min-width: 1000px) {
+@media (min-width: 700px) {
     #preview{
-        grid-template-columns: 1fr;
+        grid-template-columns: 1fr 1fr;
     }
 }
 

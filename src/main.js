@@ -10,18 +10,45 @@ import firebase from "firebase/app";
 import store from "./store";
 import Swal from "sweetalert2";
 import autosize from "autosize";
-import anime from "animejs/lib/anime.es.js";
 import OverlayScrollbars from "os-vue";
 import VueTextareaAutosize from "vue-textarea-autosize";
-
+import { VuetifyLazyImagePlugin } from "vuetify-lazy-image";
 import VueGlide from "vue-glide-js";
-// import "vue-glide-js/dist/vue-glide.css";
+// @ts-ignore
+import PreviewUser from "./components/PreviewUser";
+import DisplayPreviews from "./components/DisplayPreviews";
 
-// window.Swal = Swal;
+import VueAutosize from "vue-autosize";
+import Masonry from "vue-masonry-css";
+
+import VuePacker from 'vue-packer';
+
+const options = {}; // Optional options
+
+Vue.use(VuePacker, {});
+
+import VueMasonryComponent from 'vue-masonry-component'
+
+Vue.use(VueMasonryComponent)
+
+window.Swal = Swal;
+
+// let SocialSharing = require("vue-social-sharing");
 
 Vue.config.productionTip = false;
 
-Vue.use(VueGlide, OverlayScrollbars, VueTextareaAutosize);
+Vue.use(
+  VueGlide,
+  OverlayScrollbars,
+  VueTextareaAutosize,
+  VuetifyLazyImagePlugin,
+  VueAutosize
+);
+
+Vue.use(Masonry, { name: "the-masonry" });
+
+Vue.component("preview-user", PreviewUser);
+Vue.component("display-lists", DisplayPreviews);
 
 // @ts-ignore
 new Vue({

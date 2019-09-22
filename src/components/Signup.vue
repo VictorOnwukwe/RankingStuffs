@@ -1,8 +1,12 @@
 <template>
   <div>
-    <v-card class="mx-auto px-2 py-4" max-width="500px" flat color="background">
-      <v-card-title class="font-weight-bold grey--text">Signup</v-card-title>
-      <v-card-text>
+    <v-card flat max-width="500px" color="white">
+      <v-card-title class="title font-weight-bold" style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey">
+      Signup
+      <v-spacer></v-spacer>
+      <v-icon class="close" @click="close()">mdi-close</v-icon>
+    </v-card-title>
+      <v-card-text class="mt-7">
         <v-form id="form" v-model="valid">
           <v-text-field
             v-model="email"
@@ -10,7 +14,6 @@
             :rules="rules.email"
             required
             color="brand"
-            validate-on-blur
             outlined
             clearable
           ></v-text-field>
@@ -19,9 +22,7 @@
             v-model="username"
             label="Username"
             color="brand"
-            :rules="[usernameRules]"
-            validate-on-blur
-            @blur="checkUsername()"
+            :error-messages="usernameErrors"
             outlined
             clearable
           ></v-text-field>
@@ -32,20 +33,17 @@
             label="Password"
             type="password"
             :rules="rules.password"
-            validate-on-blur
             required
             color="brand"
             outlined
             clearable
           ></v-text-field>
-        </v-form>
 
-        <v-layout justify-start>
-          <v-btn @click="emailSignup()" class="mx-0" color="button primary--text">
+          <v-btn :disabled="!valid" @click="emailSignup()" class="mx-0" color="button primary--text">
             <span class="primary--text font-weight-bold" v-if="!is_loading">Sign up</span>
             <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
           </v-btn>
-        </v-layout>
+        </v-form>
 
         <div style="text-align:center; color:var(--link)">
           <br />OR SIGN UP WITH
@@ -91,7 +89,7 @@ export default {
       valid: false,
       rules: Rules,
       is_loading: false,
-      usernameValid: true
+      usernameErrors: []
     };
   },
 
@@ -188,12 +186,21 @@ export default {
     },
 
     async checkUsername() {
-      await this.$store.dispatch("username_valid", this.username).then(a => {
-        this.usernameValid = a;
+      await this.$store.dispatch("username_valid", this.username).then(empty => {
+        this.usernameErrors = empty ? [] : "Username already exists";
       });
+    },
+
+    close(){
+      this.$emit("close");
     }
   },
-  computed: {}
+  computed: {},
+  watch: {
+    "username"(val){
+      this.checkUsername();
+    }
+  }
 };
 </script>
 

@@ -296,16 +296,16 @@ export default {
 #main {
   position: sticky;
   top: 50px;
-  scrollbar-color: #051b38 #051b38;
-  scrollbar-width: 3px;
-  margin-left: -1em;
-  margin-right: 1em;
+  /* scrollbar-color: #051b38 #051b38;
+  scrollbar-width: 3px; */
+  margin-left: -0.5em;
+  margin-right: 0.5em;
   max-width: 250px;
   min-width: 250px;
-  overflow-y: scroll;
   height: calc(100vh - 50px);
   display: none;
-  background-color: #363640;
+  background-color: #E9E9ED;
+  /* border-right: 1px solid var(--dark-divider); */
 }
 @media (min-width: 1000px) {
   #main {

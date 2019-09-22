@@ -1,12 +1,12 @@
 <template>
-  <v-card @click="goNotification()" tile outlined flat width="100%" class="pa-2 blue lighten-5">
+  <v-card @click="goNotification()" tile outlined flat width="100%" class="pa-2 blue lighten-4">
     <v-card-text>
       <v-layout>
         <v-flex>
           <span>{{notification.message}}</span>
         </v-flex>
         <v-flex shrink>
-          <span>{{created}}</span>
+          <v-layout style="width:30px" class="primary-text-dark" justify-end>{{created}}</v-layout>
         </v-flex>
       </v-layout>
     </v-card-text>
@@ -15,6 +15,7 @@
 
 <script>
 const moment = require("moment");
+import convertMoment from "../../public/my-modules/convertMoment";
 export default {
   props: {
     notification: Object
@@ -51,7 +52,7 @@ export default {
   },
   computed: {
     created() {
-      return moment(this.notification.created.toDate()).fromNow();
+      return convertMoment.getShortTime(this.notification.created);
     }
   },
   created(){

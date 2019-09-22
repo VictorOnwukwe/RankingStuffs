@@ -2,12 +2,12 @@
   <div id="main">
     <v-layout mt-2>
       <v-card class="primary" tile width="100%">
-        <v-card-title class="pl-2 py-2 top-bar">
+        <v-card-title class="px-2 py-2 top-bar">
           <v-layout align-center>
             <v-flex shrink mr-2>
               <v-card
                 flat
-                elevation="10"
+                elevation="3"
                 :class="{'golden': index === 1, 'silver': index === 2, 'bronze': index === 3, 'plain': index > 3}"
                 class="numeric-box"
                 style="font-size:0.7em"
@@ -17,122 +17,169 @@
             </v-flex>
             <v-flex>
               <h4
-                class="title font-weight-bold"
+                class="title font-weight-black brand--text"
                 style="border-radius:.5em; line-height:1.1;margin-top:0em; cursor:pointer;"
                 @click="goItem()"
               >{{item.name}}</h4>
             </v-flex>
             <v-spacer></v-spacer>
-            <v-flex shrink class="">
-                <v-icon v-if="!voted" class="primary-text-light">mdi-camera</v-icon>
-                <v-layout
-                  class=""
-                  style="width:2.4375em; border-radius:.3em"
-                  v-else
-                  justify-center
-                  elevation-3
-                >
-                <h4 style="font-weight:bold;display:inline-block;color:#E2E8F7">{{votePercentage()}}%</h4>
-                </v-layout>
+            <v-flex shrink class>
+              <div v-if="!voted">
+                <v-icon @click="vote()" class="action-icon primary-text-light" size="35">mdi-vote</v-icon>Vote
+              </div>
+              <v-layout
+                class
+                style="width:2.4375em; border-radius:.3em"
+                v-else
+                justify-center
+              >
+                <h4
+                  style="font-weight:bold;display:inline-block"
+                >{{votePercentage()}}%</h4>
+              </v-layout>
             </v-flex>
           </v-layout>
         </v-card-title>
+        <v-divider></v-divider>
         <v-layout wrap>
           <v-flex xs12 sm4 xl3>
             <v-card tile class="pr-0 primary" flat height="100%" min-height="2.7em" style>
-              <v-layout v-if="item.about || item.image" column>
-                <v-flex>
-                  <v-card-text>
-                    <v-img
-                      v-model="info.image"
-                      :src="info.image"
-                      cover
-                      width="100%"
-                      class="mb-2"
-                      style="border-radius:4px"
-                      aspect-ratio="1.3"
-                    ></v-img>
-                    <div v-if="info.about" class="grey--text">
-                      {{windowSmall? info.about.slice(0,250) : info.about.slice(0,150)}}
-                      <div v-if="windowSmall">
-                        <span v-if="info.about.length>250" class="brand--text">...read more</span>
-                      </div>
-                      <div v-else>
-                        <span v-if="info.about.length>150" class="brand--text">...read more</span>
-                      </div>
+              <v-layout column style="height:100%">
+                <div class v-if="info.about || info.image" column>
+                  <v-card-text class="pa-1">
+                    <div style="float:left; margin:0 1em 0.2em 0" v-if="info.image">
+                      <v-img
+                        v-model="info.image"
+                        :src="info.image"
+                        :width="windowSmall? 100 : 150"
+                        aspect-ratio="1"
+                      ></v-img>
+                    </div>
+                    <div v-if="info.about" class="secondary-text-dark subtitle-2">
+                      {{windowSmall? info.about.slice(0,400) : info.about.slice(0,400)}}
+                      <span
+                        v-if="windowSmall && info.about.length>400"
+                        class="brand--text"
+                      >...read more</span>
+                      <span v-else-if="info.about.length>400" class="brand--text">...read more</span>
                     </div>
                   </v-card-text>
-                </v-flex>
+                </div>
+                <v-spacer></v-spacer>
+                <div style="margin:0.5em 0;">
+                  <v-layout justify-center>
+                    <v-flex>
+                      <v-layout justify-center>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on }">
+                            <v-icon
+                              class="action-icon"
+                              color="grey darken-1"
+                              v-on="on"
+                            >mdi-eye-circle</v-icon>
+                          </template>
+                          <span class="white--text">View Item</span>
+                        </v-tooltip>
+                      </v-layout>
+                    </v-flex>
+                    <v-flex>
+                      <v-layout justify-center>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{ on }">
+                            <v-icon
+                              @click="favoriteItem()"
+                              v-on="on"
+                              color="red"
+                              class="action-icon"
+                            >{{favorited ? "mdi-heart" : "mdi-heart-outline"}}</v-icon>
+                          </template>
+                          <span class="white--text">Add Item to Favorites</span>
+                        </v-tooltip>
+                      </v-layout>
+                    </v-flex>
+                    <v-flex>
+                      <v-layout justify-center>
+                        <v-tooltip bottom>
+                          <template v-slot:activator="{on}">
+                            <v-icon color="grey darken-1" v-on="on">add</v-icon>
+                          </template>
+                          <span>Follow Item</span>
+                        </v-tooltip>
+                      </v-layout>
+                    </v-flex>
+                  </v-layout>
+                </div>
               </v-layout>
-              <div style="position:absolute; bottom:0.5em; width:100%">
-                <v-layout justify-center>
-                  <v-flex>
-                    <v-layout justify-center>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-icon color="grey darken-1" v-on="on">mdi-eye-circle</v-icon>
-                        </template>
-                        <span class="white--text">View Item</span>
-                      </v-tooltip>
-                    </v-layout>
-                  </v-flex>
-                  <v-flex>
-                    <v-layout justify-center>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{ on }">
-                          <v-icon v-on="on" color="grey darken-1">favorite</v-icon>
-                        </template>
-                        <span class="white--text">Add Item to Favorites</span>
-                      </v-tooltip>
-                    </v-layout>
-                  </v-flex>
-                  <v-flex>
-                    <v-layout justify-center>
-                      <v-tooltip bottom>
-                        <template v-slot:activator="{on}">
-                          <v-icon color="grey darken-1" v-on="on">add</v-icon>
-                        </template>
-                        <span>Follow Item</span>
-                      </v-tooltip>
-                    </v-layout>
-                  </v-flex>
-                </v-layout>
-              </div>
             </v-card>
           </v-flex>
           <v-flex xs12 sm8 xl9 id="comment-border">
             <v-divider class="hidden-sm-and-up"></v-divider>
-            <v-card tile flat height="100%" class="primary">
-              <v-card-text style="margin-bottom: 10em" class>
-                <v-card class="subtitle-1 primary" flat tile v-if="comments.length == 0">Be the first to comment...</v-card>
-                <v-card class="primary" flat tile v-else>
-                  <div v-for="(comment, index) in comments" :key="index">
-                    <comment id="comment" :comment="comment" :list="list" :item="item"></comment>
-                    <v-divider v-if="comments.length>1"></v-divider>
-                  </div>
+            <v-card tile flat height="100%" class="pa-0">
+              <v-layout style="height:100%" class column justify-space-between>
+                <v-card flat tile>
+                  <v-card
+                    class="subtitle-1 pa-2"
+                    flat
+                    tile
+                    v-if="comments.length == 0"
+                  >Be the first to comment...</v-card>
+                  <v-card flat tile v-else>
+                    <v-layout class="my-2" justify-center>
+                      <v-icon
+                        v-if="comments.length < item.comment_count && !loadingComments"
+                        @click="fetchComments(5, comments[0].created)"
+                        size="1.8em"
+                        class="primary-text-dark"
+                      >mdi-plus-circle-outline</v-icon>
+                      <div v-if="loadingComments" style="display:flex; justify-content:center">
+                        <v-btn text>
+                          <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
+                        </v-btn>
+                      </div>
+                    </v-layout>
+                    <div v-for="(comment, index) in comments" :key="index">
+                      <comment id="comment" :comment="comment" :list="list" :item="item"></comment>
+                    </div>
+                  </v-card>
+                  <!-- <p v-for="n in 12">good</p> -->
                 </v-card>
-                <!-- <p v-for="n in 12">good</p> -->
-              </v-card-text>
-              <div style="width:100%; position:absolute; bottom:0; background-color:white">
-                <v-card-actions class="primary">
-                  <v-layout>
-                    <v-flex xs10 offset-xs-1>
-                      <v-layout class align-center>
-                        <v-flex>
-                          <v-layout>
-                            <v-textarea outlined rows="1"></v-textarea>
-                          </v-layout>
-                        </v-flex>
-                        <v-flex shrink>
-                          <v-layout align-content-end>
-                            <v-icon>comment</v-icon>
-                          </v-layout>
-                        </v-flex>
-                      </v-layout>
-                    </v-flex>
-                  </v-layout>
-                </v-card-actions>
-              </div>
+                <v-card tile flat>
+                  <v-card-actions>
+                    <v-layout>
+                      <v-flex>
+                        <v-layout class column reverse>
+                          <v-flex>
+                            <div style="position:relative;">
+                              <comment-box
+                                v-model="user_comment"
+                                class="comment-box"
+                                rows="1"
+                                placeholder="Add Comment..."
+                                :max-height="120"
+                                @focused="setFocused"
+                              />
+                              <v-icon
+                                size="1.5em"
+                                @click="uploadComment()"
+                                :class="focused ? 'brand--text' : null"
+                                style="position:absolute; bottom:0.7em; right:0.5em"
+                              >mdi-send</v-icon>
+                            </div>
+                          </v-flex>
+                          <v-flex class="mr-2">
+                            <v-layout class justify-end>
+                              <a
+                                v-if="item.comment_count>0"
+                                class="secondary-text-dark underline"
+                              >{{item.comment_count}} {{item.comment_count > 1 ? 'comments' : 'comment'}}</a>
+                            </v-layout>
+                          </v-flex>
+                        </v-layout>
+                      </v-flex>
+                    </v-layout>
+                  </v-card-actions>
+                </v-card>
+              </v-layout>
             </v-card>
           </v-flex>
         </v-layout>
@@ -144,11 +191,13 @@
 <script>
 import comment from "./comment";
 import swalErrors from "../../public/my-modules/swalErrors";
-import { setTimeout } from 'timers';
+import { setTimeout } from "timers";
+import commentBox from "./CommentBox";
 
 export default {
   components: {
-    comment
+    comment,
+    commentBox
   },
   props: {
     item: Object,
@@ -165,15 +214,15 @@ export default {
       commentHeight: null,
       autoGrow: true,
       Rows: 1,
-      info: {
-        about: "",
-        image: ""
-      }
+      info: {},
+      favorited: false,
+      focused: false,
+      loadingComments: false
     };
   },
 
   methods: {
-    async addComment() {
+    async uploadComment() {
       if (this.$store.state.authenticated) {
         await this.$store
           .dispatch("upload_comment", {
@@ -182,13 +231,19 @@ export default {
             comment: this.user_comment
           })
           .then(comment => {
+            console.log(comment);
             this.comments.push(comment);
+            this.item.comment_count++;
           });
       } else {
         swalErrors.showAuthenticationError();
       }
 
       this.user_comment = "";
+    },
+
+    setFocused(bool) {
+      this.focused = bool;
     },
 
     checkGrow() {
@@ -202,35 +257,27 @@ export default {
       }
     },
 
+    favoriteItem() {
+      this.$store.dispatch("favorite_item", this.info);
+    },
+
     vote() {
       if (this.$store.state.authenticated) {
-        if (this.voted) {
-          this.$store.dispatch("remove_vote", {
-            item_id: this.item.id,
-            list_id: this.list.id
-          });
-        } else {
-          this.$store.dispatch("add_vote", {
-            item_id: this.item.id,
-            list_id: this.list.id
-          });
-        }
+        this.$store.dispatch("add_vote", {
+          item_id: this.item.id,
+          list_id: this.list.id
+        });
       } else {
         swalErrors.showAuthenticationError();
       }
-
-      setTimeout(() => {
-        this.checkVote();
-        console.log(this.voted);
-      }, 1000);
     },
 
     votePercentage() {
-      return Math.round((this.item.vote_count / this.list.vote_count) * 100);
+      return Math.round((this.item.votes / this.list.votes) * 100);
     },
 
     async fetchComments(num, lastTimestamp) {
-      this.loading = true;
+      this.loadingComments = true;
       return await this.$store
         .dispatch("fetch_comments", {
           item_id: this.item.id,
@@ -243,24 +290,33 @@ export default {
             //make first created comment appear first
             this.comments.unshift(comments[i]);
           }
-          this.loading = false;
+          this.loadingComments = false;
         })
         .catch(error => {
           console.log("Error: ", error);
-          this.loading = false;
+          this.loadingComments = false;
         });
     },
 
-    goItem(){
-      this.$router.push({path: "/items/" + this.item.name, query: {
-        item: this.info
-      }});
+    goItem() {
+      this.$router.push({
+        path: "/items/" + this.item.name,
+        query: {
+          id: this.info.id
+        }
+      });
     },
 
-    async fetchInfo(){
+    async fetchInfo() {
       this.$store.dispatch("fetch_item", this.item.info).then(info => {
-            this.info = info;
-      })
+        this.info = info;
+      });
+    },
+
+    setFavorited() {
+      this.$store.dispatch("item_favorited", this.item.info).then(result => {
+        this.favorited = result;
+      });
     }
   },
 
@@ -276,14 +332,13 @@ export default {
   },
 
   watch: {
-    'info'(){
-      
-    }
+    info() {}
   },
 
   mounted: function() {
     this.fetchComments(5, "now");
     this.fetchInfo();
+    this.setFavorited();
   }
 };
 </script>
@@ -311,11 +366,6 @@ export default {
   text-overflow: ellipsis;
 }
 
-#comment_box {
-  width: 100%;
-  background-color: var(--primary);
-}
-
 #bottom-nav {
   width: 100%;
   background-color: brown;
@@ -339,21 +389,9 @@ export default {
   object-fit: cover;
 }
 
-.comment-box.v-text-field--outlined > .v-input__control > .v-input__slot {
-  min-height: 0px;
-}
-.comment-box .v-input__control {
-  /* background-color: lightblue; */
-}
-.comment-box .v-text-field__details {
-  flex: 0;
-  min-height: 0;
-}
-.comment-box .v-messages {
-  min-height: 0;
-}
-
-.comment-box.v-text-field.v-text-field--enclosed .v-text-field__details {
-  margin-bottom: 0;
+.comment-box {
+  /* background-color: blue; */
+  /* border: 1px solid grey; */
+  /* border-radius: 1em; */
 }
 </style>

@@ -1,8 +1,12 @@
 <template>
   <div id="main-div">
-    <v-card class="mx-auto px-2 py-4" flat max-width="500px" color="background">
-      <v-card-title class="font-weight-bold grey--text">Login</v-card-title>
-      <v-card-text>
+    <v-card flat max-width="500px" color="white">
+      <v-card-title class="title font-weight-bold" style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey">
+      Login
+      <v-spacer></v-spacer>
+      <v-icon class="close" @click="close()">mdi-close</v-icon>
+    </v-card-title>
+      <v-card-text class="mt-7">
         <v-form v-model="valid" id="form">
           <v-text-field
             v-model="email"
@@ -27,13 +31,12 @@
             outlined
             clearable
           ></v-text-field>
-        </v-form>
-        <v-layout justify-start>
+
           <v-btn @click="emailLogin" color="button primary--text" id="login-button" class="mx-0">
             <span class="primary--text font-weight-bold" v-if="!is_loading">Login</span>
             <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
           </v-btn>
-        </v-layout>
+        </v-form>
 
         <div style="text-align:center; color:var(--button)">
           <br />OR LOGIN WITH
@@ -132,6 +135,9 @@ export default {
           icon: "error"
         });
       });
+    },
+    close(){
+      this.$emit("close");
     }
   }
 };
@@ -147,13 +153,5 @@ export default {
 }
 .signup-link:hover {
   text-decoration: underline;
-}
-
-#main-div {
-  background-color: inherit;
-}
-
-#main-div.btn {
-  background-color: red;
 }
 </style>

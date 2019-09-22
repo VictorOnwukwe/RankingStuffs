@@ -1,22 +1,39 @@
 <template>
   <div id="reply">
-    <div id="container">
+    <div id="container" v-if="fetched">
       <div>
-        <v-avatar size="20" class="mr-2">
+        <v-avatar size="1.625em" class="mr-2 ml-1">
           <img :src="replier.profile_pic" />
         </v-avatar>
       </div>
 
       <div>
-        <p>
-          <a @click="showUser=true" class="brand--text text--darken-1 subtitle-2 font-weight-bold">{{replier.username}}</a>
-          - {{reply.content}}
+        <div class="py-1 px-2 br primary ml-2" style="position:relative">
+          <v-icon color="primary" size="0.9em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em">mdi-triangle</v-icon>
+        <p
+          v-if="replier!=={}"
+          @click="showUser=true"
+          class="primary-text-dark subtitle-2 font-weight-bold text-capitalize"
+        >
+          {{replier.username}}&nbsp;
+          <span class="secondary-text-dark">{{created}}</span>
         </p>
-        <div @click="toggleLike()" class="mt-n4">
-        <v-icon class="like-button" v-if="!liked" small @click color="grey">mdi-thumb-up</v-icon>
-        <v-icon class="like-button" v-if="liked" small @click color="blue">mdi-thumb-up</v-icon>
-        <span v-if="reply.likes>0" class="mx-1">{{reply.likes}}</span>
-      </div>
+        <p class="mt-n4" style="white-space:pre-wrap">{{reply.content}}</p>
+        </div>
+        <v-layout class="ml-2">
+          <div class="px-1" style="min-width:3em">
+            <v-icon
+              size="1em"
+              class="action-icon"
+              @click="toggleLike()"
+              :class="liked ? 'blue--text' : null"
+            >mdi-thumb-up</v-icon>
+            <span v-if="reply.likes>0" style="margin:0 1em;">{{reply.likes}}</span>
+          </div>
+          <div style="min-width:3em">
+            <v-icon @click="sendReply()" size="1em" class="action-icon">mdi-reply</v-icon>
+          </div>
+        </v-layout>
       </div>
     </div>
     <v-dialog v-model="showUser" max-width="300px">
@@ -29,6 +46,8 @@
 import { setTimeout } from "timers";
 import swalErrors from "../../public/my-modules/swalErrors";
 import PreviewUser from "./PreviewUser";
+
+let moment = require("moment");
 export default {
   props: {
     path: Object,
@@ -39,7 +58,8 @@ export default {
     return {
       liked: false,
       showUser: false,
-      replier: {}
+      replier: {},
+      fetched: false
     };
   },
 
@@ -67,39 +87,82 @@ export default {
       }
     },
 
-    fetchReplier(){
-      this.$store.dispatch("fetch_user", this.reply.user).then(user => {
+    async fetchReplier() {
+      await this.$store.dispatch("fetch_user", this.reply.user).then(user => {
         this.replier = user;
       });
     },
 
-    setLikedState() {
-      if (this.reply.likers !== undefined) {
-        if (this.reply.likers.includes(this.$store.getters.getUser.id)) {
-          setTimeout(() => {
-            this.liked = true;
-          }, 50);
-        }
+    async setLikedState() {
+      await this.$store
+        .dispatch("reply_liked", {
+          reply_id: this.reply.id,
+          ...this.path
+        })
+        .then(liked => {
+          this.liked = liked;
+        });
+    },
+
+    sendReply() {
+      this.$emit("reply", this.replier.username);
+    }
+  },
+
+  computed: {
+    created() {
+      let result = moment(this.reply.created.toDate()).fromNow();
+
+      if (result.includes("second")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "s"
+        );
+      } else if (result.includes("minute")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "m"
+        );
+      } else if (result.includes("hour")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "h"
+        );
+      } else if (result.includes("day")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "d"
+        );
+      } else if (result.includes("week")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "w"
+        );
+      } else if (result.includes("month")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") +
+          "mo"
+        );
+      } else if (result.includes("year")) {
+        return (
+          (result[0] !== "a" ? result.slice(0, result.indexOf(" ")) : "1") + "y"
+        );
+      } else {
+        return "null";
       }
     }
   },
 
   mounted: function() {
-    this.fetchReplier();
-    setTimeout(() => {
-      this.setLikedState();
-    }, 1000);
+    Promise.all([this.fetchReplier(), this.setLikedState()]).then(() => {
+      this.fetched = true;
+    });
   }
 };
 </script>
 
 <style scoped>
-#reply{
+#reply {
   padding: 0.3em;
 }
-#reply:hover{
+#reply:hover {
   /* background-color: hsl(207, 90%, 95%); */
-  background-color: #F5F5F5;
+  /* background-color: #f5f5f5; */
 }
 #container {
   display: flex;
