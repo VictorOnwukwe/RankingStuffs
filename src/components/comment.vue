@@ -4,13 +4,13 @@
       <div>
         <div id="comment" style="display:flex">
           <div>
-            <v-avatar size="2em" class style="margin:0.5em 1em">
+            <v-avatar size="2.5em" class style="margin:0.5em 1em">
               <img :src="commenter.profile_pic" />
             </v-avatar>
           </div>
           <div class="mt-1" style="position:relative">
-            <div class="primary py-1 px-2 br mr-1">
-              <v-icon color="primary" size="1em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.7em">mdi-triangle</v-icon>
+            <div class="background py-1 px-2 br mr-1">
+              <v-icon color="background" size="1em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.7em">mdi-triangle</v-icon>
             <p
               @click="showUser=true"
               class="primary-text-dark subtitle-2 font-weight-black text-capitalize"
@@ -22,15 +22,15 @@
               >{{created}}</span>
             </p>
 
-            <p style="white-space:pre-wrap; font-size:16px;" class="mt-n4">{{comment.content.slice(0,300)}}<span
+            <div style="white-space:pre-wrap;" class="mt-n4">{{comment.content.slice(0,300)}}<span
                 @click="showComment=true"
                 v-if="comment.content.length>300"
                 class="brand--text"
                 style="cursor:pointer"
-              >...read more</span></p>
+              >...read more</span></div>
             </div>  
-            <v-layout>
-              <div style="display:flex; min-width:3.3em;">
+            <v-layout class="mt-2 mb-1">
+              <div style="display:flex; min-width:4.5em;">
                 <v-icon
                   class="like-button"
                   @click="toggleLike()"
@@ -40,18 +40,18 @@
                 <span
                   v-if="comment.likes>0"
                   class="grey--text text--darken-2"
-                  style="margin:0 0.3em; font-size:0.9em"
+                  style="margin:0.2em 0 0 0.3em; font-size:0.9em"
                 >{{comment.likes}}</span>
               </div>
-              <div @click="replyInput=!replyInput" style="min-width:3.3em">
+              <!-- <div @click="replyInput=!replyInput" style="min-width:4.5em">
                 <v-icon @click="showBox()" size="1.125em" class="action-icon">mdi-reply</v-icon>
-              </div>
+              </div> -->
 
-              <div style="cursor:pointer" @click="showReplies(5)">
+              <div style="cursor:pointer" @click="showReplies(3)">
                 <v-icon style="cursor:pointer" size="1.125em">mdi-message-reply-text</v-icon>
                 <a
                   class="grey--text text--darken-2"
-                  style="margin:0 0.3em; font-size:0.9em"
+                  style="margin:0.2em 0 0 0.3em; font-size:0.9em"
                 >{{comment.replies_count}}</a>
               </div>
             </v-layout>
@@ -61,9 +61,9 @@
           id="replies-display"
           class="my-2 pl-2"
           style="margin-left:2.7em"
-          v-if="repliesVisible || showReplyBox"
+          v-if="repliesVisible"
         >
-          <div v-if="repliesVisible" class="mb-4">
+          <div class="mb-4">
             <v-layout v-if="comment.replies_count > replies.length & !loading" justify-center>
               <v-icon
                 class="primary-text-dark"
@@ -72,20 +72,21 @@
             </v-layout>
 
             <div v-if="loading" style="display:flex; justify-content:center">
-              <v-btn text>
-                <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
-              </v-btn>
+              <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
             </div>
 
-            <div v-for="(reply, index) in replies" :key="index">
+            <div v-for="reply in replies" :key="reply.id">
               <Reply
                 :path="{list_id: list.id, item_id: item.id, comment_id: comment.id}"
                 :reply="reply"
                 @reply="setReply"
               ></Reply>
             </div>
+            <div v-if="addingReply" style="display:flex; justify-content:center">
+                <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
+            </div>
           </div>
-          <div v-if="showReplyBox" class="mr-4" style="position:relative">
+          <div class="mr-4" style="position:relative">
             <comment-box
               v-model="reply"
               class="reply-box mr-2"
@@ -96,17 +97,17 @@
             />
             <v-icon
               @click="replyComment()"
-              size="1.5em"
-              style="position:absolute; right:0.5em; bottom:0.5em"
-              :class="focused? 'brand--text' : null"
-            >mdi-send</v-icon>
+              size="1.2em"
+              style="position:absolute; right:0.8em; bottom:1em"
+              :class="focused? 'brand--text' : 'grey--text'"
+            >fa-paper-plane</v-icon>
           </div>
         </div>
       </div>
     </v-card>
 
     <v-dialog v-model="showUser" max-width="300px">
-      <PreviewUser :user="commenter" @closeDialog="showUser=false"></PreviewUser>
+      <PreviewUser :id="commenter.id" @close="showUser=false"></PreviewUser>
     </v-dialog>
 
     <v-dialog v-model="showComment" max-width="500px">
@@ -151,9 +152,9 @@ export default {
       commenter: {},
       showUser: false,
       showComment: false,
-      showReplyBox: false,
       fetched: false,
-      focused: false
+      focused: false,
+      addingReply: false
     };
   },
 
@@ -176,7 +177,7 @@ export default {
           comment_id: this.comment.id
         });
       } else {
-        swalErrors.showAuthenticationError();
+        this.showAuthenticationError(false);
       }
     },
 
@@ -203,6 +204,7 @@ export default {
 
     replyComment() {
       if (this.$store.getters.getAuthenticated) {
+        this.addingReply = true;
         this.$store
           .dispatch("upload_reply", {
             list_id: this.list.id,
@@ -211,18 +213,23 @@ export default {
             reply: this.reply
           })
           .then(reply => {
+            this.addingReply = false;
             this.replies.push(reply);
+            this.reply = "";
             this.comment.replies_count++;
           })
           .then(() => {
             this.$store.dispatch("send_notification", {
               type: "reply",
-              user: this.commenter,
+              commenter: this.commenter,
               item: this.item,
               list: this.list,
               comment: this.comment
             });
-          });
+          })
+          .catch(error => {
+            this.addingReply = false;
+          })
       } else {
         swalErrors.showAuthenticationError();
       }
@@ -267,7 +274,6 @@ export default {
         }
         this.repliesShown = true;
       }
-      if(this.repliesVisible){this.showReplyBox = false; this.reply = ""}
       this.repliesVisible = !this.repliesVisible;
     },
     async setLiked() {
@@ -292,7 +298,7 @@ export default {
   mounted: function() {
     Promise.all([this.fetchCommenter(), this.setLiked()]).then(() => {
       this.fetched = true;
-    });
+    })
   }
 };
 </script>

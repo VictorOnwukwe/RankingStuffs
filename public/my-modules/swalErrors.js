@@ -15,11 +15,11 @@ let functions = {
 
     Toast.fire({
       html:
-        "<div>" +
+        "<div><strong>" +
         "<p>You have to login to perform this action</p>" +
         '<a id="login" style="margin:0.5em 0.5em; cursor:pointer" class="links">Login</a>' +
         '<a id="signup" style="margin:0.5em 0.5em; cursor:pointer" class="links">Signup</a>' +
-        "</div>",
+        "</strong></div>",
       onBeforeOpen: () => {
         const content = Swal.getContent();
         const $ = content.querySelector.bind(content);

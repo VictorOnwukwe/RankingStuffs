@@ -1,99 +1,8 @@
 <template>
   <div>
-    <div v-if="fetched">
+    <div class="main" v-if="fetched">
       <v-layout>
-        <transition name="list-nav">
-          <v-flex style shrink class="mr-4 list-info">
-            <v-card
-              style="height:calc(100vh - 3em); overflow-y:scroll;"
-              color="nav-bg"
-              width="100%"
-              tile
-            >
-              <v-card-title>
-                <v-layout justify-space-between>
-                  <v-tooltip bottom>
-                    <template v-slot:activator="{ on }">
-                      <v-icon @click="share=true" color="brand lighten-2" v-on="on">share</v-icon>
-                    </template>
-                    <span class="white--text">Share</span>
-                  </v-tooltip>
-                </v-layout>
-
-                <v-tooltip bottom>
-                  <template v-slot:activator="{ on }">
-                    <v-icon
-                      @click="favoriteList()"
-                      color="red"
-                      v-on="on"
-                    >{{favorited ? "mdi-heart" : "mdi-heart-outline"}}</v-icon>
-                  </template>
-                  <span class="white--text">Add List to Favorites</span>
-                </v-tooltip>
-              </v-card-title>
-
-              <v-card flat tile class="nav-bg">
-                <v-divider class="grey"></v-divider>
-                <v-card-title class="title brand--text">Creator</v-card-title>
-                <v-card-text>
-                  <v-layout column class="ml-2">
-                    <v-avatar size="45">
-                      <img :src="creator.profile_pic" />
-                    </v-avatar>
-                    <a
-                      @click="showUser=true"
-                      class="secondary-text-dark mt-2 font-weight-bold"
-                      style="font-size:1.2em"
-                    >{{creator.username}}</a>
-                  </v-layout>
-                </v-card-text>
-              </v-card>
-
-              <v-card tile flat class="nav-bg">
-                <v-divider class="grey"></v-divider>
-                <v-card-title class="title brand--text">{{rated ? "Your Rating" : "Rate"}}</v-card-title>
-                <v-card-text>
-                  <v-layout>
-                    <v-rating
-                      class="hint-text-dark"
-                      size="1.25em"
-                      dense
-                      background-color="grey darken-1"
-                      color="yellow darken-4"
-                      v-model="userRating"
-                      clearable
-                      :readonly="rated"
-                      hover
-                      @input="rate()"
-                    ></v-rating>
-                    <span v-if="rated" style="margin-top:0.15em">&nbsp;({{userRating}})</span>
-                  </v-layout>
-                </v-card-text>
-              </v-card>
-
-              <v-card flat tile color="nav-bg">
-                <v-divider class="grey"></v-divider>
-                <v-card-title
-                  style="position:sticky; top:0"
-                  class="title nav-bg brand--text"
-                >Featured</v-card-title>
-                <v-card-text>
-                  <ol class="font-weight-bold">
-                    <li v-for="(item, index) in featured" :key="index">
-                      <a
-                        @click="scrollTo(item.id)"
-                        class="ml-2 brand--text text--darken-1 underline"
-                      >{{item.name}}</a>
-                    </li>
-                  </ol>
-                  <!-- <p v-for="n in 29">n</p> -->
-                </v-card-text>
-              </v-card>
-            </v-card>
-          </v-flex>
-        </transition>
-
-        <v-flex class="list-view" @click="hideInfo()">
+        <v-flex class="list-view">
           <v-flex class="mx-auto mt-4">
             <div id="title-nav" class="inherit">
               <div
@@ -101,7 +10,7 @@
                 class="mx-auto"
               >
                 <h1
-                  style="font-size:2em; font-weight:normal; line-height:1.3em"
+                  style="font-size:2em; font-weight:normal;"
                   class="sidebar--text text--darken-2 text-capitalize"
                 >{{list.title}}</h1>
                 <!-- <p>
@@ -109,26 +18,45 @@
                   <span @click="showUser=true" style="font-weight:bold">&nbsp;{{creator.username}}</span>
                 </p>-->
                 <v-layout align-center class>
-                  <v-rating
-                    :value="list.rating"
-                    color="yellow darken-4"
-                    background-color="grey darken-4"
-                    half-increments
-                    size="1.125em"
-                    dense
-                    readonly
-                  ></v-rating>
-                  <span style="margin-top:0.15em">&nbsp;({{list.rating}})&nbsp;-&nbsp;</span>
-                  <div class="caption brand--text mt-1">{{list.raters_count}} reviews</div>
+                  <div style="margin-top:0;display:flex" class>
+                    &nbsp;
+                    <div class="font-weight-medium" style="font-size:1.2em">{{list.rating}}&nbsp;-&nbsp;</div>
+                    <!-- <div>/</div> -->
+                    <!-- <div class="">5</div>
+                    <div>&nbsp;-&nbsp;</div> -->
+                  </div>
+
+                  <div style="display:flex;margin-top:-0.2em">
+                    <rating
+                      :value="list.rating"
+                      color="yellow darken-4"
+                      background-color="grey"
+                      half-increments
+                      size="1em"
+                      dense
+                    ></rating>
+                    <div class style="margin-top:0.15em">({{list.raters_count}})</div>
+                  </div>
                 </v-layout>
-                <div style="white-space:pre-wrap; font-style:italic" class="mt-4">{{list.description}}</div>
+                <div
+                  style="white-space:pre-wrap;"
+                  class="mt-4 secondary-text-dark font-weight-medium"
+                >{{list.description}}</div>
               </div>
               <div></div>
             </div>
 
             <div id="container">
               <div v-for="(item, index) in list.items" :key="index">
-                <ListItem :id="item.id" :item="item" :list="list" :voted="voted" :index="index + 1"></ListItem>
+                <ListItem
+                  :id="item.id"
+                  :item="item"
+                  :list="list"
+                  :voted="voted"
+                  :index="index + 1"
+                  @hasImage="setPreview"
+                  @voted="voted = true"
+                ></ListItem>
                 <v-card
                   tile
                   class="mt-6 mb-6 brand primary--text title pa-1 top-bar"
@@ -136,7 +64,7 @@
                 >Close Contenders</v-card>
               </div>
 
-              <v-card tile class="mt-12 primary">
+              <v-card tile outlined class="mt-12" v-if="!list.self_moderated">
                 <v-card-title class="top-bar title pa-1">Didn't find your option? Add to the List</v-card-title>
                 <v-card-text>
                   <AddItem
@@ -149,13 +77,10 @@
                 </v-card-text>
 
                 <v-card-actions>
-                  <v-btn class="brand darken-1 primary--text" @click="upload_item()">Submit</v-btn>
+                  <v-btn class="brand darken-1" dark @click="upload_item()">Submit</v-btn>
                 </v-card-actions>
               </v-card>
             </div>
-            <v-dialog v-model="showUser" max-width="300px">
-              <PreviewUser :user="creator" @closeDialog="showUser=false"></PreviewUser>
-            </v-dialog>
           </v-flex>
         </v-flex>
       </v-layout>
@@ -173,52 +98,64 @@
             <div>
               <div style="display:flex;justify-content:space-around">
                 <network network="twitter" class="pointer">
-                <i class="fab fa-twitter blue--text text--lighten-1 share" style="font-size:2.5em"></i>
-              </network>
+                  <i
+                    class="fab fa-twitter blue--text text--lighten-1 share"
+                    style="font-size:2.5em"
+                  ></i>
+                </network>
                 <network network="facebook" class="pointer">
-                  <i class="fab fa-facebook blue--text text--darken-3 share" style="font-size:2.5em"></i>
+                  <i
+                    class="fab fa-facebook blue--text text--darken-3 share"
+                    style="font-size:2.5em"
+                  ></i>
                 </network>
               </div>
               <br />
               <div style="display:flex;justify-content:space-around">
                 <network network="reddit" class="pointer">
-                <i class="fab fa-reddit orange--text text--darken-3 share" style="font-size:2.5em"></i>
-              </network>
-              <network network="whatsapp" class="pointer">
-                <i class="fab fa-whatsapp green--text share" style="font-size:2.5em"></i>
-              </network>
+                  <i
+                    class="fab fa-reddit orange--text text--darken-3 share"
+                    style="font-size:2.5em"
+                  ></i>
+                </network>
+                <network network="whatsapp" class="pointer">
+                  <i class="fab fa-whatsapp green--text share" style="font-size:2.5em"></i>
+                </network>
               </div>
               <br />
               <div style="display:flex;justify-content:space-around">
-              <network network="linkedin" class="pointer">
-                <i class="fab fa-linkedin blue--text text--darken-1 share" style="font-size:2.5em"></i>
-              </network>
-              
-              
+                <network network="linkedin" class="pointer">
+                  <i
+                    class="fab fa-linkedin blue--text text--darken-1 share"
+                    style="font-size:2.5em"
+                  ></i>
+                </network>
+
                 <network network="pinterest" class="pointer">
-                <i class="fab fa-pinterest red--text text--darken-3 share" style="font-size:2.5em"></i>
-              </network>
+                  <i
+                    class="fab fa-pinterest red--text text--darken-3 share"
+                    style="font-size:2.5em"
+                  ></i>
+                </network>
               </div>
               <br />
               <div style="display:flex;justify-content:space-around">
-              
-              <network network="line" class="pointer">
-                <i class="fab fa-line green--text share" style="font-size:2.5em"></i>
-              </network>
-              <network network="email" class="pointer">
+                <network network="line" class="pointer">
+                  <i class="fab fa-line green--text share" style="font-size:2.5em"></i>
+                </network>
+                <network network="email" class="pointer">
                   <i class="fa fa-envelope red--text text--darken-2 share" style="font-size:2.5em"></i>
                 </network>
               </div>
               <br />
               <div style="display:flex;justify-content:space-around">
-              <network network="skype" class="pointer">
-                <i class="fab fa-skype blue--text share" style="font-size:2.5em"></i>
-              </network>
-              <network network="telegram" class="pointer">
-                <i class="fab fa-telegram blue--text share" style="font-size:2.5em"></i>
-              </network>
+                <network network="skype" class="pointer">
+                  <i class="fab fa-skype blue--text share" style="font-size:2.5em"></i>
+                </network>
+                <network network="telegram" class="pointer">
+                  <i class="fab fa-telegram blue--text share" style="font-size:2.5em"></i>
+                </network>
               </div>
-              
             </div>
           </social-sharing>
         </v-card>
@@ -228,8 +165,89 @@
       </div>
     </div>
     <v-dialog v-model="showUser" max-width="300px">
-      <preview-user @closeDialog="showUser=false" :user="creator"></preview-user>
+      <preview-user @close="showUser=false" :id="creator.id"></preview-user>
     </v-dialog>
+
+    <v-navigation-drawer
+      :expand-on-hover="$vuetify.breakpoint.md || $vuetify.breakpoint.sm ? true : false"
+      :permanent="!$vuetify.breakpoint.xs ? true : false"
+      height="calc(100vh - 3.5em)"
+      style="margin-top:3.5em"
+      fixed
+      dark
+      :temporary="$vuetify.breakpoint.xs ? true : null"
+      v-model="showSidebar"
+    >
+      <template v-slot:prepend>
+        <v-card-title>
+          <v-tooltip bottom fixed>
+            <template v-slot:activator="{ on }">
+              <v-icon @click="share=true" color="brand lighten-2" v-on="on">share</v-icon>
+            </template>
+            <span class="white--text">Share</span>
+          </v-tooltip>
+          <v-spacer></v-spacer>
+          <v-tooltip bottom>
+            <template v-slot:activator="{ on }">
+              <v-icon
+                @click="favoriteList()"
+                color="red"
+                v-on="on"
+              >{{favorited ? "mdi-heart" : "mdi-heart-outline"}}</v-icon>
+            </template>
+            <span class="white--text">Add List to Favorites</span>
+          </v-tooltip>
+        </v-card-title>
+
+        <v-divider dark></v-divider>
+        <v-card-title>
+          <!-- <v-icon>mdi-account</v-icon> -->
+          <div class="blue--text text-truncate title">Creator</div>
+        </v-card-title>
+        <v-list class="mt-n2">
+          <v-list-item @click="showUser=true">
+            <v-list-item-avatar size="45">
+              <img :src="creator.profile_pic" />
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title class="secondary-text-light">@{{creator.username}}</v-list-item-title>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
+
+        <v-card tile flat class="nav-bg">
+          <v-divider dark></v-divider>
+          <v-card-title>
+            <div class="title blue--text text-truncate">{{rated ? "Your Rating" : "Rate"}}</div>
+          </v-card-title>
+          <v-layout v-if="checkedRated" class="pl-3" style="height:2em">
+              <rating
+                :readonly="rated"
+                @input="rate"
+                :value="userRating"
+              ></rating>
+              <span
+                v-if="rated"
+                class="secondary-text-light"
+                style="margin-top:0.15em;"
+              >&nbsp;({{userRating}})</span>
+          </v-layout>
+        </v-card>
+
+        <v-divider dark></v-divider>
+      <v-card-title>
+        <div class="title blue--text text-truncate">Featured</div>
+      </v-card-title>
+      </template>
+      <v-list dense>
+        <v-list-item @click="scrollTo(item.id)" v-for="(item, index) in featured" :key="index">
+          <v-list-item-icon>
+            <div>{{index + 1}}</div>
+          </v-list-item-icon>
+          <v-list-item-content>{{item.name}}</v-list-item-content>
+        </v-list-item>
+      </v-list>
+    </v-navigation-drawer>
   </div>
 </template>
 
@@ -238,7 +256,6 @@ import { setTimeout } from "timers";
 import ListItem from "./ListItem";
 import Sidebar from "./Sidebar";
 import AddItem from "./AddItem";
-import PreviewUser from "./PreviewUser";
 import SocialSharing from "vue-social-sharing";
 
 export default {
@@ -246,7 +263,6 @@ export default {
     ListItem,
     Sidebar,
     AddItem,
-    PreviewUser,
     SocialSharing
   },
   data() {
@@ -267,7 +283,10 @@ export default {
       favorited: false,
       rated: false,
       showUser: false,
-      share: false
+      share: false,
+      previewUpdated: false,
+      showSidebar: false,
+      checkedRated: false
     };
   },
 
@@ -281,18 +300,22 @@ export default {
     },
 
     toggle() {
-      document.querySelector(".list-info").classList.toggle("show");
+      this.showSidebar = !this.showSidebar;
       document.querySelector(".pull-push").classList.toggle("slide");
       document.querySelector(".pull-push-icon").classList.toggle("rotate");
     },
 
-    rate() {
-      console.log("here");
+    rate(rating) {
       this.$store
         .dispatch("rate_list", {
-          rating: this.userRating,
+          rating: rating,
           id: this.listID,
-          newRating: Math.round(((this.list.rating + this.userRating) / (this.list.raters_count + 1)) * 10) / 10
+          newRating:
+            Math.round(
+              ((this.list.rating + rating) /
+                (this.list.raters_count + 1)) *
+                10
+            ) / 10
         })
         .then(() => {});
     },
@@ -336,7 +359,7 @@ export default {
         });
     },
 
-    checkVote() {
+    checkVoted() {
       this.$store.dispatch("check_list_voted", this.listID).then(voted => {
         this.voted = voted;
       });
@@ -366,18 +389,19 @@ export default {
     async startUp() {
       await this.fetchList();
 
+      if (!this.list.anonymous) {
+        this.fetchCreator();
+      }
+      this.checkVoted();
+      this.checkRated();
+      this.setFavorited();
+
       if (this.$route.query.notification) {
         setTimeout(() => {
           this.scrollTo(this.$route.query.item_id);
         }, 2500);
       }
-
-      if (!this.list.anonymous) {
-        this.fetchCreator();
-      }
-      this.checkVote();
-      this.checkRated();
-      this.setFavorited();
+      // this.setPreview();
     },
     reset() {
       this.index = null;
@@ -393,14 +417,28 @@ export default {
       this.userRating = 0;
     },
     async checkRated() {
-      this.$store.dispatch("check_rated", this.listID).then(rated => {
+      await this.$store.dispatch("check_rated", this.listID).then(rated => {
         if (rated === false) {
-          return;
+          null
         } else {
           this.rated = true;
           this.userRating = rated.rating;
         }
       });
+      this.checkedRated = true;
+    },
+    setPreview(image) {
+      if (!this.previewUpdated) {
+        this.previewUpdated = true;
+        if(this.list.preview_image && this.list.preview_image.url == image.url){
+          return;
+        }
+        this.$store
+          .dispatch("update_list_preview", { image: image, id: this.listID })
+          .catch(error => {
+            this.previewUpdated = false;
+          });
+      }
     }
   },
 
@@ -421,7 +459,6 @@ export default {
 
   watch: {
     listID() {
-      console.log("here");
       this.reset();
       this.startUp();
     }
@@ -439,6 +476,17 @@ export default {
   margin: 1em;
 }
 
+@media (min-width: 600px) {
+  .main {
+    margin-left: calc((80px - 0.5em) * -1);
+  }
+}
+@media (min-width: 1264px) {
+  .main {
+    margin-left: calc((256px - 0.5em) * -1);
+  }
+}
+
 #container {
   max-width: 950px;
   margin: 0 auto;
@@ -446,7 +494,7 @@ export default {
 }
 .nav-bg {
   /* background: linear-gradient(90deg, rgb(241, 241, 243), rgb(247, 247, 248)); */
-  background: #e9e9ed;
+  background: #424242;
 }
 #item {
   margin-top: 2em;
@@ -476,7 +524,7 @@ ol > li::before {
   color: #6c6c6c;
   font-size: 1.2em;
   position: absolute;
-  --size: 22px;
+  --size: 1.5em;
   left: calc(-1 * var(--size));
   line-height: var(--size);
   width: var(--size);
@@ -496,7 +544,7 @@ ol > li::before {
   position: fixed;
   top: 17.5em;
   left: -1.5em;
-  z-index: 6;
+  z-index: 8;
   align-items: center;
   justify-content: center;
   opacity: 0.6;
@@ -512,20 +560,20 @@ ol > li::before {
   position: fixed;
   z-index: 5;
   width: 200px;
-  margin-left: -0.3em;
+  margin-left: -1em;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
-@media (min-width: 800px) {
-  .list-info {
-    display: block;
-    margin-left: -0.5em;
-    box-shadow: none;
-  }
+@media (min-width: 600px) {
   .list-view {
-    margin-left: 200px;
+    margin-left: calc(80px - 0.5em);
   }
   .pull-push {
     display: none;
+  }
+}
+@media (min-width: 1264px) {
+  .list-view {
+    margin-left: calc(256px - 0.5em);
   }
 }
 .show {
@@ -569,17 +617,8 @@ ol > li::before {
   transform-origin: left;
 }
 
-@keyframes expand-in {
-  0% {
-    transform: scaleX(0);
-  }
-  100% {
-    transform: scaleX(1);
-  }
-}
-
 .slide {
-  animation: slide 0.1s ease-in;
+  animation: slide 0.2s ease-in;
   animation-fill-mode: forwards;
 }
 
@@ -589,7 +628,7 @@ ol > li::before {
     opacity: 0.6;
   }
   100% {
-    transform: translateX(200px);
+    transform: translateX(256px);
     opacity: 1;
   }
 }

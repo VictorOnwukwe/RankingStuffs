@@ -16,7 +16,7 @@
           </p>
         </v-layout>
         <div style="position:relative;" v-if="!isProfile">
-          <v-btn v-if="!following" @click="follow()" small outlined color="brand">Follow</v-btn>
+          <v-btn rounded v-if="!following" @click="follow()" small outlined color="brand">Follow</v-btn>
           <v-hover v-else v-slot:default="{ hover }">
             <v-btn
               @click="unfollow()"
@@ -31,8 +31,8 @@
       <v-divider></v-divider>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <v-btn small color="accent" outlined @click="closeUserDialog()">Close</v-btn>
-        <v-btn small color="accent" @click="goUser()">Profile</v-btn>
+        <v-btn small color="accent" text @click="closeUserDialog()">Close</v-btn>
+        <v-btn small color="accent" outlined @click="goUser()">Profile</v-btn>
       </v-card-actions>
     </v-card>
     <v-card v-else>Loading...</v-card>
@@ -43,18 +43,19 @@
 let moment = require("moment");
 export default {
   props: {
-    user: Object
+    id: String
   },
   data() {
     return {
       following: null,
       isProfile: false,
-      fetched: false
+      fetched: false,
+      user: null
     };
   },
   methods: {
     closeUserDialog() {
-      this.$emit("closeDialog");
+      this.$emit("close");
     },
     goUser() {
       let link = "/" + this.user.id + "/profile";
@@ -83,6 +84,11 @@ export default {
         : (this.isProfile = false);
 
       await this.checkFollowing();
+    },
+    async fetchUser() {
+      await this.$store.dispatch("fetch_complete_user", this.id).then(user => {
+        this.user = user;
+      });
     }
   },
   computed: {
@@ -93,7 +99,8 @@ export default {
       return this.$store.getters.getUser.id === this.user.id;
     }
   },
-  mounted: function() {
+  mounted: async function() {
+    await this.fetchUser();
     this.matchUser().then(() => {
       this.fetched = true;
     });

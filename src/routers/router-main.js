@@ -17,11 +17,9 @@ import PopularLists from "../components/PopularLists";
 // @ts-ignore
 import LatestLists from "../components/LatestLists";
 // @ts-ignore
-import HomeDisplay from "../components/HomeDisplay";
-// @ts-ignore
 import ProfileSetting from "../components/ProfileSetting";
 // @ts-ignore
-import Notifications from "../components/Notifications";
+import UserCreations from "../components/UserCreations";
 // @ts-ignore
 import UserFavorites from "../components/UserFavorites";
 //@ts-ignore
@@ -39,30 +37,17 @@ export default new Router({
   routes: [
     {
       path: "/",
-      component: Home,
-      children: [
-        {
-          path: "",
-          name: "home",
-          component: HomeDisplay
-        }
-      ]
-    },
-    {
-      path: "/login",
-      component: Login
-    },
-    {
-      path: "/signup",
-      component: Signup
+      name: "home",
+      component: Home
     },
     {
       path: "/:id/profile",
       component: Profile,
       children: [
         {
-          path: "/:id/profile/notifications",
-          component: Notifications
+          path: "/:id/profile/creations",
+          name: "user-creations",
+          component: UserCreations
         },
         {
           path: "/:id/profile/timeline",
@@ -70,12 +55,14 @@ export default new Router({
         },
         {
           path: "/:id/profile/",
+          name: "user-favorites",
           component: UserFavorites
         }
       ]
     },
     {
       path: "/create",
+      name: "create",
       component: CreateList
     },
     {
@@ -85,23 +72,31 @@ export default new Router({
     },
     {
       path: "/popular-lists",
+      name: "popular-lists",
       component: PopularLists
     },
     {
       path: "/latest-lists",
+      name: "latest-lists",
       component: LatestLists
     },
     {
       path: "/items/:id",
+      name: "item",
       component: Item
     },
     {
       path: "/demanded",
+      name: "demanded-lists",
       component: DisplayDemanded
     },
     {
       path: "/demand",
+      name: "demand",
       component: Demand
     }
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    return { x: 0, y: 0 };
+  }
 });

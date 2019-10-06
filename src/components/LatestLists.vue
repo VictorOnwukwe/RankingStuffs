@@ -1,18 +1,16 @@
 <template>
     <div>
+        <div style="max-width:1000px" class="mx-auto">
         <div class="page-title">Latest Lists</div>
         <div v-if="lists.length>0">
             <display-lists :lists="lists"></display-lists>
+        </div>
         </div>
     </div>
 </template>
 
 <script>
-import DisplayPreviews from "./DisplayPreviews";
 export default {
-    components: {
-        DisplayPreviews
-    },
     data(){
         return {
             lists: []

@@ -11,7 +11,6 @@ import store from "./store";
 import Swal from "sweetalert2";
 import autosize from "autosize";
 import OverlayScrollbars from "os-vue";
-import VueTextareaAutosize from "vue-textarea-autosize";
 import { VuetifyLazyImagePlugin } from "vuetify-lazy-image";
 import VueGlide from "vue-glide-js";
 // @ts-ignore
@@ -21,17 +20,33 @@ import DisplayPreviews from "./components/DisplayPreviews";
 import VueAutosize from "vue-autosize";
 import Masonry from "vue-masonry-css";
 
-import VuePacker from 'vue-packer';
+import VuePacker from "vue-packer";
+
+import CommentBox from "../src/components/CommentBox";
+
+// @ts-ignore
+import MyImage from "../src/components/MyImage";
+import VueLodash from "vue-lodash";
+import MyRating from "../src/components/MyRating";
+import VueRx from "vue-rx";
+import MyButton from "./components/MyButton";
+import MyAlert from "./components/MyAlert";
 
 const options = {}; // Optional options
 
 Vue.use(VuePacker, {});
 
-import VueMasonryComponent from 'vue-masonry-component'
+Vue.use(VueLodash, { name: "lodash" });
 
-Vue.use(VueMasonryComponent)
+import VueMasonryComponent from "vue-masonry-component";
+
+Vue.use(VueMasonryComponent);
+
+Vue.use(VueRx);
 
 window.Swal = Swal;
+
+let moment = require("moment");
 
 // let SocialSharing = require("vue-social-sharing");
 
@@ -40,15 +55,47 @@ Vue.config.productionTip = false;
 Vue.use(
   VueGlide,
   OverlayScrollbars,
-  VueTextareaAutosize,
   VuetifyLazyImagePlugin,
-  VueAutosize
+  VueAutosize,
+  moment
 );
 
 Vue.use(Masonry, { name: "the-masonry" });
 
 Vue.component("preview-user", PreviewUser);
 Vue.component("display-lists", DisplayPreviews);
+Vue.component("auto-textarea", CommentBox);
+Vue.component("img-prev", MyImage);
+Vue.component("rating", MyRating);
+Vue.component("btn", MyButton);
+Vue.component("alert", MyAlert);
+
+Vue.mixin({
+  methods: {
+    random(to, from) {
+      return Math.floor(Math.random() * (to - from + 1) + from);
+    },
+    showAuthenticationError(action) {
+      const Toast = Swal.mixin({
+        toast: true,
+        position: "center",
+        showConfirmButton: false,
+        timer: 3000,
+        showCloseButton: false,
+        type: "info"
+      });
+
+      Toast.fire({
+        html:
+          "<div><strong>" +
+          "<p>You have to login to " +
+          action +
+          "</p>" +
+          "</strong></div>"
+      });
+    }
+  }
+});
 
 // @ts-ignore
 new Vue({
@@ -58,7 +105,6 @@ new Vue({
   render: h => h(App),
 
   created: function() {
-    console.log("created");
     var firebaseConfig = {
       apiKey: "AIzaSyB7FHDy2yItk9Q8U2U2QjkFTT2o2cZ6UDA",
       authDomain: "top-ten-534ca.firebaseapp.com",

@@ -1,11 +1,14 @@
 <template>
   <div id="main-div">
     <v-card flat max-width="500px" color="white">
-      <v-card-title class="title font-weight-bold" style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey">
-      Login
-      <v-spacer></v-spacer>
-      <v-icon class="close" @click="close()">mdi-close</v-icon>
-    </v-card-title>
+      <v-card-title
+        class="title font-weight-bold"
+        style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey"
+      >
+        Login
+        <v-spacer></v-spacer>
+        <v-icon class="close" @click="close()">mdi-close</v-icon>
+      </v-card-title>
       <v-card-text class="mt-7">
         <v-form v-model="valid" id="form">
           <v-text-field
@@ -32,10 +35,14 @@
             clearable
           ></v-text-field>
 
-          <v-btn @click="emailLogin" color="button primary--text" id="login-button" class="mx-0">
-            <span class="primary--text font-weight-bold" v-if="!is_loading">Login</span>
-            <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
-          </v-btn>
+          <v-btn
+            dark
+            @click="emailLogin"
+            :loading="eloading"
+            color="brand darken-1"
+            id="login-button"
+            class="mx-0"
+          >Login</v-btn>
         </v-form>
 
         <div style="text-align:center; color:var(--button)">
@@ -44,20 +51,22 @@
         <br />
         <v-layout wrap>
           <v-flex xs6 offset-xs3>
-            <v-btn @click="socialLogin('G')" block class="primary--text font-weight-bold" color="#F14336">GOOGLE</v-btn>
+            <v-btn :loading="gloading" block @click="socialLogin('G')" dark color="#F14336">GOOGLE</v-btn>
           </v-flex>
           <v-flex xs6 offset-xs3>
             <v-btn
               @click="socialLogin('F')"
+              dark
               block
-              class="primary--text mt-3 font-weight-bold"
+              :loading="floading"
               color="blue darken-3"
+              class="mt-3"
             >FACEBOOK</v-btn>
           </v-flex>
         </v-layout>
         <div>
           <br />Not a member yet?
-          <router-link to="/signup" class="signup-link link--text text--darken-1">SIGN UP</router-link>
+          <a class="underline" @click="goSignup()">SIGN UP</a>
         </div>
       </v-card-text>
     </v-card>
@@ -77,7 +86,9 @@ export default {
       valid: false,
       password: "",
       rules: Rules,
-      is_loading: false
+      eloading: false,
+      gloading: false,
+      floading: false
     };
   },
 
@@ -91,19 +102,23 @@ export default {
           form.classList.remove("animated", "shake", "faster");
         });
       } else {
-        this.is_loading = true;
+        this.eloading = true;
 
         this.$store
           .dispatch("emailLogin", {
             email: this.email,
             password: this.password
           })
+          .then(() => {
+            this.close();
+            this.$router.go();
+          })
           .catch(error => {
-            this.is_loading = false;
+            this.eloading = false;
             if (error.code == "auth/wrong-password") {
               const Toast = Swal.mixin({
                 toast: true,
-                position: "top-end",
+                position: "center",
                 showConfirmButton: false,
                 timer: 3000
               });
@@ -130,14 +145,24 @@ export default {
       }
     },
     socialLogin(type) {
-      this.$store.dispatch("socialLogin", type).catch(error => {
-        swal("Login Unsuccessful", {
-          icon: "error"
+      type === "G" ? (this.gloading = true) : (this.floading = true);
+      this.$store
+        .dispatch("socialLogin", type)
+        .then(() => {
+          this.gloading = this.floading = false;
+        })
+        .catch(error => {
+          this.gloading = this.floading = false;
+          swal("Login Unsuccessful", {
+            icon: "error"
+          });
         });
-      });
     },
-    close(){
+    close() {
       this.$emit("close");
+    },
+    goSignup() {
+      this.$emit("signup");
     }
   }
 };
@@ -145,13 +170,4 @@ export default {
 
 <style scoped>
 @import url("../../public/my-modules/animations.css");
-</style>
-
-<style scoped>
-.signup-link {
-  text-decoration: none;
-}
-.signup-link:hover {
-  text-decoration: underline;
-}
 </style>

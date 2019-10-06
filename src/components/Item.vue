@@ -1,190 +1,133 @@
 <template>
-  <div>
-    <v-card v-if="fetched" flat tile class="pa-4 mb-4 mx-auto" max-width="900px">
-      <v-icon
-        @click="toggle('contribute')"
-        style="position:absolute; top:1em; right:1em;"
-        class
-        color="accent"
-      >mdi-pencil</v-icon>
-      <v-layout column>
-        <v-layout :column="wrap" max-width="900px">
-          <v-flex class="mb-4 mr-4" shrink>
-            <v-card tile flat width="200px">
-              <v-img v-if="item.image" :src="item.image" width="200px" aspect-ratio="1"></v-img>
-              <v-card v-else flat width="200px" height="200px" class="grey lighten-2">
-                <v-card-text
-                  v-if="mainUrl === ''"
-                  class="hint-1"
-                >No media. Be the first to add an image for this Item...</v-card-text>
-                <v-img v-else :src="mainUrl" width="200px" aspect-ratio="1"></v-img>
-              </v-card>
-              <v-icon
-                @click="pickMain()"
+  <v-layout>
+    <v-flex xs12 md10 offset-md1>
+      <v-card v-if="fetched" outlined tile class="pa-4 mb-4 mx-auto" max-width="1000px">
+        <v-layout column class style="position:absolute; top:1.5em; right:1em;">
+            <v-icon size="1em" color="grey">fa-pencil-alt</v-icon>
+            <span class="pointer" style="font-size:0.7em">Contribute</span>
+          </v-layout>
+        <v-layout column>
+          <div max-width="900px">
+            <v-card
+              tile
+              flat
+              outlined
+              width="30vw"
+              max-width="350px"
+              min-width="100px"
+              class="pa-4 mb-4 mr-4"
+              style="float:left"
+            >
+              <img-prev
+                v-if="item.image"
+                :image="item.image"
+                :width="'100%'"
+                :aspectRatio="1"
+                :path="{item: itemID}"
+              ></img-prev>
+              <v-img v-else :src="emptyphoto" flat width="100%" aspect-ratio="1"></v-img>
+
+              <upload-image
                 style="position:absolute; bottom:8px; right:8px;"
                 class
                 v-if="!item.image"
-                size="30"
-                color="accent"
-              >mdi-camera</v-icon>
-
-              <v-icon
-                @click="uploadImage()"
-                style="position:absolute; bottom:8px; left:8px;"
-                class
-                v-if="mainUrl !== ''"
-                size="30"
-                color="accent"
-              >mdi-send-circle</v-icon>
-
-              <v-icon
-                @click="mainUrl = ''"
-                style="position:absolute; bottom:8px; left:85px; border-radius:50%"
-                class
-                v-if="mainUrl !== ''"
-                size="30"
-                color="accent"
-              >mdi-close-circle</v-icon>
-              <input
-                ref="imgSelect1"
-                style="display:none"
-                @change="onMainSelect"
-                type="file"
-                accept="images/*"
-              />
+                @upload="uploadImage"
+              >mdi-camera</upload-image>
             </v-card>
-          </v-flex>
-          <v-flex>
-            <v-layout align-center class="pr-10">
-              <h2
-                class="primary-text-dark text-capitalize"
-                style="line-height: 1.2em; font-size:1.5em"
-              >{{item.name}}</h2>
-            </v-layout>
-            <v-layout v-if="item.category" align-center class="mt-n1">
-              <span class="subtitle-1 secondary-text-dark font-weight-medium">{{item.category}}</span>
-            </v-layout>
-            <v-layout>
+            <div>
+              <h1 class="primary-text-dark text-capitalize font-weight-medium" style>{{item.name}}</h1>
+              <span class="subtitle-1 secondary-text-dark font-weight-bold">{{item.category}}</span>
               <p
                 class="subtitle-1 primary-text-dark mt-2"
-                style="line-height:1.2; white-space:pre-wrap"
+                style="white-space:pre-wrap; font-size:0.9em"
               >{{item.about}}</p>
-            </v-layout>
-          </v-flex>
+            </div>
+          </div>
+          <v-layout wrap align-start class>
+            <v-flex xs12 class="mb-8 hide">
+              <v-layout>
+                <a class="primary-text-dark">More Images</a>
+                <v-card></v-card>
+              </v-layout>
+            </v-flex>
+            <v-flex id="contribution" xs12 class="contribute hide mb-4">
+              <v-card tile flat class="grey lighten-3">
+                <v-card-title class="grey--text text--darken-2">Contribute</v-card-title>
+                <v-card-text class="mt-4">
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2 mt-4"
+                  >Category</p>
+                  <v-select v-model="category" :items="categories" color="brand" class="mt-n6"></v-select>
+                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">About</p>
+                  <v-textarea
+                    color="brand"
+                    solo
+                    flat
+                    v-model="about"
+                    rows="20"
+                    no-resize
+                    label="About"
+                  ></v-textarea>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >Notes: Links, Citations, references, why you altered/added some info</p>
+                  <v-textarea
+                    color="brand"
+                    solo
+                    flat
+                    :placeholder="'Notes, Citations, and links on ' + item.name"
+                    rows="6"
+                    no-resize
+                    label="References"
+                  ></v-textarea>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn @click="update()" class="brand white--text">Submit</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-flex>
+          </v-layout>
         </v-layout>
-        <v-layout wrap align-start class>
-          <v-flex xs12 class="mb-8 hide">
-            <v-layout>
-              <a class="primary-text-dark">More Images</a>
-              <v-card></v-card>
-            </v-layout>
-          </v-flex>
-          <v-flex xs12 sm10 offset-sm1 class="contribute hide mb-4">
-            <v-card tile flat class="grey lighten-4">
-              <v-card-title>Contribute</v-card-title>
-              <v-card-text class="mt-4">
-                <v-layout class="hide" column align-start>
-                  <input ref="imgSelect2" style="display:none" type="file" @change="onFileSelect" />
-                  <v-layout>
-                    <v-btn @click="pickFile()">Add Image</v-btn>
-                    <v-btn @click="imageUrl = ''" class="mx-4">Remove</v-btn>
-                  </v-layout>
-                  <v-img
-                    v-if="imageUrl!==''"
-                    class="mt-4 br"
-                    width="150px"
-                    aspect-ratio="1"
-                    :src="this.imageUrl"
-                  ></v-img>
-                </v-layout>
-                <v-text-field
-                  outlined
-                  v-model="category"
-                  color="brand"
-                  label="Category"
-                  class="mt-4"
-                ></v-text-field>
-                <v-textarea
-                  class="mt-n3"
-                  color="brand"
-                  outlined
-                  v-model="about"
-                  rows="6"
-                  no-resize
-                  label="About"
-                ></v-textarea>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn @click="update()" class="brand white--text">Submit</v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-flex>
-        </v-layout>
-      </v-layout>
-      <v-card-title class="text-capitalize top-bar pa-2" style="font-size:1em; font-weight:normal">Lists Featuring {{item.name}}</v-card-title>
-      <display-lists :lists="featuredLists" :sub="true"></display-lists>
-    </v-card>
-    <div v-else>Loading...</div>
-  </div>
+        <v-card-title
+          class="text-capitalize top-bar pa-2"
+          style="font-size:1em; font-weight:normal"
+        >Lists Featuring {{item.name}}</v-card-title>
+        <display-lists :lists="featuredLists" :sub="true"></display-lists>
+      </v-card>
+      <div v-else>Loading...</div>
+    </v-flex>
+  </v-layout>
 </template>
 
 <script>
+import UploadImage from "./UploadImage";
+
 export default {
+  components: {
+    "upload-image": UploadImage
+  },
   data() {
     return {
       item: {},
-      name: "Eminem",
+      name: "",
       category: "",
       about: "",
-      image: null,
-      imageUrl: "",
-      mainImage: "",
-      mainUrl: "",
       fetched: false,
       featuredLists: []
     };
   },
   methods: {
-    pickFile() {
-      this.$refs.imgSelect2.click();
-    },
-    onFileSelect(event) {
-      const files = event.target.files;
-      let fileName = files[0].name;
-      if (fileName.lastIndexOf(".") <= 0) {
-        return alert("Invalid File Selected...");
-      }
-
-      const fileReader = new FileReader();
-      fileReader.addEventListener("load", () => {
-        this.imageUrl = fileReader.result;
-      });
-      fileReader.readAsDataURL(files[0]);
-      this.image = files[0];
-    },
-    pickMain() {
-      this.$refs.imgSelect1.click();
-    },
-    onMainSelect() {
-      const files = event.target.files;
-      let fileName = files[0].name;
-      if (fileName.lastIndexOf(".") <= 0) {
-        return alert("Invalid File Selected...");
-      }
-
-      const fileReader = new FileReader();
-      fileReader.addEventListener("load", () => {
-        this.mainUrl = fileReader.result;
-      });
-      fileReader.readAsDataURL(files[0]);
-      this.mainImage = files[0];
-    },
     toggle(element) {
       document.querySelector("." + element).classList.toggle("hide");
+      setTimeout(() => {
+        this.$vuetify.goTo(document.getElementById("contribution"), {
+          offset: 60
+        });
+      }, 200);
     },
-    uploadImage() {
+    uploadImage(image) {
       this.$store.dispatch("upload_item_image", {
-        image: this.mainImage,
+        image: image,
         item: this.item
       });
     },
@@ -233,6 +176,12 @@ export default {
         default:
           false;
       }
+    },
+    categories() {
+      return ["Person", "Song", "Sport", "Movie", "Animal", "Country", "Album"];
+    },
+    emptyphoto() {
+      return this.$store.getters.noPhoto;
     }
   },
   async created() {

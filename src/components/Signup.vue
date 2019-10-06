@@ -1,11 +1,14 @@
 <template>
   <div>
     <v-card flat max-width="500px" color="white">
-      <v-card-title class="title font-weight-bold" style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey">
-      Signup
-      <v-spacer></v-spacer>
-      <v-icon class="close" @click="close()">mdi-close</v-icon>
-    </v-card-title>
+      <v-card-title
+        class="title font-weight-bold"
+        style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey"
+      >
+        Signup
+        <v-spacer></v-spacer>
+        <v-icon class="close" @click="close()">mdi-close</v-icon>
+      </v-card-title>
       <v-card-text class="mt-7">
         <v-form id="form" v-model="valid">
           <v-text-field
@@ -39,10 +42,14 @@
             clearable
           ></v-text-field>
 
-          <v-btn :disabled="!valid" @click="emailSignup()" class="mx-0" color="button primary--text">
-            <span class="primary--text font-weight-bold" v-if="!is_loading">Sign up</span>
-            <v-progress-circular indeterminate :value="80" :size="25" :width="3" v-if="is_loading"></v-progress-circular>
-          </v-btn>
+          <v-btn
+            :dark="valid"
+            :disabled="!valid"
+            color="brand darken-1"
+            :loading="eloading"
+            @click="emailSignup()"
+            class="mx-0"
+          >Sign Up</v-btn>
         </v-form>
 
         <div style="text-align:center; color:var(--link)">
@@ -52,13 +59,15 @@
 
         <v-layout wrap>
           <v-flex xs6 offset-xs3>
-            <v-btn @click="socialSignup('G')" block class="primary--text font-weight-bold" color="#F14336">GOOGLE</v-btn>
+            <v-btn @click="socialSignup('G')" :loading="gloading" block dark color="#F14336">GOOGLE</v-btn>
           </v-flex>
           <v-flex xs6 offset-xs3>
             <v-btn
               @click="socialSignup('F')"
               block
-              class="primary--text mt-3 font-weight-bold"
+              dark
+              :loading="floading"
+              class="mt-3"
               color="blue darken-3"
             >FACEBOOK</v-btn>
           </v-flex>
@@ -68,7 +77,7 @@
 
         <p>
           <br />Already a member?
-          <router-link to="/login" class="login-link link--text">LOGIN</router-link>
+          <a class="underline" @click="login()">LOGIN</a>
         </p>
       </v-card-text>
     </v-card>
@@ -88,8 +97,10 @@ export default {
       correct: false,
       valid: false,
       rules: Rules,
-      is_loading: false,
-      usernameErrors: []
+      eloading: false,
+      usernameErrors: [],
+      gloading: false,
+      floading: false
     };
   },
 
@@ -100,21 +111,6 @@ export default {
       } else {
         return "Sorry. This username is already taken...";
       }
-    },
-    testSwal() {
-      const Toast = Swal.mixin({
-        toast: true,
-        position: "center",
-        showConfirmButton: false,
-        timer: 3000
-      });
-
-      Toast.fire({
-        type: "error",
-        html:
-          '<div style="margin-left:8px" class="alert-font">Incorrect Password. Please check your password</div>',
-        background: "primary"
-      });
     },
 
     async emailSignup() {
@@ -128,7 +124,7 @@ export default {
       } else {
         let element = document.getElementById("form");
 
-        this.is_loading = true;
+        this.eloading = true;
 
         await this.$store
           .dispatch("emailSignup", {
@@ -136,8 +132,12 @@ export default {
             password: this.password,
             username: this.username.toLowerCase().replace(/\s/g, "")
           })
+          .then(() => {
+            this.close();
+            this.$router.go();
+          })
           .catch(error => {
-            this.is_loading = false;
+            this.eloading = false;
             if (error.code === "auth/email-already-in-use") {
               Swal.fire({
                 type: "info",
@@ -178,26 +178,39 @@ export default {
     },
 
     async socialSignup(type) {
-      this.$store.dispatch("socialLogin", type).catch(error => {
-        swal("Signup Unsuccessful", {
-          icon: "error"
+      type === "G" ? (this.gloading = true) : (this.floading = true);
+      this.$store
+        .dispatch("socialLogin", type)
+        .then(() => {
+          this.close();
+          this.$router.go();
+        })
+        .catch(error => {
+          this.gloading = this.floading = false;
+          swal("Signup Unsuccessful", {
+            icon: "error"
+          });
         });
-      });
     },
 
     async checkUsername() {
-      await this.$store.dispatch("username_valid", this.username).then(empty => {
-        this.usernameErrors = empty ? [] : "Username already exists";
-      });
+      await this.$store
+        .dispatch("username_valid", this.username)
+        .then(empty => {
+          this.usernameErrors = empty ? [] : "Username already exists";
+        });
     },
 
-    close(){
+    close() {
       this.$emit("close");
+    },
+    login() {
+      this.$emit("login");
     }
   },
   computed: {},
   watch: {
-    "username"(val){
+    username(val) {
       this.checkUsername();
     }
   }

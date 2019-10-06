@@ -5,14 +5,14 @@
         <span>{{parentLength + index + 1}}</span>
       </div>
       <v-spacer></v-spacer>
-      <v-icon @click="deleteItem()">close</v-icon>
+      <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2">close</v-icon>
     </v-layout>
     <div style="position:relative">
       <v-text-field label="Name" @focus="showSearch = true" outlined color="brand" v-model="item.name" @blur="emitItem(false)"></v-text-field>
       <div v-if="showSearch" class="results">
       <div class="pointer" @click="setInfo(result)" v-for="(result, index) in results" :key="index">
         <v-layout>
-          <v-img v-if="result.image" :src="result.image" max-width="70px" aspect-ratio="1" class="mr-4"></v-img>
+          <v-img v-if="result.image" :src="result.image.url" max-width="70px" aspect-ratio="1" class="mr-4"></v-img>
           <div>
           <span class="text-capitalize primary-text-dark" style="font-size:1.5em">{{result.name}}</span><br>
           <span v-if="result.category" class="secondary-text-dark font-weight-bold">{{result.category}}</span>
@@ -61,7 +61,7 @@ export default {
     emitItem() {
       setTimeout(() => {
       if(this.item.info !== undefined){
-        console.log("okay")
+        null;
       }else{
         this.item = {keywords: keyword.generateKeywords(this.item.name), ...this.item};
       }
@@ -79,8 +79,7 @@ export default {
       this.showSearch = false;
     },
     checkItem(){
-      // console.log(this.item.name);
-      this.$store.dispatch("search_item", this.item.name).then(results => {
+      this.$store.dispatch("search_item", this.item.name.toLowerCase()).then(results => {
         this.results = results;
       })
     },
@@ -121,7 +120,7 @@ export default {
   top: 60px;
   background: rgb(233, 233, 237);
   width: 100%;
-  z-index:2;
+  z-index:3;
 }
 .results>div{
   padding: 1em 1.5em;

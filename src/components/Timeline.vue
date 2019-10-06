@@ -1,7 +1,7 @@
 <template>
-    <div id="main">
+    <v-row class="pa-4">
         This is the timeline
-    </div>
+    </v-row>
 </template>
 
 <script>

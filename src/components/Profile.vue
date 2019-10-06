@@ -1,127 +1,158 @@
 <template>
-  <div id="main">
-    <div v-if="fetched" id="profile-container">
-      <v-card v-if="user!== {}" tile flat height="100%">
-        <v-icon
-          v-if="isProfile"
-          color="accent"
-          style="position:absolute; top:1em;right:1em"
-          @click="showSetting = true"
-        >mdi-pencil</v-icon>
-        <v-card-text>
-          <v-layout :column="$vuetify.breakpoint.xs ? true : false">
-            <v-flex shrink>
-            <v-layout class="ml-3 mr-6 mb-6" column :align-center="$vuetify.breakpoint.xs ? true : false">
-              <v-avatar size="150px" class="mb-3">
-                <img :src="user.profile_pic" />
-              </v-avatar>
+  <div>
+    <v-layout>
+      <v-flex xs12 md10 offset-md1 v-if="fetched" class>
+        <v-card v-if="user!== {}" tile outlined>
+          <v-layout v-if="isProfile" column class style="position:absolute; top:1em;right:1em;">
+            <v-icon size="1em" color="grey" @click="showSetting = true">fa-pencil-alt</v-icon>
+            <span @click="showSetting = true" class="pointer" style="font-size:0.7em">Edit Profile</span>
+          </v-layout>
 
-              <div v-if="!isProfile" class="mt-4">
-                <v-btn
-                  v-if="!following"
-                  @click="follow()"
-                  small
-                  rounded
-                  outlined
-                  color="brand"
-                >Follow</v-btn>
-                
-                <v-hover v-else v-slot:default="{ hover }">
-                  <v-btn @click="unfollow()" small rounded dark :color="hover ? 'accent' : 'brand'">{{hover ? 'unfollow' : 'Following'}}</v-btn>
-                </v-hover>
-              </div>
-            </v-layout>
-            </v-flex>
-            <v-layout :justify-center="$vuetify.breakpoint.xs ? true : false">
-              <div>
-              <h2 v-if="user.name" class="title font-weight-black" style="line-height:1.1em">{{user.name}}</h2>
-              <p :class="user.name ? 'subtitle-1 secondary-text-dark mt-n1 font-weight-bold' : 'title font-weight-black'">@{{user.username}}</p>
-              <div v-if="user.bio" style="white-space:pre-wrap; max-width:30em">
-                <p
-                  class="subtitle-2 primary-text-dark text-justify text-break font-weight-medium"
-                >{{user.bio}}</p>
-              </div>
-              <v-layout justify-start align-center wrap>
-                <v-flex v-if="this.user.created">
-                  <v-icon color="grey">mdi-calendar-month</v-icon>
-                  <span class="secondary-text-dark font-weight-medium">&nbsp;Joined {{joined}}</span>
-                </v-flex>
-                <v-flex v-if="user.country">
-                <v-layout class="ml-2">
-                  <v-icon color="grey" class="mr-2">mdi-map-marker-outline</v-icon>
-                  <country-flag :country="user.country.code"/>
+          <v-card-text class="pa-0">
+            <v-layout :column="$vuetify.breakpoint.xs ? true : false">
+              <v-flex class="mt-4" shrink>
+                <v-layout
+                  class="ml-4 mr-6 mb-6"
+                  column
+                  :align-center="$vuetify.breakpoint.xs ? true : false"
+                >
+                  <v-avatar tile size="150px" class>
+                    <img :src="user.profile_pic" />
+                  </v-avatar>
                 </v-layout>
-                </v-flex>
-                <v-flex v-if="user.DOB">
-                <v-layout>
-                  <v-icon>mdi-balloon</v-icon>
-                  <span class="secondary-text-dark font-weight-medium">Born {{DOB}}</span>
-                </v-layout>
-                </v-flex>
-              </v-layout>
-              <v-layout class="mt-2 black--text">
+              </v-flex>
+              <v-layout class="mt-4 px-1" :justify-center="$vuetify.breakpoint.xs ? true : false">
                 <div>
-                  <span class="subtitle-1 primary-text-dark font-weight-black">{{user.followers}}</span>
-                  <a class="subtitle-1 secondary-text-dark font-weight-medium">&nbsp;{{user.followers == 1 ? 'Follower' : 'Followers'}}</a>
-                </div>
-                <div class="ml-3">
-                  <span class="subtitle-1 primary-text-dark font-weight-black">{{user.following}}</span>
-                  <a class="subtitle-1 secondary-text-dark font-weight-medium">&nbsp;Following</a>
+                  <h2 v-if="user.name" class="title font-weight-black">{{user.name}}</h2>
+                  <div
+                    :class="user.name ? 'subtitle-1 secondary-text-dark mt-n2 font-weight-bold' : 'title font-weight-black'"
+                  >@{{user.username}}</div>
+                  <v-layout class="mt-2">
+                    <div>
+                      <v-icon color="grey">mdi-calendar-month</v-icon>
+                      <span class="secondary-text-dark font-weight-medium">&nbsp;Joined {{joined}}</span>
+                    </div>
+                  </v-layout>
+                  <v-layout class="mt-2">
+                    <div v-if="user.country || user.city || user.state">
+                      <v-layout class="mr-4">
+                        <v-icon color="grey" class="mr-2 fa-icon" size="1.3em">fa-map-marker-alt</v-icon>
+                        <span
+                          class="secondary-text-dark font-weight-medium"
+                          v-if="user.city"
+                        >{{user.city}}{{user.state || user.country ? ",&nbsp;" : ""}}</span>
+                        <span
+                          class="secondary-text-dark font-weight-medium"
+                          v-if="user.state"
+                        >{{user.state}}{{user.country ? ",&nbsp;" : ""}}</span>
+                        <span
+                          class="secondary-text-dark font-weight-medium"
+                          v-if="user.country"
+                        >{{user.country.name}}</span>
+                      </v-layout>
+                    </div>
+                    <div v-if="user.DOB">
+                      <v-layout>
+                        <v-icon color="grey" class="mr-2" size="1.3em">fa-birthday-cake</v-icon>
+                        <span class="secondary-text-dark font-weight-medium">Born {{DOB}}</span>
+                      </v-layout>
+                    </div>
+                  </v-layout>
+                  <v-layout class="mt-2 black--text" wrap>
+                    <div class="mr-3">
+                      <span
+                        class="subtitle-1 primary-text-dark font-weight-black"
+                      >{{user.followers ? user.followers : 0}}</span>
+                      <a
+                        class="subtitle-1 secondary-text-dark font-weight-medium"
+                      >&nbsp;{{user.followers == 1 ? 'Follower' : 'Followers'}}</a>
+                    </div>
+                    <div>
+                      <span
+                        class="subtitle-1 primary-text-dark font-weight-black"
+                      >{{user.following ? user.following : 0}}</span>
+                      <a class="subtitle-1 secondary-text-dark font-weight-medium">&nbsp;Following</a>
+                    </div>
+                  </v-layout>
+                  <div v-if="!isProfile" class="mt-2">
+                    <v-btn
+                      v-if="!following"
+                      @click="follow()"
+                      :loading="processing"
+                      small
+                      outlined
+                      color="brand"
+                    >Follow</v-btn>
+
+                    <v-hover v-else v-slot:default="{ hover }">
+                      <v-btn
+                        @click="unfollow()"
+                        small
+                        depressed
+                        :loading="processing"
+                        dark
+                        :color="hover ? 'accent' : 'brand'"
+                      >{{hover ? 'unfollow' : 'Following'}}</v-btn>
+                    </v-hover>
+                  </div>
+                  <v-card v-if="user.bio" flat tile class="mt-4">
+                    <v-card-title
+                      class="text-capitalize top-bar pa-1"
+                      style="font-size:1em; font-weight:normal"
+                    >About</v-card-title>
+                    <v-card-text class="pa-1">
+                      <div style="white-space:pre-wrap; max-width:40em">
+                        <p
+                          class="subtitle-2 primary-text-dark text-justify font-weight-medium"
+                        >{{user.bio}}</p>
+                      </div>
+                    </v-card-text>
+                  </v-card>
                 </div>
               </v-layout>
-              </div>
             </v-layout>
-          </v-layout>
-        </v-card-text>
-      </v-card>
-      <v-layout
-        justify-space-around
-        style="border-bottom:1px solid var(--dark-divider)"
-        class="mt-4"
-      >
-        <div
-          v-if="isProfile"
-          @click="setActive('notifications')"
-          class="nav-item"
-          :class="active === 'notifications' ? 'border' : null"
-        >
-          <a
-            class="primary-text-dark subtitle-1 font-weight-medium"
-            :class="active=== 'notifications' ? 'brand--text' : null"
-          >Creations</a>
-        </div>
-        <div @click="setActive('')" class="nav-item" :class="active === '' ? 'border' : null">
-          <a
-            class="primary-text-dark subtitle-1 font-weight-medium"
-            :class="active=== '' ? 'brand--text' : null"
-          >Favorites</a>
-        </div>
-        <div
-          @click="setActive('timeline')"
-          class="nav-item"
-          :class="active === 'timeline' ? 'border' : null"
-        >
-          <a
-            class="primary-text-dark subtitle-1 font-weight-medium"
-            :class="active=== 'timeline' ? 'brand--text' : null"
-          >Timeline</a>
-        </div>
-        <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
+            <v-layout
+              justify-space-around
+              style="border-bottom:1px solid var(--dark-divider)"
+              class="mt-8"
+            >
+              <div class="nav-item">
+                <router-link
+                  :to="homeLink + 'creations'"
+                  class="nav-link subtitle-1 font-weight-medium"
+                >Creations</router-link>
+              </div>
+              <div class="nav-item">
+                <router-link
+                  tag="a"
+                  :to="homeLink"
+                  class="nav-link subtitle-1 font-weight-medium"
+                >Favorites</router-link>
+              </div>
+              <div class="nav-item">
+                <router-link
+                  tag="a"
+                  :to="homeLink + 'timeline'"
+                  class="nav-link subtitle-1 font-weight-medium"
+                >Timeline</router-link>
+              </div>
+              <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
             <a>Activities</a>
-        </div>-->
-      </v-layout>
-      <v-card tile flat>
-        <v-card-text>
-          <v-layout justify-center>
-            <router-view :user="userID" :isProfile="isProfile"></router-view>
-          </v-layout>
-        </v-card-text>
-      </v-card>
-    </div>
-    <div v-else>Loading...</div>
-    <v-dialog v-model="showSetting" max-width="600px" persistent>
-      <Settings v-if="showSetting" @closeMe="showSetting = false"></Settings>
-    </v-dialog>
+              </div>-->
+            </v-layout>
+
+            <transition name="fade" mode="out-in">
+              <router-view :user="user" :isProfile="isProfile"></router-view>
+            </transition>
+          </v-card-text>
+        </v-card>
+      </v-flex>
+      <div v-else>Loading...</div>
+
+      <v-dialog v-model="showSetting" max-width="600px" persistent>
+        <Settings @updated="reload" v-if="showSetting" @close="showSetting = false"></Settings>
+      </v-dialog>
+    </v-layout>
   </div>
 </template>
 
@@ -138,27 +169,43 @@ export default {
     return {
       user: {},
       isProfile: false,
-      active: "",
       following: null,
       showSetting: false,
-      fetched: false
+      fetched: false,
+      processing: false,
+      transitionName: "slide-left"
     };
   },
   methods: {
     async fetchUser(id) {
-      await this.$store.dispatch("fetch_user", id).then(user => {
+      await this.$store.dispatch("fetch_complete_user", id).then(user => {
         this.user = user;
       });
     },
     follow() {
-      this.$store.dispatch("follow_user", this.user).then(() => {
-        this.following = true;
-      });
+      this.processing = true;
+      this.$store
+        .dispatch("follow_user", this.user)
+        .then(() => {
+          this.following = true;
+          this.user.followers++;
+          this.processing = false;
+        })
+        .catch(error => {
+          this.processing = false;
+        });
     },
     unfollow() {
-      this.$store.dispatch("unfollow_user", this.user.id).then(() => {
-        this.following = false;
-      });
+      this.$store
+        .dispatch("unfollow_user", this.user.id)
+        .then(() => {
+          this.following = false;
+          this.user.followers--;
+          this.processing = false;
+        })
+        .catch(error => {
+          this.processing = false;
+        });
     },
     async matchProfile() {
       if (this.userID === this.$store.getters.getUser.id) {
@@ -167,12 +214,6 @@ export default {
         await this.checkFollowing();
       }
       return;
-    },
-    setActive(val) {
-      this.active = val;
-      this.$router.push({
-        path: this.homeLink + val
-      });
     },
     selectImage() {
       this.$refs.profile.click();
@@ -203,7 +244,7 @@ export default {
       this.$router.push({ path: this.homeLink + "/settings" });
     },
     goCreation() {
-      this.$router.push({ path: this.homeLink + "/notifications" });
+      this.$router.push({ path: this.homeLink + "/creations" });
     },
     goFavorites() {
       this.$router.push({
@@ -220,6 +261,9 @@ export default {
         .then(result => {
           this.following = result;
         });
+    },
+    reload() {
+      this.$router.go();
     }
   },
   computed: {
@@ -229,7 +273,7 @@ export default {
     joined() {
       return moment(this.user.created.toDate()).format("MMMM YYYY");
     },
-    DOB(){
+    DOB() {
       return moment(this.user.DOB).format("MMMM D, YYYY");
     },
     homeLink() {
@@ -245,33 +289,17 @@ export default {
       this.isProfile = false;
       this.following = false;
       this.fetchUser(this.$route.params.id).then(async () => {
-        this.matchProfile()
-          .then(() => {
-            let path = window.location.href;
-            let to = path.slice(path.lastIndexOf("/") + 1);
-            console.log(to);
-            to = "profile"
-              ? this.setActive("")
-              : this.setActive(path.slice(path.lastIndexOf("/") + 1));
-          })
-          .then(() => {
-            this.fetched = true;
-          });
+        this.matchProfile().then(() => {
+          this.fetched = true;
+        });
       });
     }
   },
   mounted: function() {
     this.fetchUser(this.userID).then(() => {
-      this.matchProfile()
-        .then(() => {
-          let path = window.location.href;
-          let to = path.slice(path.lastIndexOf("/") + 1);
-          console.log(to);
-          to = "profile" ? this.setActive("") : this.setActive(to);
-        })
-        .then(() => {
-          this.fetched = true;
-        });
+      this.matchProfile().then(() => {
+        this.fetched = true;
+      });
     });
   }
 };
@@ -283,13 +311,18 @@ export default {
 }
 #profile-container {
   /* background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99)); */
-  margin: 0 auto;
-  max-width: 950px;
 }
 #user-details {
   display: flex;
 }
-.border {
+.nav-link {
+  color: rgba(0, 0, 0, 0.87);
+  text-decoration: none;
+}
+.nav-link.router-link-exact-active {
+  color: var(--brand);
+}
+div .nav-link.router-link-exact-active {
   border-bottom: 5px solid var(--brand);
 }
 </style>

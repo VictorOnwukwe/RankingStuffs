@@ -1,5 +1,5 @@
 <template>
-    <textarea @focus="resize, sendFocused(true)" @blur="sendFocused(false)" v-model="val" :style="computedStyles"></textarea>
+    <textarea class="text" @focus="resize, sendFocused(true)" @blur="sendFocused(false)" v-model="val" :style="computedStyles"></textarea>
 </template>
 
 <script>
@@ -160,19 +160,21 @@ export default {
 </script>
 
 <style scoped>
-textarea {
+.text {
   padding: 0.5em;
   padding-right: 2.5em;
   width: 100%;
-  /* border-radius: 1em; */
+  border-radius: 1em;
   border: 1px solid lightgrey;
   transition: all 0.2s ease-in;
+  /* background-color: red; */
 }
-textarea:hover {
+.text:hover {
   border: 1px solid black;
 }
-textarea:focus {
+.text:focus {
   border: 1px solid var(--brand);
   box-shadow: 0px 0px 0px 1px var(--brand);
+  border-radius: 0.2em;
 }
 </style>

@@ -1,8 +1,9 @@
 <template>
   <div id="main">
-    <div id="main-view">
-      <div id="view">
-        <PreviewList v-for="list in lists" :key="list.id" :list="list"></PreviewList>
+    <div style="max-width:1000px" class="mx-auto">
+      <div class="page-title">Popular Lists</div>
+      <div v-if="lists.length>0">
+        <display-lists :lists="lists"></display-lists>
       </div>
     </div>
   </div>
@@ -31,10 +32,4 @@ export default {
 </script>
 
 <style scoped>
-/* #main-view {
-  display: flex;
-}
-#view {
-  flex-grow: 1;
-} */
 </style>

@@ -1,35 +1,28 @@
 <template>
   <div id="main">
     <v-hover v-slot:default="{ hover }">
-      <v-card @click="goList()" tile class="primary" v-if="fetched" width="100%" :elevation="hover? 3 : 0">
-        <v-layout>
+      <v-card :min-height="random(120, 60)" @click="goList()" :class="!fetched ? 'loading' : null" tile width="100%" :elevation="hover? 4 : 1">
+        <v-layout v-if="fetched">
           <v-flex shrink v-if="list.preview_image" pa-2 pr-0>
-            <v-img :src="list.preview_image" :width="sub ? '80px' : '150px'" id="image" aspect-ratio="1"></v-img>
+            <v-img :src="list.preview_image.url" min-width="80px" max-width="130px" :width="sub ? '10vw' : '20vw'" id="image" aspect-ratio="1"></v-img>
           </v-flex>
           <v-flex>
-            <v-card class="primary" height="100%" flat>
-              <v-card-title>
+            <v-card height="100%" flat>
+              <v-card-title class="pl-2">
                 <h2
                   class="title brand--text text-capitalize"
-                  style="line-height: 1.2em; font-weight:normal"
+                  style="font-weight:normal"
                 >{{list.title}}</h2>
               </v-card-title>
-              <v-card-text>
+              <v-card-text class="pl-2">
                 <v-layout class="mt-n3">
-                  <v-rating
+                  <rating
                     :value="list.rating"
-                    color="yellow darken-3"
-                    background-color="grey darken-1"
-                    half-increments
-                    :size="12"
-                    dense
-                    readonly
-                  ></v-rating>
-                  <p class="caption" style="margin-top: 0.1em">({{list.rating}})</p>
+                    :size="'0.9em'"
+                  ></rating>
+                  <span class="caption primary-text-dark" style="margin-top: 0.1em">({{list.rating}})</span>
                 </v-layout>
-                <div>
                   <a @click.stop="showUser=true" class="mt-n3 subtitle-1 primary-text-dark">{{user.username}}</a>
-                </div>
 
                 <ol>
                   <li v-for="(title, i) in list.items" :key="i"></li>
@@ -41,7 +34,7 @@
       </v-card>
     </v-hover>
     <v-dialog v-if="list.user" v-model="showUser" max-width="300px">
-      <preview-user @closeDialog="showUser=false" :user="user"></preview-user>
+      <preview-user @close="showUser=false" :id="user.id"></preview-user>
     </v-dialog>
   </div>
 </template>
@@ -87,6 +80,7 @@ export default {
 </script>
 
 <style scoped>
+@import url("../../public/my-modules/animations.css");
 #main {
   display: flex;
 }

@@ -1,6 +1,6 @@
 <template>
   <div id="main">
-    <div id="preview" class="mt-4">
+    <div id="preview" class="my-4">
       <PreviewList v-for="list in lists" :key="list.id" :list="list" :sub="sub"></PreviewList>
     </div>
   </div>
@@ -29,12 +29,6 @@ export default {
 @media (min-width: 700px) {
     #preview{
         grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (min-width: 1400px) {
-    #preview{
-        grid-template-columns: 1fr 1fr 1fr;
     }
 }
 </style>

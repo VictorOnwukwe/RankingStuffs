@@ -35,25 +35,23 @@
   }
 }
 
-*.is-loading {
-  position: relative;
-  z-index: 1;
+.loading {
+  /* background-image: linear-gradient(90deg, var(--brand) 30%, #75CCFF 50%, var(--brand) 70%); */
+  background-image: linear-gradient(
+    90deg,
+    white 30%,
+    #f8f7f7 50%,
+    white
+  );
+  background-size: 400%;
+  animation: loading 1s ease-in-out infinite;
 }
-*.is-loading::before {
-  position: relative;
-  content: "";
-  display: block;
-  width: 30px;
-  height: 30px;
-  margin-left: -15px;
-  margin-top: 30px;
-  left: 50%;
-  border-left: 4px solid darkgray;
-  border-top: 4px solid darkgray;
-  border-right: 4px solid darkgray;
-  border-bottom: 4px solid;
-  border-bottom-color: var(--accent);
-  border-radius: 50%;
-  animation: rotate-360 0.5s linear infinite;
+@keyframes loading {
+  0% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0 50%;
+  }
 }
 

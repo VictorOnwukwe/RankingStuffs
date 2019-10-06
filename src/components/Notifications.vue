@@ -1,12 +1,12 @@
 <template>
   <div id="main">
       <v-layout>
-        <div style="max-height:400px; overflow-y:scroll">
-          <v-card v-for="(notification, index) in notifications" :key="index" tile flat>
-              <Notification :notification="notification"></Notification>
-              <v-divider class="grey "></v-divider>
-          </v-card>
-        </div>
+        <v-card class="elevation-4" tile height="calc(100vh - 3.5em)" width="100%">
+          <v-card-title class="top-bar">Notifications</v-card-title>
+          <v-card-text class="pa-0">
+              <Notification v-for="(notification, index) in notifications" :key="index" :notification="notification"></Notification>
+          </v-card-text>
+        </v-card>
       </v-layout>
   </div>
 </template>
@@ -38,8 +38,4 @@ export default {
 </script>
 
 <style scoped>
-#main {
-  width: 100%;
-  max-height: 350px;
-}
 </style>

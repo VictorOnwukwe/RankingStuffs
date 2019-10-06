@@ -1,12 +1,12 @@
 <template>
-  <div style="margin: 0 auto; max-width:1000px">
+  <div>
+    <div style="max-width:1000px" class="mx-auto mb-4">
     <div class="page-title">Demanded Lists</div>
-    <v-select
-      :items="['Queuers - High', 'Queuers - Low', 'Newest', 'Oldest']"
+    <!-- <v-select
+      :items="['Most Demanded', 'Least Demanded', 'Newest', 'Oldest']"
       label="Sort By"
-      width="200px"
       color="brand"
-    ></v-select>
+    ></v-select> -->
     <!-- <the-masonry :cols="3" :gutter="12">
       <div class="item mb-3" v-for="(demand, index) in demands" :key="index">
         <Demanded :demand="demand"></Demanded>
@@ -17,6 +17,7 @@
       <div class="item" v-for="(demand, index) in demands" :key="index">
         <Demanded :demand="demand"></Demanded>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -42,9 +43,6 @@ export default {
         .then(demands => {
           this.demands = demands;
         });
-    },
-    onLayoutComplete() {
-      console.log("layout complete !");
     }
   },
   mounted() {
@@ -60,7 +58,6 @@ export default {
 }
 .item {
   width: 100%;
-  background-color: #eee;
   margin: 0 0 0.5em;
   break-inside: avoid;
 }

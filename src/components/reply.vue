@@ -2,14 +2,14 @@
   <div id="reply">
     <div id="container" v-if="fetched">
       <div>
-        <v-avatar size="1.625em" class="mr-2 ml-1">
+        <v-avatar size="2em" class="mr-2 ml-1">
           <img :src="replier.profile_pic" />
         </v-avatar>
       </div>
 
       <div>
-        <div class="py-1 px-2 br primary ml-2" style="position:relative">
-          <v-icon color="primary" size="0.9em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em">mdi-triangle</v-icon>
+        <div class="py-1 px-2 br ml-2" style="position:relative;background-color:#F4F4F4">
+          <v-icon color="#F4F4F4" size="0.9em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em">mdi-triangle</v-icon>
         <p
           v-if="replier!=={}"
           @click="showUser=true"
@@ -18,12 +18,12 @@
           {{replier.username}}&nbsp;
           <span class="secondary-text-dark">{{created}}</span>
         </p>
-        <p class="mt-n4" style="white-space:pre-wrap">{{reply.content}}</p>
+        <div class="mt-n4" style="white-space:pre-wrap">{{reply.content}}</div>
         </div>
-        <v-layout class="ml-2">
-          <div class="px-1" style="min-width:3em">
+        <v-layout  class="mt-2 mb-1 ml-2">
+          <div class="px-1" style="min-width:4.5em">
             <v-icon
-              size="1em"
+              size="1.1em"
               class="action-icon"
               @click="toggleLike()"
               :class="liked ? 'blue--text' : null"
@@ -31,13 +31,13 @@
             <span v-if="reply.likes>0" style="margin:0 1em;">{{reply.likes}}</span>
           </div>
           <div style="min-width:3em">
-            <v-icon @click="sendReply()" size="1em" class="action-icon">mdi-reply</v-icon>
+            <v-icon @click="sendReply()" size="1.1em" class="action-icon">mdi-reply</v-icon>
           </div>
         </v-layout>
       </div>
     </div>
     <v-dialog v-model="showUser" max-width="300px">
-      <PreviewUser :user="replier" @closeDialog="showUser=false"></PreviewUser>
+      <preview-user :id="replier.id" @close="showUser=false"></preview-user>
     </v-dialog>
   </div>
 </template>
@@ -45,7 +45,6 @@
 <script>
 import { setTimeout } from "timers";
 import swalErrors from "../../public/my-modules/swalErrors";
-import PreviewUser from "./PreviewUser";
 
 let moment = require("moment");
 export default {

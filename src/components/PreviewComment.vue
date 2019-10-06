@@ -10,7 +10,7 @@
           <div>
             <div class="mt-2 mr-2">
               <p>
-                <a @click="showUser=true" class="blue--text subtitle-2 font-weight-bold">{{comment.user.username}}</a>
+                <a class="blue--text subtitle-2 font-weight-bold">{{comment.user.username}}</a>
                  {{comment.content}}
               </p>
             </div>
