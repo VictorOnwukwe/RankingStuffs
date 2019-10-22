@@ -1,75 +1,126 @@
 <template>
   <div>
-    <div style="max-width:1000px" class="mx-auto mb-4">
-    <div class="page-title">Demanded Lists</div>
-    <!-- <v-select
-      :items="['Most Demanded', 'Least Demanded', 'Newest', 'Oldest']"
-      label="Sort By"
-      color="brand"
-    ></v-select> -->
-    <!-- <the-masonry :cols="3" :gutter="12">
-      <div class="item mb-3" v-for="(demand, index) in demands" :key="index">
-        <Demanded :demand="demand"></Demanded>
+    <div class="mx-auto mb-4">
+      <div class="page-title">
+        <div>
+          Demanded Lists
+          <v-select
+            :items="['Most Demanded', 'Least Demanded', 'Newest', 'Oldest']"
+            label="Sort By"
+            width="100%"
+            v-model="sort"
+            @change="shuffle()"
+          ></v-select>
+        </div>
       </div>
-    </the-masonry>-->
 
-    <div class="masonry">
-      <div class="item" v-for="(demand, index) in demands" :key="index">
-        <Demanded :demand="demand"></Demanded>
+      <div v-masonry transition-duration="0.5s" item-selector=".item">
+        <div v-masonry-tile class="item" v-for="(demand, index) in demands" :key="index">
+          <Demanded :demand="demand"></Demanded>
+        </div>
       </div>
-    </div>
+      <mugen-scroll :handler="fetchMore" :should-handle="!loading" :threshold="0.5">
+        <v-layout v-if="!complete" justify-center>
+          <v-progress-circular class="my-8" size="30" width="3" color="brand" indeterminate></v-progress-circular>
+        </v-layout>
+      </mugen-scroll>
     </div>
   </div>
 </template>
 
 <script>
 import Demanded from "./Demanded";
+import MugenScroll from "vue-mugen-scroll";
 export default {
   components: {
-    Demanded
+    Demanded,
+    MugenScroll
   },
   data() {
     return {
-      demands: {}
+      demands: [],
+      sort: "Most Demanded",
+      lastDoc: false,
+      loading: false,
+      complete: false
     };
   },
   methods: {
-    fetchDemands(limit, max) {
+    fetchDemands() {
       this.$store
         .dispatch("fetch_demanded", {
-          limit: limit,
-          max: max
+          limit: 3,
+          sort: this.sort,
+          lastDoc: this.lastDoc
         })
         .then(demands => {
-          this.demands = demands;
+          this.lastDoc = demands[demands.length - 1];
+          this.demands = demands.map(doc => {
+            return {
+              id: doc.id,
+              ...doc.data()
+            };
+          });
+          this.$store.dispatch("set_loading", false);
         });
+    },
+    fetchMore() {
+      if (this.complete) {
+        return;
+      }
+      this.loading = true;
+      this.$store
+        .dispatch("fetch_demanded", {
+          limit: 2,
+          sort: this.sort,
+          lastDoc: this.lastDoc
+        })
+        .then(demands => {
+          this.loading = false;
+          if (demands.length > 0) {
+            this.lastDoc = demands[demands.length - 1];
+            this.demands = this.demands.concat(
+              demands.map(doc => {
+                return {
+                  id: doc.id,
+                  ...doc.data()
+                };
+              })
+            );
+          } else {
+            this.complete = true;
+          }
+        });
+    },
+    shuffle(){
+      this.demands = [];
+      this.complete = false;
+      this.loading = false;
+      this.lastDoc = false;
+      this.fetchDemands();
     }
   },
   mounted() {
-    this.fetchDemands(20, 1000000);
+    this.fetchDemands();
+    this.$store.dispatch("set_loading", true);
   }
 };
 </script>
 
 <style scoped>
-.masonry {
-  column-count: 1;
-  column-gap: 0.5em;
-}
 .item {
   width: 100%;
-  margin: 0 0 0.5em;
-  break-inside: avoid;
+  padding: 0.5em;
+  margin-bottom: 0.5em;
 }
-@media (min-width: 700px) {
-  .masonry {
-    column-count: 2;
-    column-gap: 0.5em;
+@media (min-width:700px){
+  .item{
+    width:50%;
   }
 }
-@media (min-width: 1200px) {
-  .masonry {
-    column-count: 3;
+@media (min-width:900px){
+  .item{
+    width:33.3%;
   }
 }
 </style>
