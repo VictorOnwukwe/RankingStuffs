@@ -2,7 +2,7 @@
   <div>
     <v-layout>
       <v-flex xs12 md10 offset-md1 v-if="fetched" class>
-        <v-card v-if="user!== {}" tile outlined>
+        <v-card v-if="user!== {}" tile flat color="">
           <v-layout v-if="isProfile" column class style="position:absolute; top:1em;right:1em;">
             <v-icon size="1em" color="grey" @click="showSetting = true">fa-pencil-alt</v-icon>
             <span @click="showSetting = true" class="pointer" style="font-size:0.7em">Edit Profile</span>
@@ -16,16 +16,26 @@
                   column
                   :align-center="$vuetify.breakpoint.xs ? true : false"
                 >
-                  <v-avatar tile size="150px" class>
-                    <img :src="user.profile_pic" />
-                  </v-avatar>
+                  <v-hover v-slot:default="{ hover }">
+                    <v-avatar :size="$vuetify.breakpoint.xs ? '150px' : '200px'" class>
+                      <img :src="user.profile_pic.high" />
+                      <v-fade-transition>
+                        <v-overlay v-if="(hover || uploadMenu) && isProfile" absolute color="#000000b3">
+                          <div @click="uploadMenu = true">
+                            <upload-image @close="uploadMenu = false" :uploading="uploadingImage" @upload="uploadProfile"></upload-image>
+                            <span class="white--text">Update</span>
+                          </div>
+                        </v-overlay>
+                      </v-fade-transition>
+                    </v-avatar>
+                  </v-hover>
                 </v-layout>
               </v-flex>
               <v-layout class="mt-4 px-1" :justify-center="$vuetify.breakpoint.xs ? true : false">
                 <div>
                   <h2 v-if="user.name" class="title font-weight-black">{{user.name}}</h2>
                   <div
-                    :class="user.name ? 'subtitle-1 secondary-text-dark mt-n2 font-weight-bold' : 'title font-weight-black'"
+                    :class="user.name ? 'subtitle-1 secondary-text-dark mt-n2 font-weight-bold' : 'title font-weight-black primary-text-dark'"
                   >@{{user.username}}</div>
                   <v-layout class="mt-2">
                     <div>
@@ -33,8 +43,8 @@
                       <span class="secondary-text-dark font-weight-medium">&nbsp;Joined {{joined}}</span>
                     </div>
                   </v-layout>
-                  <v-layout class="mt-2">
-                    <div v-if="user.country || user.city || user.state">
+                  <v-layout wrap>
+                    <div class="mt-2" v-if="user.country || user.city || user.state">
                       <v-layout class="mr-4">
                         <v-icon color="grey" class="mr-2 fa-icon" size="1.3em">fa-map-marker-alt</v-icon>
                         <span
@@ -51,7 +61,7 @@
                         >{{user.country.name}}</span>
                       </v-layout>
                     </div>
-                    <div v-if="user.DOB">
+                    <div class="mt-2" v-if="user.DOB">
                       <v-layout>
                         <v-icon color="grey" class="mr-2" size="1.3em">fa-birthday-cake</v-icon>
                         <span class="secondary-text-dark font-weight-medium">Born {{DOB}}</span>
@@ -129,25 +139,24 @@
                   class="nav-link subtitle-1 font-weight-medium"
                 >Favorites</router-link>
               </div>
-              <div class="nav-item">
+              <!-- <div class="nav-item">
                 <router-link
                   tag="a"
                   :to="homeLink + 'timeline'"
                   class="nav-link subtitle-1 font-weight-medium"
                 >Timeline</router-link>
-              </div>
+              </div> -->
               <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
             <a>Activities</a>
               </div>-->
             </v-layout>
 
-            <transition name="fade" mode="out-in">
+            <transition :name="transitionName" mode="out-in">
               <router-view :user="user" :isProfile="isProfile"></router-view>
             </transition>
           </v-card-text>
         </v-card>
       </v-flex>
-      <div v-else>Loading...</div>
 
       <v-dialog v-model="showSetting" max-width="600px" persistent>
         <Settings @updated="reload" v-if="showSetting" @close="showSetting = false"></Settings>
@@ -159,9 +168,11 @@
 <script>
 import Settings from "./ProfileSetting";
 import CountryFlag from "vue-country-flag";
+import UploadImage from "./UploadImage";
 let moment = require("moment");
 export default {
   components: {
+    "upload-image": UploadImage,
     Settings,
     CountryFlag
   },
@@ -173,10 +184,18 @@ export default {
       showSetting: false,
       fetched: false,
       processing: false,
-      transitionName: "slide-left"
+      transitionName: "slide-left",
+      uploadMenu: false,
+      uploadingImage: undefined
     };
   },
   methods: {
+    uploadProfile(image) {
+      this.uploadingImage = true;
+      this.$store.dispatch("update_profile_pic", image).then(() => {
+        this.uploadingImage = false;
+      })
+    },
     async fetchUser(id) {
       await this.$store.dispatch("fetch_complete_user", id).then(user => {
         this.user = user;
@@ -208,6 +227,9 @@ export default {
         });
     },
     async matchProfile() {
+      if(!this.$store.getters.authenticated){
+        return;
+      }
       if (this.userID === this.$store.getters.getUser.id) {
         this.isProfile = true;
       } else {
@@ -296,10 +318,22 @@ export default {
     }
   },
   mounted: function() {
+    this.$store.dispatch("set_loading", true);
     this.fetchUser(this.userID).then(() => {
       this.matchProfile().then(() => {
         this.fetched = true;
+    this.$store.dispatch("set_loading", false);
       });
+    });
+    this.$router.beforeEach((to, from, next) => {
+      if (from.name === "user-creations") this.transitionName = "slide-left";
+      else if (from.name === "timeline") this.transitionName = "slide-right";
+      else {
+        if (to.name === "user-creations") this.transitionName = "slide-right";
+        else this.transitionName = "slide-left";
+      }
+
+      next();
     });
   }
 };
@@ -324,5 +358,31 @@ export default {
 }
 div .nav-link.router-link-exact-active {
   border-bottom: 5px solid var(--brand);
+}
+
+.slide-left-enter-active,
+.slide-left-leave-active,
+.slide-right-enter-active,
+.slide-right-leave-active {
+  transition-duration: 0.5s;
+  transition-property: height, opacity, transform;
+  transition-timing-function: cubic-bezier(0.55, 0, 0.1, 1);
+  overflow: hidden;
+}
+
+.slide-left-enter,
+.slide-right-leave-active {
+  opacity: 0;
+  transform: translate(2em, 0);
+}
+
+.slide-left-leave-active,
+.slide-right-enter {
+  opacity: 0;
+  transform: translate(-2em, 0);
+}
+.test {
+  color: #000000b3;
+  color: rgba(0,0,0,0.4);
 }
 </style>

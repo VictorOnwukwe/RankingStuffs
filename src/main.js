@@ -31,16 +31,17 @@ import MyRating from "../src/components/MyRating";
 import VueRx from "vue-rx";
 import MyButton from "./components/MyButton";
 import MyAlert from "./components/MyAlert";
+import ProfilePic from "./components/ProfilePic";
+import categories from "../public/my-modules/categories";
+import {VueMasonryPlugin} from "vue-masonry";
 
 const options = {}; // Optional options
+
+Vue.use(VueMasonryPlugin);
 
 Vue.use(VuePacker, {});
 
 Vue.use(VueLodash, { name: "lodash" });
-
-import VueMasonryComponent from "vue-masonry-component";
-
-Vue.use(VueMasonryComponent);
 
 Vue.use(VueRx);
 
@@ -69,6 +70,7 @@ Vue.component("img-prev", MyImage);
 Vue.component("rating", MyRating);
 Vue.component("btn", MyButton);
 Vue.component("alert", MyAlert);
+Vue.component("dp", ProfilePic);
 
 Vue.mixin({
   methods: {
@@ -93,6 +95,25 @@ Vue.mixin({
           "</p>" +
           "</strong></div>"
       });
+    },
+    generateKeywords: function(text) {
+      text = text.toLowerCase();
+      let all = text.split(" ");
+      let result = [];
+      for (let word of all) {
+        let editText = word + " " + text.replace(word, "");
+        result = [...this.edit(editText.replace("  ", " ")), ...result];
+      }
+      return result;
+    },
+    edit: function(text) {
+      let arr = [];
+      let str = "";
+      text.split("").forEach(letter => {
+        str += letter;
+        arr.push(str);
+      });
+      return arr;
     }
   }
 });

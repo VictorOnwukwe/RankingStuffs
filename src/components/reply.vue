@@ -2,28 +2,33 @@
   <div id="reply">
     <div id="container" v-if="fetched">
       <div>
-        <v-avatar size="2em" class="mr-2 ml-1">
-          <img :src="replier.profile_pic" />
+        <v-avatar v-if="replier.profile_pic" size="2em" class="mr-2 ml-1">
+          <img :src="replier.profile_pic.low" />
         </v-avatar>
+        <v-icon v-else size="2em" class="mr-2 ml-1" color="purple" style>fa-user-circle</v-icon>
       </div>
 
       <div>
-        <div class="py-1 px-2 br ml-2" style="position:relative;background-color:#F4F4F4">
-          <v-icon color="#F4F4F4" size="0.9em" style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em">mdi-triangle</v-icon>
-        <p
-          v-if="replier!=={}"
-          @click="showUser=true"
-          class="primary-text-dark subtitle-2 font-weight-bold text-capitalize"
-        >
-          {{replier.username}}&nbsp;
-          <span class="secondary-text-dark">{{created}}</span>
-        </p>
-        <div class="mt-n4" style="white-space:pre-wrap">{{reply.content}}</div>
+        <div class="py-1 px-2 br ml-2" style="position:relative;background-color:#F4F4F4;">
+          <v-icon
+            color="#F4F4F4"
+            size="0.9em"
+            style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em"
+          >mdi-triangle</v-icon>
+          <div
+            v-if="replier!=={}"
+            @click="showUser=true"
+            class="brand--text text--darken-2 subtitle-2 font-weight-bold text-capitalize"
+          >
+            {{replier.username}}&nbsp;
+            <span class="secondary-text-dark">{{created}}</span>
+          </div>
+          <div class style="white-space:pre-wrap">{{reply.content}}</div>
         </div>
-        <v-layout  class="mt-2 mb-1 ml-2">
+        <v-layout class="mt-2 mb-1 ml-2">
           <div class="px-1" style="min-width:4.5em">
             <v-icon
-              size="1.1em"
+              size="1.125em"
               class="action-icon"
               @click="toggleLike()"
               :class="liked ? 'blue--text' : null"
@@ -31,7 +36,7 @@
             <span v-if="reply.likes>0" style="margin:0 1em;">{{reply.likes}}</span>
           </div>
           <div style="min-width:3em">
-            <v-icon @click="sendReply()" size="1.1em" class="action-icon">mdi-reply</v-icon>
+            <v-icon @click="sendReply()" size="1em" class="action-icon">fa-reply</v-icon>
           </div>
         </v-layout>
       </div>
@@ -93,6 +98,9 @@ export default {
     },
 
     async setLikedState() {
+      if (!this.$store.getters.semiAuthenticated) {
+        return;
+      }
       await this.$store
         .dispatch("reply_liked", {
           reply_id: this.reply.id,

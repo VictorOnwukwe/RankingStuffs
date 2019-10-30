@@ -19,7 +19,7 @@
           <Demanded :demand="demand"></Demanded>
         </div>
       </div>
-      <mugen-scroll :handler="fetchMore" :should-handle="!loading" :threshold="0.5">
+      <mugen-scroll :handler="fetchMore" :should-handle="!loading" :threshold="0.1">
         <v-layout v-if="!complete" justify-center>
           <v-progress-circular class="my-8" size="30" width="3" color="brand" indeterminate></v-progress-circular>
         </v-layout>
@@ -49,7 +49,7 @@ export default {
     fetchDemands() {
       this.$store
         .dispatch("fetch_demanded", {
-          limit: 3,
+          limit: 7,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
@@ -71,7 +71,7 @@ export default {
       this.loading = true;
       this.$store
         .dispatch("fetch_demanded", {
-          limit: 2,
+          limit: 1,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
@@ -103,6 +103,7 @@ export default {
   mounted() {
     this.fetchDemands();
     this.$store.dispatch("set_loading", true);
+    this.$redrawVueMasonry();
   }
 };
 </script>
@@ -110,8 +111,8 @@ export default {
 <style scoped>
 .item {
   width: 100%;
-  padding: 0.5em;
-  margin-bottom: 0.5em;
+  padding: 0.25em;
+  margin-bottom: 0.125em;
 }
 @media (min-width:700px){
   .item{

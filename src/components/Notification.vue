@@ -1,18 +1,15 @@
 <template>
-<v-hover v-slot:default="{ hover }">
-  <v-card @click="goNotification()" tile flat width="100%" :color="hover ? '#f5f5f5' : null" class="pa-2">
-    <v-card-text>
-      <v-layout>
-        <v-flex>
-          <div class="primary-text-dark" v-html="message"></div>
-        </v-flex>
-        <v-flex shrink>
-          <v-layout style="width:30px" class="primary-text-dark" justify-end>{{created}}</v-layout>
-        </v-flex>
-      </v-layout>
-    </v-card-text>
-  </v-card>
-  </v-hover>
+    <v-list-item :class="recent ? 'blue lighten-4' : null" color="brand" v-if="notifier" @click="goNotification()">
+      <v-list-item-avatar>
+        <v-img v-if="notifier.profile_pic" :src="notifier.profile_pic.low"></v-img>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div>
+      </v-list-item-content>
+      <v-list-item-action>
+        <v-list-item-action-text>{{created}}</v-list-item-action-text>
+      </v-list-item-action>
+    </v-list-item>
 </template>
 
 <script>
@@ -20,13 +17,17 @@ const moment = require("moment");
 import convertMoment from "../../public/my-modules/convertMoment";
 export default {
   props: {
-    notification: Object
+    notification: Object,
+    recent: Boolean
   },
   data() {
-    return {};
+    return {
+      notifier: null,
+    };
   },
   methods: {
     goNotification() {
+      this.$emit("close");
       switch (this.notification.type) {
         case "reply":
           this.$router.push({
@@ -90,15 +91,22 @@ export default {
 
         case "follow":
           return (
-            this._.startCase(`${this.notification.user.username}`).bold() + " started following you"
-          )
+            this._.startCase(`${this.notification.user.username}`).bold() +
+            " started following you"
+          );
       }
     },
     user() {
       return this.$store.getters.getUser;
     }
   },
-  created() {}
+  mounted() {
+    this.$store
+      .dispatch("fetch_user", this.notification.user.id)
+      .then(result => {
+        this.notifier = result;
+      });
+  }
 };
 </script>
 

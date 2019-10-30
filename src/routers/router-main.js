@@ -42,6 +42,7 @@ export default new Router({
     },
     {
       path: "/:id/profile",
+      name: "profile",
       component: Profile,
       children: [
         {
@@ -51,6 +52,7 @@ export default new Router({
         },
         {
           path: "/:id/profile/timeline",
+          name: "timeline",
           component: Timeline
         },
         {
@@ -95,8 +97,9 @@ export default new Router({
       name: "demand",
       component: Demand
     }
-  ],
-  scrollBehavior(to, from, savedPosition) {
-    return { x: 0, y: 0 };
-  }
+  ]
+  // scrollBehavior(to, from, savedPosition) {
+  //   if (["user-favorites", "user-creations", "timeline"].indexOf(to.name) < 0)
+  //     return { x: 0, y: 0 };
+  // }
 });

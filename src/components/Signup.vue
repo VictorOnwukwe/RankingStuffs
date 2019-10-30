@@ -128,7 +128,7 @@ export default {
 
         await this.$store
           .dispatch("emailSignup", {
-            email: this.email,
+            email: this.email.toLowerCase().trim(),
             password: this.password,
             username: this.username.toLowerCase().replace(/\s/g, "")
           })

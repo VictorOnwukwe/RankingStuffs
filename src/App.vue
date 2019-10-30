@@ -2,10 +2,18 @@
   <div id="main">
     <v-app id="body">
       <toolbar :closeSearch="closeSearch"></toolbar>
-      <div @click="setClose()" id="view-container">
-        <router-view id="router-view"></router-view>
+
+      <preview v-if="$route.name=='home'" id="preview"></preview>
+      <div
+        @click="setClose()"
+        :style="$route.name=='home' ? 'margin-top: 0' : null"
+        id="view-container"
+      >
+        <transition name="fade" mode="out-in">
+          <router-view id="router-view"></router-view>
+        </transition>
       </div>
-      <!-- <Footer></Footer> -->
+      <Footer></Footer>
     </v-app>
   </div>
 </template>
@@ -16,6 +24,7 @@ import User from "./components/User";
 import Toolbar from "./components/Toolbar";
 import Footer from "./components/Footer";
 import { setTimeout } from "timers";
+import HomePreview from "./components/HomePreview";
 
 export default {
   name: "App",
@@ -23,7 +32,8 @@ export default {
     User,
     Home,
     Toolbar,
-    Footer
+    Footer,
+    preview: HomePreview
   },
   data() {
     return {
@@ -40,8 +50,12 @@ export default {
     }
   },
 
-  mounted: function() {
-    this.$store.dispatch("clear_state");
+  created: function() {
+    this.$store.dispatch("initialize").then(() => {
+      this.$store.dispatch("fetchCategories");
+      this.$store.dispatch("clear_state");
+      this.$store.dispatch("watch_notifications");
+    });
   }
 };
 </script>
@@ -63,7 +77,7 @@ export default {
   --background-color: #f4f4f4;
   --link: #0060ac;
   --button: #0060ac;
-  --brand: #1867c0;
+  --brand: #3e6db3;
   --sidebar: #515151;
 
   --border-radius: 0.3em;
@@ -76,11 +90,7 @@ h3,
 h4,
 p {
   color: var(--dark-primary);
-  line-height: 1.5;
-}
-
-span {
-  color: var(--dark-secondary);
+  line-height: calc(1em + 12px);
 }
 
 html {
@@ -89,19 +99,26 @@ html {
 }
 
 *::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: #f5f5f5;
+  background-color: inherit;
+  opacity: 0;
   border-radius: 10px;
+  display: none;
 }
 
 *::-webkit-scrollbar {
   width: 6px;
-  background-color: #f5f5f5;
+  /* background-color: #f5f5f5; */
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgb(179, 178, 178);
+  background-color: rgba(0, 0, 0, 0.4);
   border-radius: 10px;
+}
+.comment{
+  font-family: "Cookie", cursive;
+  font-size: 1.4em
 }
 
 .page-title {
@@ -143,18 +160,27 @@ html {
   box-sizing: inherit;
 }
 * > * {
-  font-family: "Roboto", sans-serif;
+  font-family: "Nunito", sans-serif;
+  color: rgb(44, 63, 92);
 }
 #body {
   /* background: radial-gradient(#f1f5f8 80%, white); */
   background: #fafafa;
   height: auto;
-  font-family: "Roboto", sans-serif;
+  font-family: "Nunito", sans-serif;
 }
 #view-container {
   padding: 0 0.25em;
   display: flex;
-  margin-top: 3.5em;
+  margin-top: 4.5em;
+  align-items: center;
+  flex-direction: column;
+  margin-bottom: 10em;
+}
+@media (min-width: 600px) {
+  #view-container {
+    margin-bottom: 8em;
+  }
 }
 
 @media (min-width: 50em) {
@@ -162,18 +188,27 @@ html {
     padding: 0 0.5em;
   }
 }
+#preview {
+  width: 100%;
+}
+
+#router-view {
+  flex-grow: 1;
+  width: 100%;
+  max-width: 1300px;
+}
 
 .primary-text-dark {
-  color: rgba(0, 0, 0, 0.87) !important;
+  color: rgb(44, 63, 92) !important;
 }
 .secondary-text-dark {
-  color: rgba(0, 0, 25, 0.54) !important;
+  color: rgba(44, 63, 92, .54) !important;
 }
 .hint-text-dark {
-  color: rgba(0, 0, 25, 0.38) !important;
+  color: rgba(44, 63, 92, .38) !important;
 }
 .divider-dark {
-  color: rgba(0, 0, 25, 0.12) !important;
+  color: rgba(44, 63, 92, .12) !important;
 }
 
 .primary-text-light {
@@ -221,9 +256,15 @@ html {
 .top-bar {
   /* background: linear-gradient(180deg, #1E88E5, #2196F3); */
   /* background: rgba(224, 224, 230,.7); */
-  background: #eeeeee;
+  /* background: rgb(244, 244, 244); */
+  /* background: #eeeeee; */
+  background: rgb(132, 180, 255);
   color: #454545;
   font-weight: normal;
+}
+
+.form-bg {
+  background-color: rgb(238, 238, 238);
 }
 
 .golden {
@@ -235,7 +276,6 @@ html {
 }
 .golden > span {
   color: rgb(238, 238, 238) !important;
-  color: rgb(46, 46, 46) !important;
 }
 
 .silver {
@@ -246,8 +286,7 @@ html {
   ) !important;
 }
 .silver > span {
-  color: rgb(192, 92, 20) !important;
-  color: rgb(46, 46, 46) !important;
+  color: rgb(238, 238, 238) !important;
 }
 .bronze {
   background: radial-gradient(
@@ -257,11 +296,12 @@ html {
   ) !important;
 }
 .bronze > span {
-  color: rgb(46, 46, 46) !important;
+  color: rgb(238, 238, 238) !important;
 }
 
 .plain {
-  background: radial-gradient(1.5em at 25% 25%, #707070, #515151) !important;
+  /* background: radial-gradient(1.5em at 25% 25%, #707070, #515151) !important; */
+  background: rgb(158, 158, 158) !important;
 }
 
 .numeric-box {
@@ -286,21 +326,7 @@ html {
 }
 
 .close:hover {
-  color: red;
-}
-
-#router-view {
-  flex-grow: 1;
-}
-@media (min-width: 600px) {
-  #router-view {
-    margin-left: 80px;
-  }
-}
-@media (min-width: 1264px) {
-  #router-view {
-    margin-left: 256px;
-  }
+  color: rgb(187, 54, 54);
 }
 
 .action-icon:hover {
@@ -350,6 +376,18 @@ html {
 }
 .pointer {
   cursor: pointer;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition-duration: 0.3s;
+  transition-property: opacity;
+  transition-timing-function: ease;
+}
+
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
 }
 </style>
 

@@ -14,14 +14,14 @@ const vuetify = new Vuetify({
     themes: {
       light: {
         primary: "#1867C0",
-        brand: "#1867C0",
+        brand: "#3e6db3",
         form: "#60aaea",
         accent: "#f1295b",
         background: "#f4f4f4",
         link: "#0060AC",
         button: "#0060AC",
         item_title: "#BBDEFB",
-        sidebar: "#363640"
+        footer: "#2F363B"
         // dark_primary: "#000000de",
         // dark_secondary: "#0000198a",
         // dark_hint: "#00001961",

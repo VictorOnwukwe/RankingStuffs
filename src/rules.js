@@ -3,14 +3,14 @@ let Rules = {
     v => !!v || "Please enter your email",
     v =>
       /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
-        v
+        v.trim()
       ) || "Please enter a valid email"
   ],
-  minLength: len => v =>
+  minLength: (len, field) => v =>
     (v || "").length >= len
       ? true
       : len == 1
-      ? "This field cannot be empty"
+      ? field + " cannot be empty"
       : `This field must contain at least ${len} characters`,
   maxLength: len => v =>
     (v || "").length <= len ||

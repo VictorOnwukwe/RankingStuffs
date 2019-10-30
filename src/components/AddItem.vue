@@ -1,35 +1,73 @@
 <template>
   <div style="position:relative">
+    <v-divider v-if="index > 0 || !multi"></v-divider>
     <v-layout class="mb-3 pa-1">
-      <div class="numeric-box" v-if="['list-display'].indexOf($route.name) < 0">
+      <div class="numeric-box" v-if="multi">
         <span>{{parentLength + index + 1}}</span>
       </div>
       <v-spacer></v-spacer>
+      <v-icon
+        @click="oneUp()"
+        v-if="index > 0"
+        large
+        class="mr-2"
+        color="grey darken-2"
+      >mdi-chevron-up</v-icon>
       <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2">close</v-icon>
     </v-layout>
     <div style="position:relative">
-      <v-text-field label="Name" @focus="showSearch = true" outlined color="brand" v-model="item.name" @blur="emitItem(false)"></v-text-field>
+      <p class="text-capitalize font-weight-medium grey--text text--darken-2">Name</p>
+      <v-text-field
+        @focus="showSearch = true"
+        solo
+        flat
+        :rules="[rules.minLength(1, 'Item')]"
+        color="brand"
+        v-model="item.name"
+        @keyup.delete="info = undefined"
+        @blur="emitItem()"
+      ></v-text-field>
       <div v-if="showSearch" class="results">
-      <div class="pointer" @click="setInfo(result)" v-for="(result, index) in results" :key="index">
-        <v-layout>
-          <v-img v-if="result.image" :src="result.image.url" max-width="70px" aspect-ratio="1" class="mr-4"></v-img>
-          <div>
-          <span class="text-capitalize primary-text-dark" style="font-size:1.5em">{{result.name}}</span><br>
-          <span v-if="result.category" class="secondary-text-dark font-weight-bold">{{result.category}}</span>
-          </div>
-        </v-layout>
+        <div
+          class="pointer"
+          @click="setInfo(result)"
+          v-for="(result, index) in results"
+          :key="index"
+        >
+          <v-layout>
+            <v-img
+              v-if="result.image"
+              :src="result.image.url.low"
+              max-width="70px"
+              aspect-ratio="1"
+              class="mr-4"
+            ></v-img>
+            <div>
+              <span
+                class="text-capitalize primary-text-dark"
+                style="font-size:1.5em"
+              >{{result.name}}</span>
+              <br />
+              <span
+                v-if="result.category"
+                class="secondary-text-dark font-weight-bold"
+              >{{result.category}}</span>
+            </div>
+          </v-layout>
+        </div>
       </div>
     </div>
-    </div>
-    <v-img class="mt-n4 mb-6" v-if="image" width="100px" aspect-ratio="1" :src="image"></v-img>
-    <div class="mt-n3">
+    <v-img class="mt-n4 mb-6" v-if="image" width="100px" aspect-ratio="1" :src="image.url.low"></v-img>
+    <div class="mt-n1">
+      <p class="text-capitalize font-weight-medium grey--text text--darken-1">
+        <v-icon color="grey darken-1" size="1.5em">fa-comment</v-icon>&nbsp;Comment
+      </p>
       <v-textarea
-        label="Comment"
-        placeholder="[Optional] Tell us why you placed this item at this position"
-        outlined
+        :placeholder="commentPlaceholder"
+        solo
+        flat
         no-resize
         color="brand"
-        prepend-inner-icon="mdi-comment"
         v-model="comment"
         @blur="emitComment()"
       ></v-textarea>
@@ -38,12 +76,24 @@
 </template>
 
 <script>
-import keyword from "../../public/my-modules/generateKeywords";
-import { setTimeout } from 'timers';
+import Rules from "../rules";
+import { setTimeout } from "timers";
 export default {
   props: {
     parentLength: Number,
-    index: Number
+    index: Number,
+    commentPlaceholder: {
+      type: String,
+      default: "[Optional] Tell us why you placed this item at this position"
+    },
+    propItem: {
+      type: Boolean | Object,
+      default: false
+    },
+    multi: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -54,18 +104,27 @@ export default {
       comment: "",
       results: [],
       showSearch: true,
-      image: false
+      image: false,
+      rules: Rules,
+      valid: false
     };
   },
   methods: {
     emitItem() {
       setTimeout(() => {
-      if(this.item.info !== undefined){
-        null;
-      }else{
-        this.item = {keywords: keyword.generateKeywords(this.item.name), ...this.item};
-      }
-        this.$emit("receiveItem", this.index, this.item, this.image);
+        if (this.item.info) {
+          this.item = {
+            image: this.image,
+            ...this.item
+          };
+        } else {
+          this.item = {
+            keywords: this.generateKeywords(this.item.name),
+            name: this.item.name,
+            info: this.item.info
+          };
+        }
+        this.$emit("receiveItem", this.index, this.item);
       }, 200);
     },
     emitComment() {
@@ -78,22 +137,53 @@ export default {
       this.image = false;
       this.showSearch = false;
     },
-    checkItem(){
-      this.$store.dispatch("search_item", this.item.name.toLowerCase()).then(results => {
-        this.results = results;
-      })
+    checkItem() {
+      if (this.item.name.length < 3) {
+        if (this.item.name.length == 0) {
+          this.results = [];
+        }
+        return;
+      }
+      this.$store
+        .dispatch("search_item", this.item.name.toLowerCase())
+        .then(results => {
+          this.results = results;
+        });
     },
-    async setInfo(result){
-      this.item.info = result.id
+    async setInfo(result) {
+      this.item.info = result.id;
       this.item.name = result.name;
       this.showSearch = false;
-      result.image ? this.image = result.image : this.image = false;
+      result.image ? (this.image = result.image) : (this.image = false);
+    },
+    oneUp() {
+      this.$emit("oneUp", this.index);
     }
   },
 
   watch: {
-    "item.name"(){
-      this.checkItem()
+    "item.name"(val) {
+      this.checkItem();
+      val.length > 0 ? (this.valid = true) : (this.valid = false);
+    },
+    valid() {
+      this.$emit("setValid", this.valid, this.index);
+    },
+    propItem() {
+      this.item.name = this.propItem.name;
+      this.item.info = this.propItem.info;
+      this.keywords = this.propItem.keywords;
+      this.comment = this.propItem.comment;
+      this.image = this.propItem.image;
+    }
+  },
+  created() {
+    if (this.propItem) {
+      this.item.name = this.propItem.name;
+      this.item.info = this.propItem.info;
+      this.keywords = this.propItem.keywords;
+      this.comment = this.propItem.comment;
+      this.image = this.propItem.image;
     }
   }
 };
@@ -115,19 +205,19 @@ export default {
   color: rgb(172, 5, 5);
   cursor: pointer;
 }
-.results{
-  position:absolute;
+.results {
+  position: absolute;
   top: 60px;
   background: rgb(233, 233, 237);
   width: 100%;
-  z-index:3;
+  z-index: 3;
 }
-.results>div{
+.results > div {
   padding: 1em 1.5em;
   /* border-left: 2px solid grey;
   border-right: 2px solid grey; */
 }
-.results>div:hover{
-  background: rgb(202, 213, 248)
+.results > div:hover {
+  background: rgb(202, 213, 248);
 }
 </style>

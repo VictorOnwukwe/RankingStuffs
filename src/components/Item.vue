@@ -2,10 +2,15 @@
   <v-layout>
     <v-flex xs12 md10 offset-md1>
       <v-card v-if="fetched" outlined tile class="pa-4 mb-4 mx-auto" max-width="1000px">
-        <v-layout column class style="position:absolute; top:1.5em; right:1em;">
-            <v-icon size="1em" color="grey">fa-pencil-alt</v-icon>
-            <span class="pointer" style="font-size:0.7em">Contribute</span>
-          </v-layout>
+        <v-layout
+          @click="contribute = true"
+          column
+          class
+          style="position:absolute; top:1.5em; right:1em;"
+        >
+          <v-icon size="1em" color="grey">fa-pencil-alt</v-icon>
+          <span class="pointer" style="font-size:0.7em">Contribute</span>
+        </v-layout>
         <v-layout column>
           <div max-width="900px">
             <v-card
@@ -32,6 +37,7 @@
                 class
                 v-if="!item.image"
                 @upload="uploadImage"
+                :uploading="uploading"
               >mdi-camera</upload-image>
             </v-card>
             <div>
@@ -43,58 +49,47 @@
               >{{item.about}}</p>
             </div>
           </div>
-          <v-layout wrap align-start class>
-            <v-flex xs12 class="mb-8 hide">
-              <v-layout>
-                <a class="primary-text-dark">More Images</a>
-                <v-card></v-card>
-              </v-layout>
-            </v-flex>
-            <v-flex id="contribution" xs12 class="contribute hide mb-4">
-              <v-card tile flat class="grey lighten-3">
-                <v-card-title class="grey--text text--darken-2">Contribute</v-card-title>
-                <v-card-text class="mt-4">
-                  <p
-                    class="text-capitalize font-weight-medium grey--text text--darken-2 mt-4"
-                  >Category</p>
-                  <v-select v-model="category" :items="categories" color="brand" class="mt-n6"></v-select>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">About</p>
-                  <v-textarea
-                    color="brand"
-                    solo
-                    flat
-                    v-model="about"
-                    rows="20"
-                    no-resize
-                    label="About"
-                  ></v-textarea>
-                  <p
-                    class="text-capitalize font-weight-medium grey--text text--darken-2"
-                  >Notes: Links, Citations, references, why you altered/added some info</p>
-                  <v-textarea
-                    color="brand"
-                    solo
-                    flat
-                    :placeholder="'Notes, Citations, and links on ' + item.name"
-                    rows="6"
-                    no-resize
-                    label="References"
-                  ></v-textarea>
-                </v-card-text>
-                <v-card-actions>
-                  <v-btn @click="update()" class="brand white--text">Submit</v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-flex>
-          </v-layout>
         </v-layout>
         <v-card-title
           class="text-capitalize top-bar pa-2"
           style="font-size:1em; font-weight:normal"
+          v-if="featuredLists.length > 0"
         >Lists Featuring {{item.name}}</v-card-title>
         <display-lists :lists="featuredLists" :sub="true"></display-lists>
       </v-card>
       <div v-else>Loading...</div>
+      <v-dialog max-width="600px" v-model="contribute">
+        <v-card tile flat class="grey lighten-3">
+          <v-card-title
+            class="title font-weight-bold"
+            style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey"
+          >
+            Contribute
+            <v-spacer></v-spacer>
+            <v-icon class="close" @click="contribute = false">mdi-close</v-icon>
+          </v-card-title>
+          <v-card-text class="mt-4">
+            <p class="text-capitalize font-weight-medium grey--text text--darken-2 mt-4">Category</p>
+            <v-select v-model="category" :items="categories" color="brand" class="mt-n6"></v-select>
+            <p class="text-capitalize font-weight-medium grey--text text--darken-2">About</p>
+            <v-textarea color="brand" solo flat v-model="about" rows="20" no-resize></v-textarea>
+            <p
+              class="text-capitalize font-weight-medium grey--text text--darken-2"
+            >Notes: Links, Citations, references, why you altered/added some info</p>
+            <v-textarea
+              color="brand"
+              solo
+              flat
+              rows="6"
+              no-resize
+              label="References"
+            ></v-textarea>
+          </v-card-text>
+          <v-card-actions>
+            <v-btn @click="update()" class="brand white--text">Submit</v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-flex>
   </v-layout>
 </template>
@@ -113,7 +108,9 @@ export default {
       category: "",
       about: "",
       fetched: false,
-      featuredLists: []
+      featuredLists: [],
+      uploading: null,
+      contribute: false
     };
   },
   methods: {
@@ -126,10 +123,15 @@ export default {
       }, 200);
     },
     uploadImage(image) {
-      this.$store.dispatch("upload_item_image", {
-        image: image,
-        item: this.item
-      });
+      this.uploading = true;
+      this.$store
+        .dispatch("upload_item_image", {
+          image: image,
+          item: this.item
+        })
+        .then(() => {
+          this.uploading = false;
+        });
     },
     update() {
       let upload = {};

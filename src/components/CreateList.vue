@@ -1,38 +1,39 @@
 <template>
   <div id="main" class>
-    <div style="margin:0 auto;max-width:950px;">
+    <div style="margin:0 auto;">
       <div class="page-title">Create List</div>
-      <v-card v-if="true" tile outlined>
-        <v-card style="position:sticky; top:3.375em; z-index:3" tile flat>
-          <v-card-title class="title top-bar pa-1">1. Heads-Up</v-card-title>
+      <v-card outlined class="grey lighten-3" v-if="true" tile>
+        <v-card style="position:sticky; top:4.5em; z-index:3" tile flat>
+          <v-card-title class="title brand darken-1 pa-1">Heads-Up</v-card-title>
+          <v-divider></v-divider>
         </v-card>
         <v-card-text>
           <ul class="primary-text-dark">
             <li class="subtitle-1">
               A list can be
-              <span class="primary-text-dark font-weight-bold">Personal / General</span>,
-              <span class="primary-text-dark font-weight-bold">Votable / Non-Votable</span> and
-              <span class="primary-text-dark font-weight-bold">Self Moderated.</span>
+              <span class="primary-text-dark font-weight-medium">Personal / General</span>,
+              <span class="primary-text-dark font-weight-medium">Votable / Non-Votable</span> and
+              <span class="primary-text-dark font-weight-medium">Self Moderated.</span>
               <ul>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-bold">Personal</span> list appears only on your timeline and is not accesible by public search.
+                  <span class="primary-text-dark font-weight-medium">Personal</span> list appears only on your timeline and is not accesible by public search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-bold">General</span> list appears on the public timeline and is accessible by public search.
+                  <span class="primary-text-dark font-weight-medium">General</span> list appears on the public timeline and is accessible by public search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-bold">Votable</span> list can be voted on.
+                  <span class="primary-text-dark font-weight-medium">Votable</span> list can be voted on.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-bold">Non-Votable</span> list cannot be voted on.
+                  <span class="primary-text-dark font-weight-medium">Non-Votable</span> list cannot be voted on.
                 </li>
                 <li class="subtitle-1">
                   In a
-                  <span class="primary-text-dark font-weight-bold">Self-moderated</span> list, only you can add new items.
+                  <span class="primary-text-dark font-weight-medium">Self-moderated</span> list, only you can add new items.
                 </li>
               </ul>
             </li>
@@ -45,17 +46,23 @@
         </v-card-text>
       </v-card>
 
-      <v-card tile outlined class="mt-2">
-        <v-card tile flat style="position:sticky; top:3.375em;z-index:3">
-          <v-card-title class="title top-bar pa-1">2. List Type</v-card-title>
+      <v-card outlined tile class="mt-2 grey lighten-3">
+        <v-card tile flat style="position:sticky; top:4.5em;z-index:3">
+          <v-card-title class="title top-bar pa-1">List Type</v-card-title>
+          <v-divider></v-divider>
         </v-card>
         <v-card-text class>
           <v-layout>
-            <v-radio-group class="mr-8" v-model="list.personal">
+            <v-radio-group
+              prepend-icon="fa-universal-access"
+              color="brand"
+              class="mr-10"
+              v-model="list.personal"
+            >
               <v-radio color="brand" label="General" :value="false"></v-radio>
               <v-radio color="brand" label="Personal" :value="true"></v-radio>
             </v-radio-group>
-            <v-radio-group v-model="list.votable">
+            <v-radio-group color="brand" prepend-icon="fa-vote-yea" v-model="list.votable">
               <v-radio color="brand" label="Votable" :value="true"></v-radio>
               <v-radio color="brand" label="Non-Votable" :value="false"></v-radio>
             </v-radio-group>
@@ -65,8 +72,10 @@
             class="mt-n2"
             v-model="list.selfModerated"
             label="Self Moderated"
+            prepend-icon="fa-lock"
           ></v-checkbox>
           <v-checkbox
+            prepend-icon="fa-user-secret"
             color="brand"
             class="mt-n2"
             v-model="list.anonymous"
@@ -75,63 +84,74 @@
         </v-card-text>
       </v-card>
 
-      <v-card outlined tile class="mt-2">
-        <v-card flat tile style="position:sticky; top:3.375em; z-index:3;">
-          <v-card-title class="title top-bar pa-1">3. Add List Description</v-card-title>
+      <v-card outlined tile class="mt-2 grey lighten-3">
+        <v-card flat tile style="position:sticky; top:4.5em; z-index:3;">
+          <v-card-title class="title top-bar pa-1">Add List Description</v-card-title>
+          <v-divider></v-divider>
         </v-card>
         <v-card-text>
           <v-container grid-list-md pa-0>
             <v-form v-model="valid">
               <v-layout wrap>
-                <v-flex xs12 style class>
+                <v-flex xs12>
+                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Title</p>
                   <v-text-field
                     validate-on-blur
                     :readonly="$route.query.demand ? true : false"
-                    :rules="[rules.maxLength(100), rules.minLength(1)]"
+                    :rules="[rules.maxLength(100), rules.minLength(1, 'Title')]"
                     counter="100"
                     small
                     color="brand"
-                    outlined
-                    label="Title"
+                    class="text-capitalize"
+                    flat
+                    solo
                     v-model="list.title"
                     @blur="keywords()"
                   ></v-text-field>
                 </v-flex>
 
-                <v-flex xs12 class mt-n2>
+                <v-flex xs12 mt-n2>
+                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Description</p>
                   <v-textarea
                     no-resize
-                    outlined
-                    auto-grow
-                    label="Description"
+                    solo
+                    flat
                     color="brand"
                     v-model="list.description"
                     style="width:100%"
-                    counter="250"
-                    :rules="[rules.maxLength(250)]"
+                    counter="300"
+                    :rules="[rules.maxLength(300)]"
                   ></v-textarea>
                 </v-flex>
 
-                <v-flex sm6 mt-n2>
+                <v-flex xs6 mt-n2>
+                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Category</p>
                   <v-select
                     :items="categories"
+                    item-text="name"
+                    class="text-capitalize"
                     placeholder="Optional"
                     color="brand"
-                    outlined
-                    label="Category"
+                    solo
+                    flat
+                    v-model="list.category"
                   ></v-select>
                 </v-flex>
 
-                <v-flex sm6 mt-n2>
+                <v-flex xs6 mt-n2>
+                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Sub-Category</p>
                   <v-select
-                    :items="categories"
+                    :disabled="list.category == ''"
+                    :items="subCategories"
+                    item-text="name"
                     placeholder="Optional"
+                    class="text-capitalize"
                     color="brand"
-                    outlined
-                    label="Sub-Category"
+                    solo
+                    flat
                   ></v-select>
                 </v-flex>
-                <v-flex xs12 mt-n5>
+                <!-- <v-flex xs12 mt-n5>
                   <v-textarea
                     @keyup.space="pushTag()"
                     @keyup.delete="pushTag()"
@@ -144,7 +164,7 @@
                     color="brand"
                     class
                   ></v-textarea>
-                </v-flex>
+                </v-flex>-->
                 <v-flex>
                   <v-layout wrap class="mt-n9">
                     <v-chip v-for="(tag, i) in tags" :key="i" close class="mr-2 mt-2">{{tag}}</v-chip>
@@ -156,35 +176,60 @@
         </v-card-text>
       </v-card>
 
-      <v-card tile outlined class="mt-2">
-        <v-card flat tile style="position:sticky; top:3.375em; z-index:3">
-          <v-card-title class="title top-bar pa-1">4. Add List Items</v-card-title>
+      <v-card outlined tile class="mt-2 grey lighten-3">
+        <v-card flat tile style="position:sticky; top:4.5em; z-index:3">
+          <v-card-title class="title top-bar pa-1">Add List Items</v-card-title>
+          <v-divider></v-divider>
         </v-card>
         <v-card-text>
           <v-container grid-list-md pa-0>
             <AddItem
               class="item"
+              :multi="true"
               v-for="(item, index) in list.items"
-              :key="index"
+              :key="itemIndex[index]"
+              :propItem="item"
               :parentLength="0"
               :index="index"
+              :id="'item' + (index + 1)"
               @receiveItem="setItem"
               @receiveComment="setItemComment"
+              @setValid="setValid"
+              @oneUp="oneUp"
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
-              <div @click="addItem()" class="numeric-box circle" style="cursor:pointer">
-                <span style="font-size:2.4em; color:white; font-weight:normal">+</span>
-              </div>
+              <v-icon color="brand" size="3em" @click="addItem()">mdi-plus-circle</v-icon>
             </div>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-btn :dark="valid" :disabled="!valid" :loading="loading" @click="upload()">Submit</v-btn>
+          <v-btn
+            color="brand darken-1 white--text"
+            :disabled="!valid || invalidItems > 0"
+            :loading="loading"
+            @click="upload()"
+          >Submit</v-btn>
         </v-card-actions>
       </v-card>
     </div>
+    <v-dialog persistent v-model="authDialog" max-width="500px">
+      <v-card>
+        <v-card-text class="pa-2">
+          <v-layout justify-center>
+            <v-icon class="my-8" color="info" size="60">fa-info-circle</v-icon>
+          </v-layout>
+          <p>Dear User, for performance reasons, you are required to Login at this point in order to receive notifications. This is to enable us serve you better. Login or Signup to continue...</p>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn @click="goBack()" text color="brand">Back</v-btn>
+          <v-spacer></v-spacer>
+          <v-btn @click="setSignup(true)" outlined color="brand">Signup</v-btn>
+          <v-btn @click="setLogin(true)" dark class="brand">Login</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
   </div>
 </template>
 
@@ -194,7 +239,7 @@ import Sidebar from "./Sidebar";
 import AddItem from "./AddItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
-import keyword from "../../public/my-modules/generateKeywords";
+import categories from "../../public/my-modules/categories";
 export default {
   components: {
     Toolbar,
@@ -206,20 +251,32 @@ export default {
       list: {
         title: "",
         description: "",
-        items: [{}, {}, {}, {}, {}],
+        items: [
+          { name: "" },
+          { name: "" },
+          { name: "" },
+          { name: "" },
+          { name: "" }
+        ],
         personal: false,
         votable: true,
         anonymous: false,
         selfModerated: false,
-        keywords: []
+        keywords: [],
+        preview_image: false,
+        category: "",
+        subCategory: ""
       },
       n: 0,
-      categories: [],
       userTags: "",
       tags: [],
       valid: false,
       rules: Rules,
-      loading: false
+      loading: false,
+      preview_updated: false,
+      authDialog: false,
+      invalidItems: 5,
+      itemIndex: [0, 1, 2, 3, 4]
     };
   },
 
@@ -242,21 +299,15 @@ export default {
       this.n++;
     },
 
-    keywords(){
-      this.list.keywords = keyword.generateKeywords(this.list.title);
+    keywords() {
+      this.list.keywords = this.generateKeywords(this.list.title);
     },
 
     upload() {
       this.loading = true;
       setTimeout(async () => {
         await this.$store
-          .dispatch("upload_list", {
-            tags: this.tags,
-            ...this.list
-          })
-          .then(() => {
-            this.$store.dispatch("delete_demand", id);
-          })
+          .dispatch("upload_list", this.list)
           .then(async list_id => {
             if (this.$route.query.demanded) {
               let id = this.$route.query.id;
@@ -267,28 +318,34 @@ export default {
                 title: this.$route.query.title
               });
             }
+            return list_id;
+          })
+          .then(list_id => {
+            if (this.$route.query.demanded) {
+              this.$store.dispatch("delete_demand", this.$route.query.id);
+            }
             this.$router.push({ path: "/lists/" + list_id });
           });
       }, 500);
     },
+    scrollTo(offset, target) {
+      this.$vuetify.goTo(document.getElementById(target), {
+        offset: offset
+      });
+    },
 
     addItem() {
-      this.list.items.push({});
+      this.list.items.push({name: ""});
+      this.itemIndex.push(this.itemIndex.length);
+      this.invalidItems++;
 
       setTimeout(() => {
-        window.scrollTo(0, document.querySelector("#main").scrollHeight);
+        this.scrollTo(110, 'item' + this.list.items.length);
       }, 1);
     },
 
-    setItem(index, item, image) {
+    setItem(index, item) {
       this.list.items[index] = item;
-      if (item.info) {
-        if (image) {
-          if (!this.list.preview_image) {
-            this.list.preview_image = image;
-          }
-        }
-      }
     },
     setItemComment(index, comment) {
       this.list.items[index].comment = comment;
@@ -305,22 +362,74 @@ export default {
       }
       this.tags = this.userTags.split(" ");
       this.tags = this.tags.filter(tag => tag != " " && tag != "");
+    },
+    setLogin(val) {
+      this.$store.dispatch("set_login", val);
+    },
+    setSignup(val) {
+      this.$store.dispatch("set_signup", val);
+    },
+    goBack() {
+      this.$router.go(-1);
+    },
+    setValid(isValid, index) {
+      isValid ? this.invalidItems-- : this.invalidItems++;
+    },
+    oneUp(index) {
+      if (index == 0) {
+        return;
+      }
+      let med;
+      let medInd;
+      medInd = this.itemIndex[index - 1]
+      this.itemIndex[index - 1] = this.itemIndex[index];
+      this.itemIndex[index] = medInd;
+      med = this.list.items[index - 1];
+      this.list.items[index - 1] = this.list.items[index];
+      this.list.items[index] = med;
+      let medL;
+      medL = this.list.items;
+      this.list.items = [];
+      this.list.items = medL;
+
+      // setTimeout(() => {
+      //   this.scrollTo(110, 'item' + (index));
+      // }, 1);
+    }
+  },
+  computed: {
+    authenticated() {
+      return this.$store.getters.authenticated;
+    },
+    categories(){
+      return this.$store.getters.categories;
+    },
+    subCategories(){
+      if(this.list.category == ""){
+        return;
+      }
+      return this.categories.find(cat => cat.name == this.list.category).subs;
+    }
+  },
+  watch: {
+    authenticated() {
+      this.authenticated ? (this.authDialog = false) : (this.authDialog = true);
     }
   },
   created: function() {
-    this.fetchCategories();
+    this.$store.dispatch("set_loading", false);
 
     if (this.$route.query.title) {
       this.list.title = this.$route.query.title;
+    }
+    if (!this.authenticated) {
+      this.authDialog = true;
     }
   }
 };
 </script>
 
 <style scoped>
-#container {
-  display: flex;
-}
 .item {
   position: relative;
 }

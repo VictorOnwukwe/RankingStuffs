@@ -1,10 +1,10 @@
 <template>
   <div id="main">
     <v-hover v-slot:default="{ hover }">
-      <v-card :min-height="random(120, 60)" @click="goList()" :class="!fetched ? 'loading' : null" tile width="100%" :elevation="hover? 4 : 1">
+      <v-card @click="goList()" :class="!fetched ? 'loading' : null" tile width="100%" :elevation="hover? 4 : 1">
         <v-layout v-if="fetched">
           <v-flex shrink v-if="list.preview_image" pa-2 pr-0>
-            <v-img :src="list.preview_image.url" min-width="80px" max-width="130px" :width="sub ? '10vw' : '20vw'" id="image" aspect-ratio="1"></v-img>
+            <v-img :src="list.preview_image.url.low" min-width="80px" max-width="130px" :width="sub ? '10vw' : '20vw'" id="image" aspect-ratio="1"></v-img>
           </v-flex>
           <v-flex>
             <v-card height="100%" flat>
@@ -24,9 +24,7 @@
                 </v-layout>
                   <a @click.stop="showUser=true" class="mt-n3 subtitle-1 primary-text-dark">{{user.username}}</a>
 
-                <ol>
-                  <li v-for="(title, i) in list.items" :key="i"></li>
-                </ol>
+                <div v-if="list.description">{{list.description}}</div>
               </v-card-text>
             </v-card>
           </v-flex>

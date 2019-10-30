@@ -44,7 +44,7 @@ export default {
         },
         backgroundColor: {
             type: String,
-            default: "grey"
+            default: "grey lighten-1"
         },
     },
     data() {
@@ -58,6 +58,11 @@ export default {
             this.$emit('input', this.rating);
             console.log("here");
             this.readOnly = true;
+        }
+    },
+    watch: {
+        value(){
+            this.rating = this.value;
         }
     }
 };

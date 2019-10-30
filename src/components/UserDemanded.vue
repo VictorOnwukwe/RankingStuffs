@@ -1,21 +1,21 @@
 <template>
   <v-list-item class="pr-0">
     <v-list-item-content>
-      <v-list-item-title wrap class="text-capitalize brand--text">{{demand.title}}</v-list-item-title>
-      <v-list-item-subtitle>{{created}}</v-list-item-subtitle>
-      <v-list-item-subtitle class="primary-text-dark" v-html="waitingMessage"></v-list-item-subtitle>
+      <v-list-item-title class="text-capitalize brand--text text-wrap">{{demand.title}}</v-list-item-title>
+      <v-list-item-subtitle v-if="!searched">{{created}}</v-list-item-subtitle>
+      <v-list-item-subtitle v-if="!searched" class="primary-text-dark" v-html="waitingMessage"></v-list-item-subtitle>
       <v-list-item-subtitle>
         <v-layout>
-          <v-spacer></v-spacer>
+          <v-spacer v-if="!searched"></v-spacer>
           <v-hover v-slot:default="{ hover }">
             <v-list-item-action-text
-              class="subtitle-2 pink--text pointer"
+              class="subtitle-2 pink--text pointer mr-4"
               @click="toggleWaiting()"
-              v-if="!isProfile"
+              v-if="!isCreator"
             >{{!waiting ? 'Queue' : hover ? 'Leave' : 'Queueing' }}</v-list-item-action-text>
           </v-hover>
           <v-list-item-action-text
-            class="subtitle-2 green--text ml-4 pointer"
+            class="subtitle-2 green--text pointer"
             @click="createDemand"
           >Create</v-list-item-action-text>
         </v-layout>
@@ -29,8 +29,11 @@ let moment = require("moment");
 export default {
   props: {
     demand: Object,
-    isProfile: Boolean,
-    user: Object
+    user: Object,
+    searched: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -75,8 +78,7 @@ export default {
           if (this.isProfile) {
             return (
               "<b>" +
-              (this.demand.waiters_count -
-              1) +
+              (this.demand.waiters_count - 1) +
               "</b> other people are waiting for this list"
             );
           } else {
@@ -93,8 +95,7 @@ export default {
             } else {
               return (
                 "<b>" +
-                (this.demand.waiters_count -
-                1) +
+                (this.demand.waiters_count - 1) +
                 "</b> other people are waiting for this list"
               );
             }
@@ -120,6 +121,9 @@ export default {
     },
     created() {
       return moment(this.demand.created.toDate()).calendar();
+    },
+    isCreator() {
+      return this.$store.getters.getUser.id === this.demand.user;
     }
   },
   mounted() {

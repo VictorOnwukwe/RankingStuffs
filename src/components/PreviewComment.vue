@@ -4,7 +4,7 @@
         <div id="comment" style="display:flex">
           <div>
             <v-avatar size="26" class="ma-2">
-              <img :src="comment.user.profile_pic" />
+              <img :src="comment.user.profile_pic.low" />
             </v-avatar>
           </div>
           <div>

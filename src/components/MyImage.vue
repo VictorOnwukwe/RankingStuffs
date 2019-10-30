@@ -1,9 +1,9 @@
 <template>
   <div>
-    <v-img @click="previewImage()" :src="image.url" :width="width" :aspect-ratio="aspectRatio"></v-img>
+    <v-img @click="previewImage()" :src="image.url.low" :width="width" :aspect-ratio="aspectRatio"></v-img>
     <v-dialog v-model="preview" max-width="350px">
       <v-card tile>
-        <v-img width="100%" :src="image.url" contain></v-img>
+        <v-img width="100%" :src="image.url.high" contain></v-img>
         <v-card-text class="mt-3">
           <div v-if="loading" class="text-center ma-12">
             <v-progress-circular indeterminate rotate small color="light-blue"></v-progress-circular>

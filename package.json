@@ -1,5 +1,5 @@
 {
-  "name": "top-ten-naija",
+  "name": "top-ten",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -34,6 +34,7 @@
     "vue-masonry": "^0.11.8",
     "vue-masonry-component": "^1.1.0",
     "vue-masonry-css": "^1.0.3",
+    "vue-mugen-scroll": "^0.2.6",
     "vue-packer": "^0.3.0",
     "vue-router": "^3.0.7",
     "vue-rx": "^6.2.0",

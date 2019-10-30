@@ -111,7 +111,6 @@ export default {
           })
           .then(() => {
             this.close();
-            this.$router.go();
           })
           .catch(error => {
             this.eloading = false;

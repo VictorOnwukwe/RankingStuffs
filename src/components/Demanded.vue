@@ -14,7 +14,7 @@
               <v-card-text style="margin-bottom:1.5em" class="subtitle-1">
                 <div v-if="creator && !demand.anonymous">
                   <v-avatar size="2em" class="mr-2 mb-2">
-                    <v-img :src="creator.profile_pic"></v-img>
+                    <v-img v-if="creator.profile_pic" :src="creator.profile_pic.low"></v-img>
                   </v-avatar>
                   <a
                     class="secondary-text-dark font-weight-bold"
@@ -35,7 +35,7 @@
                   >{{!waiting ? 'Queue' : hover ? 'Leave' : 'Queueing' }}</v-btn>
                 </v-hover>
                 <!-- <v-btn v-else small color="brand" outlined>Queueing</v-btn> -->
-                <v-btn @click="create()" class="pointer ml-2" depressed color="brand white--text" small>Create</v-btn>
+                <v-btn @click="create()" class="pointer ml-2" color="brand white--text" small>Create</v-btn>
               </v-layout>
             </div>
           </v-flex>
