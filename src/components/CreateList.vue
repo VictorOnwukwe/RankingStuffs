@@ -1,39 +1,41 @@
 <template>
   <div id="main" class>
     <div style="margin:0 auto;">
-      <div class="page-title">Create List</div>
-      <v-card outlined class="grey lighten-3" v-if="true" tile>
-        <v-card style="position:sticky; top:4.5em; z-index:3" tile flat>
-          <v-card-title class="title brand darken-1 pa-1">Heads-Up</v-card-title>
-          <v-divider></v-divider>
-        </v-card>
-        <v-card-text>
-          <ul class="primary-text-dark">
+      <!-- <div class="page-title">Create List</div> -->
+      <v-card flat style="border: 1px solid var(--brand)" class="grey lighten-3 mt-4" v-if="true">
+        <!-- <v-card style="position:sticky; top:4.5em; z-index:3" tile flat> -->
+          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">
+            Heads-Up
+          </v-card-title>
+          <!-- <v-divider></v-divider> -->
+        <!-- </v-card> -->
+        <v-card-text class="mt-4">
+          <ul class="ptd">
             <li class="subtitle-1">
               A list can be
-              <span class="primary-text-dark font-weight-medium">Personal / General</span>,
-              <span class="primary-text-dark font-weight-medium">Votable / Non-Votable</span> and
-              <span class="primary-text-dark font-weight-medium">Self Moderated.</span>
+              <span class="ptd font-weight-medium">Personal / General</span>,
+              <span class="ptd font-weight-medium">Votable / Non-Votable</span> and
+              <span class="ptd font-weight-medium">Self Moderated.</span>
               <ul>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-medium">Personal</span> list appears only on your timeline and is not accesible by public search.
+                  <span class="ptd font-weight-medium">Personal</span> list appears only on your timeline and is not accesible by public search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-medium">General</span> list appears on the public timeline and is accessible by public search.
+                  <span class="ptd font-weight-medium">General</span> list appears on the public timeline and is accessible by public search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-medium">Votable</span> list can be voted on.
+                  <span class="ptd font-weight-medium">Votable</span> list can be voted on.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="primary-text-dark font-weight-medium">Non-Votable</span> list cannot be voted on.
+                  <span class="ptd font-weight-medium">Non-Votable</span> list cannot be voted on.
                 </li>
                 <li class="subtitle-1">
                   In a
-                  <span class="primary-text-dark font-weight-medium">Self-moderated</span> list, only you can add new items.
+                  <span class="ptd font-weight-medium">Self-moderated</span> list, only you can add new items.
                 </li>
               </ul>
             </li>
@@ -46,12 +48,12 @@
         </v-card-text>
       </v-card>
 
-      <v-card outlined tile class="mt-2 grey lighten-3">
-        <v-card tile flat style="position:sticky; top:4.5em;z-index:3">
-          <v-card-title class="title top-bar pa-1">List Type</v-card-title>
-          <v-divider></v-divider>
-        </v-card>
-        <v-card-text class>
+      <v-card flat class="mt grey lighten-3">
+        <!-- <v-card tile flat style="position:sticky; top:4.5em;z-index:3"> -->
+          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Type</v-card-title>
+          <!-- <v-divider></v-divider> -->
+        <!-- </v-card> -->
+        <v-card-text class="mt-4">
           <v-layout>
             <v-radio-group
               prepend-icon="fa-universal-access"
@@ -74,22 +76,15 @@
             label="Self Moderated"
             prepend-icon="fa-lock"
           ></v-checkbox>
-          <v-checkbox
-            prepend-icon="fa-user-secret"
-            color="brand"
-            class="mt-n2"
-            v-model="list.anonymous"
-            label="Post as Anonymous"
-          ></v-checkbox>
         </v-card-text>
       </v-card>
 
-      <v-card outlined tile class="mt-2 grey lighten-3">
-        <v-card flat tile style="position:sticky; top:4.5em; z-index:3;">
-          <v-card-title class="title top-bar pa-1">Add List Description</v-card-title>
-          <v-divider></v-divider>
-        </v-card>
-        <v-card-text>
+      <v-card flat class="mt grey lighten-3">
+        <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3;"> -->
+          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Details</v-card-title>
+          <!-- <v-divider></v-divider> -->
+        <!-- </v-card> -->
+        <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <v-form v-model="valid">
               <v-layout wrap>
@@ -97,9 +92,9 @@
                   <p class="text-capitalize font-weight-medium grey--text text--darken-2">Title</p>
                   <v-text-field
                     validate-on-blur
-                    :readonly="$route.query.demand ? true : false"
-                    :rules="[rules.maxLength(100), rules.minLength(1, 'Title')]"
-                    counter="100"
+                    :readonly="$route.query.demanded ? true : false"
+                    :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
+                    counter="150"
                     small
                     color="brand"
                     class="text-capitalize"
@@ -119,14 +114,14 @@
                     color="brand"
                     v-model="list.description"
                     style="width:100%"
-                    counter="300"
-                    :rules="[rules.maxLength(300)]"
+                    counter="1000"
+                    :rules="[rules.maxLength(1000)]"
                   ></v-textarea>
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
                   <p class="text-capitalize font-weight-medium grey--text text--darken-2">Category</p>
-                  <v-select
+                  <v-autocomplete
                     :items="categories"
                     item-text="name"
                     class="text-capitalize"
@@ -135,12 +130,12 @@
                     solo
                     flat
                     v-model="list.category"
-                  ></v-select>
+                  ></v-autocomplete>
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
                   <p class="text-capitalize font-weight-medium grey--text text--darken-2">Sub-Category</p>
-                  <v-select
+                  <v-autocomplete
                     :disabled="list.category == ''"
                     :items="subCategories"
                     item-text="name"
@@ -149,7 +144,8 @@
                     color="brand"
                     solo
                     flat
-                  ></v-select>
+                    v-model="list.subCategory"
+                  ></v-autocomplete>
                 </v-flex>
                 <!-- <v-flex xs12 mt-n5>
                   <v-textarea
@@ -176,12 +172,12 @@
         </v-card-text>
       </v-card>
 
-      <v-card outlined tile class="mt-2 grey lighten-3">
-        <v-card flat tile style="position:sticky; top:4.5em; z-index:3">
-          <v-card-title class="title top-bar pa-1">Add List Items</v-card-title>
-          <v-divider></v-divider>
-        </v-card>
-        <v-card-text>
+      <v-card flat class="mt grey lighten-3">
+        <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3"> -->
+          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Add Items</v-card-title>
+          <!-- <v-divider></v-divider> -->
+        <!-- </v-card> -->
+        <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <AddItem
               class="item"
@@ -196,6 +192,7 @@
               @receiveComment="setItemComment"
               @setValid="setValid"
               @oneUp="oneUp"
+              :rImage="list.items[index].image"
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
@@ -216,7 +213,7 @@
     </div>
     <v-dialog persistent v-model="authDialog" max-width="500px">
       <v-card>
-        <v-card-text class="pa-2">
+        <v-card-text class="py-0">
           <v-layout justify-center>
             <v-icon class="my-8" color="info" size="60">fa-info-circle</v-icon>
           </v-layout>
@@ -225,8 +222,8 @@
         <v-card-actions>
           <v-btn @click="goBack()" text color="brand">Back</v-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="setSignup(true)" outlined color="brand">Signup</v-btn>
-          <v-btn @click="setLogin(true)" dark class="brand">Login</v-btn>
+          <v-btn @click="setSignup(true)" text color="brand">Signup</v-btn>
+          <v-btn @click="setLogin(true)" outlined color="brand">Login</v-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -260,7 +257,6 @@ export default {
         ],
         personal: false,
         votable: true,
-        anonymous: false,
         selfModerated: false,
         keywords: [],
         preview_image: false,
@@ -281,24 +277,6 @@ export default {
   },
 
   methods: {
-    onFileSelect(event) {
-      const files = event.target.files;
-      let fileName = files[0].name;
-      if (fileName.lastIndexOf(".") <= 0) {
-        return alert("Invalid File Selected...");
-      }
-
-      let imageUrl;
-
-      const fileReader = new FileReader();
-      fileReader.addEventListener("load", () => {
-        imageUrl = fileReader.result;
-      });
-      fileReader.readAsDataURL(files[0]);
-      this.list.items[this.n].image = files[0];
-      this.n++;
-    },
-
     keywords() {
       this.list.keywords = this.generateKeywords(this.list.title);
     },

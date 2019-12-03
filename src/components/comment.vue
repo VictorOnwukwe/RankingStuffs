@@ -1,120 +1,199 @@
 <template>
   <div id="main">
-    <v-card v-if="fetched" tile class flat>
-      <div>
-        <div id="comment" style="display:flex">
-          <div>
-            <v-avatar v-if="commenter.profile_pic" size="2.5em" class style="margin:0.2em 1em">
-              <img :src="commenter.profile_pic.low" />
-            </v-avatar>
-              <v-icon v-else size="2.5em" :color="commenter.color ? commenter.color : 'grey'" style="margin:0em 0.4em">fa-user-circle</v-icon>
+    <v-card tile class flat style="overflow:hidden">
+      <v-divider class="grey lighten-4 my-1"></v-divider>
+      <v-layout style="position:relative">
+        <v-flex class="px-2">
+          <div id="comment" style="display:flex">
+            <div class style="position:relative">
+              <div class>
+                <div style="white-space:pre-wrap;" class="ptd">{{ !more ? comment.content.slice(0, 600) : comment.content
+                  }}{{ comment.content.length > 600 ? "..." : " "}}<span
+                    @click="more = !more"
+                    v-if="comment.content.length > 600"
+                    class="link--text"
+                    style="cursor:pointer"
+                    >{{ !more ? "more" : "less" }}</span><span
+                    class="brand--text text--darken-1 brighten pointer"
+                    v-if="comment.content.length < 600 || more"
+                    @click="
+                      comment.user.username.includes('visitor')
+                        ? null
+                        : (showUser = true)
+                    "
+                    >-&nbsp;{{
+                      comment.user.username.includes("visitor")
+                        ? ""
+                        : comment.user.username
+                    }}</span
+                  >
+                </div>
+              </div>
+              <v-layout class="mt-2 mb-1" align-center>
+                <div class="std" style="display:flex; min-width:4.5em;">
+                  {{ created }}
+                </div>
+                <div style="display:flex; min-width:4.5em;">
+                  <v-icon
+                    class="like-button action-icon"
+                    @click="toggleLike()"
+                    :color="liked ? 'blue' : null"
+                    size="1.2em"
+                    >mdi-thumb-up</v-icon
+                  >
+                  <span
+                    v-if="comment.likes > 0"
+                    class="grey--text text--darken-2"
+                    style="margin:0em 0 0 0.3em; font-size:0.9em"
+                    >{{ comment.likes }}</span
+                  >
+                </div>
+
+                <div
+                  style="display:flex; min-width:4.5em;"
+                  class="pointer"
+                  @click="showReplies(3)"
+                >
+                  <v-icon
+                    style="cursor:pointer"
+                    class="action-icon"
+                    size="1.2em"
+                    >mdi-message-reply-text</v-icon
+                  >
+                  <span
+                    class="grey--text text--darken-2"
+                    style="margin:0em 0 0 0.3em; font-size:0.9em"
+                    >{{ comment.replies_count }}</span
+                  >
+                </div>
+                <div>
+                  <v-menu left>
+                    <template v-slot:activator="{ on }">
+                      <v-icon v-on="on" size="1.2em" style="margin-top:-0.25em">mdi-dots-vertical</v-icon>
+                    </template>
+                    <v-list class="px-0">
+                      <v-list-item
+                        @click="
+                          (showEdit = true), (newComment = comment.content)
+                        "
+                        v-if="isCommenter"
+                        class="tile"
+                      >
+                        <v-layout class="py-2" justify-center>
+                          <v-icon>fa-pencil-alt</v-icon>
+                        </v-layout>
+                      </v-list-item>
+                      <v-list-item>
+                        <v-list-item-icon>
+                          <v-icon>fa-flag</v-icon>
+                        </v-list-item-icon>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </div>
+              </v-layout>
+            </div>
           </div>
-          <div class="mt-1" style="position:relative">
-            <div class="background py-1 px-2 br mr-1">
-              <v-icon
-                color="background"
-                size="1em"
-                style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.7em"
-              >mdi-triangle</v-icon>
-              <div
-                @click="commenter.username.includes('visitor') ? null : showUser=true"
-                class="brand--text text--darken-2 subtitle-2 font-weight-bold text-capitalize pointer"
-                v-if="commenter.username"
+          <div class="my-2 pl-2 shift" v-if="repliesVisible">
+            <div class="mb-4 replies-display">
+              <v-layout
+                class="my-4"
+                v-if="(comment.replies_count > replies.length) & !loading"
+                justify-center
               >
-                {{commenter.username.includes('visitor') ? "Visitor" : commenter.username}}&nbsp;
-                <span class="secondary-text-dark">{{created}}</span>
+                <v-icon
+                  class="std"
+                  @click="fetchReplies(5, replies[0].data().created)"
+                  >mdi-plus-circle-outline</v-icon
+                >
+              </v-layout>
+
+              <div v-if="loading" style="display:flex; justify-content:center">
+                <m-progress></m-progress>
               </div>
 
-              <div style="white-space:pre-wrap;">{{comment.content.slice(0,300)}}<span
-                  @click="showComment=true"
-                  v-if="comment.content.length>300"
-                  class="brand--text"
-                  style="cursor:pointer"
-                >...read more</span>
+              <div v-for="(reply, index) in replies" :key="reply.id">
+                <Reply
+                  :list = list
+                  :item = item
+                  :comment = comment
+                  :reply="{ id: reply.id, ...reply.data() }"
+                  @reply="setReply"
+                ></Reply>
+                <v-divider
+                  v-if="index == replies.length - 1"
+                  class="grey lighten-4 mt-1"
+                ></v-divider>
+              </div>
+              <div
+                v-if="addingReply"
+                style="display:flex; justify-content:center"
+              >
+                <m-progress></m-progress>
               </div>
             </div>
-            <v-layout class="mt-2 mb-1">
-              <div style="display:flex; min-width:4.5em;">
-                <v-icon
-                  class="like-button action-icon"
-                  @click="toggleLike()"
-                  :color="liked ? 'blue' : null"
-                  size="1.125em"
-                >mdi-thumb-up</v-icon>
-                <span
-                  v-if="comment.likes>0"
-                  class="grey--text text--darken-2"
-                  style="margin:0.2em 0 0 0.3em; font-size:0.9em"
-                >{{comment.likes}}</span>
-              </div>
-              <!-- <div @click="replyInput=!replyInput" style="min-width:4.5em">
-                <v-icon @click="showBox()" size="1.125em" class="action-icon">mdi-reply</v-icon>
-              </div>-->
-
-              <div style="cursor:pointer" @click="showReplies(3)">
-                <v-icon
-                  style="cursor:pointer"
-                  class="action-icon"
-                  size="1.125em"
-                >mdi-message-reply-text</v-icon>
-                <a
-                  class="grey--text text--darken-2"
-                  style="margin:0.2em 0 0 0.3em; font-size:0.9em"
-                >{{comment.replies_count}}</a>
-              </div>
-            </v-layout>
-          </div>
-        </div>
-        <div id="replies-display" class="my-2 pl-2" style="margin-left:2.7em" v-if="repliesVisible">
-          <div class="mb-4">
-            <v-layout v-if="comment.replies_count > replies.length & !loading" justify-center>
+            <div class="" style="position:relative">
+              <v-layout>
+                <v-spacer></v-spacer>
+                <a class="std underline"
+                  >{{ comment.replies_count ? comment.replies_count : "0" }}
+                  {{ comment.replies_count == 1 ? "reply" : "replies" }}</a
+                >
+              </v-layout>
+              <comment-box
+                v-model="reply"
+                :id="'reply-box' + index"
+                class="mr-2"
+                rows="1"
+                placeholder="Reply..."
+                :max-height="120"
+                @focused="setFocused"
+              />
               <v-icon
-                class="primary-text-dark"
-                @click="fetchReplies(5,replies[0].created)"
-              >mdi-plus-circle-outline</v-icon>
-            </v-layout>
-
-            <div v-if="loading" style="display:flex; justify-content:center">
-              <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
-            </div>
-
-            <div v-for="reply in replies" :key="reply.id">
-              <Reply
-                :path="{list_id: list.id, item_id: item.id, comment_id: comment.id}"
-                :reply="reply"
-                @reply="setReply"
-              ></Reply>
-            </div>
-            <div v-if="addingReply" style="display:flex; justify-content:center">
-              <v-progress-circular indeterminate :value="80" :size="20" :width="3"></v-progress-circular>
+                @click="replyComment()"
+                size="1.2em"
+                :class="
+                  focused && comment != '' ? 'accent--text' : 'grey--text'
+                "
+                style="position:absolute; bottom:1em; right:0.8em"
+                :disabled="comment == '' ? true : false"
+                >fa-paper-plane</v-icon
+              >
             </div>
           </div>
-          <div class="mr-4" style="position:relative">
-            <comment-box
-              v-model="reply"
-              class="reply-box mr-2"
-              rows="1"
-              placeholder="Reply..."
-              :max-height="120"
-              @focused="setFocused"
-            />
-            <v-icon
-              @click="replyComment()"
-              size="1.2em"
-              style="position:absolute; right:0.8em; bottom:1em"
-              :class="focused? 'brand--text' : 'grey--text'"
-            >fa-paper-plane</v-icon>
-          </div>
-        </div>
-      </div>
+        </v-flex>
+        <!-- <v-flex shrink>
+          <v-icon class="menu" @click="toggleMore()">mdi-chevron-down</v-icon>
+        </v-flex> -->
+      </v-layout>
     </v-card>
 
-    <v-dialog v-model="showUser" max-width="300px">
-      <PreviewUser :id="commenter.id" @close="showUser=false"></PreviewUser>
+    <v-dialog v-model="showUser" max-width="400px">
+      <PreviewUser
+        :id="comment.user.id"
+        @close="showUser = false"
+      ></PreviewUser>
     </v-dialog>
-
-    <v-dialog v-model="showComment" max-width="500px">
-      <PreviewComment :comment="comment"></PreviewComment>
+    <v-dialog persistent v-model="showEdit" max-width="500px">
+      <v-card flat class="grey lighten-3">
+        <v-card-title class="grey lighten-2" style="position:sticky;top:0;z-index:2;border-bottom:1px solid black">
+          Edit Comment
+          <v-spacer></v-spacer>
+          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
+          </v-card-title>
+        <v-card-text class="pb-0 pt-4">
+          <v-textarea auto-grow no-resize flat v-model="newComment" solo></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            :loading="editing"
+            color="brand white--text"
+            @click="editComment()"
+            :disabled="newComment == '' || newComment == comment.content"
+            >Edit</v-btn
+          >
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -140,7 +219,8 @@ export default {
   props: {
     comment: Object,
     list: Object,
-    item: Object
+    item: Object,
+    index: Number
   },
 
   data() {
@@ -152,12 +232,15 @@ export default {
       repliesVisible: false,
       loading: false,
       repliesShown: false,
-      commenter: {},
       showUser: false,
       showComment: false,
-      fetched: false,
       focused: false,
-      addingReply: false
+      addingReply: false,
+      showMore: false,
+      more: false,
+      showEdit: false,
+      newComment: "",
+      editing: false
     };
   },
 
@@ -182,11 +265,16 @@ export default {
       });
     },
 
+    toggleMore() {
+      this.showMore = !this.showMore;
+      document.querySelector(".menu").classList.toggle("rotate");
+    },
+
     setReply(user) {
       this.showReplyBox = true;
       this.reply = "@" + user + " ";
       setTimeout(() => {
-        document.querySelector(".reply-box").focus();
+        document.querySelector("#reply-box" + this.index).focus();
       }, 50);
     },
 
@@ -208,9 +296,16 @@ export default {
       this.$store
         .dispatch("upload_reply", {
           list_id: this.list.id,
+          list_title: this.list.title,
           item_id: this.item.id,
+          item_name: this.item.name,
           comment_id: this.comment.id,
-          reply: this.reply
+          comment_content: this.comment.content,
+          reply: this.reply,
+          commenter: {
+            id: this.comment.user.id,
+            username: this.comment.user.username
+          }
         })
         .then(reply => {
           this.addingReply = false;
@@ -223,7 +318,10 @@ export default {
         .then(() => {
           this.$store.dispatch("send_notification", {
             type: "reply",
-            commenter: this.commenter,
+            commenter: {
+              id: this.comment.user.id,
+              username: this.comment.user.username
+            },
             item: this.item,
             list: this.list,
             comment: this.comment
@@ -232,12 +330,6 @@ export default {
         .catch(error => {
           this.addingReply = false;
         });
-    },
-
-    async fetchCommenter() {
-      await this.$store.dispatch("fetch_user", this.comment.user).then(user => {
-        this.commenter = user;
-      });
     },
 
     fetchReplies(num, timestamp) {
@@ -276,7 +368,7 @@ export default {
       this.repliesVisible = !this.repliesVisible;
     },
     async setLiked() {
-      if(!this.$store.getters.semiAuthenticated){
+      if (!this.$store.getters.semiAuthenticated) {
         return;
       }
       await this.$store
@@ -288,19 +380,35 @@ export default {
         .then(result => {
           this.liked = result;
         });
+    },
+    editComment() {
+      this.editing = true;
+      this.$store
+        .dispatch("edit_comment", {
+          comment_id: this.comment.id,
+          list_id: this.list.id,
+          item_id: this.item.id,
+          newContent: this.newComment
+        })
+        .then(() => {
+          this.comment.content = this.newComment;
+          this.editing = false;
+          this.showEdit = false;
+        });
     }
   },
 
   computed: {
     created() {
       return convertMoment.getShortTime(this.comment.created);
+    },
+    isCommenter() {
+      return this.comment.user.id == this.$store.getters.getUser.id;
     }
   },
 
   mounted: function() {
-    Promise.all([this.fetchCommenter(), this.setLiked()]).then(() => {
-      this.fetched = true;
-    });
+    this.setLiked();
   }
 };
 </script>
@@ -310,8 +418,17 @@ export default {
   /* background-color: hsl(207, 90%, 95%); */
   /* background-color: #f5f5f5; */
 }
-#replies-display {
-  /* border-left: 1px solid lightgrey; */
+.replies-display {
+  border-left: 2px solid var(--accent);
+  padding-left: 8px;
+}
+.shift {
+  margin-left: 1em;
+}
+@media (min-width: 900px) {
+  .shift {
+    margin-left: 2em;
+  }
 }
 .content-container {
   overflow-wrap: break-word;
@@ -335,5 +452,17 @@ export default {
   right: 0;
   bottom: 0;
 }
-</style>
+.rotate {
+  animation: rotate-180 0.1s ease-in;
+  animation-fill-mode: forwards;
+}
 
+@keyframes rotate-180 {
+  0% {
+    transform: rotate(0);
+  }
+  100% {
+    transform: rotate(180deg);
+  }
+}
+</style>

@@ -1,91 +1,137 @@
 <template>
   <div id="main">
-    <v-card class="mt-2" outlined>
-      <v-card-title class="px-2 py-2 top-bar">
+    <v-card tile class="" flat>
+      <v-divider class="black"></v-divider>
+      <v-card-title class="px-2 py-2">
         <v-layout align-center>
           <v-flex shrink mr-2>
             <div
-              :class="{'golden': index === 1, 'silver': index === 2, 'bronze white--text': index === 3, 'plain': index > 3}"
+              :class="{
+                golden: index === 1,
+                silver: index === 2,
+                'bronze white--text': index === 3,
+                plain: index > 3
+              }"
               class="numeric-box"
-              style="font-size:0.7em"
+              style="font-size:0.5em"
             >
-              <span>{{index}}</span>
+              <span>{{ index }}</span>
             </div>
           </v-flex>
           <v-flex>
             <a
-              class="title font-weight-black text-capitalize grey--text text--darken-3"
-              style="border-radius:.5em;margin-top:0em; cursor:pointer;"
+              class="font-weight-medium text-capitalize ptd"
+              style="cursor:pointer; line-height:1em !important font-size:1.6em;"
               @click.stop="goItem()"
-            >{{item.name}}</a>
+              >{{ item.name }}</a
+            >
           </v-flex>
           <v-spacer></v-spacer>
           <v-flex shrink class>
-            <v-layout column justify-center align-center v-if="!voted">
-              <v-icon @click="vote()" class="action-icon" color="grey" size="1.3em">fa-vote-yea</v-icon>
-              <span class="subtitle-2 grey--text" style="margin-top: -0.5em">vote</span>
-            </v-layout>
-            <v-layout v-else>
-              <v-icon v-if="votedThis" color="green" size="1.3em">fa-vote-yea</v-icon>
-              <v-layout class style="width:2.4375em; border-radius:.3em" justify-center>
-                <h4 class="grey--text" style="font-weight:normal;display:inline-block">{{votePercentage}}%</h4>
+            <div v-if="voted !== 'undefined'">
+              <v-layout column justify-center align-center v-if="!voted">
+                <v-icon
+                  @click="vote()"
+                  class="action-icon"
+                  color="grey"
+                  size="1.2em"
+                  >fa-vote-yea</v-icon
+                >
+                <span class="subtitle-2 grey--text" style="margin-top: -0.5em"
+                  >vote</span
+                >
               </v-layout>
-            </v-layout>
+              <v-layout v-else>
+                <v-icon v-if="votedThis" color="green" size="1em"
+                  >fa-vote-yea</v-icon
+                >
+                <v-layout
+                  class
+                  style="width:2.4375em; border-radius:.3em"
+                  justify-center
+                >
+                  <h4
+                    class="grey--text"
+                    style="font-weight:normal;display:inline-block"
+                  >
+                    {{ votePercentage }}%
+                  </h4>
+                </v-layout>
+              </v-layout>
+            </div>
           </v-flex>
         </v-layout>
       </v-card-title>
-      <!-- <v-divider></v-divider> -->
-      <v-layout wrap>
-        <v-flex xs12 sm4>
+      <!-- <v-divider class="hidden-xs-only"></v-divider> -->
+      <v-layout :column="true" class="mt-2">
+        <v-flex shrink v-if="info.image || info.about">
           <v-layout column style="height:100%">
-              <v-card-text v-if="info.image || info.about" class="pa-1">
-                <div style="float:left; margin:0 1em 0.2em 0" v-if="info.image">
-                  <img-prev
-                    v-model="info.image"
-                    :image="info.image"
-                    :width="windowSmall? 120 : 160"
-                    :aspect-ratio="1"
-                    :path="{item: info.id}"
-                  ></img-prev>
-                </div>
-                <p v-if="info.about" class="secondary-text-dark subtitle-2 pa-0" style="pre-wrap">
-                  {{info.about.slice(0,300)}}
-                  <a
-                    v-if="info.about.length>300"
-                    class="brand--text underline"
-                    @click.stop="goItem()"
-                  >...read more</a>
-                </p>
-              </v-card-text>
+            <v-card-text v-if="info.image || info.about" class="px-2 py-0">
+              <div style="float:left; margin:0 0.5em 0.1em 0" v-if="info.image">
+                <img-prev
+                  v-model="info.image"
+                  :image="info.image"
+                  :width="200"
+                  :aspect-ratio="1"
+                  :path="{ item: info.id }"
+                ></img-prev>
+              </div>
+              <p v-if="info.about" class="std pa-0" style="pre-wrap;">
+                {{ info.about.slice(0, 500) }}
+                <a
+                  v-if="info.about.length > 500"
+                  class="link--text underline"
+                  @click.stop="goItem()"
+                  >...read more</a
+                >
+              </p>
+            </v-card-text>
           </v-layout>
         </v-flex>
-        <v-flex xs12 sm8 id="comment-border">
-          <v-divider class="hidden-sm-and-up"></v-divider>
+        <v-flex id="comment-border">
+          <!-- <v-divider class=""></v-divider> -->
           <v-card flat height="100%" class="pa-0">
             <v-layout style="height:100%" class column justify-space-between>
               <v-card flat tile>
                 <v-card
-                  class="subtitle-1 px-4 py-1 hint-text-dark"
+                  class="subtitle-1 px-4 py-1 htd"
                   flat
                   v-if="item.comment_count == 0"
-                >Be the first to comment...</v-card>
+                  >Be the first to comment...</v-card
+                >
                 <v-card flat v-else>
-                  <v-layout class="my-2" justify-center>
+                  <display-comments
+                    :comments="comments"
+                    :list="list"
+                    :item="item"
+                  ></display-comments>
+                  <v-layout class="my-4" justify-center>
                     <v-icon
-                      v-if="comments.length < item.comment_count && !loadingComments"
-                      @click="fetchComments(5, comments[0].created)"
+                      v-if="
+                        comments.length < item.comment_count && !loadingComments
+                      "
+                      @click="
+                        fetchComments(
+                          10,
+                          comments[comments.length - 1].data().created
+                        )
+                      "
                       size="1.8em"
-                      class="primary-text-dark"
-                    >mdi-plus-circle-outline</v-icon>
-                    <div v-if="loadingComments" style="display:flex; justify-content:center">
-                      <v-progress-circular indeterminate :size="20" :width="3"></v-progress-circular>
+                      color="grey darken-1"
+                      class="ptd"
+                      >mdi-plus-circle-outline</v-icon
+                    >
+                    <div
+                      v-if="loadingComments || addingComment"
+                      style="display:flex; justify-content:center"
+                    >
+                      <m-progress></m-progress>
                     </div>
                   </v-layout>
-                  <display-comments :comments="comments" :list="list" :item="item"></display-comments>
                 </v-card>
-                <div v-if="addingComment" style="display:flex; justify-content:center">
+                <!-- <div v-if="addingComment" style="display:flex; justify-content:center">
                   <v-progress-circular indeterminate :size="20" :width="3"></v-progress-circular>
-                </div>
+                </div> -->
                 <!-- <p v-for="n in 12">good</p> -->
               </v-card>
               <v-card-actions>
@@ -103,17 +149,23 @@
                       <v-icon
                         size="1.2em"
                         @click="uploadComment()"
-                        :class="focused ? 'brand--text' : 'grey--text'"
+                        :class="
+                          focused && comment != ''
+                            ? 'accent--text'
+                            : 'grey--text'
+                        "
                         style="position:absolute; bottom:1em; right:0.8em"
-                      >fa-paper-plane</v-icon>
+                        :disabled="comment == '' ? true : false"
+                        >fa-paper-plane</v-icon
+                      >
                     </div>
                   </v-flex>
                   <v-flex class="mr-2">
                     <v-layout class justify-end>
-                      <a
-                        v-if="item.comment_count>0"
-                        class="secondary-text-dark underline"
-                      >{{item.comment_count}} {{item.comment_count > 1 ? 'comments' : 'comment'}}</a>
+                      <a v-if="item.comment_count > 0" class="std underline"
+                        >{{ item.comment_count }}
+                        {{ item.comment_count > 1 ? "comments" : "comment" }}</a
+                      >
                     </v-layout>
                   </v-flex>
                 </v-layout>
@@ -143,7 +195,7 @@ export default {
     item: Object,
     list: Object,
     index: Number,
-    voted: Boolean
+    voted: Boolean | Object
   },
   data() {
     return {
@@ -173,10 +225,8 @@ export default {
       this.addingComment = true;
       await this.$store
         .dispatch("upload_comment", {
-          item_id: this.item.id,
-          item_name: this.item.name,
-          list_id: this.list.id,
-          list_title: this.list.title,
+          item: this.item,
+          list: this.list,
           comment: this.comment
         })
         .then(comment => {
@@ -196,11 +246,10 @@ export default {
 
     vote() {
       this.$emit("voted");
+      this.votedThis = true;
       this.$store.dispatch("add_vote", {
-        item_id: this.item.id,
-        item_name: this.item.name,
-        list_title: this.list.title,
-        list_id: this.list.id
+        item: this.item,
+        list: this.list
       });
     },
 
@@ -214,9 +263,10 @@ export default {
           timestamp: lastTimestamp
         })
         .then(comments => {
-          for (let i = 0; i < comments.length; i++) {
-            this.comments.unshift(comments[i]);
-          }
+          // for (let i = 0; i < comments.length; i++) {
+          //   this.comments.unshift(comments[i]);
+          // }
+          this.comments = this.comments.concat(comments);
           this.loadingComments = false;
         })
         .catch(error => {
@@ -239,21 +289,21 @@ export default {
         .dispatch("fetch_item", this.item.info)
         .then(info => {
           this.info = info;
-          info.image ? this.$emit("hasImage", info.image) : null;
+          info.image
+            ? this.$emit("hasImage", { item: this.item.info, ...info.image })
+            : null;
         })
         .then(() => {
           this.infoFetched = true;
         });
     },
     async checkVoted() {
-      await this.$store
-        .dispatch("check_item_voted", {
-          item_id: this.item.id,
-          list_id: this.list.id
-        })
-        .then(result => {
-          this.votedThis = result;
-        });
+      if (!this.voted) {
+        return;
+      }
+      if (this.item.id == this.voted.item) {
+        this.votedThis = true;
+      }
     }
   },
 
@@ -290,7 +340,7 @@ export default {
 <style scoped>
 @media (min-width: 600px) {
   #comment-border {
-    border-left: 1px solid lightgray;
+    /* border-left: 1px solid lightgray; */
   }
 }
 

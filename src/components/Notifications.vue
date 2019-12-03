@@ -4,7 +4,7 @@
       <v-card
         class="elevation-4"
         tile
-        height="calc(100vh - 3.5em)"
+        :height="$vuetify.breakpoint.xs ? '100vh' : 'calc(100vh - 3.5em)'"
         style="overflow-y:scroll"
         width="100%"
       >
@@ -18,18 +18,22 @@
         </v-card-title>
         <v-card-text class="pa-0">
           <v-layout v-if="loading" class="my-4" justify-center>
-            <v-progress-circular indeterminate color="brand"></v-progress-circular>
+            <m-progress></m-progress>
           </v-layout>
           <v-list v-else-if="notifications && notifications.length > 0">
-            <Notification
-              v-for="(notification, index) in notifications"
-              :key="index"
-              :notification="notification"
-              :recent="(index + 1) <= notifLength"
-              @close="close()"
-            ></Notification>
+            <div v-for="(notification, index) in notifications" :key="index">
+              <Notification
+                :notification="{ id: notification.id, ...notification.data() }"
+                :recent="index + 1 <= notifLength"
+                @close="close()"
+                :index="index"
+              ></Notification>
+                <v-divider class="grey lighten-3 mr-2" style="margin-left:70px" v-if="index < notifications.length - 1" :key="index"></v-divider>
+            </div>
           </v-list>
-          <p v-else class="subtitle-1 mt-4 secondary-text-dark text-center">No Notifications...</p>
+          <p v-else class="subtitle-1 mt-4 std text-center">
+            No Notifications...
+          </p>
         </v-card-text>
       </v-card>
     </v-layout>
@@ -58,7 +62,9 @@ export default {
         .then(notifications => {
           this.notifications = notifications;
           this.loading = false;
-          this.$store.dispatch("reset_notifications");
+          if (this.$store.state.notifications !== 0) {
+            this.$store.dispatch("reset_notifications");
+          }
         })
         .catch(error => {
           this.loading = false;
@@ -77,5 +83,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

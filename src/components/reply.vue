@@ -1,48 +1,131 @@
 <template>
   <div id="reply">
-    <div id="container" v-if="fetched">
+    <div id="container">
       <div>
-        <v-avatar v-if="replier.profile_pic" size="2em" class="mr-2 ml-1">
-          <img :src="replier.profile_pic.low" />
-        </v-avatar>
-        <v-icon v-else size="2em" class="mr-2 ml-1" color="purple" style>fa-user-circle</v-icon>
+        <v-divider class="grey lighten-4 my-1"></v-divider>
       </div>
+      <v-layout>
+        <v-flex class="pl-2">
+          <div style="white-space:pre-wrap;" class="ptd">{{ !more ? reply.content.slice(0, 600) : reply.content
+            }}{{ reply.content.length > 600 ? "..." : " "
+            }}<span
+              @click="more = !more"
+              v-if="reply.content.length > 600"
+              class="link--text"
+              style="cursor:pointer"
+              >{{ !more ? "more" : "less" }}</span
+            ><span
+              v-if="reply.content.length <= 600 || more"
+              class="brand--text text--darken-1 pointer"
+              @click="
+                reply.user.username.includes('visitor')
+                  ? null
+                  : (showUser = true)
+              "
+              >-&nbsp;{{
+                reply.user.username.includes("visitor")
+                  ? "visitor"
+                  : reply.user.username
+              }}</span
+            >
+          </div>
+          <v-layout class="mt-2 mb-1" align-center>
+            <div class="std" style="display:flex; min-width:4.5em;">
+              {{ created }}
+            </div>
+            <div style="display:flex; min-width:4.5em;">
+              <v-icon
+                class="like-button action-icon"
+                @click="toggleLike()"
+                :color="liked ? 'blue' : null"
+                size="1.2em"
+                >mdi-thumb-up</v-icon
+              >
+              <span
+                v-if="reply.likes > 0"
+                class="grey--text text--darken-2"
+                style="margin:-0.1em 0 0 0.3em; font-size:0.9em"
+                >{{ reply.likes }}</span
+              >
+            </div>
 
-      <div>
-        <div class="py-1 px-2 br ml-2" style="position:relative;background-color:#F4F4F4;">
-          <v-icon
-            color="#F4F4F4"
-            size="0.9em"
-            style="transform:rotate(270deg);position:absolute;left:-0.8em;top:0.5em"
-          >mdi-triangle</v-icon>
-          <div
-            v-if="replier!=={}"
-            @click="showUser=true"
-            class="brand--text text--darken-2 subtitle-2 font-weight-bold text-capitalize"
-          >
-            {{replier.username}}&nbsp;
-            <span class="secondary-text-dark">{{created}}</span>
-          </div>
-          <div class style="white-space:pre-wrap">{{reply.content}}</div>
-        </div>
-        <v-layout class="mt-2 mb-1 ml-2">
-          <div class="px-1" style="min-width:4.5em">
-            <v-icon
-              size="1.125em"
-              class="action-icon"
-              @click="toggleLike()"
-              :class="liked ? 'blue--text' : null"
-            >mdi-thumb-up</v-icon>
-            <span v-if="reply.likes>0" style="margin:0 1em;">{{reply.likes}}</span>
-          </div>
-          <div style="min-width:3em">
-            <v-icon @click="sendReply()" size="1em" class="action-icon">fa-reply</v-icon>
-          </div>
-        </v-layout>
-      </div>
+            <div
+              style="display:flex; min-width:4.5em;"
+              class="pointer"
+              @click="sendReply()"
+            >
+              <v-icon style="cursor:pointer" class="action-icon" size="1.2em"
+                >mdi-reply</v-icon
+              >
+            </div>
+            <div>
+              <v-menu left>
+                <template v-slot:activator="{ on }">
+                  <v-icon v-on="on" size="1.2em" style="margin-top:-0.15em"
+                    >mdi-dots-vertical</v-icon
+                  >
+                </template>
+                <v-list class="px-0">
+                  <v-list-item
+                    @click="(showEdit = true), (newReply = reply.content)"
+                    v-if="isReplier"
+                    class="tile"
+                  >
+                    <v-layout class="py-2" justify-center>
+                      <v-icon>fa-pencil-alt</v-icon>
+                    </v-layout>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-icon>
+                      <v-icon>fa-flag</v-icon>
+                    </v-list-item-icon>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
+          </v-layout>
+        </v-flex>
+        <!-- <v-flex shrink>
+          
+        </v-flex> -->
+      </v-layout>
     </div>
-    <v-dialog v-model="showUser" max-width="300px">
-      <preview-user :id="replier.id" @close="showUser=false"></preview-user>
+    <v-dialog v-model="showUser" max-width="400px">
+      <preview-user
+        :id="reply.user.id"
+        @close="showUser = false"
+      ></preview-user>
+    </v-dialog>
+
+    <v-dialog persistent v-model="showEdit" max-width="500px">
+      <v-card flat class="grey lighten-3">
+        <v-card-title
+          class="grey lighten-2"
+          style="position:sticky;top:0;z-index:2;border-bottom:1px solid black"
+        >
+          Edit Reply
+          <v-spacer></v-spacer>
+          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
+        </v-card-title>
+        <v-card-text class="pb-0 pt-4">
+          <v-textarea
+            auto-grow
+            no-resize
+            flat
+            v-model="newReply"
+            solo
+          ></v-textarea>
+        </v-card-text>
+        <v-card-actions>
+          <v-btn
+            :loading="editing"
+            color="brand white--text"
+            @click="editReply()"
+            :disabled="newReply == '' || newReply == reply.content"
+            >Edit</v-btn
+          >
+        </v-card-actions>
+      </v-card>
     </v-dialog>
   </div>
 </template>
@@ -54,7 +137,9 @@ import swalErrors from "../../public/my-modules/swalErrors";
 let moment = require("moment");
 export default {
   props: {
-    path: Object,
+    list: Object,
+    item: Object,
+    comment: Object,
     reply: Object
   },
 
@@ -62,49 +147,43 @@ export default {
     return {
       liked: false,
       showUser: false,
-      replier: {},
-      fetched: false
+      more: false,
+      showEdit: false,
+      newReply: "",
+      editing: false
     };
   },
 
   methods: {
     toggleLike() {
-      if (this.$store.getters.getAuthenticated) {
-        let action;
-        if (this.liked) {
-          this.reply.likes--;
-          action = "unlikeReply";
-        } else {
-          this.reply.likes++;
-          action = "likeReply";
-        }
-        this.liked = !this.liked;
-
-        this.$store.dispatch(action, {
-          list_id: this.path.list_id,
-          item_id: this.path.item_id,
-          comment_id: this.path.comment_id,
-          reply_id: this.reply.id
-        });
+      let action;
+      if (this.liked) {
+        this.reply.likes--;
+        action = "unlikeReply";
       } else {
-        swalErrors.showAuthenticationError();
+        this.reply.likes == null ? (this.reply.likes = 1) : this.reply.likes++;
+        action = "likeReply";
       }
-    },
+      this.liked = !this.liked;
 
-    async fetchReplier() {
-      await this.$store.dispatch("fetch_user", this.reply.user).then(user => {
-        this.replier = user;
+      this.$store.dispatch(action, {
+        list_id: this.list.id,
+        item_id: this.item.id,
+        comment_id: this.comment.id,
+        reply_id: this.reply.id
       });
     },
 
-    async setLikedState() {
+    async setLiked() {
       if (!this.$store.getters.semiAuthenticated) {
         return;
       }
       await this.$store
         .dispatch("reply_liked", {
           reply_id: this.reply.id,
-          ...this.path
+          list_id: this.list.id,
+          item_id: this.item.id,
+          comment_id: this.comment.id
         })
         .then(liked => {
           this.liked = liked;
@@ -112,7 +191,23 @@ export default {
     },
 
     sendReply() {
-      this.$emit("reply", this.replier.username);
+      this.$emit("reply", this.reply.user.username);
+    },
+    editReply() {
+      this.editing = true;
+      this.$store
+        .dispatch("edit_reply", {
+          list_id: this.list.id,
+          item_id: this.item.id,
+          comment_id: this.comment.id,
+          reply_id: this.reply.id,
+          newReply: this.newReply
+        })
+        .then(() => {
+          this.editing = false;
+          this.showEdit = false;
+          this.reply.content = this.newReply;
+        });
     }
   },
 
@@ -152,26 +247,27 @@ export default {
       } else {
         return "null";
       }
+    },
+    isReplier() {
+      return this.reply.user.id == this.$store.getters.getUser.id;
     }
   },
 
-  mounted: function() {
-    Promise.all([this.fetchReplier(), this.setLikedState()]).then(() => {
-      this.fetched = true;
-    });
+  created() {
+    this.setLiked();
   }
 };
 </script>
 
 <style scoped>
 #reply {
-  padding: 0.3em;
+  /* padding: 0.3em; */
 }
 #reply:hover {
   /* background-color: hsl(207, 90%, 95%); */
   /* background-color: #f5f5f5; */
 }
 #container {
-  display: flex;
+  /* display: flex; */
 }
 </style>

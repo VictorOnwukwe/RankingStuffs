@@ -3,10 +3,6 @@ import Router from "vue-router";
 // @ts-ignore
 import Home from "../components/Home";
 // @ts-ignore
-import Login from "../components/Login";
-// @ts-ignore
-import Signup from "../components/Signup";
-// @ts-ignore
 import Profile from "../components/Profile";
 // @ts-ignore
 import CreateList from "../components/CreateList";
@@ -16,8 +12,6 @@ import DisplayList from "../components/DisplayList";
 import PopularLists from "../components/PopularLists";
 // @ts-ignore
 import LatestLists from "../components/LatestLists";
-// @ts-ignore
-import ProfileSetting from "../components/ProfileSetting";
 // @ts-ignore
 import UserCreations from "../components/UserCreations";
 // @ts-ignore
@@ -29,7 +23,17 @@ import DisplayDemanded from "../components/DisplayDemanded";
 // @ts-ignore
 import Demand from "../components/Demand";
 // @ts-ignore
-import Timeline from "../components/Timeline";
+import Activities from "../components/Activities";
+// @ts-ignore
+import DisplayDemand from "../components/DisplayDemand";
+// @ts-ignore
+import Category from "../components/Category";
+// @ts-ignore
+import SubCategory from "../components/SubCategory";
+// @ts-ignore
+import TopRatedLists from "../components/TopRatedLists";
+// @ts-ignore
+import Categories from "../components/Categories";
 
 Vue.use(Router);
 
@@ -51,9 +55,9 @@ export default new Router({
           component: UserCreations
         },
         {
-          path: "/:id/profile/timeline",
-          name: "timeline",
-          component: Timeline
+          path: "/:id/profile/activities",
+          name: "activities",
+          component: Activities
         },
         {
           path: "/:id/profile/",
@@ -83,6 +87,11 @@ export default new Router({
       component: LatestLists
     },
     {
+      path: "/top-rated-lists",
+      name: "top-rated-lists",
+      component: TopRatedLists
+    },
+    {
       path: "/items/:id",
       name: "item",
       component: Item
@@ -96,10 +105,30 @@ export default new Router({
       path: "/demand",
       name: "demand",
       component: Demand
+    },
+    {
+      path: "/demands/:id",
+      name: "demanded",
+      component: DisplayDemand
+    },
+    {
+      path: "/categories/:id",
+      name: "category",
+      component: Category
+    },
+    {
+      path: "/categories/:category/:subcategory",
+      name: "subcategory",
+      component: SubCategory
+    },
+    {
+      path: "/categories",
+      name: "categories",
+      component: Categories
     }
-  ]
-  // scrollBehavior(to, from, savedPosition) {
-  //   if (["user-favorites", "user-creations", "timeline"].indexOf(to.name) < 0)
-  //     return { x: 0, y: 0 };
-  // }
+  ],
+  scrollBehavior(to) {
+    if (["user-favorites", "user-creations", "activities"].indexOf(to.name) < 0)
+      return { x: 0, y: 0 };
+  }
 });

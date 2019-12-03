@@ -12,11 +12,13 @@ let categories = [
       "track racing",
       "cycling",
       "horse racing",
-      'golf','swimming','field events','track events'
+      'golf','swimming',
+      'field events',
+      'track events'
     ]
   },
   {
-    name: "movie",
+    name: "movies",
     subs: [
       "action",
       "comedy",
@@ -65,40 +67,18 @@ let categories = [
       "fiction",
       "non-fiction",
       "action",
-      "comic",
-      "crime",
-      "drama",
+      "comedy",
       "fairytale",
-      "fantasy",
-      "historical fiction",
       "horror",
-      "mystery",
       "poetry",
       "romance",
-      "satire",
       "sci-fi",
-      "suspense",
-      "thriller",
-      "young adult",
-      "art",
       "autobiography",
       "biography",
-      "book review",
-      "cook book",
-      "diary",
-      "dictionary",
       "encyclopedia",
-      "guide",
-      "health",
-      "history",
-      "journal",
-      "math",
-      "memoir",
-      "religion-spirituality",
       "science",
       "selfhelp",
-      "travel",
-      "true crime"
+      "novel"
     ]
   },
   {
@@ -132,8 +112,8 @@ let categories = [
       "law, public safety, security",
       "manufacturing",
       "marketing, sales and service",
-      "science, technology, engineering and mathematics",
-      "transportation, distribution, and logistics"
+      "science, technology, engineering",
+      "transportation, and logistics"
     ]
   },
   {
@@ -154,31 +134,18 @@ let categories = [
     name: "science",
     subs: [
       "astronomy",
-      "astrophysics",
-      "biochemistry",
-      "biophysics",
+      "physics",
       "biology",
       "botany",
       "chemical engineering",
       "chemistry",
-      "climatology",
       "computer science",
-      "ecology",
-      "electronics",
       "engineering",
-      "entomology",
       "environmental science",
-      "forestry",
-      "genetics",
-      "geology",
-      "zoology",
       "psychology",
       "anatomy",
-      "agriculture",
       "medicine",
-      "paleontology",
-      "oceanography",
-      "meteorology"
+      "paleontology"
     ]
   },
   {

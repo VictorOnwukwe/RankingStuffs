@@ -1,26 +1,35 @@
 <template>
-  <v-list-item class="pr-0">
+  <v-list-item class="pl-2 pr-0">
     <v-list-item-content>
-      <v-list-item-title class="text-capitalize brand--text text-wrap">{{demand.title}}</v-list-item-title>
-      <v-list-item-subtitle v-if="!searched">{{created}}</v-list-item-subtitle>
-      <v-list-item-subtitle v-if="!searched" class="primary-text-dark" v-html="waitingMessage"></v-list-item-subtitle>
-      <v-list-item-subtitle>
-        <v-layout>
-          <v-spacer v-if="!searched"></v-spacer>
-          <v-hover v-slot:default="{ hover }">
-            <v-list-item-action-text
-              class="subtitle-2 pink--text pointer mr-4"
-              @click="toggleWaiting()"
-              v-if="!isCreator"
-            >{{!waiting ? 'Queue' : hover ? 'Leave' : 'Queueing' }}</v-list-item-action-text>
-          </v-hover>
-          <v-list-item-action-text
-            class="subtitle-2 green--text pointer"
-            @click="createDemand"
-          >Create</v-list-item-action-text>
-        </v-layout>
-      </v-list-item-subtitle>
+      <v-list-item-title
+        class="text-capitalize text-wrap"
+        :class="!searched ? 'link--text' : null"
+        >{{ demand.title }}</v-list-item-title
+      >
+      <v-list-item-subtitle v-if="!searched">{{
+        created
+      }}</v-list-item-subtitle>
+      <v-list-item-subtitle
+        v-if="!searched"
+        class="ptd"
+        v-html="waitingMessage"
+      ></v-list-item-subtitle>
     </v-list-item-content>
+    <v-list-item-action>
+        <v-menu left class="mt-n4">
+          <template v-slot:activator="{ on }">
+            <v-icon @click color="grey" v-on="on">mdi-dots-vertical</v-icon>
+          </template>
+          <v-list class="pa-0">
+            <v-list-item @click="createDemand" class="tile">
+              <v-icon>fa-plus</v-icon>
+            </v-list-item>
+            <v-list-item v-if="!isCreator" @click="toggleWaiting()" class="tile">
+              <v-icon :color="waiting ? 'green' : null">fa-hand-holding</v-icon>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+    </v-list-item-action>
   </v-list-item>
 </template>
 
@@ -33,11 +42,13 @@ export default {
     searched: {
       type: Boolean,
       default: false
-    }
+    },
+    isProfile: Boolean
   },
   data() {
     return {
-      waiting: false
+      waiting: false,
+      loading: false
     };
   },
   methods: {
@@ -48,16 +59,29 @@ export default {
       });
     },
     toggleWaiting() {
+      this.loading = true;
       if (this.waiting) {
-        this.$store.dispatch("leave_demanders", this.demand.id).then(() => {
-          this.demand.waiters_count--;
-          this.waiting = false;
-        });
+        this.$store
+          .dispatch("leave_demanders", this.demand.id)
+          .then(() => {
+            this.demand.waiters_count--;
+            this.waiting = false;
+            this.loading = false;
+          })
+          .catch(error => {
+            this.loading = false;
+          });
       } else {
-        this.$store.dispatch("join_demanders", this.demand.id).then(() => {
-          this.demand.waiters_count++;
-          this.waiting = true;
-        });
+        this.$store
+          .dispatch("join_demanders", this.demand.id)
+          .then(() => {
+            this.demand.waiters_count++;
+            this.waiting = true;
+            this.loading = false;
+          })
+          .catch(error => {
+            this.loading = false;
+          });
       }
     },
     async fetchWaiting() {

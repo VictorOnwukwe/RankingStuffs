@@ -1,39 +1,56 @@
 <template>
   <div>
     <div class="mx-auto mb-4">
-      <div class="page-title">
-        <div>
-          Demanded Lists
+      <div class="page-title pa-0">
+          <v-layout class="brand lighten-2 pa-1" style="border-radius:4px" wrap>
+            <span class="mr-2 white--text">
+              Demanded Lists
+            </span>
+            <!-- <select
+              style="font-size:16px; background-color:white; padding: 0.3em;margin-top:-0.5em"
+            >
+              <option value="Most Demanded">Most Demanded</option>
+              <option value="Least Demanded">Least Demanded</option>
+              <option value="Newest">Newest</option>
+              <option value="Oldest">Oldest</option>
+            </select> -->
+            <!-- <v-spacer></v-spacer> -->
+          <div style="max-width:185px">
           <v-select
             :items="['Most Demanded', 'Least Demanded', 'Newest', 'Oldest']"
-            label="Sort By"
-            width="100%"
             v-model="sort"
+            solo
+            flat
             @change="shuffle()"
           ></v-select>
-        </div>
+          </div>
+          </v-layout>
       </div>
 
-      <div v-masonry transition-duration="0.5s" item-selector=".item">
-        <div v-masonry-tile class="item" v-for="(demand, index) in demands" :key="index">
-          <Demanded :demand="demand"></Demanded>
-        </div>
+      <div class="grid" style="margin-bottom:1em">
+        <PreviewDemand
+          v-for="(demand, index) in demands"
+          :key="index"
+          :demand="{ id: demand.id, ...demand.data() }"
+        ></PreviewDemand>
       </div>
-      <mugen-scroll :handler="fetchMore" :should-handle="!loading" :threshold="0.1">
-        <v-layout v-if="!complete" justify-center>
-          <v-progress-circular class="my-8" size="30" width="3" color="brand" indeterminate></v-progress-circular>
-        </v-layout>
+      <mugen-scroll
+        :handler="fetchMore"
+        :should-handle="!loading"
+        :threshold="1"
+      >
+        <list-loading v-if="!complete && loading"></list-loading>
       </mugen-scroll>
     </div>
   </div>
 </template>
 
 <script>
-import Demanded from "./Demanded";
+import PreviewDemand from "./PreviewDemand";
 import MugenScroll from "vue-mugen-scroll";
 export default {
   components: {
-    Demanded,
+    PreviewDemand,
     MugenScroll
   },
   data() {
@@ -42,26 +59,26 @@ export default {
       sort: "Most Demanded",
       lastDoc: false,
       loading: false,
-      complete: false
+      complete: false,
+      config: {
+        itemSelector: ".item",
+        gutter: 10
+      }
     };
   },
   methods: {
     fetchDemands() {
       this.$store
         .dispatch("fetch_demanded", {
-          limit: 7,
+          limit: 20,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
         .then(demands => {
           this.lastDoc = demands[demands.length - 1];
-          this.demands = demands.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
-          this.$store.dispatch("set_loading", false);
+          this.demands = demands;
+          // this.$store.dispatch("set_loading", false);
+          this.$redrawVueMasonry("container");
         });
     },
     fetchMore() {
@@ -71,7 +88,7 @@ export default {
       this.loading = true;
       this.$store
         .dispatch("fetch_demanded", {
-          limit: 1,
+          limit: 20,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
@@ -79,20 +96,16 @@ export default {
           this.loading = false;
           if (demands.length > 0) {
             this.lastDoc = demands[demands.length - 1];
-            this.demands = this.demands.concat(
-              demands.map(doc => {
-                return {
-                  id: doc.id,
-                  ...doc.data()
-                };
-              })
-            );
+            this.demands = this.demands.concat(demands);
           } else {
             this.complete = true;
           }
+          setTimeout(() => {
+            this.$redrawVueMasonry("container");
+          }, 1500);
         });
     },
-    shuffle(){
+    shuffle() {
       this.demands = [];
       this.complete = false;
       this.loading = false;
@@ -102,8 +115,8 @@ export default {
   },
   mounted() {
     this.fetchDemands();
-    this.$store.dispatch("set_loading", true);
-    this.$redrawVueMasonry();
+    // this.$store.dispatch("set_loading", true);
+    // this.$redrawVueMasonry();
   }
 };
 </script>
@@ -114,14 +127,28 @@ export default {
   padding: 0.25em;
   margin-bottom: 0.125em;
 }
-@media (min-width:700px){
-  .item{
-    width:50%;
+@media (min-width: 700px) {
+  .item {
+    width: 50%;
   }
 }
-@media (min-width:900px){
-  .item{
-    width:33.3%;
+@media (min-width: 900px) {
+  .item {
+    width: 33.3%;
   }
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 0.5em;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.v-text-field.v-text-field--enclosed .v-text-field__details{
+  margin-bottom: 0px !important;
 }
 </style>

@@ -3,7 +3,9 @@
     <v-avatar v-if="src" :size="size">
       <img :src="src" />
     </v-avatar>
-    <v-icon v-else :size="size" :color="color">fa-user-circle</v-icon>
+    <v-avatar v-else :size="size">
+      <img :src="$store.state.nophoto" />
+    </v-avatar>
   </div>
 </template>
 
@@ -12,16 +14,9 @@ export default {
   props: {
     src: String,
     size: {
-        type: String,
-        default: "2.5em"
+      type: String,
+      default: "2em"
     }
-  },
-  computed: {
-      color(){
-          let colors = ["blue","green","red","orange","purple"];
-
-          return colors[Math.round(Math.random() * 5)];
-      }
   }
 };
 </script>

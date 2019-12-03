@@ -1,83 +1,45 @@
 <template>
   <div>
-    <v-card class="mt-4" flat>
-      <v-card-title class="text-uppercase font-weight-thin">Popular</v-card-title>
-      <v-card-text class="pa-0">
-        <hooper @beforeSlide="fetchMoreLatest" class="hooper" :settings="hooperSettings">
-          <slide v-for="n in 10" :key="n">
-            <v-card tile class="slide">Slide {{n}}</v-card>
-          </slide>
-
-          <hooper-navigation slot="hooper-addons"></hooper-navigation>
-        </hooper>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <span class="accent--text pointer underline">See More</span>
-        <v-icon size="1.2em" color="accent">mdi-arrow-right</v-icon>
-      </v-card-actions>
-    </v-card>
-    <v-card flat class="mt-4">
-      <v-card-title class="text-uppercase font-weight-thin">Latest</v-card-title>
-      <v-card-text class="pa-0">
-        <hooper @beforeSlide="fetchMorePopular" class="hooper" :settings="hooperSettings">
-          <slide v-for="n in 10" :key="n">
-            <v-card tile class="slide">Slide {{n}}</v-card>
-          </slide>
-
-          <hooper-navigation slot="hooper-addons"></hooper-navigation>
-        </hooper>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <span class="accent--text pointer underline">See More</span>
-        <v-icon size="1.2em" color="accent">mdi-arrow-right</v-icon>
-      </v-card-actions>
-    </v-card>
-    <v-card flat class="mt-4">
-      <v-card-title class="text-uppercase font-weight-thin">Top Rated</v-card-title>
-      <v-card-text class="pa-0">
-        <hooper class="hooper" :settings="hooperSettings">
-          <slide v-for="n in 10" :key="n">
-            <v-card tile class="slide">Slide {{n}}</v-card>
-          </slide>
-
-          <hooper-navigation slot="hooper-addons"></hooper-navigation>
-        </hooper>
-      </v-card-text>
-      <v-card-actions>
-        <v-spacer></v-spacer>
-        <span class="accent--text pointer underline">See More</span>
-        <v-icon size="1.2em" color="accent">mdi-arrow-right</v-icon>
-      </v-card-actions>
-    </v-card>
-
-    <v-card flat class="mt-4">
-      <v-card-title class="text-uppercase font-weight-thin">Happening Now</v-card-title>
-      <v-card-text>
+    <v-card flat class="mt" tile>
+      <v-card-title class="text-uppercase font-weight-bold title-text grey lighten-3 black--text">Happening Now</v-card-title>
+      <v-card-text class="px-2">
         <happening></happening>
       </v-card-text>
     </v-card>
-
-    <!-- <v-card flat class="mt-4">
-      <v-card-title>Categories</v-card-title>
-      <v-card-text>
-        <div v-masonry transition-duration="0.2s" item-selector=".item">
-          <div v-masonry-tile class="item" v-for="(category, index) in categories" :key="index">
-            <a class="text-uppercase underline font-weight-bold primary-text-dark">
-              {{category.name}}
-              <br />
-            </a>
-            <div>
-              <a v-for="(sub, id) in category.subs" :key="id" class="text-capitalize underline primary-text-dark">
-                {{sub.name}}&nbsp;({{sub.count}})
-                <br />
-              </a>
-            </div>
-          </div>
-        </div>
+    <v-card class="mt" flat tile>
+      <v-card-title class="text-uppercase font-weight-bold grey lighten-3 title-text black--text">
+        Popular
+        <v-spacer></v-spacer>
+        <router-link :to="'/popular-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
+        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
+      </v-card-title>
+      <v-card-text class="pa-0 mt-4">
+        <Slide :lists="populars"></Slide>
       </v-card-text>
-    </v-card> -->
+    </v-card>
+    <v-card flat class="mt" tile>
+      <v-card-title class="text-uppercase grey lighten-3 font-weight-bold title-text black--text">
+        Latest
+        <v-spacer></v-spacer>
+        <router-link :to="'/latest-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
+        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
+      </v-card-title>
+      <v-card-text class="pa-0 mt-4">
+        <Slide :lists="latests"></Slide>
+      </v-card-text>
+    </v-card>
+    <v-card flat class="mt" tile>
+      <v-card-title class="text-uppercase font-weight-bold grey lighten-3 title-text black--text">
+        Top Rated
+        <v-spacer></v-spacer>
+        <router-link :to="'/top-rated-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
+        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
+      </v-card-title>
+      <v-card-text class="pa-0 mt-4">
+        <Slide :lists="topRateds"></Slide>
+      </v-card-text>
+    </v-card>
+
     <v-btn v-if="false" @click="categorize()">Categorize</v-btn>
   </div>
 </template>
@@ -85,87 +47,21 @@
 <script>
 // import { Carousel3d, Slide } from "vue-carousel-3d";
 import { Glide, GlideSlide } from "vue-glide-js";
-import { Hooper, Slide, Navigation as HooperNavigation } from "hooper";
-import "hooper/dist/hooper.css";
 import categories from "../../public/my-modules/categories";
-import Masonry from "vue-masonry-css";
 import HappeningNow from "./HappeningNow";
+import Slide from "./Slide";
 
 export default {
   components: {
-    Hooper,
     Slide,
-    HooperNavigation,
-    Masonry,
-    'happening': HappeningNow
+    happening: HappeningNow
   },
   data() {
     return {
-      latest: [],
-      popular: [],
-      index: 0,
-      hooperSettings: {
-        itemsToShow: 1.8,
-        centerMode: true,
-        infiniteScroll: true,
-        wheelControl: false,
-        breakpoints: {
-          350:{
-            itemsToShow: 2
-          },
-          400:{
-            itemsToShow: 2.25
-          },
-          450:{
-            itemsToShow: 2.5
-          },
-          500:{
-            itemsToShow: 2.75
-          },
-          550:{
-            itemsToShow: 3
-          },
-          650:{
-            itemsToShow: 3
-          },
-          700:{
-            itemsToShow: 3.25
-          },
-          750:{
-            itemsToShow: 3.5
-          },
-          800:{
-            itemsToShow: 3.75
-          },
-          850:{
-            itemsToShow: 4
-          },
-          900:{
-            itemsToShow: 4.25
-          },
-          950:{
-            itemsToShow: 4.5
-          },
-          1000:{
-            itemsToShow: 4.75
-          },
-          1050:{
-            itemsToShow: 4.5
-          },
-          1100:{
-            itemsToShow: 4.25
-          },
-          1150:{
-            itemsToShow: 4.75
-          },
-          1200:{
-            itemsToShow: 5
-          },
-          1250:{
-            itemsToShow: 5.5
-          }
-        }
-      }
+      latests: [],
+      populars: [],
+      topRateds: [],
+      index: 0
     };
   },
   methods: {
@@ -173,40 +69,48 @@ export default {
       this.$store
         .dispatch("fetch_latest", {
           timestamp: "now",
-          limit: 10,
-          home: true
+          limit: 10
         })
-        .then(latest => {
-          this.latest = latest;
+        .then(lists => {
+          this.latests = lists;
         });
     },
-    fetchMoreLatest(payload){
-      if(payload.currentSlide !== this.latest.length -2){
+    fetchMoreLatest(payload) {
+      if (payload.currentSlide !== this.latests.length - 2) {
         return;
       }
-      this.$store.dispatch("fetch_latest", {
-        timestamp: this.latest[this.latest.length - 1].created,
-        limit: 5,
-        home:true
-      })
-      .then(lists => {
-        this.latest = this.latest.concat(lists);
-      })
+      this.$store
+        .dispatch("fetch_latest", {
+          timestamp: this.latest[this.latests.length - 1].created,
+          limit: 5,
+          home: true
+        })
+        .then(lists => {
+          this.latests = this.latest.concat(lists);
+        });
     },
-    fetchPopular(){
+    fetchPopular() {
       this.$store.dispatch("fetch_popular", {
         limit: 10,
-        home: true
+      }).then(lists => {
+        this.populars = lists;
       })
     },
-    fetchMorePopular(payload){
-      if(payload.currentSlide !== this.popular.length -2){
+    fetchMorePopular(payload) {
+      if (payload.currentSlide !== this.populars.length - 2) {
         return;
       }
       this.$store.dispatch("fetch_popular", {
-        lastDoc: this.popular[this.popular.length - 1],
+        lastDoc: this.populars[this.populars.length - 1],
         limit: 5,
         home: true
+      });
+    },
+    fetchTopRated() {
+      this.$store.dispatch("fetch_top_rated", {
+        limit: 10,
+      }).then(lists => {
+        this.topRateds = lists;
       })
     },
     clickItem(i) {
@@ -218,8 +122,8 @@ export default {
     slideNext() {
       this.$refs.slider.slideNext();
     },
-    categorize(){
-      this.$store.dispatch("upload_categories", categories);
+    categorize() {
+      this.$store.dispatch("convert_keywords", categories);
     }
   },
   computed: {
@@ -230,6 +134,7 @@ export default {
   mounted: function() {
     // this.fetchLatest(3);
     this.$store.dispatch("set_loading", false);
+    Promise.all([this.fetchLatest(), this.fetchPopular(), this.fetchTopRated()]);
   }
 };
 </script>
@@ -291,60 +196,5 @@ export default {
 }
 .description {
   font-weight: normal;
-}
-.slide {
-  background: grey;
-  color: white;
-  height: 150px;
-  width: 150px;
-}
-.hooper {
-  height: 150px;
-  display: flex;
-  justify-content: center;
-}
-@media (min-width: 650px) {
-  .slide {
-    height: 180px;
-    width: 180px;
-  }
-  .hooper {
-    height: 180px;
-  }
-}
-@media (min-width: 950px) {
-  .slide {
-    height: 200px;
-    width: 200px;
-  }
-  .hooper {
-    height: 200px;
-  }
-}
-.item {
-  width: 50%;
-  margin-top: 1em;
-  padding:0 0.25em;
-  justify-self: center;
-}
-@media (min-width: 650px) {
-  .item {
-    width: 33.3%;
-  }
-}
-@media (min-width: 800px) {
-  .item {
-    width: 25%;
-  }
-}
-@media (min-width: 1000px) {
-  .item {
-    width: 20%;
-  }
-}
-@media (min-width: 1200px) {
-  .item {
-    width: 16.6%;
-  }
 }
 </style>

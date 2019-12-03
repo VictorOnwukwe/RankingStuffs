@@ -1,7 +1,15 @@
 <template>
   <div>
-    <v-btn v-if="btn" @click="uploadMenu = true" dark class="brand darken-1">Upload</v-btn>
-    <v-icon v-if="icon" @click="uploadMenu = true" size="2em" :color="actionColor">mdi-camera</v-icon>
+    <v-btn v-if="btn" @click="uploadMenu = true" dark class="brand darken-1"
+      >Upload</v-btn
+    >
+    <v-icon
+      v-if="icon"
+      @click="uploadMenu = true"
+      size="2em"
+      :color="actionColor"
+      >mdi-camera</v-icon
+    >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">
         <v-card-title
@@ -10,7 +18,9 @@
         >
           Select Image
           <v-spacer></v-spacer>
-          <v-icon class="close" @click="uploadMenu = false, close()">fa-times</v-icon>
+          <v-icon class="close" @click="(uploadMenu = false), close()"
+            >mdi-close</v-icon
+          >
         </v-card-title>
         <v-card-text class="mt-4">
           <v-layout>
@@ -21,18 +31,24 @@
               label="URL"
               placeholder="Enter URL"
               v-model="imgURL"
+              clearable
             ></v-text-field>
             <v-icon
               :disabled="imgURL == ''"
-              @click="isLink = true, clipper = true"
+              @click="(isLink = true), (clipper = true)"
               :color="imgURL !== '' ? 'green' : ''"
               style="margin-top:-0.7em;margin-left:0.2em"
               large
-            >mdi-check-circle</v-icon>
+              >mdi-check-circle</v-icon
+            >
           </v-layout>
           <v-layout column align-center>
             <div class="mb-4">OR</div>
-            <clipper-upload :accept="'image/*'" v-model="imgURL" @input="clipper = true">
+            <clipper-upload
+              :accept="'image/*'"
+              v-model="imgURL"
+              @input="clipper = true"
+            >
               <v-btn color="brand darken-1" dark depressed>Upload</v-btn>
             </clipper-upload>
           </v-layout>
@@ -47,12 +63,15 @@
         >
           Edit Image
           <v-spacer></v-spacer>
-          <v-icon class="close" @click="clipper = false, close()">fa-times</v-icon>
+          <v-icon class="close" @click="(clipper = false), isLink = false, imgURL = '', close()"
+            >mdi-close</v-icon
+          >
         </v-card-title>
         <v-card-text class="pa-2">
           <v-layout>
             <clipper-basic
               ref="clipper"
+              :crossOrigin="'anonymous'"
               class="my-clipper pr-1"
               :src="imgURL"
               :width="50"
@@ -65,27 +84,34 @@
             >
               <div class="mt-4 placeholder" slot="placeholder">No image</div>
             </clipper-basic>
-            <clipper-preview name="my-preview" class="my-clipper my-preview pl-1">
-              <div class="placeholder" slot="placeholder">preview area</div>
+            <clipper-preview
+              name="my-preview"
+              class="my-clipper my-preview pl-1"
+            >
+              <div class="placeholder" slot="placeholder">Preview Area</div>
             </clipper-preview>
           </v-layout>
           <v-layout class="my-3">
             <v-flex xs4>
               <v-layout column align-center>
                 <v-icon @click="rotateRight()">mdi-rotate-right</v-icon>
-                <div @click="rotateRight()" class="secondary-text-dark caption pointer">rotate-right</div>
+                <div @click="rotateRight()" class="std caption pointer">
+                  rotate-right
+                </div>
               </v-layout>
             </v-flex>
             <v-flex xs4>
               <v-layout column align-center>
                 <v-icon @click="crop()">mdi-crop</v-icon>
-                <div @click="crop()" class="secondary-text-dark caption pointer">Crop</div>
+                <div @click="crop()" class="std caption pointer">Crop</div>
               </v-layout>
             </v-flex>
             <v-flex xs4>
               <v-layout column align-center>
                 <v-icon @click="rotateLeft()">mdi-rotate-left</v-icon>
-                <div @click="rotateLeft()" class="secondary-text-dark caption pointer">rotate-left</div>
+                <div @click="rotateLeft()" class="std caption pointer">
+                  rotate-left
+                </div>
               </v-layout>
             </v-flex>
           </v-layout>
@@ -93,9 +119,21 @@
             <v-flex>
               <v-layout align-content-center justify-center>
                 <label for="background">Background Color:&nbsp;</label>
-                <input class="ml-4 mr-1 mt-1" type="radio" id="black" value="black" v-model="color" />
+                <input
+                  class="ml-4 mr-1 mt-1"
+                  type="radio"
+                  id="black"
+                  value="black"
+                  v-model="color"
+                />
                 <label for="black">Black</label>
-                <input class="ml-4 mr-1 mt-1" type="radio" id="white" value="white" v-model="color" />
+                <input
+                  class="ml-4 mr-1 mt-1"
+                  type="radio"
+                  id="white"
+                  value="white"
+                  v-model="color"
+                />
                 <label for="white">White</label>
               </v-layout>
             </v-flex>
@@ -117,8 +155,16 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="result = false" outlined color="brand darken-1">Cancel</v-btn>
-          <v-btn :loading="uploading" @click="upload()" dark color="brand darken-1">Upload</v-btn>
+          <v-btn @click="result = false" outlined color="brand darken-1"
+            >Cancel</v-btn
+          >
+          <v-btn
+            :loading="uploading"
+            @click="upload()"
+            dark
+            color="brand darken-1"
+            >Upload</v-btn
+          >
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -186,18 +232,10 @@ export default {
     async crop() {
       this.cropping = true;
       let canvas = await this.$refs.clipper.clip();
-      console.log(canvas);
-      if (!this.isLink) {
-        this.resultURL = canvas.toDataURL("image/jpeg", 1);
-        this.uploadMenu = false;
-        this.images.low = this.getBlob(canvas.toDataURL("image/jpeg", 0.2));
-        this.images.high = this.getBlob(canvas.toDataURL("image/jpeg", 1));
-      } else {
-        this.resultURL = canvas.toDataURL("image/jpeg", 1);
-        console.log("result", this.resultURL);
-        this.images.low = canvas.getBlob();
-        this.images.high = canvas.blobImage();
-      }
+      this.resultURL = canvas.toDataURL("image/jpeg", 1);
+      this.uploadMenu = false;
+      this.images.low = this.getBlob(canvas.toDataURL("image/jpeg", 0.2));
+      this.images.high = this.getBlob(canvas.toDataURL("image/jpeg", 1));
       this.cropping = false;
       this.result = true;
     },
@@ -209,7 +247,11 @@ export default {
     },
     upload() {
       this.clipper = false;
-      this.$emit("upload", this.images);
+      let data = {};
+      this.isLink
+        ? (data = { source: this.imgURL })
+        : (data = { source: "user" });
+      this.$emit("upload", { image: this.images, ...data });
     },
     close() {
       this.$emit("close");
@@ -244,7 +286,6 @@ export default {
       }
 
       var blob = new Blob(byteArrays, { type: contentType });
-      console.log(blob);
       return blob;
     },
     getBlob(ImageURL) {
@@ -258,8 +299,20 @@ export default {
       // Convert to blob
       let blob = this.b64toBlob(realData, contentType);
       return blob;
+    },
+    ext() {
+      console.log(this.imgURL);
+    },
+    getSiteName(link) {
+      let sliced = link.slice(link.indexOf("//") + 2);
+      let result = sliced.slice(0, sliced.indexOf("/"));
+      return result;
+    },
+    open() {
+      this.uploadMenu = true;
     }
-  }
+  },
+  created() {}
 };
 </script>
 

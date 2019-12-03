@@ -165,8 +165,9 @@ export default {
   padding-right: 2.5em;
   width: 100%;
   border-radius: 1em;
-  border: 1px solid lightgrey;
+  border: 1px solid #e6e6e6;
   transition: all 0.2s ease-in;
+  color: black;
   /* background-color: red; */
 }
 .text:hover {

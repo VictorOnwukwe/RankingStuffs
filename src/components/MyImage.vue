@@ -1,30 +1,84 @@
 <template>
   <div>
-    <v-img @click="previewImage()" :src="image.url.low" :width="width" :aspect-ratio="aspectRatio"></v-img>
-    <v-dialog v-model="preview" max-width="350px">
+    <v-img
+      @click="previewImage()"
+      :src="image.url.low"
+      :width="width"
+      :aspect-ratio="aspectRatio"
+    ></v-img>
+    <v-dialog v-model="preview" max-width="450px">
       <v-card tile>
-        <v-img width="100%" :src="image.url.high" contain></v-img>
-        <v-card-text class="mt-3">
-          <div v-if="loading" class="text-center ma-12">
-            <v-progress-circular indeterminate rotate small color="light-blue"></v-progress-circular>
+        <v-layout class="close" style="">
+          <v-spacer></v-spacer>
+          <div class="close-button" style="">
+            <v-icon class="close-btn" size="1.6em" @click="preview = false"
+              >mdi-close</v-icon
+            >
           </div>
-          <div v-else>
-            <p class="font-weight-medium">
-              Added By:
-              <span class="brand--text">{{user.username}}</span>
-            </p>
-            <p class="font-weight-medium">
-              Source:
-              <span class="brand--text">{{completeImage.source}}</span>
-            </p>
-          </div>
-        </v-card-text>
+        </v-layout>
+        <div style="margin-top:-2em">
+          <v-img
+            width="100%"
+            :src="image.url.high"
+            :lazy-src="image.url.low"
+            contain
+          ></v-img>
+          <v-card-text class="mt-3">
+            <div v-if="loading" class="text-center ma-12">
+              <m-progress></m-progress>
+            </div>
+            <div v-else>
+              <div class="">
+                <v-layout>
+                  <div class="label">
+                    Added By:
+                  </div>
+                  <div class="brand--text">{{ user.username }}</div>
+                </v-layout>
+              </div>
+              <div>
+                <v-layout>
+                  <div class=" label">
+                    Added On:
+                  </div>
+                  <div v-if="completeImage.created" class="std">
+                    {{ created }}
+                  </div>
+                </v-layout>
+              </div>
+              <div v-if="completeImage" class="">
+                <v-layout>
+                  <div class="label">
+                    Source:
+                  </div>
+                  <div v-if="completeImage.source">
+                    <div
+                      v-if="completeImage.source == 'user'"
+                      class="brand--text"
+                    >
+                      {{ completeImage.source }}
+                    </div>
+                    <div v-else>
+                      {{ getSiteName(completeImage.source) }}[
+                      <a
+                        :href="completeImage.source"
+                        class="no-deco underline link--text"
+                        >view original</a
+                      >]
+                    </div>
+                  </div>
+                </v-layout>
+              </div>
+            </div>
+          </v-card-text>
+        </div>
       </v-card>
     </v-dialog>
   </div>
 </template>
 
 <script>
+let moment = require("moment");
 export default {
   props: {
     width: Number | String,
@@ -67,6 +121,11 @@ export default {
     previewImage() {
       this.preview = true;
       this.getDetails();
+    },
+    getSiteName(link) {
+      let sliced = link.slice(link.indexOf("//") + 2);
+      let result = sliced.slice(0, sliced.indexOf("/"));
+      return result;
     }
   },
   computed: {
@@ -80,11 +139,39 @@ export default {
       };
       return base64data;
     },
+    created() {
+      return moment(this.completeImage.created.toDate()).format("MMMM Do YYYY");
+    }
   }
 };
 </script>
 <style scoped>
 p {
-  line-height: 1;
+  line-height: 1.1;
+}
+.close {
+  position: sticky;
+  top: 0;
+  background-color: rgba(0, 0, 0, 0);
+  right: 0;
+  transform: translateY(0%);
+  z-index: 4;
+}
+.close-button {
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 2em;
+  height: 2em;
+  z-index: 4;
+  display: flex;
+  justify-content: center;
+}
+.close-btn {
+  color: white;
+}
+.close-btn:hover {
+  color: rgb(212, 12, 12);
+}
+.label {
+  min-width: 6em;
 }
 </style>

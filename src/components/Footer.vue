@@ -1,38 +1,39 @@
 <template>
   <v-footer  padless>
-    <v-card color="footer lighten-1" class="flex" flat tile>
-        <v-card color="footer" flat class="mt-4">
-          <v-card-title class="secondary-text-light">CATEGORIES</v-card-title>
+    <v-card class="flex" flat tile>
+        <v-card tile color="footer" flat>
+          <v-card-title class="stl title-text">CATEGORIES</v-card-title>
           <v-card-text>
-            <div v-masonry transition-duration="0.2s" item-selector=".item">
-              <div v-masonry-tile class="item" v-for="(category, index) in categories" :key="index">
-                <a class="text-uppercase underline font-weight-bold secondary-text-light">
+            <div id="container" v-masonry transition-duration="0.2s" item-selector=".cat-item">
+              <div v-masonry-tile class="cat-item" v-for="(category, index) in categories" :key="index">
+                <router-link :to="'/categories/' + category.name" class="text-uppercase underline font-weight-bold ptl main-cat no-deco">
                   {{category.name}}
                   <br />
-                </a>
+                </router-link>
                 <div>
-                  <a
+                  <router-link
                     v-for="(sub, id) in category.subs"
                     :key="id"
-                    class="text-capitalize underline secondary-text-light"
+                    class="text-capitalize brighten-1 stl no-deco"
+                    :to="'/categories/' + category.name + '/' + sub.name"
                   >
-                    {{sub.name}}&nbsp;({{sub.count}})
-                    <br />
-                  </a>
+                    {{sub.name}}&nbsp;({{sub.list_count}})
+                    <br/>
+                  </router-link>
                 </div>
               </div>
             </div>
           </v-card-text>
         </v-card>
-      <v-card-text class="py-2 grey--text text--lighten-2 text-center">
-        <v-layout class="secondary-text-light">
+      <v-card-text class="py-2 grey--text text--lighten-2 text-center footer lighten-1">
+        <v-layout class="stl">
           topTEN
           <a class="grey--text underline">Privacy Policy</a>
           <a class="grey--text underline">Terms and Conditions</a>
         </v-layout>
         <!-- <v-btn @click="update()">
           update all
-        </v-btn>-->
+        </v-btn> -->
       </v-card-text>
     </v-card>
   </v-footer>
@@ -56,38 +57,43 @@ export default {
     categories() {
       return this.$store.getters.categories;
     }
+  },
+  created(){
+    // this.$redrawVueMasonry();
   }
 };
 </script>
 
 <style scoped>
 a {
-  margin-left: 1em;
+  /* margin-left: 1em; */
 }
-.item {
+.cat-item {
   width: 50%;
   margin-top: 1em;
   padding:0 0.25em;
-  justify-self: center;
 }
 @media (min-width: 650px) {
-  .item {
+  .cat-item {
     width: 33.3%;
   }
 }
 @media (min-width: 800px) {
-  .item {
+  .cat-item {
     width: 25%;
   }
 }
 @media (min-width: 1000px) {
-  .item {
+  .cat-item {
     width: 20%;
   }
 }
 @media (min-width: 1200px) {
-  .item {
+  .cat-item {
     width: 16.6%;
   }
+}
+.main-cat{
+  
 }
 </style>

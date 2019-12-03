@@ -1,15 +1,43 @@
 <template>
-    <v-list-item :class="recent ? 'blue lighten-4' : null" color="brand" v-if="notifier" @click="goNotification()">
-      <v-list-item-avatar>
-        <v-img v-if="notifier.profile_pic" :src="notifier.profile_pic.low"></v-img>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div>
-      </v-list-item-content>
-      <v-list-item-action>
-        <v-list-item-action-text>{{created}}</v-list-item-action-text>
-      </v-list-item-action>
-    </v-list-item>
+  <v-list-item
+    color="brand"
+    @click="goNotification()"
+  >
+    <v-list-item-avatar>
+      <v-img v-if="notifier.profile_pic" :src="notifier.profile_pic.low"></v-img>
+      <v-img v-else :src="require('../assets/nophoto.jpg')"></v-img>
+    </v-list-item-avatar>
+    <v-list-item-content>
+      <!-- <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div> -->
+      <div v-if="notification.type == 'reply' && notification.commenter.id === user.id">
+        <span v-if="notification.user" class>{{notification.user.username}}</span>
+        replied to your comment on
+        <span
+          class="font-weight-medium text-capitalize"
+        >{{notification.item.name}}</span> on 
+        <span
+          class="font-weight-medium link--text text-capitalize"
+        >{{notification.list.title}}</span>
+      </div>
+      <div v-else-if="notification.type == 'reply' && notification.commenter.id !== user.id">
+        <span v-if="notification.user" class>{{notification.user.username}}</span>
+        also replied to
+        <span>{{notification.commenter.username}}</span>'s comment on <span class="font-weight-medium text-capitalize">{{this.notification.item.name}}</span>
+        on the list of <span class="font-weight-medium link--text text-capitalize">{{notification.list.title}}</span>
+      </div>
+      <div v-if="notification.type == 'demand-created'">
+        A list you were waiting for,
+        <span class="text-capitalize link--text font-weight-medium">{{notification.list.title}}</span> has been created by
+        <span v-if="notification.user" class="font-weight-medium">{{notification.user.username}}</span>
+      </div>
+      <div v-if="notification.type == 'follow'">
+        <span class="font-weight-medium">{{notification.user.username}}</span> started following you
+      </div>
+    </v-list-item-content>
+    <v-list-item-action>
+      <v-list-item-action-text>{{created}}</v-list-item-action-text>
+    </v-list-item-action>
+  </v-list-item>
 </template>
 
 <script>
@@ -18,11 +46,12 @@ import convertMoment from "../../public/my-modules/convertMoment";
 export default {
   props: {
     notification: Object,
-    recent: Boolean
+    recent: Boolean,
+    index: Number
   },
   data() {
     return {
-      notifier: null,
+      notifier: {}
     };
   },
   methods: {
@@ -61,23 +90,15 @@ export default {
       switch (this.notification.type) {
         case "reply":
           if (this.notification.commenter.id === this.user.id) {
-            return (
-              `${this.notification.user.username}`.bold() +
-              " replied to your comment on " +
-              this._.startCase(`${this.notification.item.name}`).bold() +
-              " on " +
-              this._.startCase(`${this.notification.list.title}`).bold()
-            );
+            return `<span class="">${this.notification.user.username}</span>
+               replied to your comment on 
+              <span class="font-weight-bold text-capitalize">${this.notification.item.name}</span>
+               on 
+              <span class="font-weight-bold link--text text-capitalize">${this.notification.list.title}</span>`;
           } else {
-            return (
-              `${this.notification.user.username}`.bold() +
-              " also replied to " +
-              `${this.notification.commenter.username}`.bold() +
-              "'s comment on " +
-              this._.startCase(`${this.notification.item.name}`).bold() +
-              " on " +
-              this._.startCase(`${this.notification.list.title}`).bold()
-            );
+            return `<span class="">${this.notification.user.username}</span>
+              also replied to <span class="">${this.notification.commenter.username}</span>'s comment on <span class="font-weight-bold text-capitalize">${this.notification.item.name}</span>
+              <span class="font-weight-bold link--text text-capitalize">${this.notification.list.title}</span>`;
           }
           break;
         case "demand-created":

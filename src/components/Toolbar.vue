@@ -1,7 +1,7 @@
 <template>
   <div class="affix elevation-3">
-    <div id="main" @click="action()">
-      <div style="max-width:1300px;" :style="maxSize ? 'padding: 0' : 'padding:0 0.5em'" class="mx-auto">
+    <div id="main" class="brand" @click="action()">
+      <div class="mx-auto content">
         <v-layout>
           <v-flex shrink>
             <v-layout align-center>
@@ -11,7 +11,7 @@
                 class="hidden-sm-and-up mr-2"
               ></v-app-bar-nav-icon>
               <a @click="go('/')" class="py-1" style="font-size:1.5em">
-                <span class="white--text font-weight-black">top</span>
+                <span class="white--text font-weight-black italic">top</span>
                 <span class="accent--text font-weight-black">TEN</span>
               </a>
             </v-layout>
@@ -19,96 +19,205 @@
           <v-flex>
             <v-layout style="height:4.5em" align-center justify-space-around>
               <v-flex grow class="hidden-xs-only">
-                <v-layout justify-center>
-                  <router-link tag="a" style="margin-right:1em" class="nav" to="/">Home</router-link>
-                  <v-menu offset-y open-on-hover close-on-content-click min-width="150px">
+                <v-layout justify-center class="">
+                  <router-link
+                    tag="a"
+                    style="margin-right:1em"
+                    class="nav font-weight-medium"
+                    to="/"
+                    >HOME</router-link
+                  >
+                  <v-menu
+                    offset-y
+                    open-on-hover
+                    close-on-content-click
+                    min-width="150px"
+                  >
                     <template v-slot:activator="{ on }">
                       <div v-on="on">
-                        <a>Lists</a>
-                        <v-icon color="rgba(255, 255, 255, 0.902)">mdi-menu-down</v-icon>
+                        <v-layout align-center>
+                          <a class="font-weight-medium">LISTS</a>
+                          <v-icon
+                            class="mt-n1"
+                            color="rgba(255, 255, 255, 0.902)"
+                            >mdi-menu-down</v-icon
+                          >
+                        </v-layout>
                       </div>
                     </template>
-                    <v-list dense color="grey lighten-4">
-                      <v-list-item @click="go('/latest-lists')">
-                        <v-list-item-content>Latest</v-list-item-content>
+                    <v-list dense color="" class="pa-0">
+                      <v-list-item
+                        :to="'/categories'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
+                        <v-list-item-content class="">All</v-list-item-content>
                       </v-list-item>
-                      <v-list-item @click="go('/popular-lists')">
-                        <v-list-item-content>Popular</v-list-item-content>
+                      <v-divider class=""></v-divider>
+                      <v-list-item
+                        :to="'/latest-lists'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
+                        <v-list-item-content class=""
+                          >Latest</v-list-item-content
+                        >
+                      </v-list-item>
+                      <v-divider class=""></v-divider>
+                      <v-list-item
+                        :to="'/popular-lists'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
+                        <v-list-item-content class=""
+                          >Popular</v-list-item-content
+                        >
+                      </v-list-item>
+                      <v-divider></v-divider>
+                      <v-list-item
+                        :to="'/top-rated-lists'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
+                        <v-list-item-content class=""
+                          >Top Rated</v-list-item-content
+                        >
                       </v-list-item>
                     </v-list>
                   </v-menu>
-                  <router-link tag="a" class="nav" style="margin-left:1em" to="/demanded">On-Demand</router-link>
-                  <router-link tag="a" class="nav" to="/create">Create</router-link>
-                  <router-link tag="a" class="nav" to="/demand">Demand</router-link>
+                  <router-link
+                    tag="a"
+                    class="nav font-weight-medium"
+                    style="margin-left:1em"
+                    to="/demanded"
+                    >ON-DEMAND</router-link
+                  >
+                  <router-link
+                    tag="a"
+                    class="nav font-weight-medium"
+                    to="/create"
+                    >CREATE</router-link
+                  >
+                  <router-link
+                    tag="a"
+                    class="nav font-weight-medium"
+                    to="/demand"
+                    >DEMAND</router-link
+                  >
                 </v-layout>
               </v-flex>
               <v-flex :shrink="$vuetify.breakpoint.xs ? false : true">
-                <v-layout v-if="!authenticated" justify-end class="mr-2">
+                <v-layout v-if="!authenticated" justify-end class="">
                   <v-icon
                     color="rgba(255, 255, 255, 0.902)"
                     class="mr-2"
                     @click.stop="search = !search"
-                  >search</v-icon>
-                  <a @click="loginDialog=true">Login</a>
-                  <a @click="signupDialog=true">Signup</a>
+                    >search</v-icon
+                  >
+                  <a @click="loginDialog = true" class="">Login</a>
+                  <a @click="signupDialog = true" class="">Signup</a>
                 </v-layout>
-                <v-layout v-else justify-end>
+                <v-layout v-else justify-end align-center>
                   <v-icon
                     color="rgba(255, 255, 255, 0.902)"
                     @click.stop="search = !search"
                     size="25"
-                  >search</v-icon>
+                    >{{ !search ? "search" : "mdi-close" }}</v-icon
+                  >
                   <v-badge overlap class="ml-4" color="accent">
                     <template v-slot:badge>
                       <span v-if="notifications > 0">{{ notifications }}</span>
                     </template>
                     <v-icon
-                      @click.stop="notification=!notification"
+                      @click.stop="notification = !notification"
                       color="rgba(255, 255, 255, 0.902)"
                       size="25"
-                    >mdi-bell</v-icon>
+                      >mdi-bell</v-icon
+                    >
                   </v-badge>
-                  <v-menu offset-y open-on-hover close-on-content-click max-width="250px">
+                  <v-menu
+                    offset-y
+                    open-on-hover
+                    close-on-content-click
+                    close-on-click
+                    max-width="250px"
+                  >
                     <template v-slot:activator="{ on }">
-                      <div v-on="on">
-                        <v-layout>
-                          <dp :src="user.profile_pic.low" class="ml-4" :size="'30'"></dp>
-                        </v-layout>
+                      <div v-on="on" class="ml-4">
+                        <!-- <dp :src="user.profile_pic.low" class="ml-4" :size="'30'"></dp> -->
+                        <v-avatar size="2em" v-if="user.profile_pic">
+                          <img :src="user.profile_pic.low" />
+                        </v-avatar>
+                        <v-avatar size="2em" v-else>
+                          <img :src="require('../assets/nophoto.jpg')" />
+                        </v-avatar>
                       </div>
                     </template>
-                    <v-list dense color="grey lighten-4">
-                      <v-list-item @click="go(profile)">
+                    <v-list dense color="">
+                      <v-list-item @click="go(profile)" class="tile">
                         <v-list-item-avatar>
-                          <dp :src="user.profile_pic.low"></dp>
+                          <v-avatar size="2em" v-if="user.profile_pic">
+                            <img :src="user.profile_pic.low" />
+                          </v-avatar>
+                          <v-avatar size="2em" v-else>
+                            <img :src="require('../assets/nophoto.jpg')" />
+                          </v-avatar>
                         </v-list-item-avatar>
                         <v-list-item-content>
-                          <v-list-item-title class="font-weight-black subtitle-1">{{user.username}}</v-list-item-title>
-                          <v-list-item-subtitle class>{{user.email}}</v-list-item-subtitle>
+                          <v-list-item-title
+                            class="font-weight-black subtitle-1 "
+                            >{{ user.username }}</v-list-item-title
+                          >
+                          <v-list-item-subtitle class="">{{
+                            user.email
+                          }}</v-list-item-subtitle>
                         </v-list-item-content>
                       </v-list-item>
-                      <v-list-item @click="go(profile + 'creations')">
+                      <v-list-item
+                        :to="profile + 'creations'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
                         <v-list-item-icon>
-                          <v-icon color size="1.2em">mdi-creation</v-icon>
+                          <v-icon color size="1.5em">mdi-creation</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title>My Creations</v-list-item-title>
+                        <v-list-item-title class=""
+                          >My Creations</v-list-item-title
+                        >
                       </v-list-item>
-                      <v-list-item @click="go(profile + '')">
+                      <v-list-item
+                        @click="go(profile)"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
                         <v-list-item-icon>
                           <v-icon size="1.2em" color>fa-star</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title>My Favorites</v-list-item-title>
+                        <v-list-item-title class=""
+                          >My Favorites</v-list-item-title
+                        >
                       </v-list-item>
-                      <!-- <v-list-item link>
+                      <v-list-item
+                        :to="profile + 'activities'"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
                         <v-list-item-icon>
-                          <v-icon color>mdi-creation</v-icon>
+                          <v-icon color>mdi-timeline</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title>My Timeline</v-list-item-title>
-                      </v-list-item>-->
-                      <v-list-item @click="logout()">
+                        <v-list-item-title class=""
+                          >My Activities</v-list-item-title
+                        >
+                      </v-list-item>
+                      <v-list-item
+                        @click="logout()"
+                        class="tile"
+                        active-class="accent lighten-3 brand--text font-weight-bold"
+                      >
                         <v-list-item-icon>
                           <v-icon>mdi-logout</v-icon>
                         </v-list-item-icon>
-                        <v-list-item-title>Logout</v-list-item-title>
+                        <v-list-item-title class="">Logout</v-list-item-title>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -119,9 +228,14 @@
         </v-layout>
       </div>
     </div>
-    <v-progress-linear v-if="loading" height="2" color="brand darken-1" indeterminate></v-progress-linear>
+    <v-progress-linear
+      v-if="loading"
+      height="2"
+      color="brand darken-1"
+      indeterminate
+    ></v-progress-linear>
     <transition name="search-bar">
-      <div v-if="search" class="search" style>
+      <div v-if="search" class="search elevation-3 grey lighten-3">
         <div class="search-field">
           <input
             style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
@@ -129,56 +243,83 @@
             v-model="keyword"
             @keyup="fetchResults()"
           />
-          <v-icon style="position:absolute; right:0.5em; top:1rem">search</v-icon>
-        </div>
-        <div class="search-results">
-          <div
-            v-if="demands.length > 0 || lists.length > 0"
-            style="border: 4px solid #bbdefb; border-top:0px"
+          <v-icon style="position:absolute; right:0.5em; top:0.5em"
+            >search</v-icon
           >
-            <v-card flat tile v-if="lists.length > 0" class="primary-text-dark">
-              <v-card-title class="title">Lists</v-card-title>
-              <v-list>
-                <v-list-item
-                  @click="search = false, go('/lists/' + result.id)"
+        </div>
+        <div class="search-results grey lighten-3">
+          <div v-if="demands.length > 0 || lists.length > 0" style="">
+            <v-card
+              flat
+              tile
+              v-if="lists.length > 0"
+              class="ptd grey lighten-3"
+            >
+              <div
+                class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
+              >
+                Lists
+              </div>
+              <div class="px-2 my-4">
+                <span
                   v-for="(result, index) in lists"
                   :key="index"
+                  @click="(search = false), go('/lists/' + result.id)"
+                  class="underline pointer text-capitalize"
                 >
-                  <v-list-item-content class="brand--text">{{result.title}}</v-list-item-content>
-                </v-list-item>
-              </v-list>
+                  {{ result.data().title }}<br/>
+                </span>
+              </div>
             </v-card>
-            <v-card flat tile v-if="demands.length > 0" class="primary-text-dark">
-              <v-card-title class="title">Demands</v-card-title>
-              <v-list>
-                <preview-demanded
+            <v-card
+              flat
+              tile
+              v-if="demands.length > 0"
+              class="ptd grey lighten-3"
+            >
+              <div
+                class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
+              >
+                Demands
+              </div>
+              <div class="px-2 my-4">
+                <span
                   v-for="(result, index) in demands"
                   :key="index"
-                  :searched="true"
-                  :isProfile="false"
-                  :demand="result"
-                ></preview-demanded>
-              </v-list>
+                  @click="(search = false), go('/demands/' + result.id)"
+                  class="underline pointer text-capitalize"
+                >
+                  {{ result.data().title }}<br/>
+                </span>
+              </div>
             </v-card>
           </div>
-          <div
-            v-else-if="keyword.length >= 5 && !searching"
-            style="border: 4px solid #bbdefb; border-top: 0px"
-          >
-            <v-card tile flat class="primary-text-dark">
-              <v-card-text
-                class
-              >Sorry. This list does not exist yet. Be the first to create or demand it.</v-card-text>
+          <div v-else-if="keyword.length >= 5 && !searching">
+            <v-card tile flat class="ptd grey lighten-3">
+              <v-card-text class
+                >Sorry. This list does not exist yet. Be the first to create or
+                demand it.</v-card-text
+              >
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn outlined small color="brand" @click="goSearchedDemand()">Demand</v-btn>
-                <v-btn small dark class="brand white--text" @click="goSearchedCreate()">Create</v-btn>
+                <v-btn text small color="brand" @click="goSearchedDemand()"
+                  >Demand</v-btn
+                >
+                <v-btn small outlined color="brand" @click="goSearchedCreate()"
+                  >Create</v-btn
+                >
               </v-card-actions>
             </v-card>
           </div>
-          <div v-else-if="keyword.length >= 5" style="border: 4px solid #bbdefb; border-top: 0px">
+          <div v-else-if="keyword.length >= 5">
             <v-layout justify-center>
-              <v-progress-circular class="my-4" size="24" color="brand" indeterminate></v-progress-circular>
+              <v-progress-circular
+                class="my-4"
+                size="20"
+                color="brand"
+                :width="3"
+                indeterminate
+              ></v-progress-circular>
             </v-layout>
           </div>
         </div>
@@ -193,7 +334,7 @@
 
     <v-dialog v-if="!authenticated" v-model="loginDialog" max-width="500px">
       <Login
-        @signup="loginDialog = false, signupDialog = true"
+        @signup="(loginDialog = false), (signupDialog = true)"
         v-if="loginDialog"
         @close="loginDialog = false"
       ></Login>
@@ -202,70 +343,88 @@
     <v-dialog v-if="!authenticated" v-model="signupDialog" max-width="500px">
       <Signup
         v-if="signupDialog"
-        @login="signupDialog = false, loginDialog = true"
+        @login="(signupDialog = false), (loginDialog = true)"
         @close="signupDialog = false"
       ></Signup>
     </v-dialog>
 
     <v-navigation-drawer
       class="hidden-sm-and-up"
-      height="calc(100vh - 4.5em)"
-      style="margin-top:4.5em"
-      fixed
+      height="100%"
+      style=""
       dark
+      fixed
       :temporary="$vuetify.breakpoint.xs ? true : false"
       v-model="showSidebar"
+      width="280px"
     >
-      <v-list nav>
-        <v-list-item @click="go('/')">
-          <v-list-item-icon>
-            <v-icon size="1.2em" color="#EEEEEE">fa-home</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Home</v-list-item-title>
-        </v-list-item>
-
-        <v-list-group no-action>
-          <template v-slot:activator>
+      <v-layout class="pa-4 dim">
+        <v-spacer></v-spacer>
+        <v-icon @click="showSidebar = false">mdi-close</v-icon>
+      </v-layout>
+      <div style="font-size:20px">
+        <v-list nav class="py-1">
+          <v-list-item :to="'/'">
             <v-list-item-icon>
-              <v-icon size="1.2em" color="#EEEEEE">fa-list-alt</v-icon>
+              <v-icon size="1.2em" color="#EEEEEE">fa-home</v-icon>
             </v-list-item-icon>
-            <v-list-item-title>Lists</v-list-item-title>
-          </template>
-
-          <!-- <v-list-item @click>
-            <v-list-item-title>All Lists</v-list-item-title>
-          </v-list-item>-->
-          <v-list-item @click="go('/popular-lists')">
-            <v-list-item-title>Popular</v-list-item-title>
+            <v-list-item-title class="font-weight-bold">HOME</v-list-item-title>
           </v-list-item>
-          <v-list-item @click="go('/latest-lists')">
-            <v-list-item-title>Latest</v-list-item-title>
+        </v-list>
+        <v-list nav class="pt-1 pb-0">
+          <v-list-group no-action>
+            <template v-slot:activator>
+              <v-list-item-icon>
+                <v-icon size="1.2em" color="#EEEEEE">fa-list-alt</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-bold"
+                >LISTS</v-list-item-title
+              >
+            </template>
+
+            <v-list-item :to="'/latest-lists'">
+              <v-list-item-title>Latest</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="'/popular-lists'">
+              <v-list-item-title>Popular</v-list-item-title>
+            </v-list-item>
+            <v-list-item :to="'/top-rated-lists'">
+              <v-list-item-title>Top Rated</v-list-item-title>
+            </v-list-item>
+          </v-list-group>
+        </v-list>
+        <v-list nav class="py-1">
+          <v-list-item :to="'/demanded'">
+            <v-list-item-icon>
+              <v-icon size="1.2em" color="#EEEEEE">fa-users</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-bold"
+              >ON-DEMAND</v-list-item-title
+            >
           </v-list-item>
-          <!-- <v-list-item @click>
-            <v-list-item-title>Trending</v-list-item-title>
-          </v-list-item>-->
-        </v-list-group>
+        </v-list>
 
-        <v-list-item @click="go('/demanded')">
-          <v-list-item-icon>
-            <v-icon size="1.2em" color="#EEEEEE">fa-users</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>On Demand</v-list-item-title>
-        </v-list-item>
-
-        <v-list-item @click="go('/create')">
-          <v-list-item-icon>
-            <v-icon size="1.2em" color="#EEEEEE">fa-plus</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Create List</v-list-item-title>
-        </v-list-item>
-        <v-list-item @click="go('demand')">
-          <v-list-item-icon>
-            <v-icon size="1.2em" color="#EEEEEE">fa-hand-holding</v-icon>
-          </v-list-item-icon>
-          <v-list-item-title>Demand List</v-list-item-title>
-        </v-list-item>
-      </v-list>
+        <v-list nav class="py-1">
+          <v-list-item :to="'/demand'">
+            <v-list-item-icon>
+              <v-icon size="1.2em" color="#EEEEEE">fa-hand-holding</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-bold"
+              >DEMAND</v-list-item-title
+            >
+          </v-list-item>
+        </v-list>
+        <v-list nav class="py-1">
+          <v-list-item :to="'/create'">
+            <v-list-item-icon>
+              <v-icon size="1.2em" color="grey lighten-2">fa-plus</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-bold"
+              >CREATE</v-list-item-title
+            >
+          </v-list-item>
+        </v-list>
+      </div>
     </v-navigation-drawer>
   </div>
 </template>
@@ -379,11 +538,11 @@ export default {
     go(val) {
       this.$router.push({ path: val });
     },
-    setLogin(val){
-      this.$store.dispatch("set_login", val)
+    setLogin(val) {
+      this.$store.dispatch("set_login", val);
     },
-    setSignup(val){
-      this.$store.dispatch("set_signup", val)
+    setSignup(val) {
+      this.$store.dispatch("set_signup", val);
     }
   },
 
@@ -396,19 +555,19 @@ export default {
         this.action();
       }
     },
-    login(){
+    login() {
       this.loginDialog = this.login;
     },
-    signup(){
+    signup() {
       this.signupDialog = this.signup;
     },
-    loginDialog(){
-      if(this.loginDialog == false){
+    loginDialog() {
+      if (this.loginDialog == false) {
         this.setLogin(false);
       }
     },
-    signupDialog(){
-      if(this.signupDialog == false){
+    signupDialog() {
+      if (this.signupDialog == false) {
         this.setSignup(false);
       }
     }
@@ -431,14 +590,11 @@ export default {
     notifications() {
       return this.$store.getters.notifications;
     },
-    login(){
+    login() {
       return this.$store.getters.login;
     },
-    signup(){
+    signup() {
       return this.$store.getters.signup;
-    },
-    maxSize(){
-      return window.innerWidth >= 1300;
     }
   }
 };
@@ -451,44 +607,68 @@ export default {
   background-color: white;
   border-bottom: 1px solid #e2e8f7;
 }
+.dim {
+  background-color: rgba(0, 0, 0, 0.1);
+  /* background: repeating-linear-gradient(
+    -45deg,
+    #606dbc,
+    #606dbc 10px,
+    #424242 10px,
+    #424242 20px
+  ); */
+}
+.content {
+  max-width: 1300px;
+  padding: 0 0.5em;
+}
+@media (min-width: 800px) {
+  .content {
+    padding: 0 1em;
+  }
+}
+@media (min-width: 1432px) {
+  .content {
+    padding: 0;
+  }
+}
 .search {
   position: absolute;
-  top: 4.5em;
+  top: 3.5em;
   padding: 0px;
-  right: 0;
-  width: 100%;
-  background-color: #e3f2fd;
+  right: 1em;
+  width: calc(100% - 2em);
+  /* background-color: rgba(255,255,255,0.95); */
 }
 .search-field {
-  border: 4px solid #bbdefb;
+  background-color: rgb(243, 243, 243);
 }
 
-.search-result {
+.search-results {
   width: 100%;
-  background: lightgrey;
-  padding: 0.5em 0.5em;
-  border-bottom: 1px solid gray;
+  overflow-y: scroll;
+  max-height: calc(70vh);
 }
-@media (min-width: 600px) {
+@media (min-width: 500px) {
   .search {
-    width: 50%;
+    width: 400px;
   }
 }
 
 .notification {
   position: absolute;
-  top: 4.5em;
   padding: 0px;
-  right: 0;
-  width: 100%;
+  top: 0;
+  width: calc(100%);
   background-color: #e3f2fd;
   z-index: 10;
   max-width: 700px;
 }
 
-@media (min-width: 600px) and (max-width: 850px) {
+@media (min-width: 600px) {
   .notification {
     width: 70%;
+    right: 1em;
+    top: 3.5em;
   }
 }
 @media (min-width: 850px) {
@@ -502,13 +682,12 @@ export default {
   top: 0;
   z-index: 10;
   width: 100%;
-  /* box-shadow: 0px 2px 4px rgba(0,0,0,0.5); */
 }
 #main {
   width: calc(100%);
   /* background-color: grey; */
   /* background: linear-gradient(180deg, #1565c0, #1976d2); */
-  background: var(--brand);
+  /* background: var(--brand); */
   /* background: rgba(0,0,0,0); */
 }
 div > a {

@@ -1,70 +1,59 @@
 <template>
-  <v-layout class="pa-4">
+  <v-layout class="py-4 px-2 mt-4">
     <v-flex>
-      <v-card tile flat style="border: 1px solid rgb(132, 180, 255)">
-        <v-card-title class="text-capitalize title top-bar pa-1" style="font-weight:normal">Lists</v-card-title>
-        <v-card-text class="pb-0">
+      <v-card tile flat class="">
+        <v-card-title class="text-capitalize top-bar pa-1 pl-2 title-text font-weight-medium">Lists</v-card-title>
+        <v-card-text class="pa-0">
           <v-layout class="my-4" v-if="fetchingLists" justify-center>
-            <v-progress-circular size="24" indeterminate color="brand"></v-progress-circular>
+            <m-progress></m-progress>
           </v-layout>
           <div v-else-if="lists.length > 0">
             <v-list>
               <template v-for="(list, index) in lists">
-                <v-list-item :key="list.id" @click="go('/lists/' + list.id)">
-                  <v-list-item-avatar size="80" v-if="list.preview_image" tile>
-                    <v-img :src="list.preview_image.url"></v-img>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <v-list-item-title class="text-capitalize brand--text text-wrap">{{list.title}}</v-list-item-title>
-                    <v-list-item-subtitle>{{created(list.created)}}</v-list-item-subtitle>
-                    <v-list-item-subtitle>
-                      <rating :value="list.rating" :size="'0.9em'"></rating>
-                    </v-list-item-subtitle>
-                  </v-list-item-content>
-                </v-list-item>
-                <v-divider v-if="index < lists.length - 1" :key="index"></v-divider>
+                <list-preview :List="{id: list.id, ...list.data()}" :key="list.id"></list-preview>
+                <v-divider class="grey lighten-3" style="margin-left:100px" v-if="index < lists.length - 1" :key="index"></v-divider>
               </template>
             </v-list>
             <v-layout v-if="fetchingMoreLists" class="mt-4" justify-center>
-              <v-progress-circular color="brand" size="24" indeterminate></v-progress-circular>
+              <m-progress></m-progress>
             </v-layout>
             <v-layout v-if="lists.length !== user.lists" justify-center class="my-4">
               <v-icon @click="fetchMoreLists()" size="30">mdi-plus-circle-outline</v-icon>
             </v-layout>
           </div>
           <v-layout class="my-4" v-else justify-center>
-            <div class="primary-text-dark">
+            <div class="ptd">
               No Lists
               <a class="underline" v-if="isProfile" @click="go('/create')">Click to Add List</a>
             </div>
           </v-layout>
         </v-card-text>
         <v-card-actions v-if="isProfile && lists.length > 0">
-          <span>Your Anonymous Lists are not displayed to other users</span>
+          <span class="std">Your Anonymous Lists are not displayed to other users</span>
         </v-card-actions>
       </v-card>
-      <v-card class="mt-4" tile flat style="border: 1px solid rgb(132, 180, 255)">
-        <v-card-title class="text-capitalize title top-bar pa-1" style="font-weight:normal">Demands</v-card-title>
-        <v-card-text class="pb-0">
+      <v-card class="mt-4" tile flat>
+        <v-card-title class="text-capitalize grey lighten-3 pa-1 pl-2 title-text font-weight-medium">Demands</v-card-title>
+        <v-card-text class="pa-0">
           <v-layout class="my-4" v-if="fetchingDemands" justify-center>
-            <v-progress-circular size="24" indeterminate color="brand"></v-progress-circular>
+            <m-progress></m-progress>
           </v-layout>
           <div v-else-if="demands.length > 0">
             <v-list>
               <template v-for="(demand, index) in demands">
-                <demanded :key="demand.id" :demand="demand" :user="user"></demanded>
-                <v-divider v-if="index < demands.length - 1" :key="index"></v-divider>
+                <demanded :key="demand.id" :demand="{id: demand.id, ...demand.data()}" :user="user"></demanded>
+                <v-divider class="grey lighten-3" v-if="index < demands.length - 1" :key="index"></v-divider>
               </template>
             </v-list>
             <v-layout v-if="fetchingMoreDemands" class="mt-4" justify-center>
-              <v-progress-circular color="brand" size="24" indeterminate></v-progress-circular>
+              <m-progress></m-progress>
             </v-layout>
             <v-layout v-if="demands.length !== user.demands" justify-center class="my-4">
               <v-icon @click="fetchMoreDemands()" size="30">mdi-plus-circle-outline</v-icon>
             </v-layout>
           </div>
           <v-layout class="my-4" v-else justify-center>
-            <div class="primary-text-dark">
+            <div class="ptd">
               No Demands
               <a
                 class="underline"
@@ -75,7 +64,7 @@
           </v-layout>
         </v-card-text>
         <v-card-actions v-if="isProfile && demands.length > 0">
-          <span>Your Anonymous Demands are not displayed to other users</span>
+          <span class="std">Your Anonymous Demands are not displayed to other users</span>
         </v-card-actions>
       </v-card>
     </v-flex>
@@ -85,9 +74,11 @@
 <script>
 let moment = require("moment");
 import UserDemanded from "./UserDemanded";
+import UserList from "./UserList";
 export default {
   components: {
-    demanded: UserDemanded
+    demanded: UserDemanded,
+    'list-preview': UserList
   },
   props: {
     user: Object,
@@ -112,25 +103,23 @@ export default {
     go(link) {
       this.$router.push({ path: link });
     },
-    fetchLists() {
+    fetchLists(limit) {
       this.fetchingLists = true;
       this.$store
         .dispatch("fetch_user_lists", {
           isProfile: this.isProfile,
           user: this.user.id,
-          limit: 10,
-          timestamp: false
+          limit: limit
         })
         .then(result => {
           this.lists = result;
           this.fetchingLists = false;
         });
     },
-    fetchDemands(limit, timestamp) {
+    fetchDemands(limit) {
       this.fetchingDemands = true;
       this.$store
         .dispatch("fetch_user_demands", {
-          timestamp: timestamp,
           limit: limit,
           isProfile: this.isProfile,
           user: this.user.id
@@ -144,7 +133,7 @@ export default {
       this.fetchingMoreDemands = true;
       this.$store
         .dispatch("fetch_user_demands", {
-          timestamp: this.demands[this.demands.length - 1].created,
+          timestamp: this.demands[this.demands.length - 1].data().created,
           limit: 5,
           isProfile: this.isProfile,
           user: this.user.id
@@ -161,7 +150,7 @@ export default {
           isProfile: this.isProfile,
           user: this.user.id,
           limit: 5,
-          timestamp: this.lists[this.lists.length - 1].created
+          timestamp: this.lists[this.lists.length - 1].data().created
         })
         .then(results => {
           this.lists = this.lists.concat(results);
@@ -170,8 +159,8 @@ export default {
     }
   },
   mounted() {
-    this.fetchLists();
-    this.fetchDemands(10, false);
+    this.fetchLists(10);
+    this.fetchDemands(10);
   }
 };
 </script>

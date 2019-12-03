@@ -1,7 +1,15 @@
 <template>
-  <v-list>
-    <happening-event v-for="(event, index) in happenings" :key="index" :event="event.data()"></happening-event>
-  </v-list>
+  <div>
+    <v-list v-if="fetched" class="mt-2">
+      <happening-event
+        v-for="(event, index) in happenings"
+        :key="index"
+        :event="event.data()"
+        :index="index"
+      ></happening-event>
+    </v-list>
+    <m-progress v-else></m-progress>
+  </div>
 </template>
 
 <script>
@@ -14,7 +22,8 @@ export default {
   },
   data() {
     return {
-      happenings: []
+      happenings: [],
+      fetched: false
     };
   },
   methods: {
@@ -28,20 +37,26 @@ export default {
       .collection("happening")
       .doc("data")
       .onSnapshot({ includeMetadataChanges: true }, doc => {
-        firebase.firestore().collection("happening").doc("data").collection("collection").orderBy("created", "desc").limit(10).get().then(query => {
-          // console.log(query.docs);
-          this.updateHappenings(query.docs);
-        })
+        firebase
+          .firestore()
+          .collection("happening")
+          .doc("data")
+          .collection("collection")
+          .orderBy("created", "desc")
+          .limit(5)
+          .get()
+          .then(query => {
+            this.fetched = true;
+            this.updateHappenings(query.docs);
+          });
       });
   },
-  beforeDestroy(){
+  beforeDestroy() {
     firebase
       .firestore()
       .collection("happening")
       .doc("data")
-      .onSnapshot({ includeMetadataChanges: true }, doc => {
-        console.log("left");
-      });
+      .onSnapshot({ includeMetadataChanges: true }, doc => {});
   }
 };
 </script>

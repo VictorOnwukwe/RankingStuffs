@@ -16,9 +16,6 @@ let moment = require("moment");
 
 Vue.use(vuex);
 
-let no_profile =
-  "https://firebasestorage.googleapis.com/v0/b/top-ten-534ca.appspot.com/o/profile_pictures%2Fno_profile.jpg?alt=media&token=a2fe3931-d790-4b30-838e-ef9bb877978b";
-
 let store = new vuex.Store({
   state: {
     user: {},
@@ -36,11 +33,11 @@ let store = new vuex.Store({
     showSearch: false,
     followers: [],
     following: [],
-    notifications: 5,
-    nophoto:
-      "https://firebasestorage.googleapis.com/v0/b/top-ten-534ca.appspot.com/o/items%2Fnophoto.webp?alt=media&token=d14f1033-1991-4508-b6f8-d89e8467b983",
+    notifications: 0,
+    nophoto: "../assets/nophoto.jpg",
     login: false,
-    signup: false
+    signup: false,
+    currentList: {}
   },
 
   mutations: {
@@ -84,6 +81,7 @@ let store = new vuex.Store({
     clearState(state) {
       state.popular = [];
       state.latest = [];
+      // store.replaceState({});
     },
     setLoading(state, payload) {
       state.loading = payload;
@@ -102,6 +100,9 @@ let store = new vuex.Store({
     },
     setSignup(state, payload) {
       state.signup = payload;
+    },
+    setCurrentList(state, payload) {
+      state.currentList = payload;
     }
   },
 
@@ -111,7 +112,7 @@ let store = new vuex.Store({
     getLoading: state => state.loading,
     showSearch: state => state.showSearch,
     getDemands: state => state.onDemand,
-    noPhoto: state => state.nophoto,
+    nophoto: state => state.nophoto,
     semiAuthenticated: state => state.anonymous || state.authenticated,
     notifications: state => state.notifications,
     login: state => state.login,
@@ -122,6 +123,9 @@ let store = new vuex.Store({
   actions: {
     clear_state({ commit }) {
       commit("clearState");
+    },
+    set_current_list({ commit }, list) {
+      commit("setCurrentList", list);
     },
     set_search({ state, commit }, payload) {
       let send;
@@ -152,7 +156,10 @@ let store = new vuex.Store({
         .collection("updates")
         .doc("data")
         .onSnapshot({ includeMetadataChanges: true }, doc => {
-          state.notifications = doc.data().notifications;
+          if (doc.exists) {
+            console.log("notification: ", doc.data().notifications);
+            state.notifications = doc.data().notifications;
+          }
         });
     },
     /********************************************************************************************************************/
@@ -236,10 +243,6 @@ let store = new vuex.Store({
               .doc(userCred.user.uid)
               .set({
                 username: username,
-                profile_pic: {
-                  low: no_profile,
-                  high: no_profile
-                },
                 created: firebase.firestore.FieldValue.serverTimestamp(),
                 email: credentials.email
               });
@@ -247,7 +250,6 @@ let store = new vuex.Store({
             commit("setUser", {
               id: userCred.user.uid,
               username: username,
-              profile_pic: no_profile,
               email: credentials.email
             });
             firebase
@@ -259,10 +261,6 @@ let store = new vuex.Store({
                 followers: 0,
                 following: 0,
                 username: username,
-                profile_pic: {
-                  low: no_profile,
-                  high: no_profile
-                },
                 email: credentials.email
               });
           });
@@ -280,11 +278,7 @@ let store = new vuex.Store({
             .set({
               username: username,
               created: firebase.firestore.FieldValue.serverTimestamp(),
-              email: credentials.email.toLowerCase(),
-              profile_pic: {
-                low: no_profile,
-                high: no_profile
-              }
+              email: credentials.email.toLowerCase()
             })
             .then(async () => {
               await db
@@ -404,14 +398,6 @@ let store = new vuex.Store({
                   },
                   ...update
                 };
-              } else {
-                update = {
-                  profile_pic: {
-                    low: no_profile,
-                    high: no_profile
-                  },
-                  ...update
-                };
               }
               await db.doc(user.id).update(update);
               commit("setUser", {
@@ -444,12 +430,7 @@ let store = new vuex.Store({
                       high: result.user.photoURL
                     }
                   })
-                : (update = {
-                    profile_pic: {
-                      low: no_profile,
-                      high: no_profile
-                    }
-                  });
+                : (update = {});
               await db.doc(result.user.uid).set({
                 username: displayName,
                 created: firebase.firestore.FieldValue.serverTimestamp(),
@@ -498,7 +479,6 @@ let store = new vuex.Store({
         .auth()
         .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
         .then(() => {
-          console.log("Past first");
           return auth
             .signInWithPopup(provider)
             .then(async result => {
@@ -638,7 +618,8 @@ let store = new vuex.Store({
       await user.update({
         profile_pic: {
           low: lowUrl,
-          high: highUrl
+          high: highUrl,
+          created: firebase.firestore.FieldValue.serverTimestamp()
         }
       });
       commit("setUser", {
@@ -646,7 +627,8 @@ let store = new vuex.Store({
         email: state.user.email,
         profile_pic: {
           low: lowUrl,
-          high: highUrl
+          high: highUrl,
+          created: firebase.firestore.FieldValue.serverTimestamp()
         },
         id: state.user.id
       });
@@ -801,10 +783,10 @@ let store = new vuex.Store({
         .collection("user_details")
         .doc(id)
         .collection("followers")
-        .where("user", "==", state.user.id)
+        .doc(state.user.id)
         .get()
-        .then(query => {
-          return query.docs.length > 0 ? true : false;
+        .then(doc => {
+          return doc.exists;
         });
     },
 
@@ -819,14 +801,22 @@ let store = new vuex.Store({
       let db = firebase.firestore().collection("lists");
       let length = list.items.length;
       let votes = (length * (length + 1)) / 2;
+      let commentCount = list.items.filter(item => {
+        item.comment !== "";
+      }).length;
+
+      let popularity = (votes + commentCount / 5) / 3;
+
+      list.category = list.category.toLowerCase();
+      list.subCategory = list.subCategory.toLowerCase();
 
       let others = {};
+      let features = [];
 
       list.description !== ""
         ? (others = { description: list.description })
         : null;
       list.selfModerated ? (others = { self_moderated: true }) : null;
-      list.anonymous ? (others = { anonymous: true }) : null;
       // list.tags !== [] ? (others = { tags: list.tags, ...others }) : null;
       if (list.category == "") {
         list.category = "miscellaneous";
@@ -835,7 +825,7 @@ let store = new vuex.Store({
           null;
         } else {
           others = {
-            sub_category: list.subCategory,
+            sub_category: list.subCategory.toLowerCase(),
             ...others
           };
         }
@@ -845,12 +835,10 @@ let store = new vuex.Store({
       return db
         .add({
           //add properties to list
-          title: list.title,
+          title: list.title.toLowerCase(),
           votes: votes,
           created: firebase.firestore.FieldValue.serverTimestamp(),
           user: state.user.id,
-          tags: list.tags,
-          keywords: list.keywords,
           rating: 0,
           raters_count: 0,
           item_count: length,
@@ -858,31 +846,41 @@ let store = new vuex.Store({
           votable: list.votable,
           personal: list.personal,
           category: list.category,
+          comment_count: commentCount,
+          popularity: popularity,
+          rating_score: 0,
           ...others
         })
         .then(async docRef => {
           //loops through all items received. Uploads each item as a new document in lists/list id/items collection
           for (let i = 0; i < list.items.length; i++) {
-            let item_id = await dispatch("add_list_item", {
+            await dispatch("add_list_item", {
               list_id: docRef.id,
               votes: list.items.length - i,
               item: list.items[i],
               first_addition: true
+            }).then(details => {
+              features.push(details.info);
             });
-
-            firebase
-              .firestore()
-              .collection("list_voters")
-              .add({
-                item: item_id,
-                list: docRef.id,
-                user: state.user.id,
-                created: firebase.firestore.FieldValue.serverTimestamp()
-              });
           }
           return docRef.id;
         })
         .then(id => {
+          firebase
+            .firestore()
+            .collection("list_features")
+            .doc(id)
+            .set({
+              items: features
+            });
+          firebase
+            .firestore()
+            .collection("list_keywords")
+            .doc(id)
+            .set({
+              words: list.keywords,
+              title: list.title.toLowerCase()
+            });
           firebase
             .firestore()
             .collection("user_details")
@@ -896,27 +894,30 @@ let store = new vuex.Store({
             .doc(list.category)
             .update({
               list_count: firebase.firestore.FieldValue.increment(1)
+            })
+            .then(() => {
+              if (list.subCategory !== "") {
+                firebase
+                  .firestore()
+                  .collection("categories")
+                  .doc(list.category)
+                  .collection("subs")
+                  .doc(list.subCategory)
+                  .update({
+                    list_count: firebase.firestore.FieldValue.increment(1)
+                  });
+              }
             });
-          if (list.subCategory !== "") {
-            firebase
-              .firestore()
-              .collection("categories")
-              .doc(list.category)
-              .collection("subs")
-              .doc(list.subCategory)
-              .update({
-                list_count: firebase.firestore.FieldValue.increment(1)
-              });
-          }
-          this.dispatch("update_timeline", {
+          let image = {};
+          list.preview_image
+            ? (image = { image: list.preview_image.low })
+            : null;
+          this.dispatch("update_activities", {
             type: "list",
             list: {
               title: list.title,
-              id: id
-            },
-            user: {
-              username: state.user.username,
-              id: state.user.id
+              id: id,
+              ...image
             }
           });
           if (!list.personal) {
@@ -924,11 +925,8 @@ let store = new vuex.Store({
               type: "list",
               list: {
                 title: list.title,
-                id: id
-              },
-              user: {
-                username: state.user.username,
-                id: state.user.id
+                id: id,
+                ...image
               }
             });
           }
@@ -957,10 +955,14 @@ let store = new vuex.Store({
                   (doc.data().raters_count + 1)) *
                   10
               ) / 10;
+            let rating_score, exp;
+            exp = (doc.data().raters_count + 1) / 144;
+            rating_score = newRating + 5 * (1 - Math.pow(2.718, exp));
 
             transaction.update(list, {
               rating: newRating,
-              raters_count: firebase.firestore.FieldValue.increment(1)
+              raters_count: firebase.firestore.FieldValue.increment(1),
+              rating_score: rating_score
             });
           });
         })
@@ -968,35 +970,38 @@ let store = new vuex.Store({
           db.collection("lists")
             .doc(payload.list.id)
             .collection("raters")
-            .add({
+            .doc(state.user.id)
+            .set({
               user: state.user.id,
               rating: payload.rating,
               created: firebase.firestore.FieldValue.serverTimestamp()
             });
-          this.dispatch("update_timeline", {
+          let image = {};
+          payload.list.preview_image
+            ? (image = { image: payload.list.preview_image.url.low })
+            : null;
+
+          this.dispatch("update_activities", {
             type: "rate",
             rating: payload.rating,
+            raters_count: payload.list.raters_count,
             list: {
               title: payload.list.title,
-              id: payload.list.id
-            },
-            user: {
-              username: state.user.username,
-              id: state.user.id
+              id: payload.list.id,
+              ...image
             }
           });
           this.dispatch("update_happening", {
             type: "rate",
             rating: payload.rating,
+            raters_count: payload.list.raters_count,
             list: {
               title: payload.list.title,
-              id: payload.list.id
-            },
-            user: {
-              username: state.user.username,
-              id: state.user.id
+              id: payload.list.id,
+              ...image
             }
           });
+          this.dispatch("update_popularity", payload.list.id);
           return newRating;
         });
     },
@@ -1010,10 +1015,10 @@ let store = new vuex.Store({
         .collection("lists")
         .doc(id)
         .collection("raters")
-        .where("user", "==", state.user.id)
+        .doc(state.user.id)
         .get()
-        .then(query => {
-          return query.docs.length === 0 ? false : query.docs[0].data();
+        .then(doc => {
+          return doc.data();
         });
     },
 
@@ -1084,18 +1089,34 @@ let store = new vuex.Store({
             });
           }
           if (!payload.first_addition) {
+            let data = {};
+            if (payload.item.comment) {
+              data = { item_count: firebase.firestore.FieldValue.increment(1) };
+            }
             list.update({
               vote_count: firebase.firestore.FieldValue.increment(
                 payload.votes
               ),
-              featured_items: firebase.firestore.FieldValue.arrayUnion(ID),
-              item_count: firebase.firestore.FieldValue.increment(1)
+              item_count: firebase.firestore.FieldValue.increment(1),
+              ...data
             });
-            this.dispatch("update_timeline", {
+            firebase
+              .firestore()
+              .collection("list_features")
+              .doc(payload.list_id)
+              .update({
+                featured_items: firebase.firestore.FieldValue.arrayUnion(ID)
+              });
+            let image = {};
+            payload.item.image
+              ? (image = { image: payload.item.image.low })
+              : null;
+            this.dispatch("update_activities", {
               type: "item",
               item: {
                 info: ID,
-                name: payload.item.name
+                name: payload.item.name,
+                ...image
               },
               list: {
                 id: payload.list_id,
@@ -1106,28 +1127,27 @@ let store = new vuex.Store({
               type: "item",
               item: {
                 info: ID,
-                name: payload.item.name
+                name: payload.item.name,
+                ...image
               },
               list: {
                 id: payload.list_id,
                 title: payload.list_title
               }
             });
-          } else {
-            await list.update({
-              featured_items: firebase.firestore.FieldValue.arrayUnion(ID)
-            });
           }
-          return docref.id;
+          return { id: docref.id, info: ID };
         })
         .then(id => {
-          list
-            .collection("items")
-            .doc(id)
-            .collection("voters")
-            .add({
-              id: state.user.id
-            });
+          if (!payload.first_addition) {
+            list
+              .collection("voters")
+              .doc(state.user.id)
+              .set({
+                user: state.user.id,
+                item: payload.item.id
+              });
+          }
           return id;
         })
         .catch(error => {
@@ -1135,20 +1155,44 @@ let store = new vuex.Store({
         });
     },
 
-    async fetch_complete_list({ commit, state }, payload) {
+    async update_popularity({ state }, id) {
+      let db = firebase.firestore();
+      let list = firebase
+        .firestore()
+        .collection("lists")
+        .doc(id);
+      let popularity;
+
+      db.runTransaction(async transaction => {
+        await transaction.get(list).then(list => {
+          popularity =
+            (list.data().votes +
+              2 * list.data().raters_count +
+              list.data().comment_count / 5) /
+            3;
+        });
+
+        transaction.update(list, {
+          popularity: popularity
+        });
+      });
+    },
+
+    async fetch_complete_list({ commit, state }, id) {
       let index = -1;
       // state.lists = [];
       index = state.lists.findIndex(list => {
-        return list.id === payload;
+        return list.id === id;
       });
+      index = -1;
 
-      if (index >= 0) {
+      if (index > -1) {
         return state.lists[index];
       } else {
         let db = firebase
           .firestore()
           .collection("lists")
-          .doc(payload);
+          .doc(id);
         let list = {};
 
         return db
@@ -1167,31 +1211,24 @@ let store = new vuex.Store({
               .limit(50)
               .get()
               .then(async querySnapshot => {
-                list.items = [].concat(
-                  querySnapshot.docs.map(doc => {
-                    return {
-                      id: doc.id,
-                      ...doc.data()
-                    };
-                  })
-                );
+                list.items = [].concat(querySnapshot.docs);
               });
           })
           .then(() => {
-            commit("setLists", list);
+            // commit("setLists", list);
             return list;
           });
       }
     },
 
     async fetch_list({ state }, id) {
-      return firebase
+      return await firebase
         .firestore()
         .collection("lists")
         .doc(id)
         .get()
         .then(doc => {
-          return doc.data();
+          return { id: id, ...doc.data() };
         });
     },
 
@@ -1209,12 +1246,7 @@ let store = new vuex.Store({
         .limit(50)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
         });
     },
 
@@ -1233,21 +1265,21 @@ let store = new vuex.Store({
         if (payload.home) {
           query = lists
             .where("preview_image", ">", null)
-            .orderBy("votes")
+            .orderBy("popularity")
             .limit(payload.limit);
         } else {
-          query = lists.orderBy("votes", "desc").limit(payload.limit);
+          query = lists.orderBy("popularity", "desc").limit(payload.limit);
         }
       } else {
         if (payload.home) {
           query = lists
             .where("preview_image", ">", null)
-            .orderBy("votes")
+            .orderBy("popularity")
             .startAfter(payload.lastDoc)
             .limit(payload.limit);
         } else {
           query = lists
-            .orderBy("votes", "desc")
+            .orderBy("popularity", "desc")
             .startAfter(payload.lastDoc)
             .limit(payload.limit);
         }
@@ -1285,12 +1317,7 @@ let store = new vuex.Store({
         }
 
         return query.get().then(querySnapshot => {
-          let result = querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          let result = querySnapshot.docs;
           return result;
         });
       }
@@ -1304,21 +1331,21 @@ let store = new vuex.Store({
         if (payload.home) {
           query = lists
             .where("preview_image", ">", null)
-            .orderBy("rating")
+            .orderBy("rating_score", "desc")
             .limit(payload.limit);
         } else {
-          query = lists.orderBy("rating").limit(payload.limit);
+          query = lists.orderBy("rating_score", "desc").limit(payload.limit);
         }
       } else {
         if (payload.home) {
           query = lists
             .where("preview_image", ">", null)
-            .orderBy("rating")
+            .orderBy("rating_score", "desc")
             .startAfter(payload.lastDoc)
             .limit(payload.limit);
         } else {
           query = lists
-            .orderBy("rating")
+            .orderBy("rating_score", "desc")
             .startAfter(payload.lastDoc)
             .limit(payload.limit);
         }
@@ -1334,34 +1361,36 @@ let store = new vuex.Store({
       let batch = db.batch();
       let ID;
 
-      if (!payload.item.info) {
-        await db
-          .collection("items")
-          .add({
-            name: payload.item.name.toLowerCase(),
-            media_count: 0,
-            keywords: payload.item.keywords
-          })
-          .then(docref => {
-            db.collection("items")
-              .doc(docref.id)
-              .collection("contributors")
-              .doc(state.user.id)
-              .set({
-                id: state.user.id,
-                username: state.user.username
-              });
-            ID = docref.id;
-          });
-      } else {
-        ID = payload.item.info;
+      // if (!payload.item.info) {
+      //   await db
+      //     .collection("items")
+      //     .add({
+      //       name: payload.item.name.toLowerCase(),
+      //       media_count: 0,
+      //       keywords: payload.item.keywords
+      //     })
+      //     .then(docref => {
+      //       db.collection("items")
+      //         .doc(docref.id)
+      //         .collection("contributors")
+      //         .doc(state.user.id)
+      //         .set({
+      //           id: state.user.id,
+      //           username: state.user.username
+      //         });
+      //       ID = docref.id;
+      //     });
+      // } else {
+      //   ID = payload.item.info;
+      // }
+
+      let data = {};
+
+      if (payload.item.info) {
+        data = { info: payload.item.info };
       }
 
-      let data;
-
-      payload.comment === ""
-        ? (data = {})
-        : (data = { comment: payload.comment });
+      payload.comment !== "" ? (data = { comment: payload.comment }) : null;
 
       let user = db.collection("user_details").doc(state.user.id);
       let fav = user
@@ -1372,7 +1401,7 @@ let store = new vuex.Store({
 
       batch.set(fav, {
         name: payload.item.name.toLowerCase(),
-        info: ID,
+        created: firebase.firestore.FieldValue.serverTimestamp(),
         ...data
       });
       batch.update(user, {
@@ -1383,6 +1412,7 @@ let store = new vuex.Store({
     },
 
     async unfavorite_item({ state }, payload) {
+      let db = firebase.firestore();
       let loc = firebase
         .firestore()
         .collection("user_details")
@@ -1394,15 +1424,20 @@ let store = new vuex.Store({
         .doc(payload)
         .delete()
         .then(() => {
-          loc.update({
-            item_count: firebase.firestore.FieldValue.increment(-1)
-          });
+          db.collection("user_details")
+            .doc(state.user.id)
+            .update({
+              favorite_items: firebase.firestore.FieldValue.increment(-1)
+            });
 
           return;
         });
     },
 
     async fetch_favorite_items({ state }, payload) {
+      if (payload.timestamp == "now") {
+        payload.timestamp = new firebase.firestore.Timestamp.now();
+      }
       return firebase
         .firestore()
         .collection("user_details")
@@ -1410,12 +1445,11 @@ let store = new vuex.Store({
         .collection("favorites")
         .doc("data")
         .collection("items")
+        .where("created", "<", payload.timestamp)
         .limit(payload.limit)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return { category: doc.id, ...doc.data() };
-          });
+          return query.docs;
         });
     },
 
@@ -1437,9 +1471,7 @@ let store = new vuex.Store({
         .limit(payload.limit)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return doc.data();
-          });
+          return query.docs;
         });
     },
 
@@ -1452,22 +1484,21 @@ let store = new vuex.Store({
         .collection("user_details")
         .doc(state.user.id);
       let favorites = user.collection("favorites/data/lists");
-      let list = firebase.firestore().doc(`lists/${payload.id}`);
 
       let batch = firebase.firestore().batch();
 
-      batch.set(favorites.doc(), {
-        id: payload.id,
-        created: firebase.firestore.FieldValue.serverTimestamp()
+      batch.set(favorites.doc(payload.id), {
+        created: firebase.firestore.FieldValue.serverTimestamp(),
+        list: payload.id
       });
 
       batch.update(user, {
         favorite_lists: firebase.firestore.FieldValue.increment(1)
       });
 
-      batch.set(list.collection("favoriters").doc(state.user.id), {
-        user: state.user.id
-      });
+      // batch.set(list.collection("favoriters").doc(state.user.id), {
+      //   user: state.user.id
+      // });
 
       batch.commit();
     },
@@ -1502,10 +1533,10 @@ let store = new vuex.Store({
         .collection("favorites")
         .doc("data")
         .collection("lists")
-        .where("id", "==", payload)
+        .doc(payload)
         .get()
-        .then(query => {
-          return query.docs.length === 0 ? false : true;
+        .then(doc => {
+          return doc.exists;
         });
     },
 
@@ -1518,9 +1549,7 @@ let store = new vuex.Store({
         .orderBy("created")
         .get()
         .then(async querySnapshot => {
-          return await querySnapshot.docs.map(doc => {
-            return doc.data();
-          });
+          return await querySnapshot.docs;
         })
         .catch(error => {
           console.log("error: ", error);
@@ -1536,9 +1565,7 @@ let store = new vuex.Store({
         .orderBy("created")
         .get()
         .then(async querySnapshot => {
-          return await querySnapshot.docs.map(doc => {
-            return doc.data();
-          });
+          return await querySnapshot.docs;
         })
         .catch(error => {
           console.log("error: ", error);
@@ -1551,11 +1578,8 @@ let store = new vuex.Store({
       if (!payload.timestamp) {
         payload.timestamp = new firebase.firestore.Timestamp.now();
       }
-      payload.isProfile
-        ? (search = db.where("user", "==", payload.user))
-        : (search = db
-            .where("user", "==", payload.user)
-            .where("anonymous", "==", false));
+
+      search = db.where("user", "==", payload.user);
 
       return search
         .where("created", "<", payload.timestamp)
@@ -1563,12 +1587,7 @@ let store = new vuex.Store({
         .limit(payload.limit)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
         });
     },
 
@@ -1577,36 +1596,15 @@ let store = new vuex.Store({
       if (!payload.timestamp) {
         payload.timestamp = new firebase.firestore.Timestamp.now();
       }
-      return payload.isProfile
-        ? db
-            .where("user", "==", payload.user)
-            .where("created", "<", payload.timestamp)
-            .orderBy("created", "desc")
-            .limit(payload.limit)
-            .get()
-            .then(query => {
-              return query.docs.map(doc => {
-                return {
-                  id: doc.id,
-                  ...doc.data()
-                };
-              });
-            })
-        : db
-            .where("user", "==", payload.user)
-            .where("anonymous", "==", false)
-            .where("created", "<", payload.timestamp)
-            .orderBy("created", "desc")
-            .limit(payload.limit)
-            .get()
-            .then(query => {
-              return query.docs.map(doc => {
-                return {
-                  id: doc.id,
-                  ...doc.data()
-                };
-              });
-            });
+      return db
+        .where("user", "==", payload.user)
+        .where("created", "<", payload.timestamp)
+        .orderBy("created", "desc")
+        .limit(payload.limit)
+        .get()
+        .then(query => {
+          return query.docs;
+        });
     },
 
     async update_item({ state }, payload) {
@@ -1654,7 +1652,7 @@ let store = new vuex.Store({
       return await itemLoc
         .collection("media")
         .add({
-          source: "user",
+          source: update.source,
           src: {
             low: low_url,
             high: high_url
@@ -1680,20 +1678,22 @@ let store = new vuex.Store({
                 }
               });
           itemLoc.update(upload);
-          this.dispatch("update_timeline", {
+          this.dispatch("update_activities", {
             type: "item-update",
             item: {
               info: update.item.id,
-              name: update.item.name
+              name: update.item.name,
+              image: low_url
             }
           });
-          this.dispatch("update_happening", {
-            type: "item-update",
-            item: {
-              info: update.item.id,
-              name: update.item.name
-            }
-          });
+          // this.dispatch("update_happening", {
+          //   type: "item-update",
+          //   item: {
+          //     info: update.item.id,
+          //     name: update.item.name,
+          //     image: low_url
+          //   }
+          // });
         });
     },
 
@@ -1710,14 +1710,22 @@ let store = new vuex.Store({
     async fetch_item_featured({ state }, id) {
       return firebase
         .firestore()
-        .collection("lists")
-        .where("featured_items", "array-contains", id)
+        .collection("list_features")
+        .where("items", "array-contains", id)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return { id: doc.id, ...doc.data() };
-          });
+          return query.docs;
         });
+      // return firebase
+      //   .firestore()
+      //   .collection("list_features")
+      //   .where("featured_items", "array-contains", id)
+      //   .get()
+      //   .then(query => {
+      //     return query.docs.map(doc => {
+      //       return { id: doc.id, ...doc.data() };
+      //     });
+      //   });
     },
 
     async fetch_item_image({ state }, payload) {
@@ -1736,6 +1744,25 @@ let store = new vuex.Store({
         });
     },
 
+    async convert_keywords({ state }) {
+      let lists = firebase.firestore().collection("lists");
+      let keywords = firebase.firestore().collection("list_keywords");
+
+      lists
+        .get()
+        .then(query => {
+          query.docs.forEach(doc => {
+            keywords.doc(doc.id).set({
+              words: doc.data().keywords,
+              title: doc.data().title
+            });
+          });
+        })
+        .then(() => {
+          console.log("done");
+        });
+    },
+
     /**************************************************************************************************************/
     //    ALL ABOUT COMMENTS
 
@@ -1746,9 +1773,9 @@ let store = new vuex.Store({
       let db = firebase
         .firestore()
         .collection("lists")
-        .doc(payload.list_id)
+        .doc(payload.list.id)
         .collection("items")
-        .doc(payload.item_id);
+        .doc(payload.item.id);
 
       const batch = firebase.firestore().batch();
 
@@ -1758,7 +1785,7 @@ let store = new vuex.Store({
         .collection("comments")
         .add({
           content: payload.comment,
-          user: state.user.id,
+          user: { id: state.user.id, username: state.user.username },
           created: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(docref => {
@@ -1766,44 +1793,92 @@ let store = new vuex.Store({
             db.update({
               comment_count: firebase.firestore.FieldValue.increment(1)
             });
-            this.dispatch("update_timeline", {
+            firebase
+              .firestore()
+              .collection("lists")
+              .doc(payload.list.id)
+              .update({
+                comment_count: firebase.firestore.FieldValue.increment(1)
+              });
+            let image = {};
+            payload.item.image ? (image = { image: payload.item.image }) : null;
+
+            this.dispatch("update_activities", {
               type: "comment",
               comment: payload.comment,
               item: {
-                id: payload.item_id,
-                name: payload.item_name
+                name: payload.item.name,
+                id: payload.item.id,
+                ...image
               },
               list: {
-                id: payload.list_id,
-                title: payload.list_title
+                title: payload.list.title,
+                id: payload.list.id
               }
             });
             this.dispatch("update_happening", {
               type: "comment",
               comment: payload.comment,
               item: {
-                id: payload.item_id,
-                name: payload.item_name
+                name: payload.item.name,
+                id: payload.item.id,
+                ...image
               },
               list: {
-                id: payload.list_id,
-                title: payload.list_title
+                title: payload.list.title,
+                id: payload.list.id
               }
             });
+            this.dispatch("update_popularity", payload.list.id);
           }
           return docref.id;
         })
         .then(id => {
-          console.log("Comment Uploaded");
           return {
-            content: payload.comment,
-            user: state.user.id,
-            id: id,
-            created: firebase.firestore.Timestamp.fromDate(new Date())
+            data() {
+              return {
+                content: payload.comment,
+                user: { id: state.user.id, username: state.user.username },
+                created: firebase.firestore.Timestamp.fromDate(new Date())
+              };
+            },
+            id: id
           };
         })
         .catch(error => {
           console.log(error);
+        });
+    },
+
+    async edit_comment({ state }, payload) {
+      await firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id)
+        .update({
+          content: payload.newContent,
+          edited: true
+        });
+    },
+
+    async edit_reply({ state }, payload) {
+      await firebase
+        .firestore()
+        .collection("lists")
+        .doc(payload.list_id)
+        .collection("items")
+        .doc(payload.item_id)
+        .collection("comments")
+        .doc(payload.comment_id)
+        .collection("replies")
+        .doc(payload.reply_id)
+        .update({
+          content: payload.newReply,
+          edited: true
         });
     },
 
@@ -1827,12 +1902,7 @@ let store = new vuex.Store({
         .limit(payload.num)
         .get()
         .then(async querySnapshot => {
-          return await querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return await querySnapshot.docs;
         })
         .catch(error => {
           console.log(error);
@@ -1907,10 +1977,10 @@ let store = new vuex.Store({
             .collection("comments")
             .doc(payload.comment_id)
             .collection("likers")
-            .where("user", "==", state.user.id)
+            .doc(state.user.id)
             .get()
-            .then(query => {
-              return query.docs.length === 0 ? false : true;
+            .then(doc => {
+              return doc.exists;
             });
     },
 
@@ -1932,7 +2002,7 @@ let store = new vuex.Store({
         .collection("replies")
         .add({
           content: payload.reply,
-          user: state.user.id,
+          user: { id: state.user.id, username: state.user.username },
           created: firebase.firestore.FieldValue.serverTimestamp()
         })
         .then(doc => {
@@ -1942,19 +2012,37 @@ let store = new vuex.Store({
           id = doc.id;
         })
         .then(() => {
-          comment
-            .collection("repliers")
-            .doc(state.user.id)
-            .set({
-              user: state.user.id
-            });
+          this.dispatch("update_activities", {
+            type: "reply",
+            comment: {
+              id: payload.comment_id,
+              content: payload.comment_content
+            },
+            reply: {
+              id: id,
+              content: payload.reply
+            },
+            item: {
+              id: payload.item_id,
+              name: payload.item_name
+            },
+            list: {
+              id: payload.list_id,
+              title: payload.list_title
+            },
+            ...payload.commenter
+          });
         })
         .then(() => {
           return {
-            content: payload.reply,
-            user: state.user.id,
-            created: firebase.firestore.Timestamp.fromDate(new Date()),
-            id: id
+            id: id,
+            data: () => {
+              return {
+                content: payload.reply,
+                user: { id: state.user.id, username: state.user.username },
+                created: firebase.firestore.Timestamp.fromDate(new Date())
+              };
+            }
           };
         })
         .catch(error => {
@@ -1985,12 +2073,7 @@ let store = new vuex.Store({
         .limit(payload.num)
         .get()
         .then(querySnapshot => {
-          return querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return querySnapshot.docs;
         });
     },
 
@@ -2046,7 +2129,7 @@ let store = new vuex.Store({
     },
 
     async reply_liked({ state }, payload) {
-      !this.getters.semiAuthenticated
+      return !this.getters.semiAuthenticated
         ? false
         : await firebase
             .firestore()
@@ -2059,10 +2142,10 @@ let store = new vuex.Store({
             .collection("replies")
             .doc(payload.reply_id)
             .collection("likers")
-            .where("user", "==", state.user.id)
+            .doc(state.user.id)
             .get()
-            .then(query => {
-              return query.docs.length > 0 ? true : false;
+            .then(doc => {
+              return doc.exists;
             });
     },
 
@@ -2078,55 +2161,57 @@ let store = new vuex.Store({
       let list = firebase
         .firestore()
         .collection("lists")
-        .doc(payload.list_id);
+        .doc(payload.list.id);
 
       let item = firebase
         .firestore()
         .collection("lists")
-        .doc(payload.list_id)
+        .doc(payload.list.id)
         .collection("items")
-        .doc(payload.item_id);
+        .doc(payload.item.id);
 
       batch.update(item, { votes: firebase.firestore.FieldValue.increment(1) });
 
       batch.update(list, { votes: firebase.firestore.FieldValue.increment(1) });
 
-      batch.set(item.collection("voters").doc(state.user.id), {
-        user: state.user.id
-      });
-
       batch.set(list.collection("voters").doc(state.user.id), {
-        user: state.user.id
+        user: state.user.id,
+        item: payload.item.id
       });
 
       batch.set(
-        db.doc(`user_details/${state.user.id}/lists_voted/${payload.list_id}`),
-        { list: payload.list_id }
+        db.doc(`user_details/${state.user.id}/lists_voted/${payload.list.id}`),
+        { list: payload.list.id }
       );
 
       batch.commit();
-      this.dispatch("update_timeline", {
+      let image = {};
+      payload.item.image ? (image = { image: payload.item.image.low }) : null;
+      this.dispatch("update_activities", {
         type: "vote",
         item: {
-          name: payload.item_name,
-          id: payload.item_id
+          name: payload.item.name,
+          id: payload.item.id,
+          ...image
         },
         list: {
-          title: payload.list_title,
-          id: payload.list_id
+          title: payload.list.title,
+          id: payload.list.id
         }
       });
       this.dispatch("update_happening", {
         type: "vote",
         item: {
-          name: payload.item_name,
-          id: payload.item_id
+          name: payload.item.name,
+          id: payload.item.id,
+          ...image
         },
         list: {
-          title: payload.list_title,
-          id: payload.list_id
+          title: payload.list.title,
+          id: payload.list.id
         }
       });
+      this.dispatch("update_popularity", payload.list.id);
     },
 
     async check_item_voted({ state }, payload) {
@@ -2140,10 +2225,10 @@ let store = new vuex.Store({
         .collection("items")
         .doc(payload.item_id)
         .collection("voters")
-        .where("user", "==", state.user.id)
+        .doc(state.user.id)
         .get()
-        .then(query => {
-          return query.docs.length !== 0;
+        .then(doc => {
+          return doc.exists;
         });
     },
 
@@ -2196,10 +2281,10 @@ let store = new vuex.Store({
       return await firebase
         .firestore()
         .collection(`lists/${id}/voters`)
-        .where("user", "==", state.user.id)
+        .doc(state.user.id)
         .get()
-        .then(query => {
-          return query.docs.length !== 0;
+        .then(doc => {
+          return doc.exists ? doc.data() : false;
         });
     },
 
@@ -2228,31 +2313,11 @@ let store = new vuex.Store({
       }
     },
 
-    async fetch_categories({ state, commit }) {
-      if (state.categories.length > 0) {
-        return state.categories.sort((a, b) => (a.name > b.name ? 1 : -1));
-      } else {
-        let categories = firebase.firestore().collection("categories");
-
-        return categories.get().then(querySnapshot => {
-          let result = querySnapshot.docs.map(doc => {
-            return {
-              id: doc.id,
-              name: doc.data().name
-            };
-          });
-          commit("setCategories", result);
-          return result.sort((a, b) => (a.name > b.name ? 1 : -1));
-        });
-      }
-    },
-
     async send_notification({ state, dispatch }, payload) {
       let recipients;
       let sendData;
       let users = firebase.firestore().collection("users");
       let db = firebase.firestore();
-      console.log("sending");
 
       switch (payload.type) {
         case "reply":
@@ -2292,8 +2357,6 @@ let store = new vuex.Store({
 
         case "demand-created":
           recipients = await dispatch("fetch_demanders", payload.demand_id);
-
-          console.log(recipients);
 
           sendData = {
             user: {
@@ -2344,9 +2407,6 @@ let store = new vuex.Store({
     },
 
     async fetch_notifications({ state }) {
-      // if (state.notifications == 0) {
-      //   return [];
-      // }
       let user = firebase
         .firestore()
         .collection("users")
@@ -2361,12 +2421,7 @@ let store = new vuex.Store({
         .orderBy("created", "desc")
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
         })
         .catch(error => {
           console.log(error);
@@ -2374,6 +2429,7 @@ let store = new vuex.Store({
     },
 
     async reset_notifications({ state }) {
+      state.notifications = 0;
       firebase
         .firestore()
         .collection("users")
@@ -2382,7 +2438,8 @@ let store = new vuex.Store({
         .doc("data")
         .update({
           notifications: 0
-        });
+        })
+        .catch(error => {});
     },
 
     async fetch_complete_item({ commit }, itemID, complete) {
@@ -2404,12 +2461,7 @@ let store = new vuex.Store({
               .collection("images")
               .get()
               .then(query => {
-                let images = query.docs.map(doc => {
-                  return {
-                    id: doc.id,
-                    ...doc.data()
-                  };
-                });
+                let images = query.docs;
                 value = {
                   images: images,
                   ...value
@@ -2437,11 +2489,11 @@ let store = new vuex.Store({
           ...payload
         })
         .then(docref => {
-          db.collection("demand_waiters").add({
-            demand: docref.id,
-            user: state.user.id,
-            created: firebase.firestore.FieldValue.serverTimestamp()
-          });
+          db.collection("demand_waiters")
+            .doc(docref.id)
+            .set({
+              demanders: [state.user.id]
+            });
           return docref.id;
         })
         .then(id => {
@@ -2450,7 +2502,7 @@ let store = new vuex.Store({
             .update({
               demands: firebase.firestore.FieldValue.increment(1)
             });
-          this.dispatch("update_timeline", {
+          this.dispatch("update_activities", {
             type: "demand",
             demand: {
               title: payload.title,
@@ -2466,7 +2518,28 @@ let store = new vuex.Store({
           });
         });
     },
+    async fetch_complete_demand({ state }, id) {
+      let demand;
+      let loc = firebase
+        .firestore()
+        .collection("demands")
+        .doc(id);
 
+      return loc
+        .get()
+        .then(doc => {
+          demand = doc.data();
+        })
+        .then(async () => {
+          await loc
+            .collection("comments")
+            .get()
+            .then(query => {
+              demand.comments = query.docs;
+            });
+          return demand;
+        });
+    },
     async fetch_demanded({ state }, payload) {
       // return state.onDemand;
 
@@ -2511,52 +2584,104 @@ let store = new vuex.Store({
       return await firebase
         .firestore()
         .collection("demand_waiters")
-        .where("demand", "==", id)
+        .doc(id)
         .get()
-        .then(query => {
-          return query.docs.map(doc => {
-            return doc.data().user;
-          });
+        .then(doc => {
+          return doc.data().demanders;
         });
     },
-    async join_demanders({ state }, id) {
+    async join_demanders({ state }, demand) {
       if (!this.getters.semiAuthenticated) {
         await this.dispatch("anonymous_login");
       }
       await firebase
         .firestore()
         .collection("demand_waiters")
-        .add({
-          user: state.user.id,
-          demand: id,
-          created: firebase.firestore.FieldValue.serverTimestamp()
-        })
+        .doc(demand.id)
+        .set(
+          {
+            demanders: firebase.firestore.FieldValue.arrayUnion(state.user.id),
+            id: demand.id
+          },
+          { merge: true }
+        )
         .then(() => {
           firebase
             .firestore()
             .collection("demands")
-            .doc(id)
+            .doc(demand.id)
             .update({
               waiters_count: firebase.firestore.FieldValue.increment(1)
             });
+          this.dispatch("update_happening", {
+            type: "join-demand",
+            demand: {
+              title: demand.title,
+              id: demand.id
+            }
+          });
         });
 
       return;
     },
-    async leave_demanders({ state }, id) {
-      let db = firebase.firestore().collection("demand_waiters");
-      await db
-        .where("user", "==", state.user.id)
-        .where("demand", "==", id)
+    async upload_demand_comment({ state }, payload) {
+      let db = firebase.firestore();
+
+      return db
+        .collection("demands")
+        .doc(payload.id)
+        .collection("comments")
+        .add({
+          content: payload.comment,
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          user: {
+            id: state.user.id,
+            username: state.user.username
+          }
+        })
+        .then(async docref => {
+          await db
+            .collection("demands")
+            .doc(payload.id)
+            .update({
+              comment_count: firebase.firestore.FieldValue.increment(1)
+            });
+          return {
+            id: docref.id,
+            created: firebase.firestore.FieldValue.serverTimestamp(),
+            content: payload.content
+          };
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    async fetch_demand_comments({ state }, payload) {
+      let db = firebase.firestore();
+
+      return db
+        .collection("demands")
+        .doc(payload.id)
+        .collection("comments")
+        .orderBy("created")
+        .limit(payload.limit)
         .get()
         .then(query => {
-          db.doc(query.docs[0].id).delete();
+          return query.docs;
+        });
+    },
+    async leave_demanders({ state }, demand) {
+      let db = firebase.firestore().collection("demand_waiters");
+      await db
+        .doc(demand.id)
+        .update({
+          demanders: firebase.firestore.FieldValue.arrayRemove(state.user.id)
         })
         .then(() => {
           firebase
             .firestore()
             .collection("demands")
-            .doc(id)
+            .doc(demand.id)
             .update({
               waiters_count: firebase.firestore.FieldValue.increment(-1)
             });
@@ -2570,15 +2695,8 @@ let store = new vuex.Store({
         .delete()
         .then(() => {
           db.collection("demand_waiters")
-            .where("demand", "==", id)
-            .get()
-            .then(query => {
-              const batch = db.batch();
-              query.docs.forEach(doc => {
-                batch.delete(doc.ref);
-              });
-              return batch.commit();
-            });
+            .doc(id)
+            .delete();
         });
     },
     async checkWaiting({ state }, id) {
@@ -2588,8 +2706,8 @@ let store = new vuex.Store({
       return await firebase
         .firestore()
         .collection("demand_waiters")
-        .where("demand", "==", id)
-        .where("user", "==", state.user.id)
+        .where("id", "==", id)
+        .where("demanders", "array-contains", state.user.id)
         .get()
         .then(query => {
           return query.docs.length === 0 ? false : true;
@@ -2602,12 +2720,33 @@ let store = new vuex.Store({
         .where("keywords", "array-contains", name)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
+        });
+    },
+
+    async fetch_category_lists({ state }, payload) {
+      let db = firebase.firestore();
+
+      return db
+        .collection("lists")
+        .where("category", "==", payload.category.toLowerCase())
+        .limit(payload.limit)
+        .get()
+        .then(query => {
+          return query.docs;
+        });
+    },
+    async fetch_subcategory_lists({ state }, payload) {
+      let db = firebase.firestore();
+
+      return db
+        .collection("lists")
+        .where("category", "==", payload.category.toLowerCase())
+        .where("sub_category", "==", payload.subCategory.toLowerCase())
+        .limit(payload.limit)
+        .get()
+        .then(query => {
+          return query.docs;
         });
     },
 
@@ -2626,28 +2765,18 @@ let store = new vuex.Store({
         .limit(10)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
         });
     },
     async search_lists({ commit }, text) {
       return await firebase
         .firestore()
-        .collection("lists")
-        .where("keywords", "array-contains", text)
+        .collection("list_keywords")
+        .where("words", "array-contains", text)
         .limit(10)
         .get()
         .then(query => {
-          return query.docs.map(doc => {
-            return {
-              id: doc.id,
-              ...doc.data()
-            };
-          });
+          return query.docs;
         });
     },
     async upload_categories({ commit }, categories) {
@@ -2659,7 +2788,7 @@ let store = new vuex.Store({
           .doc(category.name)
           .set({
             name: category.name,
-            count: 0,
+            list_count: 0,
             created: firebase.firestore.FieldValue.serverTimestamp()
           })
           .then(() => {
@@ -2671,10 +2800,11 @@ let store = new vuex.Store({
                 .doc(sub)
                 .set({
                   name: sub,
-                  count: 0,
+                  list_count: 0,
                   created: firebase.firestore.FieldValue.serverTimestamp()
                 });
             });
+            console.log("done");
           });
       });
     },
@@ -2709,7 +2839,7 @@ let store = new vuex.Store({
           }
         });
     },
-    async update_happening({ commit }, payload) {
+    async update_happening({ commit, state }, payload) {
       let db = firebase.firestore();
       db.collection("happening")
         .doc("data")
@@ -2724,18 +2854,21 @@ let store = new vuex.Store({
           count: firebase.firestore.FieldValue.increment(1)
         });
     },
-    async update_timeline({ commit, state }, payload) {
+    async update_activities({ commit, state }, payload) {
       let db = firebase.firestore();
 
-      db.collection("users_timelines")
+      db.collection("user_details")
         .doc(state.user.id)
         .collection("activities")
-        .add(payload);
-      db.collection("users_timelines")
+        .add({
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          ...payload
+        });
+      db.collection("user_details")
         .doc(state.user.id)
         .set(
           {
-            count: firebase.firestore.FieldValue.increment(1)
+            activity_count: firebase.firestore.FieldValue.increment(1)
           },
           { merge: true }
         );
@@ -2750,6 +2883,24 @@ let store = new vuex.Store({
           } else if (err.code == "unimplemented") {
             console.log("Offline failed");
           }
+        });
+    },
+    async fetch_user_activities({ state }, payload) {
+      let db = firebase.firestore();
+      if (payload.timestamp == "now") {
+        payload.timestamp = new firebase.firestore.Timestamp.now();
+      }
+
+      return db
+        .collection("user_details")
+        .doc(payload.user.id)
+        .collection("activities")
+        .where("created", "<", payload.timestamp)
+        .orderBy("created", "desc")
+        .limit(20)
+        .get()
+        .then(query => {
+          return query.docs;
         });
     }
   },

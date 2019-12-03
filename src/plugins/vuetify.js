@@ -13,10 +13,10 @@ const vuetify = new Vuetify({
   theme: {
     themes: {
       light: {
-        primary: "#1867C0",
-        brand: "#3e6db3",
+        primary: "#388E3C",
+        brand: "#388E3C",
         form: "#60aaea",
-        accent: "#f1295b",
+        accent: "#8CE188",
         background: "#f4f4f4",
         link: "#0060AC",
         button: "#0060AC",

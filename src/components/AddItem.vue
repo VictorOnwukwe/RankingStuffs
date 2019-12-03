@@ -1,22 +1,26 @@
 <template>
   <div style="position:relative">
-    <v-divider v-if="index > 0 || !multi"></v-divider>
-    <v-layout class="mb-3 pa-1">
-      <div class="numeric-box" v-if="multi">
-        <span>{{parentLength + index + 1}}</span>
+    <v-divider v-if="index > 0 && multi" class="mb-one"></v-divider>
+    <v-layout class="px-1 mb-4" align-start>
+      <div class="numeric-box" v-if="multi && numeral">
+        <span>{{ parentLength + index + 1 }}</span>
       </div>
       <v-spacer></v-spacer>
       <v-icon
         @click="oneUp()"
         v-if="index > 0"
-        large
-        class="mr-2"
+        class="mr-3"
         color="grey darken-2"
-      >mdi-chevron-up</v-icon>
-      <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2">close</v-icon>
+        >fa-chevron-up</v-icon
+      >
+      <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2"
+        >fa-times</v-icon
+      >
     </v-layout>
     <div style="position:relative">
-      <p class="text-capitalize font-weight-medium grey--text text--darken-2">Name</p>
+      <p class="text-capitalize font-weight-medium grey--text text--darken-2">
+        Name
+      </p>
       <v-text-field
         @focus="showSearch = true"
         solo
@@ -27,7 +31,7 @@
         @keyup.delete="info = undefined"
         @blur="emitItem()"
       ></v-text-field>
-      <div v-if="showSearch" class="results">
+      <div v-if="showSearch && item.name != ''" class="results elevation-3">
         <div
           class="pointer"
           @click="setInfo(result)"
@@ -35,39 +39,49 @@
           :key="index"
         >
           <v-layout>
-            <v-img
-              v-if="result.image"
-              :src="result.image.url.low"
-              max-width="70px"
-              aspect-ratio="1"
-              class="mr-4"
-            ></v-img>
-            <div>
-              <span
-                class="text-capitalize primary-text-dark"
-                style="font-size:1.5em"
-              >{{result.name}}</span>
-              <br />
-              <span
-                v-if="result.category"
-                class="secondary-text-dark font-weight-bold"
-              >{{result.category}}</span>
+            <v-avatar tile size="2.5em">
+              <v-img
+                v-if="result.data().image"
+                :src="result.data().image.url.low"
+                class="mr-4"
+              ></v-img>
+            </v-avatar>
+            <div class="pl-1 pt-1">
+              <v-layout>
+                <span class="text-capitalize ptd" style="line-height:1em">{{
+                  result.data().name
+                }}</span>
+              </v-layout>
+              <v-layout>
+                <span v-if="result.category" class="std">{{
+                  result.data().category
+                }}</span>
+              </v-layout>
             </div>
           </v-layout>
         </div>
       </div>
     </div>
-    <v-img class="mt-n4 mb-6" v-if="image" width="100px" aspect-ratio="1" :src="image.url.low"></v-img>
+    <v-img
+      class="mt-n4 mb-4"
+      v-if="image"
+      width="100px"
+      aspect-ratio="1"
+      :src="image.url.low"
+    ></v-img>
     <div class="mt-n1">
       <p class="text-capitalize font-weight-medium grey--text text--darken-1">
-        <v-icon color="grey darken-1" size="1.5em">fa-comment</v-icon>&nbsp;Comment
+        <v-icon color="grey darken-1" size="1.5em">fa-comment</v-icon
+        >&nbsp;Comment
       </p>
       <v-textarea
         :placeholder="commentPlaceholder"
         solo
         flat
-        no-resize
+        rows="2"
         color="brand"
+        no-resize
+        auto-grow
         v-model="comment"
         @blur="emitComment()"
       ></v-textarea>
@@ -81,7 +95,10 @@ import { setTimeout } from "timers";
 export default {
   props: {
     parentLength: Number,
-    index: Number,
+    index: {
+      type: Number,
+      default: 0
+    },
     commentPlaceholder: {
       type: String,
       default: "[Optional] Tell us why you placed this item at this position"
@@ -92,6 +109,14 @@ export default {
     },
     multi: {
       type: Boolean,
+      default: true
+    },
+    numeral: {
+      type: Boolean,
+      default: true
+    },
+    rImage: {
+      type: Boolean | Object,
       default: false
     }
   },
@@ -104,7 +129,7 @@ export default {
       comment: "",
       results: [],
       showSearch: true,
-      image: false,
+      image: this.rImage,
       rules: Rules,
       valid: false
     };
@@ -119,7 +144,7 @@ export default {
           };
         } else {
           this.item = {
-            keywords: this.generateKeywords(this.item.name),
+            keywords: this.generateKeywords(this.item.name.trim()),
             name: this.item.name,
             info: this.item.info
           };
@@ -152,9 +177,9 @@ export default {
     },
     async setInfo(result) {
       this.item.info = result.id;
-      this.item.name = result.name;
+      this.item.name = result.data().name;
       this.showSearch = false;
-      result.image ? (this.image = result.image) : (this.image = false);
+      if(result.data().image) { (this.image = result.data().image) }
     },
     oneUp() {
       this.$emit("oneUp", this.index);
@@ -207,7 +232,7 @@ export default {
 }
 .results {
   position: absolute;
-  top: 60px;
+  top: 90px;
   background: rgb(233, 233, 237);
   width: 100%;
   z-index: 3;
@@ -218,6 +243,6 @@ export default {
   border-right: 2px solid grey; */
 }
 .results > div:hover {
-  background: rgb(202, 213, 248);
+  background-color:rgb(223, 223, 226);
 }
 </style>

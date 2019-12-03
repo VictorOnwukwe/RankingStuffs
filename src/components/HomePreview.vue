@@ -4,29 +4,29 @@
       <div class="overlay">
         <div class="foreground">
           <h1 class="white--text">top<span class="accent--text font-weight-black">TEN</span></h1>
-          <p class="white--text text-center">
+          <p class="ptd text-center">
             It's the Universe... And It's
-            <span class="white--text font-weight-black">YOU</span> and US, Building a Repository for Everything Top Ten In it...
+            <span class="ptd font-weight-black">YOU</span> and US, Building a Repository for Everything Top Ten In it...
           </p>
-          <div class="search-container mt-4">
+          <!-- <div class="search-container mt-4">
             <input type="text" placeholder="Looking for something...?" class="search" />
             <v-icon
               size="1.2em"
               style="position:absolute; right:0.5em; top:0.7em"
               color="grey"
             >fa-search</v-icon>
-          </div>
+          </div> -->
           <div class="display-container">
             <div class="display create">
               <h3 class="header">Create</h3>
               <p
-                class="description white--text text-center"
+                class="description ptd text-center"
               >Create Lists, Respond to people's demands...</p>
             </div>
             <div class="display demand">
               <h3 class="header">Demand</h3>
               <p
-                class="description white--text text-center"
+                class="description ptd text-center"
               >Want a List? Place it on demand...</p>
             </div>
           </div>
@@ -45,11 +45,12 @@ export default {
 
 <style scoped>
 .top-view {
-  background-image: url("../../public/background1.jpg");
+  background-image: url("../../public/background3.jpg");
   width: calc(100% + 1em);
   margin-left: -0.5em;
   height: auto;
-  background-position: center;
+  background-size: 100% auto;
+  background-position: top right;
 }
 .overlay {
   background: rgba(0, 0, 0, 0.3);

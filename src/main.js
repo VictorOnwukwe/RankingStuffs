@@ -27,12 +27,15 @@ import CommentBox from "../src/components/CommentBox";
 // @ts-ignore
 import MyImage from "../src/components/MyImage";
 import VueLodash from "vue-lodash";
-import MyRating from "../src/components/MyRating";
+import Rate from "../src/components/Rate";
+import Rating from "../src/components/Rating";
 import VueRx from "vue-rx";
 import MyButton from "./components/MyButton";
 import MyAlert from "./components/MyAlert";
+import MyProgress from "./components/MyProgress";
 import ProfilePic from "./components/ProfilePic";
 import categories from "../public/my-modules/categories";
+import LoadingLists from "./components/LoadingLists";
 import {VueMasonryPlugin} from "vue-masonry";
 
 const options = {}; // Optional options
@@ -67,10 +70,13 @@ Vue.component("preview-user", PreviewUser);
 Vue.component("display-lists", DisplayPreviews);
 Vue.component("auto-textarea", CommentBox);
 Vue.component("img-prev", MyImage);
-Vue.component("rating", MyRating);
+Vue.component("rate", Rate);
+Vue.component("rating", Rating);
 Vue.component("btn", MyButton);
 Vue.component("alert", MyAlert);
 Vue.component("dp", ProfilePic);
+Vue.component("m-progress", MyProgress);
+Vue.component("list-loading", LoadingLists);
 
 Vue.mixin({
   methods: {

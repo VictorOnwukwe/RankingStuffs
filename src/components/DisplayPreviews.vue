@@ -1,8 +1,21 @@
 <template>
   <div id="main">
-    <div id="preview" class="my-4">
-      <PreviewList v-for="list in lists" :key="list.id" :list="list" :sub="sub"></PreviewList>
-    </div>
+      <div v-if="!ids" class="preview my-4">
+        <PreviewList
+          v-for="list in lists"
+          :key="list.id"
+          :List="{ id: list.id, ...list.data() }"
+          :sub="sub"
+        ></PreviewList>
+      </div>
+      <div v-else class="preview my-4">
+        <PreviewList
+          v-for="id in ids"
+          :key="id.id"
+          :id="id.id"
+          :sub="sub"
+        ></PreviewList>
+      </div>
   </div>
 </template>
 
@@ -14,21 +27,25 @@ export default {
   },
   props: {
     lists: Array,
-    sub: Boolean
+    sub: Boolean,
+    ids: {
+      type: Array | Boolean,
+      default: false
+    }
   }
 };
 </script>
 
 <style scoped>
-#preview {
-    display: grid;
-    grid-template-columns: 1fr;
-    grid-gap: 0.5em;
+.preview {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 0.5em;
 }
 
-@media (min-width: 700px) {
-    #preview{
-        grid-template-columns: 1fr 1fr;
-    }
+@media (min-width: 900px) {
+  .preview {
+    grid-template-columns: 1fr 1fr;
+  }
 }
 </style>

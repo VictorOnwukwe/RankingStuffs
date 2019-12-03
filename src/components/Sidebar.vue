@@ -5,6 +5,7 @@
     height="calc(100vh - 45px)"
     class="mt-12 elevation-2"
     fixed
+    width="280px"
     dark
     :temporary="$vuetify.breakpoint.xs ? true : null"
   >

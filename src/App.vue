@@ -3,17 +3,41 @@
     <v-app id="body">
       <toolbar :closeSearch="closeSearch"></toolbar>
 
-      <preview v-if="$route.name=='home'" id="preview"></preview>
-      <div
-        @click="setClose()"
-        :style="$route.name=='home' ? 'margin-top: 0' : null"
-        id="view-container"
-      >
-        <transition name="fade" mode="out-in">
-          <router-view id="router-view"></router-view>
-        </transition>
+      <div @click="setClose()">
+        <preview v-if="$route.name=='home'" id="preview"></preview>
+        <v-layout justify-center>
+          <v-layout :column="$vuetify.breakpoint.xs ? true : false" :style="$route.name=='home' ? 'margin-top: 2em' : null" class="view-container">
+            <v-flex xs12 sm9>
+              <transition name="fade" mode="out-in">
+                <router-view></router-view>
+              </transition>
+            </v-flex>
+            <v-flex xs12 sm3 class="side-preview" v-if="!loading || $vuetify.breakpoint.smAndUp">
+              <v-card-text class="mt pr-0 py-0" :class="$vuetify.breakpoint.xs ? 'px-0' : 'pl'">
+                <v-card style="border:2px solid var(--accent)" width="100%" class="elevation-3">
+                  <v-card-title class="text-uppercase font-weight-bold black--text title-text grey lighten-4">Hot Lists</v-card-title>
+                  <v-card-text class="grey lighten-4">
+                    <div v-for="n in 10" :key="n">
+                      <a class="ptd">Top Ten Biggest Men In The World</a>
+                      <v-divider v-if="n!==10" class="my-1 accent"></v-divider>
+                    </div>
+                  </v-card-text>
+                </v-card>
+                <v-card style="border:2px solid var(--accent)" class="mt elevation-3" flat width="100%">
+                  <v-card-title class="text-uppercase font-weight-bold black--text title-text grey lighten-4">Hot Demands</v-card-title>
+                  <v-card-text class="grey lighten-4">
+                    <div v-for="n in 10" :key="n">
+                      <a class="ptd">Top Ten Biggest Men In The World</a>
+                      <v-divider v-if="n!==10" class="my-1 accent"></v-divider>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-card-text>
+            </v-flex>
+          </v-layout>
+        </v-layout>
+        <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
       </div>
-      <Footer></Footer>
     </v-app>
   </div>
 </template>
@@ -50,6 +74,12 @@ export default {
     }
   },
 
+  computed: {
+    loading(){
+      return this.$store.getters.getLoading;
+    }
+  },
+
   created: function() {
     this.$store.dispatch("initialize").then(() => {
       this.$store.dispatch("fetchCategories");
@@ -72,24 +102,27 @@ export default {
   --light-secondary: #ffffffb3;
   --light-hint: #ffffff80;
   --light-divider: #ffffff1f;
-  --accent: #f1295b;
+  --accent: #8ce188;
   --divider: #bdbdbd;
-  --background-color: #f4f4f4;
-  --link: #0060ac;
+  /* --background: #f5f7f5; */
+  --background: #ffffff;
+  --link: #3285A7;
   --button: #0060ac;
-  --brand: #3e6db3;
+  --brand: #388E3C;
   --sidebar: #515151;
 
   --border-radius: 0.3em;
-  font-size: 0.9em !important;
+  font-size: 0.85em !important;
 }
 
 h1,
 h2,
 h3,
 h4,
-p {
-  color: var(--dark-primary);
+p,
+span,
+.li {
+  /* color: rgb(50, 72, 105); */
   line-height: calc(1em + 12px);
 }
 
@@ -101,26 +134,30 @@ html {
 *::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: inherit;
-  opacity: 0;
-  border-radius: 10px;
+  background-color: white;
   display: none;
 }
 
 *::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
   /* background-color: #f5f5f5; */
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.4);
-  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  /* background-color: white; */
+  /* background-color: rgba(255,255,255,0.7); */
 }
-.comment{
-  font-family: "Cookie", cursive;
-  font-size: 1.4em
+.italic {
+  font-family: "Overlock", cursive;
+  font-style: italic;
+  font-size: 1.2em;
 }
-
+.title-text {
+  font-size: 1em;
+  font-weight: normal;
+  color: #616161;
+}
 .page-title {
   margin: 0.5em 0em;
   padding: 0.2em 0.2em;
@@ -131,6 +168,10 @@ html {
 
 .icon {
   font-size: 2em;
+}
+
+.border {
+  border: 1px solid var(--brand) !important;
 }
 
 @media (min-width: 25em) {
@@ -150,7 +191,7 @@ html {
 }
 @media (min-width: 68.75em) {
   :root {
-    font-size: 1.05em !important;
+    font-size: 1em !important;
   }
 }
 
@@ -160,67 +201,169 @@ html {
   box-sizing: inherit;
 }
 * > * {
-  font-family: "Nunito", sans-serif;
-  color: rgb(44, 63, 92);
+  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: "Overlock", cursive;
+  font-family: "Roboto", sans-serif;
+  /* transition: all 0.15s ease-in; */
 }
 #body {
   /* background: radial-gradient(#f1f5f8 80%, white); */
-  background: #fafafa;
+  background: var(--background);
   height: auto;
-  font-family: "Nunito", sans-serif;
+  font-family: "Overlock", cursive;
 }
-#view-container {
-  padding: 0 0.25em;
-  display: flex;
+.roboto{
+  font-family: "Roboto", sans-serif;
+  font-size: 0.9em;
+}
+.tile:hover{
+  color: var(--brand) !important;
+}
+.tile:hover>*{
+  color: var(--brand) !important;
+  /* font-weight: bold; */
+}
+.tile:hover>*>*{
+  color: var(--brand) !important;
+  /* font-weight: bold; */
+}
+/* .tile:active{
+  background-color: #E2FFDA;
+  color: var(--brand) !important;
+}
+.tile:active>*{
+  color: var(--brand) !important;
+  font-weight: bold
+}
+.tile:active>*>*{
+  color: var(--brand) !important;
+  font-weight: bold
+} */
+.view-container {
+  padding: 0 0.5em;
   margin-top: 4.5em;
-  align-items: center;
-  flex-direction: column;
-  margin-bottom: 10em;
+  margin-bottom: 1em;
+  width: 100%;
+  max-width: 1300px !important;
 }
-@media (min-width: 600px) {
-  #view-container {
-    margin-bottom: 8em;
+.mt {
+  margin-top: 0.5em !important;
+}
+.mb {
+  margin-bottom: 0.5em !important;
+}
+.ml {
+  margin-left: 0.5em !important;
+}
+.mr {
+  margin-right: 0.5em !important;
+}
+.pr {
+  padding-right: 0.5em !important;
+}
+.pl {
+  padding-left: 0.5em !important;
+}
+.pt {
+  padding-top: 0.5em !important;
+}
+.pb {
+  padding-bottom: 0.5em !important;
+}
+@media (min-width:600px){
+  .view-container{
+    margin-top: 5em;
   }
 }
-
-@media (min-width: 50em) {
-  #view-container {
-    padding: 0 0.5em;
+@media (min-width: 800px) {
+  .view-container {
+    padding: 0 1em;
+  }
+  .mt {
+    margin-top: 1em !important;
+  }
+  .mb {
+    margin-bottom: 1em !important;
+  }
+  .ml {
+    margin-left: 1em !important;
+  }
+  .mr {
+    margin-right: 1em !important;
+  }
+  .pr {
+    padding-right: 1em !important;
+  }
+  .pl {
+    padding-left: 1em !important;
+  }
+  .pt {
+    padding-top: 1em !important;
+  }
+  .pb {
+    padding-bottom: 1em !important;
+  }
+}
+@media (min-width: 1432px) {
+  .view-container {
+    padding: 0;
+  }
+  .mt {
+    margin-top: 1em !important;
+  }
+  .mb {
+    margin-bottom: 1em !important;
+  }
+  .ml {
+    margin-left: 1em !important;
+  }
+  .mr {
+    margin-right: 1em !important;
+  }
+  .pr {
+    padding-right: 1em !important;
+  }
+  .pl {
+    padding-left: 1em !important;
+  }
+  .pt {
+    padding-top: 1em !important;
+  }
+  .pb {
+    padding-bottom: 1em !important;
   }
 }
 #preview {
   width: 100%;
+  margin-top: 4.5em;
 }
 
-#router-view {
-  flex-grow: 1;
-  width: 100%;
-  max-width: 1300px;
+.ptd {
+  color: rgba(0, 0, 0, 0.87) !important;
+}
+.ptn {
+  color: rgb(50, 72, 105) !important;
+}
+.std {
+  color: rgba(0, 0, 0, 0.54) !important;
+}
+.htd {
+  color: rgba(0, 0, 0, 0.38) !important;
+}
+.dd {
+  color: rgba(0, 0, 0, 0.12) !important;
 }
 
-.primary-text-dark {
-  color: rgb(44, 63, 92) !important;
-}
-.secondary-text-dark {
-  color: rgba(44, 63, 92, .54) !important;
-}
-.hint-text-dark {
-  color: rgba(44, 63, 92, .38) !important;
-}
-.divider-dark {
-  color: rgba(44, 63, 92, .12) !important;
-}
-
-.primary-text-light {
+.ptl {
   color: rgba(255, 255, 255, 1) !important;
 }
-.secondary-text-light {
+.stl {
   color: rgba(255, 255, 255, 0.7) !important;
 }
-.hint-text-light {
+.htl {
   color: rgba(255, 255, 255, 0.5) !important;
 }
-.divider-light {
+.dl {
   color: rgba(255, 255, 255, 0.12) !important;
 }
 .primary-dark-bg {
@@ -250,15 +393,23 @@ html {
 }
 
 .br {
-  border-radius: 0.3em;
+  border-radius: 4px;
 }
-
+.no-deco{
+  text-decoration: none;
+}
+.brighten:hover{
+  filter: brightness(150%);
+}
+.brighten-1:hover{
+  filter: brightness(125%);
+}
 .top-bar {
   /* background: linear-gradient(180deg, #1E88E5, #2196F3); */
   /* background: rgba(224, 224, 230,.7); */
   /* background: rgb(244, 244, 244); */
-  /* background: #eeeeee; */
-  background: rgb(132, 180, 255);
+  background: #eeeeee;
+  /* background: rgb(132, 180, 255); */
   color: #454545;
   font-weight: normal;
 }
@@ -306,9 +457,9 @@ html {
 
 .numeric-box {
   /* background-color: hsl(0, 90%, 72%); */
-  background: linear-gradient(180deg, #1565c0, #1976d2);
-  min-width: 2.3em;
-  min-height: 2em;
+  background: var(--accent);
+  min-width: 2.7em;
+  min-height: 1.5em;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -388,6 +539,30 @@ html {
 .fade-enter,
 .fade-leave-active {
   opacity: 0;
+}
+.mt-one {
+  margin-top: 1em !important;
+}
+.mt-half {
+  margin-top: 0.5em !important;
+}
+.mb-one {
+  margin-bottom: 1em !important;
+}
+.mb-half {
+  margin-bottom: 0.5em !important;
+}
+.pl-one {
+  padding-left: 1em !important;
+}
+.pl-half {
+  padding-left: 0.5em !important;
+}
+.pr-one {
+  padding-right: 1em !important;
+}
+.pr-half {
+  padding-right: 0.5em !important;
 }
 </style>
 
