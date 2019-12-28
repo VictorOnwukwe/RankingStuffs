@@ -10,7 +10,9 @@
         ></activity>
       </div>
     </v-list>
-    <m-progress v-if="fetching"></m-progress>
+    <v-layout justify-center>
+      <m-progress v-if="fetching"></m-progress>
+    </v-layout>
   </div>
 </template>
 

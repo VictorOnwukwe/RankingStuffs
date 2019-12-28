@@ -19,28 +19,40 @@
       </div>
     </div>
 
-    <v-layout align-center class="mt brand--text">
-      <sorter @change="setShow" :options="options"></sorter>
-    </v-layout>
+    <div class="mt-8 brand--text" style="max-width:400px">
+      <sorter @change="refetch" :options="options"></sorter>
+    </div>
 
     <div class="mt-12">
-      <display-lists :lists="lists"></display-lists>
+      <display-lists v-if="show == 'lists'" :lists="lists"></display-lists>
+      <display-demands
+        v-if="show == 'demands'"
+        :demands="demands"
+      ></display-demands>
     </div>
-    <list-loading v-if="fetching"></list-loading>
+    <mugen-scroll :handler="fetchMore" :should-handle="!fetching" :threshold="0.1">
+      <list-loading v-if="!complete && fetching"></list-loading
+    ></mugen-scroll>
   </div>
 </template>
 <script>
+import MugenScroll from "vue-mugen-scroll";
 import Sorter from "./Sorter";
+import DisplayDemands from "./DisplayDemands";
 export default {
   components: {
-    Sorter
+    Sorter,
+    DisplayDemands,
+    MugenScroll
   },
   data() {
     return {
       lists: [],
+      demands: [],
       fetching: false,
       show: "lists",
-      sortBy: "random"
+      sortBy: "Random",
+      complete: false
     };
   },
   methods: {
@@ -49,25 +61,93 @@ export default {
       this.$store
         .dispatch("fetch_category_lists", {
           category: this.$route.params.id,
-          limit: 20
+          limit: 20,
+          sortBy: this.sortBy
+        })
+        .then(lists => {
+          this.lists = lists;
+          this.fetching = false;
+        });
+    },
+    fetchMoreLists() {
+      if(this.complete || this.lists.length == 0){
+        return;
+      }
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_category_lists", {
+          category: this.$route.params.id,
+          limit: 20,
+          sortBy: this.sortBy,
+          lastDoc: this.lists[this.lists.length - 1]
         })
         .then(lists => {
           this.lists = this.lists.concat(lists);
           this.fetching = false;
+          if(lists.length == 0){
+            this.complete = true;
+          }
         });
     },
-    fetchMoreLists() {},
-    setShow(val){
-      this.show = val;
+    fetchDemands() {
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_category_demands", {
+          category: this.$route.params.id,
+          limit: 20,
+          sortBy: this.sortBy
+        })
+        .then(query => {
+          this.demands = query.docs;
+          this.fetching = false;
+        });
     },
-    setSortBy(val){
-      this.sortBy = val;
+    fetchMoreDemands() {
+      if(this.complete || this.demands.length == 0){
+        return;
+      }
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_category_demands", {
+          category: this.$route.params.id,
+          limit: 20,
+          sortBy: this.sortBy,
+          lastDoc: this.demands[this.demands.length - 1]
+        })
+        .then(query => {
+          this.demands = this.demands.concat(query.docs);
+          this.fetching = false;
+          if(query.docs.length == 0){
+            this.complete = true;
+          }
+        });
+    },
+    refetch(vals) {
+      this.complete = false;
+      this.show = vals.choice;
+      this.sortBy = vals.subChoice;
+      this.lists = [];
+      this.demands = [];
+      if (this.show == "lists") {
+        this.fetchLists();
+      } else {
+        this.fetchDemands();
+      }
+    },
+    fetchMore(){
+      if(this.show == "lists"){
+        this.fetchMoreLists();
+      }else if(this.show == "demands"){
+        this.fetchMoreDemands();
+      }else{
+        console.log("Unregistered Command");
+      }
     }
   },
   computed: {
     category() {
       let category = this.$store.getters.categories.find(category => {
-        return category.name == this.$route.params.id;
+      return category.name == this.$route.params.id;
       });
       return category;
     },
@@ -79,22 +159,25 @@ export default {
     categoryID() {
       return this.$route.params.id;
     },
-    options(){
-      return [{
-        label: "Lists",
-        value: "lists",
-        sorts: ["Random","Latest","Top Rated","Popular"]
-      },{
-        label: "Demands",
-        value: "demands",
-        sorts: ["Random","Most Demanded","Least Demanded","Newest","Oldest"]
-      }]
-    }
-  },
-  watch: {
-    categoryID(val) {
-      this.lists = [];
-      this.fetchLists();
+    options() {
+      return [
+        {
+          label: "Lists",
+          value: "lists",
+          sorts: ["Random", "Top Rated", "Popular", "Newest", "Oldest"]
+        },
+        {
+          label: "Demands",
+          value: "demands",
+          sorts: [
+            "Random",
+            "Most Demanded",
+            "Least Demanded",
+            "Newest",
+            "Oldest"
+          ]
+        }
+      ];
     }
   },
   created() {

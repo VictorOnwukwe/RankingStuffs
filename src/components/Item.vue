@@ -1,18 +1,9 @@
 <template>
   <v-layout>
     <v-flex class="mt">
-      <v-card v-if="fetched" flat tile class="pa-4 mb-4 mx-auto">
-        <v-layout
-          @click="contribute = true"
-          column
-          class
-          style="position:absolute; top:1.5em; right:1em;"
-        >
-          <v-icon size="1em" color="grey" class="pointer">fa-pencil-alt</v-icon>
-          <span class="pointer" style="font-size:0.7em">Contribute</span>
-        </v-layout>
+      <v-card v-if="fetched" flat tile class="mb-4">
         <v-layout column>
-          <div max-width="900px" class="mb-8">
+          <div max-width="" class="mb-8">
             <v-card
               tile
               flat
@@ -29,6 +20,7 @@
                 :width="'100%'"
                 :aspectRatio="1"
                 :path="{ item: itemID }"
+                class="elevation-3"
               ></img-prev>
               <v-img
                 v-else
@@ -48,29 +40,49 @@
               >
             </v-card>
             <div>
-              <h1 class="ptd text-capitalize font-weight-medium" style>
-                {{ item.name }}
-              </h1>
-              <span class="subtitle-1 std font-weight-medium">{{
-                item.category
-              }}</span>
+              <v-layout>
+                <v-flex>
+                  <h1 class="ptd text-capitalize font-weight-medium" style>
+                    {{ item.name }}
+                  </h1>
+                  <span class="subtitle-1 std font-weight-medium">{{
+                    item.category
+                  }}</span>
+                </v-flex>
+                <v-flex shrink>
+                  <v-layout @click="contribute = true" column>
+                    <v-icon size="1em" color="grey" class="pointer"
+                      >fa-pencil-alt</v-icon
+                    >
+                    <span class="pointer" style="font-size:0.7em"
+                      >Contribute</span
+                    >
+                  </v-layout>
+                </v-flex>
+              </v-layout>
               <p
                 class="subtitle-1 ptd my-8"
                 style="white-space:pre-wrap; font-size:0.9em"
-              >{{ item.about }}</p>
+              >{{ item.about }}
+              </p>
             </div>
             <div>
-              <a v-for="(ref, index) in item.references" :key="index" :href="ref">{{ref}}<br/></a>
+              <a
+                v-for="(ref, index) in item.references"
+                :key="index"
+                :href="ref"
+                >{{ ref }}<br
+              /></a>
             </div>
           </div>
         </v-layout>
-        <v-card-title
+        <!-- <v-card-title
           class="text-capitalize top-bar pa-2"
           style="font-size:1em; font-weight:normal"
           v-if="featuredLists.length > 0"
           >Lists Featuring {{ item.name }}</v-card-title
-        >
-        <display-lists :ids="featuredLists" :sub="true"></display-lists>
+        > -->
+        <lists-preview :IDs="featuredLists" :item="item"></lists-preview>
       </v-card>
       <div v-else>Loading...</div>
       <v-dialog
@@ -131,9 +143,20 @@
             <a v-for="(link, index) in referenceArray" :key="index"
               >{{ link }}<br
             /></a>
+
+            <alert
+              :type="'success'"
+              :value="updated"
+              :message="successMessage"
+              @act="updateSuccess()"
+            ></alert>
           </v-card-text>
           <v-card-actions>
-            <v-btn :loading="updating" @click="update()" class="brand white--text">Submit</v-btn>
+            <m-btn
+              :loading="updating"
+              @click="update()"
+              >Submit</m-btn
+            >
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -143,10 +166,11 @@
 
 <script>
 import UploadImage from "./UploadImage";
-
+import ItemLists from "./ItemLists";
 export default {
   components: {
-    "upload-image": UploadImage
+    "upload-image": UploadImage,
+    "lists-preview": ItemLists
   },
   data() {
     return {
@@ -160,7 +184,8 @@ export default {
       contribute: false,
       references: "",
       referenceArray: [],
-      updating: false
+      updating: false,
+      updated: false
     };
   },
   methods: {
@@ -200,9 +225,16 @@ export default {
         upload = { category: this.category, ...upload };
       }
 
-      this.$store.dispatch("update_item", { update: upload, item: this.item }).then(() => {
-        this.updating = false;
-      })
+      this.$store
+        .dispatch("update_item", { update: upload, item: this.item })
+        .then(() => {
+          this.updating = false;
+          this.updated = true;
+        });
+    },
+    updateSuccess(){
+      this.contribute = false;
+      this.$router.go(1);
     },
     fetchItem() {
       this.$store
@@ -280,9 +312,12 @@ export default {
     },
     emptyphoto() {
       return this.$store.getters.noPhoto;
+    },
+    successMessage(){
+      return "Item Updated Successfully. Thanks for your contribution";
     }
   },
-  async created() {
+  created() {
     this.fetchItem();
   }
 };

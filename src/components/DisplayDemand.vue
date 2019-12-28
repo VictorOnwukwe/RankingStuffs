@@ -16,23 +16,35 @@
         </h1>
         <span class="std">{{ created }}</span>
         <v-layout v-if="demander" class="my-4" align-center>
-          <dp v-if="demander.profile_pic" :src="demander.profile_pic.low"></dp>
+          <dp
+            class="mr-2"
+            v-if="demander.profile_pic"
+            :src="demander.profile_pic.low"
+          ></dp>
           <a
             @click="showUser = true"
-            class="ml-2 brand--text font-weight-medium pointer"
+            class="brand--text font-weight-medium pointer"
             >{{ demander.username }}</a
           >
         </v-layout>
         <p class="ptd">{{ demand.comment }}</p>
-        <v-layout>
-          <!-- <v-spacer></v-spacer> -->
-          <span class="ptd" v-html="waitingMessage"></span>
+        <v-layout align-center class="mt-4">
+          <span class="std" v-html="waitingMessage"></span>
+          <v-spacer></v-spacer>
+          <m-btn fab depressed small class="mr-2 elevation-3" @click="create()">
+            <v-icon>mdi-plus</v-icon>
+          </m-btn>
+          <m-btn small outlined class="elevation-3" fab :loading="toggling" @click="toggleWaiting()">
+            <v-icon class="mt-n3">fa-hand-holding</v-icon>
+          </m-btn>
         </v-layout>
 
-        <v-divider class="mb-4"></v-divider>
+        <v-divider class="mb-4 mt-2 accent"></v-divider>
 
         <div class="">
-          <div v-if="demand.comments == 0" class="htd px-4 py-2">Be the first to comment</div>
+          <div v-if="demand.comments == 0" class="htd px-4 py-2">
+            Be the first to comment
+          </div>
           <div v-else>
             <div v-for="comment in comments" :key="comment.id">
               <v-divider class="grey lighten-4 my-1"></v-divider>
@@ -63,9 +75,7 @@
                 <v-icon
                   size="1.2em"
                   @click="uploadComment()"
-                  :class="
-                    comment != '' ? 'accent--text' : 'grey--text'
-                  "
+                  :class="comment != '' ? 'accent--text' : 'grey--text'"
                   style="position:absolute; bottom:1em; right:0.8em"
                   :disabled="comment == ''"
                   >fa-paper-plane</v-icon
@@ -83,6 +93,14 @@
           </v-layout>
         </div>
       </div>
+      <!-- <v-row class="px-3 mt-2">
+        <m-btn fab small class="mr-2">
+          <v-icon>mdi-plus</v-icon>
+        </m-btn>
+        <m-btn small fab :loading="toggling" @click="toggleWaiting()">
+          <v-icon>fa-hand-holding</v-icon>
+        </m-btn>
+      </v-row> -->
     </v-card>
   </div>
 </template>
@@ -104,7 +122,8 @@ export default {
       demander: {},
       comment: "",
       focused: false,
-      waiting: false
+      waiting: undefined,
+      toggling: false
     };
   },
   methods: {
@@ -117,15 +136,17 @@ export default {
       this.$store
         .dispatch("fetch_complete_demand", this.$route.params.id)
         .then(demand => {
-          this.demand = demand;
-          this.fetched = true;
-          this.fetchDemander();
+          this.demand = { id: this.$route.params.id, ...demand };
+          this.fetchDemander().then(() => {
+            this.fetched = true;
+            this.setWaiting();
+          });
           this.fetchComments();
           // console.log(demand);
         });
     },
-    fetchDemander() {
-      this.$store.dispatch("fetch_user", this.demand.user).then(user => {
+    async fetchDemander() {
+      await this.$store.dispatch("fetch_user", this.demand.user).then(user => {
         this.demander = user;
       });
     },
@@ -149,6 +170,54 @@ export default {
         .then(comments => {
           this.comments = this.comments.concat(comments);
         });
+    },
+    toggleWaiting() {
+      this.toggling = true;
+      if (this.waiting) {
+        this.$store
+          .dispatch("leave_demanders", this.demand)
+          .then(() => {
+            this.demand.waiters_count--;
+            this.waiting = false;
+            this.toggling = false;
+          })
+          .catch(error => {
+            console.log(error);
+            this.toggling = false;
+          });
+      } else {
+        this.$store
+          .dispatch("join_demanders", this.demand)
+          .then(() => {
+            this.demand.waiters_count++;
+            this.waiting = true;
+            this.toggling = false;
+          })
+          .catch(error => {
+            this.toggling = false;
+            console.log(error);
+          });
+      }
+    },
+    async setWaiting() {
+      if (this.waiting !== undefined) {
+        return;
+      }
+      if(this.demand.user == this.$store.getters.getUser.id){
+        this.waiting = true;
+        return;
+      }
+      await this.$store
+        .dispatch("checkWaiting", this.$route.params.id)
+        .then(result => {
+          this.waiting = result;
+        });
+    },
+    create() {
+      this.$router.push({
+        path: "/create",
+        query: { demanded: true, id: this.demand.id, title: this.demand.title }
+      });
     }
   },
   computed: {
@@ -165,7 +234,7 @@ export default {
             return `You and <b>1</b> other person are waiting for this list`;
           }
         } else {
-          return "You are waiting for this list";
+          return "Only <b>you</b> are waiting for this list";
         }
       } else {
         if (this.demand.waiters_count === 1) {

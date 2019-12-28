@@ -4,7 +4,7 @@
       <v-layout align-center class="mb-8 px-4 grey lighten-3">
         <div class="page-title pa-0">
           <span class="grey--text text--darken-2">
-            Demands
+            Lists
           </span>
         </div>
         <v-spacer></v-spacer>
@@ -13,7 +13,7 @@
         </div>
       </v-layout>
 
-      <display-demands :demands="demands"></display-demands>
+      <display-lists :lists="lists"></display-lists>
       <mugen-scroll
         :handler="fetchMore"
         :should-handle="!loading"
@@ -26,20 +26,16 @@
 </template>
 
 <script>
-import PreviewDemand from "./PreviewDemand";
 import MugenScroll from "vue-mugen-scroll";
-import DisplayDemands from "./DisplayDemands";
 import Sorter from "./Sorter";
 export default {
   components: {
-    PreviewDemand,
     MugenScroll,
-    DisplayDemands,
     Sorter
   },
   data() {
     return {
-      demands: [],
+      lists: [],
       sort: "random",
       lastDoc: false,
       loading: false,
@@ -51,35 +47,35 @@ export default {
     };
   },
   methods: {
-    fetchDemands() {
+    fetchlists() {
       this.$store
-        .dispatch("fetch_demanded", {
+        .dispatch("fetch_lists", {
           limit: 20,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
-        .then(demands => {
-          this.lastDoc = demands[demands.length - 1];
-          this.demands = demands;
+        .then(lists => {
+          this.lastDoc = lists[lists.length - 1];
+          this.lists = lists;
           // this.$store.dispatch("set_loading", false);
         });
     },
     fetchMore() {
-      if (this.complete || this.demands.length == 0) {
+      if (this.complete || this.lists.length == 0) {
         return;
       }
       this.loading = true;
       this.$store
-        .dispatch("fetch_demanded", {
+        .dispatch("fetch_lists", {
           limit: 20,
           sort: this.sort,
           lastDoc: this.lastDoc
         })
-        .then(demands => {
+        .then(lists => {
           this.loading = false;
-          if (demands.length > 0) {
-            this.lastDoc = demands[demands.length - 1];
-            this.demands = this.demands.concat(demands);
+          if (lists.length > 0) {
+            this.lastDoc = lists[lists.length - 1];
+            this.lists = this.lists.concat(lists);
           } else {
             this.complete = true;
           }
@@ -87,11 +83,11 @@ export default {
     },
     shuffle(val) {
       this.sort = val.choice;
-      this.demands = [];
+      this.lists = [];
       this.complete = false;
       this.loading = false;
       this.lastDoc = false;
-      this.fetchDemands();
+      this.fetchlists();
     }
   },
   computed: {
@@ -101,52 +97,22 @@ export default {
           label: "Random",
           value: "random"
         },
-        { label: "Most Demanded", value: "most-demanded" },
-        { label: "Least Demanded", value: "least-demanded" },
         {
           label: "Newest",
           value: "newest"
         },
-        { label: "Oldest", value: "oldest" }
+        { label: "Oldest", value: "oldest" },
+        { label: "Most Popular", value: "popularity" },
+        { label: "Top Rated", value: "rating" }
       ];
     }
   },
   mounted() {
-    this.fetchDemands();
+    this.fetchlists();
     // this.$store.dispatch("set_loading", true);
     // this.$redrawVueMasonry();
   }
 };
 </script>
 
-<style scoped>
-.item {
-  width: 100%;
-  padding: 0.25em;
-  margin-bottom: 0.125em;
-}
-@media (min-width: 700px) {
-  .item {
-    width: 50%;
-  }
-}
-@media (min-width: 900px) {
-  .item {
-    width: 33.3%;
-  }
-}
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 0.5em;
-}
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.v-text-field.v-text-field--enclosed .v-text-field__details {
-  margin-bottom: 0px !important;
-}
-</style>
+<style scoped></style>

@@ -12,7 +12,7 @@ export default {
   props: {
     color: {
       type: String,
-      default: "accent"
+      default: "grey lighten-1"
     },
     size: {
       type: String | Number,

@@ -14,7 +14,8 @@ let categories = [
       "horse racing",
       'golf','swimming',
       'field events',
-      'track events'
+      'track events',
+      "boxing"
     ]
   },
   {

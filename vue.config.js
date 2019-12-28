@@ -3,5 +3,6 @@
 module.exports = {
   configureWebpack: {
     // plugins: [new VuetifyLoaderPlugin()]
-  }
+  },
+  transpileDependencies: ["vuex-persist"]
 };

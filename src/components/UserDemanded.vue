@@ -4,16 +4,17 @@
       <v-list-item-title
         class="text-capitalize text-wrap"
         :class="!searched ? 'link--text' : null"
+        :style="{ fontSize: fontSize }"
         >{{ demand.title }}</v-list-item-title
       >
-      <v-list-item-subtitle v-if="!searched">{{
-        created
-      }}</v-list-item-subtitle>
       <v-list-item-subtitle
         v-if="!searched"
         class="ptd"
         v-html="waitingMessage"
       ></v-list-item-subtitle>
+      <v-list-item-subtitle v-if="!searched">{{
+        created
+      }}</v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
         <v-menu left class="mt-n4">
@@ -148,6 +149,9 @@ export default {
     },
     isCreator() {
       return this.$store.getters.getUser.id === this.demand.user;
+    },
+    fontSize() {
+      return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
     }
   },
   mounted() {

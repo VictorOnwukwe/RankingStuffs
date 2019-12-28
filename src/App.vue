@@ -4,39 +4,35 @@
       <toolbar :closeSearch="closeSearch"></toolbar>
 
       <div @click="setClose()">
-        <preview v-if="$route.name=='home'" id="preview"></preview>
+        <preview v-if="$route.name == 'home'" id="preview"></preview>
         <v-layout justify-center>
-          <v-layout :column="$vuetify.breakpoint.xs ? true : false" :style="$route.name=='home' ? 'margin-top: 2em' : null" class="view-container">
-            <v-flex xs12 sm9>
+          <v-layout
+            :column="$vuetify.breakpoint.xs ? true : false"
+            :style="$route.name == 'home' ? 'margin-top: 2em' : null"
+            class="view-container"
+          >
+            <v-flex xs12 :class="{'sm9': !$route.name.includes('admin')}">
               <transition name="fade" mode="out-in">
                 <router-view></router-view>
               </transition>
             </v-flex>
-            <v-flex xs12 sm3 class="side-preview" v-if="!loading || $vuetify.breakpoint.smAndUp">
-              <v-card-text class="mt pr-0 py-0" :class="$vuetify.breakpoint.xs ? 'px-0' : 'pl'">
-                <v-card style="border:2px solid var(--accent)" width="100%" class="elevation-3">
-                  <v-card-title class="text-uppercase font-weight-bold black--text title-text grey lighten-4">Hot Lists</v-card-title>
-                  <v-card-text class="grey lighten-4">
-                    <div v-for="n in 10" :key="n">
-                      <a class="ptd">Top Ten Biggest Men In The World</a>
-                      <v-divider v-if="n!==10" class="my-1 accent"></v-divider>
-                    </div>
-                  </v-card-text>
-                </v-card>
-                <v-card style="border:2px solid var(--accent)" class="mt elevation-3" flat width="100%">
-                  <v-card-title class="text-uppercase font-weight-bold black--text title-text grey lighten-4">Hot Demands</v-card-title>
-                  <v-card-text class="grey lighten-4">
-                    <div v-for="n in 10" :key="n">
-                      <a class="ptd">Top Ten Biggest Men In The World</a>
-                      <v-divider v-if="n!==10" class="my-1 accent"></v-divider>
-                    </div>
-                  </v-card-text>
-                </v-card>
-              </v-card-text>
+            <v-flex
+              xs12
+              sm3
+              class="side-preview"
+              v-if="
+                (!loading || $vuetify.breakpoint.smAndUp) &&
+                  !$route.name.includes('admin')
+              "
+            >
+              <side-display></side-display>
             </v-flex>
           </v-layout>
         </v-layout>
         <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
+        <v-btn v-if="offset < 0" fab color="accent" @click="scrollUp()" style="position: fixed;bottom:16px;right:16px">
+          <v-icon size="2rem">mdi-chevron-up</v-icon>
+        </v-btn>
       </div>
     </v-app>
   </div>
@@ -49,6 +45,7 @@ import Toolbar from "./components/Toolbar";
 import Footer from "./components/Footer";
 import { setTimeout } from "timers";
 import HomePreview from "./components/HomePreview";
+import SideDisplay from "./components/SideDisplay";
 
 export default {
   name: "App",
@@ -57,11 +54,14 @@ export default {
     Home,
     Toolbar,
     Footer,
-    preview: HomePreview
+    preview: HomePreview,
+    SideDisplay
   },
   data() {
     return {
-      closeSearch: false
+      closeSearch: false,
+      showScroll: true,
+      offset: 0
     };
   },
 
@@ -71,21 +71,40 @@ export default {
       setTimeout(() => {
         this.closeSearch = false;
       }, 500);
+    },
+    scrollUp(){
+      console.log(this.offset);
+      window.scrollTo(0,0);
     }
   },
 
   computed: {
-    loading(){
+    loading() {
       return this.$store.getters.getLoading;
-    }
+    },
+    // offset(){
+    //   return document.querySelector("body").getBoundingClientRect().top * -1;
+    // }
   },
 
   created: function() {
     this.$store.dispatch("initialize").then(() => {
       this.$store.dispatch("fetchCategories");
-      this.$store.dispatch("clear_state");
+      // this.$store.dispatch("clear_state");
       this.$store.dispatch("watch_notifications");
     });
+
+    window.addEventListener("scroll", function(event){
+      this.offset = document.querySelector("body").getBoundingClientRect().top;
+      // console.log(this.offset);
+      // if(document.querySelector("body").getBoundingClientRect().top < -600){
+      //   console.log("here");
+      //   this.showScroll = true;
+      // }else{
+      //   console.log("else");
+      //   this.showScroll = false;
+      // }
+    })
   }
 };
 </script>
@@ -102,13 +121,13 @@ export default {
   --light-secondary: #ffffffb3;
   --light-hint: #ffffff80;
   --light-divider: #ffffff1f;
-  --accent: #8ce188;
+  --accent: #FF9800;
   --divider: #bdbdbd;
   /* --background: #f5f7f5; */
   --background: #ffffff;
-  --link: #3285A7;
+  --link: #000000de;
   --button: #0060ac;
-  --brand: #388E3C;
+  --brand: #388e3c;
   --sidebar: #515151;
 
   --border-radius: 0.3em;
@@ -136,10 +155,12 @@ html {
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: white;
   display: none;
+  position: absolute;
 }
 
 *::-webkit-scrollbar {
   width: 5px;
+  position: absolute;
   /* background-color: #f5f5f5; */
 }
 
@@ -201,7 +222,7 @@ html {
   box-sizing: inherit;
 }
 * > * {
-  font-family:Georgia, 'Times New Roman', Times, serif;
+  font-family: Georgia, "Times New Roman", Times, serif;
   font-family: "Overlock", cursive;
   font-family: "Roboto", sans-serif;
   /* transition: all 0.15s ease-in; */
@@ -212,19 +233,19 @@ html {
   height: auto;
   font-family: "Overlock", cursive;
 }
-.roboto{
+.roboto {
   font-family: "Roboto", sans-serif;
   font-size: 0.9em;
 }
-.tile:hover{
-  color: var(--brand) !important;
+.tile:hover {
+  /* color: var(--accent) !important; */
 }
-.tile:hover>*{
-  color: var(--brand) !important;
+.tile:hover > * {
+  /* color: var(--accent) !important; */
   /* font-weight: bold; */
 }
-.tile:hover>*>*{
-  color: var(--brand) !important;
+.tile:hover > * > * {
+  /* color: var(--accent) !important; */
   /* font-weight: bold; */
 }
 /* .tile:active{
@@ -241,10 +262,10 @@ html {
 } */
 .view-container {
   padding: 0 0.5em;
-  margin-top: 4.5em;
+  margin-top: 7.5em;
   margin-bottom: 1em;
   width: 100%;
-  max-width: 1300px !important;
+  max-width: 1200px !important;
 }
 .mt {
   margin-top: 0.5em !important;
@@ -270,9 +291,9 @@ html {
 .pb {
   padding-bottom: 0.5em !important;
 }
-@media (min-width:600px){
-  .view-container{
-    margin-top: 5em;
+@media (min-width: 600px) {
+  .view-container {
+    margin-top: 7.5em;
   }
 }
 @media (min-width: 800px) {
@@ -304,7 +325,7 @@ html {
     padding-bottom: 1em !important;
   }
 }
-@media (min-width: 1432px) {
+@media (min-width: 1200px) {
   .view-container {
     padding: 0;
   }
@@ -395,13 +416,13 @@ html {
 .br {
   border-radius: 4px;
 }
-.no-deco{
+.no-deco {
   text-decoration: none;
 }
-.brighten:hover{
+.brighten:hover {
   filter: brightness(150%);
 }
-.brighten-1:hover{
+.brighten-1:hover {
   filter: brightness(125%);
 }
 .top-bar {
@@ -457,7 +478,7 @@ html {
 
 .numeric-box {
   /* background-color: hsl(0, 90%, 72%); */
-  background: var(--accent);
+  background: rgba(0,0,0,0.5);
   min-width: 2.7em;
   min-height: 1.5em;
   display: flex;
@@ -564,5 +585,7 @@ html {
 .pr-half {
   padding-right: 0.5em !important;
 }
+.block{
+  display: block;
+}
 </style>
-

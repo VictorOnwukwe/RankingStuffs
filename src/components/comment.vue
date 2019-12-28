@@ -8,12 +8,14 @@
             <div class style="position:relative">
               <div class>
                 <div style="white-space:pre-wrap;" class="ptd">{{ !more ? comment.content.slice(0, 600) : comment.content
-                  }}{{ comment.content.length > 600 ? "..." : " "}}<span
+                  }}{{ comment.content.length > 600 ? "..." : " "
+                  }}<span
                     @click="more = !more"
                     v-if="comment.content.length > 600"
                     class="link--text"
                     style="cursor:pointer"
-                    >{{ !more ? "more" : "less" }}</span><span
+                    >{{ !more ? "more" : "less" }}</span
+                  ><span
                     class="brand--text text--darken-1 brighten pointer"
                     v-if="comment.content.length < 600 || more"
                     @click="
@@ -33,31 +35,12 @@
                 <div class="std" style="display:flex; min-width:4.5em;">
                   {{ created }}
                 </div>
+
                 <div style="display:flex; min-width:4.5em;">
                   <v-icon
-                    class="like-button action-icon"
-                    @click="toggleLike()"
-                    :color="liked ? 'blue' : null"
+                    class="action-icon grey--text"
                     size="1.2em"
-                    >mdi-thumb-up</v-icon
-                  >
-                  <span
-                    v-if="comment.likes > 0"
-                    class="grey--text text--darken-2"
-                    style="margin:0em 0 0 0.3em; font-size:0.9em"
-                    >{{ comment.likes }}</span
-                  >
-                </div>
-
-                <div
-                  style="display:flex; min-width:4.5em;"
-                  class="pointer"
-                  @click="showReplies(3)"
-                >
-                  <v-icon
-                    style="cursor:pointer"
-                    class="action-icon"
-                    size="1.2em"
+                    @click="showReplies(3)"
                     >mdi-message-reply-text</v-icon
                   >
                   <span
@@ -67,11 +50,27 @@
                   >
                 </div>
                 <div>
-                  <v-menu left>
+                  <v-menu right>
                     <template v-slot:activator="{ on }">
-                      <v-icon v-on="on" size="1.2em" style="margin-top:-0.25em">mdi-dots-vertical</v-icon>
+                      <v-icon
+                        v-on="on"
+                        size="1.2em"
+                        @click="setLiked()"
+                        style="margin-top:-0.25em"
+                        >mdi-dots-horizontal</v-icon
+                      >
                     </template>
-                    <v-list class="px-0">
+                    <v-list class="pa-0">
+                      <v-list-item class="" @click="toggleLike()">
+                        <v-layout class="py-2" justify-center>
+                          <v-icon
+                            v-if="liked !== undefined"
+                            :color="liked ? 'brand' : null"
+                            >fa-thumbs-up</v-icon
+                          >
+                          <m-progress v-else></m-progress>
+                        </v-layout>
+                      </v-list-item>
                       <v-list-item
                         @click="
                           (showEdit = true), (newComment = comment.content)
@@ -83,10 +82,19 @@
                           <v-icon>fa-pencil-alt</v-icon>
                         </v-layout>
                       </v-list-item>
-                      <v-list-item>
-                        <v-list-item-icon>
+                      <v-list-item @click="showFlag = true" class="tile">
+                        <v-layout class="py-2" justify-center>
                           <v-icon>fa-flag</v-icon>
-                        </v-list-item-icon>
+                        </v-layout>
+                      </v-list-item>
+                      <v-list-item
+                        @click="showDelete = true"
+                        v-if="isCommenter"
+                        class="tile"
+                      >
+                        <v-layout class="py-2" justify-center>
+                          <v-icon>fa-times</v-icon>
+                        </v-layout>
                       </v-list-item>
                     </v-list>
                   </v-menu>
@@ -101,9 +109,7 @@
                 v-if="(comment.replies_count > replies.length) & !loading"
                 justify-center
               >
-                <v-icon
-                  class="std"
-                  @click="fetchReplies(5, replies[0].data().created)"
+                <v-icon class="std" @click="fetchMoreReplies(5)"
                   >mdi-plus-circle-outline</v-icon
                 >
               </v-layout>
@@ -111,20 +117,19 @@
               <div v-if="loading" style="display:flex; justify-content:center">
                 <m-progress></m-progress>
               </div>
-
-              <div v-for="(reply, index) in replies" :key="reply.id">
-                <Reply
-                  :list = list
-                  :item = item
-                  :comment = comment
-                  :reply="{ id: reply.id, ...reply.data() }"
-                  @reply="setReply"
-                ></Reply>
-                <v-divider
-                  v-if="index == replies.length - 1"
-                  class="grey lighten-4 mt-1"
-                ></v-divider>
-              </div>
+              <v-layout column reverse>
+                <div v-for="(reply, index) in replies" :key="reply.id">
+                  <Reply
+                    :list="list"
+                    :item="item"
+                    :comment="comment"
+                    :reply="{ id: reply.id, ...reply.data() }"
+                    @reply="setReply"
+                    :index="index"
+                    @delete="deleteReply"
+                  ></Reply>
+                </div>
+              </v-layout>
               <div
                 v-if="addingReply"
                 style="display:flex; justify-content:center"
@@ -176,25 +181,65 @@
     </v-dialog>
     <v-dialog persistent v-model="showEdit" max-width="500px">
       <v-card flat class="grey lighten-3">
-        <v-card-title class="grey lighten-2" style="position:sticky;top:0;z-index:2;border-bottom:1px solid black">
+        <v-card-title
+          class="grey lighten-2"
+          style="position:sticky;top:0;z-index:2;border-bottom:1px solid black"
+        >
           Edit Comment
           <v-spacer></v-spacer>
           <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
-          </v-card-title>
+        </v-card-title>
         <v-card-text class="pb-0 pt-4">
-          <v-textarea auto-grow no-resize flat v-model="newComment" solo></v-textarea>
+          <v-textarea
+            auto-grow
+            no-resize
+            flat
+            v-model="newComment"
+            solo
+          ></v-textarea>
         </v-card-text>
         <v-card-actions>
-          <v-btn
+          <m-btn
             :loading="editing"
-            color="brand white--text"
             @click="editComment()"
             :disabled="newComment == '' || newComment == comment.content"
-            >Edit</v-btn
+            >Edit</m-btn
           >
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <flag-comment
+      v-if="showFlag"
+      :type="'comment'"
+      :path="{
+        list: { id: list.id, title: list.title },
+        item: { id: item.id, name: item.name },
+        comment: { id: comment.id }
+      }"
+      :flaggedItem="comment"
+      @close="showFlag = false"
+      @success="flagSuccess()"
+    ></flag-comment>
+    <v-dialog v-model="showDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="brand--text">Delete Comment</v-card-title>
+        <v-card-text class="ptd"
+          >Are you sure you want to delete this comment?</v-card-text
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <m-btn text @click="showDelete = false">Cancel</m-btn>
+          <m-btn text :loading="deleting" @click="deleteComment()"
+            >Delete</m-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-snackbar v-model="successful">
+      {{ successMessage }}
+      <v-spacer></v-spacer>
+      <m-btn text @click="successful = false">OK</m-btn>
+    </v-snackbar>
   </div>
 </template>
 
@@ -207,6 +252,7 @@ import PreviewComment from "./PreviewComment";
 import CommentBox from "./CommentBox";
 import { setTimeout } from "timers";
 import convertMoment from "../../public/my-modules/convertMoment";
+import FlagComment from "./FlagComment";
 let moment = require("moment");
 
 export default {
@@ -214,7 +260,8 @@ export default {
     Reply,
     PreviewUser,
     PreviewComment,
-    CommentBox
+    CommentBox,
+    FlagComment
   },
   props: {
     comment: Object,
@@ -225,7 +272,7 @@ export default {
 
   data() {
     return {
-      liked: false,
+      liked: undefined,
       reply: "",
       replyInput: false,
       replies: [],
@@ -240,12 +287,23 @@ export default {
       more: false,
       showEdit: false,
       newComment: "",
-      editing: false
+      editing: false,
+      flagReason: "",
+      showFlag: false,
+      showDelete: false,
+      otherReason: "",
+      deleting: false,
+      flagging: false,
+      successful: false,
+      successMessage: ""
     };
   },
 
   methods: {
     async toggleLike() {
+      if (this.liked == undefined) {
+        return;
+      }
       let action;
       if (this.liked) {
         this.comment.likes--;
@@ -276,6 +334,30 @@ export default {
       setTimeout(() => {
         document.querySelector("#reply-box" + this.index).focus();
       }, 50);
+    },
+
+    deleteReply(index) {
+      this.replies.splice(index, 1);
+    },
+
+    flagSuccess() {
+      this.successMessage = "Comment Flagged Successfully";
+      this.successful = true;
+      this.showFlag = false;
+    },
+
+    deleteComment() {
+      this.deleting = true;
+      this.$store
+        .dispatch("delete_comment", {
+          list_id: this.list.id,
+          item_id: this.item.id,
+          comment_id: this.comment.id
+        })
+        .then(() => {
+          this.deleting = false;
+          this.$emit("delete", this.index);
+        });
     },
 
     showBox() {
@@ -332,21 +414,36 @@ export default {
         });
     },
 
-    fetchReplies(num, timestamp) {
+    fetchReplies(limit) {
       this.loading = true;
       this.$store
-        .dispatch("fetchReplies", {
+        .dispatch("fetch_replies", {
           list_id: this.list.id,
           item_id: this.item.id,
           comment_id: this.comment.id,
-          num: num,
-          timestamp: timestamp
+          limit: limit
         })
         .then(replies => {
-          for (let i = 0; i < replies.length; i++) {
-            //make first created comment appear first
-            this.replies.unshift(replies[i]);
-          }
+          this.replies = replies;
+          this.loading = false;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+
+    fetchMoreReplies(limit) {
+      this.loading = true;
+      this.$store
+        .dispatch("fetch_replies", {
+          list_id: this.list.id,
+          item_id: this.item.id,
+          comment_id: this.comment.id,
+          limit: limit,
+          lastDoc: this.replies[this.replies.length - 1]
+        })
+        .then(replies => {
+          this.replies = this.replies.concat(replies);
           this.loading = false;
         })
         .catch(error => {
@@ -357,11 +454,11 @@ export default {
     showReplies(num) {
       if (!this.repliesShown) {
         if (this.replies.length === this.comment.replies_count) {
-          null;
+          return;
         } else if (this.replies.length === 0) {
-          this.fetchReplies(num, "now");
+          this.fetchReplies(3);
         } else {
-          this.fetchReplies(num, this.replies[0].created);
+          this.fetchMoreReplies(5);
         }
         this.repliesShown = true;
       }
@@ -369,6 +466,8 @@ export default {
     },
     async setLiked() {
       if (!this.$store.getters.semiAuthenticated) {
+        this.liked = false;
+      } else if (this.liked !== undefined) {
         return;
       }
       await this.$store
@@ -407,8 +506,8 @@ export default {
     }
   },
 
-  mounted: function() {
-    this.setLiked();
+  created() {
+    // this.setLiked();
   }
 };
 </script>

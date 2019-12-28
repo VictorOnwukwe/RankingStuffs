@@ -1,19 +1,42 @@
 <template>
   <hooper class="hooper" :settings="hooperSettings">
-    <slide v-for="list in lists" :key="list.id">
+    <slide v-for="list in lists" :key="list.id" class="cont">
       <v-card flat tile class="slide">
         <router-link :to="'/lists/' + list.id" class="no-deco">
-          <v-img v-if="list.data().preview_image" width="100%" class="br elevation-5" :src="list.data().preview_image.url.low"></v-img>
-          <v-img width="100%" v-else :src="require('../assets/emptyimage.jpg')"></v-img>
+          <v-img
+            v-if="list.data().preview_image"
+            width="100%"
+            class="br elevation-5"
+            :src="list.data().preview_image.url.low"
+          ></v-img>
+          <v-img
+            width="100%"
+            v-else
+            :src="require('../assets/emptyimage.jpg')"
+          ></v-img>
           <div class="detail pa-2">
-            <span
-              class="ptl text-capitalize"
-              style="line-height:1;font-size:1.3em"
-              >{{ list.data().title }}</span
-            >
+            <div class="white--text caption">
+              Category: {{ list.data().category
+              }}{{
+                list.data().sub_category ? ", " + list.data().sub_category : ""
+              }}
+            </div>
+            <rating
+              :rating="list.data().rating"
+              :ratersCount="list.data().raters_count"
+              :textColor="'white'"
+            ></rating>
           </div>
         </router-link>
       </v-card>
+      <div class="mt-2 slide-wide">
+        <router-link
+          :to="'/lists/' + list.id"
+          class="text-capitalize font-weight-medium no-deco black--text"
+        >
+          {{ list.data().title }}
+        </router-link>
+      </div>
     </slide>
 
     <hooper-navigation slot="hooper-addons"></hooper-navigation>
@@ -124,8 +147,15 @@ export default {
   width: 150px;
   position: relative;
 }
+.slide-wide {
+  width: 150px;
+}
+.cont{
+  display: flex;
+  flex-direction: column;
+}
 .hooper {
-  height: 150px;
+  height: auto;
   display: flex;
   justify-content: center;
 }
@@ -134,8 +164,11 @@ export default {
     height: 180px;
     width: 180px;
   }
+  .slide-wide {
+    width: 180px;
+  }
   .hooper {
-    height: 180px;
+    /* height: 230px; */
   }
 }
 @media (min-width: 950px) {
@@ -143,8 +176,11 @@ export default {
     height: 200px;
     width: 200px;
   }
+  .slide-wide {
+    width: 200px;
+  }
   .hooper {
-    height: 200px;
+    /* height: 250px; */
   }
 }
 .item {

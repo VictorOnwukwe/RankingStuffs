@@ -11,7 +11,7 @@
     <v-row align="center">
       <v-col class="grow">{{message}}</v-col>
       <v-col class="shrink">
-        <v-btn small @click="act()" outlined :color="type">{{action}}</v-btn>
+        <m-btn small @click="act()" outlined :color="type">{{action}}</m-btn>
       </v-col>
     </v-row>
   </v-alert>

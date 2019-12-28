@@ -1,57 +1,71 @@
 <template>
-  <v-layout align-center>
-    <span>Sort&nbsp;</span>
-    <!-- <v-select
-      v-model="choice"
-      box
-      background-color="grey lighten-2"
-      flat
-      :items="options"
-      item-text="label"
-    ></v-select>
-    <span>&nbsp;by&nbsp;</span>
-    <v-select box background-color="grey lighten-2" flat :items="subs"></v-select> -->
-    <select v-model="choice" @change="sendVal()" class="select-css">
-      <option v-for="option in options" :value="option.value" class="slct">{{
-        option.label
-      }}</option>
-    </select>
-    <span>&nbsp;by&nbsp;</span>
-    <select v-model="subChoice" @change="sendSub()" class="select-css">
-      <option v-for="option in subs" :value="option" class="slct">{{
-        option
-      }}</option>
-    </select>
-  </v-layout>
+  <div>
+    <v-layout align-center class="ptd">
+      <span v-if="text">Sort&nbsp;<span v-if="!subChoice">by&nbsp;</span></span>
+      <select v-model="choice" @change="sendVal()" class="select-css">
+        <option
+          :selected="index == 0"
+          v-for="(option, index) in options"
+          :value="option.value"
+          :key="index"
+          class="slct"
+          >{{ option.label }}</option
+        >
+      </select>
+      <span v-if="subChoice">&nbsp;by&nbsp;</span>
+      <select
+        v-if="subChoice"
+        v-model="subChoice"
+        @change="sendSub()"
+        class="select-css"
+      >
+        <option
+          v-for="option in subs"
+          :value="option"
+          :key="option"
+          class="slct"
+          >{{ option }}</option
+        >
+      </select>
+    </v-layout>
+  </div>
 </template>
 <script>
 export default {
   props: {
-    options: Array
+    options: Array,
+    text: {
+      type: Boolean,
+      default: true
+    }
   },
   data() {
     return {
-      choice: this.options[0].label,
-      subChoice: "Random"
+      choice: this.options[0].value,
+      subChoice: ""
     };
   },
   methods: {
     sendVal() {
-      this.$emit("change", this.choice);
+      this.subChoice = this.subs ? this.subs[0] : undefined;
+      this.$emit("change", { choice: this.choice, subChoice: this.subChoice });
     },
     sendSub() {
-      this.$emit("");
+      this.$emit("change", { choice: this.choice, subChoice: this.subChoice });
     }
   },
   computed: {
     subs() {
-      return this.options.find(
-        option => option.label.toLowerCase() == this.choice.toLowerCase()
-      ).sorts;
+      return this.options.find(option => option.value == this.choice).sorts;
     }
   },
   created() {
     // console.log(this.choice);
+    // this.choice = this.options[0].value;
+    // console.log(this.choice);
+  },
+  mounted() {
+    this.subChoice = this.subs ? this.subs[0] : undefined;
   }
 };
 </script>
@@ -60,7 +74,7 @@ export default {
   display: block;
   font-size: 16px;
   font-family: sans-serif;
-  font-weight: 700;
+  font-weight: 600;
   color: #444;
   line-height: 1.3;
   padding: 0.6em 1.4em 0.5em 0.8em;
@@ -69,8 +83,6 @@ export default {
   box-sizing: border-box;
   margin: 0;
   border: 1px solid #aaa;
-  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
-  border-radius: 0.5em;
   -moz-appearance: none;
   -webkit-appearance: none;
   appearance: none;
@@ -89,18 +101,12 @@ export default {
 }
 .select-css:focus {
   border-color: #aaa;
-  box-shadow: 0 0 1px 1px rgba(8, 146, 38, 0.7);
+  box-shadow: 0 0 1px 1px var(--brand);
   box-shadow: 0 0 0 3px -moz-mac-focusring;
   color: #222;
   outline: none;
 }
 .select-css option {
   font-weight: normal;
-}
-/* .slct:checked {
-  background-color: var(--accent) !important;
-} */
-select.slct option:hover{
-  box-shadow: 0 0 10px 100px var(--brand) inset !important;
 }
 </style>

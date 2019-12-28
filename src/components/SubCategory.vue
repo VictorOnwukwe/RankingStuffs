@@ -29,18 +29,43 @@
         </router-link>
       </div>
     </div>
-    <div class="mt-12">
-      <display-lists :lists="lists"></display-lists>
+    <div class="mt-12" style="max-width:400px">
+      <sorter @change="refetch" :options="options"></sorter>
     </div>
-    <list-loading v-if="fetching"></list-loading>
+    <div class="mt-12">
+      <display-lists v-if="sort == 'lists'" :lists="lists"></display-lists>
+      <display-demands
+        v-if="sort == 'demands'"
+        :demands="demands"
+      ></display-demands>
+    </div>
+    <mugen-scroll
+      :handler="fetchMore"
+      :should-handle="!fetching"
+      :threshold="0.1"
+    >
+      <list-loading v-if="!complete && fetching"></list-loading
+    ></mugen-scroll>
   </div>
 </template>
 <script>
+import Sorter from "./Sorter";
+import DisplayDemands from "./DisplayDemands";
+import MugenScroll from "vue-mugen-scroll";
 export default {
+  components: {
+    Sorter,
+    DisplayDemands,
+    MugenScroll
+  },
   data() {
     return {
       lists: [],
-      fetching: false
+      demands: [],
+      fetching: false,
+      sort: "lists",
+      sortBy: "Random",
+      complete: false
     };
   },
   methods: {
@@ -50,14 +75,91 @@ export default {
         .dispatch("fetch_subcategory_lists", {
           category: this.$route.params.category,
           subCategory: this.$route.params.subcategory,
-          limit: 20
+          limit: 20,
+          sortBy: this.sortBy
         })
         .then(lists => {
           this.lists = this.lists.concat(lists);
           this.fetching = false;
         });
     },
-
+    fetchMoreLists() {
+      if (this.complete || this.lists.length == 0) {
+        return;
+      }
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_subcategory_lists", {
+          category: this.$route.params.category,
+          subCategory: this.$route.params.subcategory,
+          limit: 20,
+          sortBy: this.sortBy,
+          lastDoc: this.lists[this.lists.length - 1]
+        })
+        .then(lists => {
+          this.lists = this.lists.concat(lists);
+          this.fetching = false;
+          if (lists.length == 0) {
+            this.complete = true;
+          }
+        });
+    },
+    fetchDemands() {
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_subcategory_demands", {
+          category: this.$route.params.category,
+          subCategory: this.$route.params.subcategory,
+          limit: 20,
+          sortBy: this.sortBy
+        })
+        .then(query => {
+          this.demands = query.docs;
+          this.fetching = false;
+        });
+    },
+    fetchMoreDemands() {
+      if (this.complete || this.demands.length == 0) {
+        return;
+      }
+      this.fetching = true;
+      this.$store
+        .dispatch("fetch_subcategory_demands", {
+          category: this.$route.params.category,
+          subCategory: this.$route.params.subcategory,
+          limit: 20,
+          sortBy: this.sortBy,
+          lastDoc: this.demands[this.demands.length - 1]
+        })
+        .then(query => {
+          this.demands = this.demands.concat(query.docs);
+          this.fetching = false;
+          if (query.docs.length == 0) {
+            this.complete = true;
+          }
+        });
+    },
+    refetch(vals) {
+      this.complete = false;
+      this.sort = vals.choice;
+      this.sortBy = vals.subChoice;
+      this.lists = [];
+      this.demands = [];
+      if (this.sort == "lists") {
+        this.fetchLists();
+      } else {
+        this.fetchDemands();
+      }
+    },
+    fetchMore() {
+      if (this.sort == "lists") {
+        this.fetchMoreLists();
+      } else if (this.sort == "demands") {
+        this.fetchMoreDemands();
+      } else {
+        console.log("Unregistered Command");
+      }
+    }
   },
   computed: {
     category() {
@@ -74,6 +176,26 @@ export default {
     },
     sub() {
       return this.$route.params.subcategory;
+    },
+    options() {
+      return [
+        {
+          label: "Lists",
+          value: "lists",
+          sorts: ["Random", "Top Rated", "Popular", "Newest", "Oldest"]
+        },
+        {
+          label: "Demands",
+          value: "demands",
+          sorts: [
+            "Random",
+            "Most Demanded",
+            "Least Demanded",
+            "Newest",
+            "Oldest"
+          ]
+        }
+      ];
     }
   },
   watch: {

@@ -1,12 +1,12 @@
 <template>
   <v-footer  padless>
     <v-card class="flex" flat tile>
-        <v-card tile color="footer" flat>
+        <v-card tile color="#242729" flat>
           <v-card-title class="stl title-text">CATEGORIES</v-card-title>
           <v-card-text>
             <div id="container" v-masonry transition-duration="0.2s" item-selector=".cat-item">
               <div v-masonry-tile class="cat-item" v-for="(category, index) in categories" :key="index">
-                <router-link :to="'/categories/' + category.name" class="text-uppercase underline font-weight-bold ptl main-cat no-deco">
+                <router-link :to="'/categories/' + category.name" style="font-size:0.9em" class="text-uppercase underline font-weight-bold ptl main-cat no-deco">
                   {{category.name}}
                   <br />
                 </router-link>
@@ -14,6 +14,7 @@
                   <router-link
                     v-for="(sub, id) in category.subs"
                     :key="id"
+                    style="font-size:0.9em"
                     class="text-capitalize brighten-1 stl no-deco"
                     :to="'/categories/' + category.name + '/' + sub.name"
                   >

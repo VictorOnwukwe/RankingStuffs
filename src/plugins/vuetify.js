@@ -16,7 +16,7 @@ const vuetify = new Vuetify({
         primary: "#388E3C",
         brand: "#388E3C",
         form: "#60aaea",
-        accent: "#8CE188",
+        accent: "#FF9800",
         background: "#f4f4f4",
         link: "#0060AC",
         button: "#0060AC",

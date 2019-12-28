@@ -1,44 +1,29 @@
 <template>
   <div>
-    <v-card flat class="mt" tile>
-      <v-card-title class="text-uppercase font-weight-bold title-text grey lighten-3 black--text">Happening Now</v-card-title>
-      <v-card-text class="px-2">
-        <happening></happening>
-      </v-card-text>
-    </v-card>
-    <v-card class="mt" flat tile>
-      <v-card-title class="text-uppercase font-weight-bold grey lighten-3 title-text black--text">
-        Popular
-        <v-spacer></v-spacer>
-        <router-link :to="'/popular-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
-        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
-      </v-card-title>
-      <v-card-text class="pa-0 mt-4">
-        <Slide :lists="populars"></Slide>
-      </v-card-text>
-    </v-card>
-    <v-card flat class="mt" tile>
-      <v-card-title class="text-uppercase grey lighten-3 font-weight-bold title-text black--text">
-        Latest
-        <v-spacer></v-spacer>
-        <router-link :to="'/latest-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
-        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
-      </v-card-title>
-      <v-card-text class="pa-0 mt-4">
-        <Slide :lists="latests"></Slide>
-      </v-card-text>
-    </v-card>
-    <v-card flat class="mt" tile>
-      <v-card-title class="text-uppercase font-weight-bold grey lighten-3 title-text black--text">
-        Top Rated
-        <v-spacer></v-spacer>
-        <router-link :to="'/top-rated-lists'" class="pointer underline text-capitalize std no-deco">See More</router-link>
-        <v-icon size="1.2em" class="std">mdi-chevron-right</v-icon>
-      </v-card-title>
-      <v-card-text class="pa-0 mt-4">
-        <Slide :lists="topRateds"></Slide>
-      </v-card-text>
-    </v-card>
+    <h1 class="grey--text text--darken-3">LATEST</h1>
+    <main-list v-if="latest" :list="latest"></main-list>
+    <hr class="mt-12 mb-6 accent" />
+    <div class="grid">
+      <div v-for="(list, index) in categoryLists.slice(0,2)" :key="index">
+        <sub-list :list="list"></sub-list>
+      </div>
+    </div>
+    <h1 class="mt-12 grey--text text--darken-3">POPULAR</h1>
+    <main-list v-if="popular" :list="popular"></main-list>
+    <hr class="mt-12 mb-6 accent" />
+    <div class="grid">
+      <div v-for="(list, index) in categoryLists.slice(2,4)" :key="index">
+        <sub-list :list="list"></sub-list>
+      </div>
+    </div>
+    <h1 class="mt-12 grey--text text--darken-3">TOP RATED</h1>
+    <main-list v-if="topRated" :list="topRated"></main-list>
+    <hr class="mt-12 mb-6 accent" />
+    <div class="grid">
+      <div v-for="(list, index) in categoryLists.slice(4,categoryLists.length)" :key="index">
+        <sub-list :list="list"></sub-list>
+      </div>
+    </div>
 
     <v-btn v-if="false" @click="categorize()">Categorize</v-btn>
   </div>
@@ -50,68 +35,73 @@ import { Glide, GlideSlide } from "vue-glide-js";
 import categories from "../../public/my-modules/categories";
 import HappeningNow from "./HappeningNow";
 import Slide from "./Slide";
+import HomeMainList from "./HomeMainList";
+import HomeSubList from "./HomeSubList";
 
 export default {
   components: {
     Slide,
-    happening: HappeningNow
+    happening: HappeningNow,
+    mainList: HomeMainList,
+    subList: HomeSubList
   },
   data() {
     return {
-      latests: [],
-      populars: [],
-      topRateds: [],
-      index: 0
+      latest: false,
+      popular: false,
+      topRated: false,
+      index: 0,
+      categoryLists: []
     };
   },
   methods: {
     fetchLatest() {
       this.$store
-        .dispatch("fetch_latest", {
-          timestamp: "now",
-          limit: 10
+        .dispatch("fetch_lists", {
+          sort: "newest",
+          limit: 1
         })
         .then(lists => {
-          this.latests = lists;
-        });
-    },
-    fetchMoreLatest(payload) {
-      if (payload.currentSlide !== this.latests.length - 2) {
-        return;
-      }
-      this.$store
-        .dispatch("fetch_latest", {
-          timestamp: this.latest[this.latests.length - 1].created,
-          limit: 5,
-          home: true
-        })
-        .then(lists => {
-          this.latests = this.latest.concat(lists);
+          this.latest = { id: lists[0].id, ...lists[0].data() };
         });
     },
     fetchPopular() {
-      this.$store.dispatch("fetch_popular", {
-        limit: 10,
-      }).then(lists => {
-        this.populars = lists;
-      })
-    },
-    fetchMorePopular(payload) {
-      if (payload.currentSlide !== this.populars.length - 2) {
-        return;
-      }
-      this.$store.dispatch("fetch_popular", {
-        lastDoc: this.populars[this.populars.length - 1],
-        limit: 5,
-        home: true
-      });
+      this.$store
+        .dispatch("fetch_lists", {
+          sort: "popularity",
+          limit: 1
+        })
+        .then(lists => {
+          this.popular = { id: lists[0].id, ...lists[0].data() };
+        });
     },
     fetchTopRated() {
-      this.$store.dispatch("fetch_top_rated", {
-        limit: 10,
-      }).then(lists => {
-        this.topRateds = lists;
-      })
+      this.$store
+        .dispatch("fetch_lists", {
+          limit: 1,
+          sort: "rating"
+        })
+        .then(lists => {
+          this.topRated = { id: lists[0].id, ...lists[0].data() };
+        });
+    },
+    async fetchCategoryLists() {
+      for (let category of categories) {
+        this.$store
+          .dispatch("fetch_category_lists", {
+            category: category.name,
+            limit: 1
+          })
+          .then(async lists => {
+            if (lists.length > 0) {
+              let list = await {
+                id: lists[0].id,
+                ...lists[0].data()
+              };
+              this.categoryLists.push(list);
+            }
+          });
+      }
     },
     clickItem(i) {
       this.index = i;
@@ -123,7 +113,7 @@ export default {
       this.$refs.slider.slideNext();
     },
     categorize() {
-      this.$store.dispatch("convert_keywords", categories);
+      this.$store.dispatch("upload_categories", categories);
     }
   },
   computed: {
@@ -131,10 +121,12 @@ export default {
       return this.$store.getters.categories;
     }
   },
-  mounted: function() {
-    // this.fetchLatest(3);
+  created: function() {
     this.$store.dispatch("set_loading", false);
-    Promise.all([this.fetchLatest(), this.fetchPopular(), this.fetchTopRated()]);
+    this.fetchLatest();
+    this.fetchPopular();
+    this.fetchTopRated();
+    this.fetchCategoryLists();
   }
 };
 </script>
@@ -196,5 +188,26 @@ export default {
 }
 .description {
   font-weight: normal;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-column-gap: 0.5em;
+  grid-row-gap: 1em;
+}
+/* @media (min-width: 500px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+} */
+.img-overlay {
+  position: absolute;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
 }
 </style>

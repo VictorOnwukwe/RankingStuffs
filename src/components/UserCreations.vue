@@ -22,15 +22,12 @@
             </v-layout>
           </div>
           <v-layout class="my-4" v-else justify-center>
-            <div class="ptd">
-              No Lists
-              <a class="underline" v-if="isProfile" @click="go('/create')">Click to Add List</a>
+            <div class="std">
+              No Lists Created
+              <a class="underline" v-if="isProfile" @click="go('/create')">Create List</a>
             </div>
           </v-layout>
         </v-card-text>
-        <v-card-actions v-if="isProfile && lists.length > 0">
-          <span class="std">Your Anonymous Lists are not displayed to other users</span>
-        </v-card-actions>
       </v-card>
       <v-card class="mt-4" tile flat>
         <v-card-title class="text-capitalize grey lighten-3 pa-1 pl-2 title-text font-weight-medium">Demands</v-card-title>
@@ -53,19 +50,16 @@
             </v-layout>
           </div>
           <v-layout class="my-4" v-else justify-center>
-            <div class="ptd">
-              No Demands
+            <div class="std">
+              No Lists Demanded
               <a
                 class="underline"
                 @click="go('/demand')"
                 v-if="isProfile"
-              >Click to Demand List</a>
+              >Demand List</a>
             </div>
           </v-layout>
         </v-card-text>
-        <v-card-actions v-if="isProfile && demands.length > 0">
-          <span class="std">Your Anonymous Demands are not displayed to other users</span>
-        </v-card-actions>
       </v-card>
     </v-flex>
   </v-layout>

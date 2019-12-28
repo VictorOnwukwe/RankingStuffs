@@ -3,7 +3,7 @@
     <div class="top-view">
       <div class="overlay">
         <div class="foreground">
-          <h1 class="white--text">top<span class="accent--text font-weight-black">TEN</span></h1>
+          <h1 class="white--text">top<span class="white--text font-weight-black">TEN</span></h1>
           <p class="ptd text-center">
             It's the Universe... And It's
             <span class="ptd font-weight-black">YOU</span> and US, Building a Repository for Everything Top Ten In it...
@@ -48,13 +48,13 @@ export default {
   background-image: url("../../public/background3.jpg");
   width: calc(100% + 1em);
   margin-left: -0.5em;
-  height: auto;
+  height: 80vh;
   background-size: 100% auto;
   background-position: top right;
 }
 .overlay {
   background: rgba(0, 0, 0, 0.3);
-  height: auto;
+  height: 80vh;
   display: flex;
   align-content: center;
   justify-content: center;

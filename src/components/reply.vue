@@ -33,39 +33,41 @@
             <div class="std" style="display:flex; min-width:4.5em;">
               {{ created }}
             </div>
-            <div style="display:flex; min-width:4.5em;">
-              <v-icon
-                class="like-button action-icon"
-                @click="toggleLike()"
-                :color="liked ? 'blue' : null"
-                size="1.2em"
-                >mdi-thumb-up</v-icon
-              >
-              <span
-                v-if="reply.likes > 0"
-                class="grey--text text--darken-2"
-                style="margin:-0.1em 0 0 0.3em; font-size:0.9em"
-                >{{ reply.likes }}</span
-              >
-            </div>
 
             <div
               style="display:flex; min-width:4.5em;"
               class="pointer"
               @click="sendReply()"
             >
-              <v-icon style="cursor:pointer" class="action-icon" size="1.2em"
+              <v-icon
+                style="cursor:pointer"
+                class="action-icon grey--text"
+                size="1.2em"
                 >mdi-reply</v-icon
               >
             </div>
             <div>
-              <v-menu left>
+              <v-menu right>
                 <template v-slot:activator="{ on }">
-                  <v-icon v-on="on" size="1.2em" style="margin-top:-0.15em"
-                    >mdi-dots-vertical</v-icon
+                  <v-icon
+                    v-on="on"
+                    @click="setLiked()"
+                    size="1.2em"
+                    style="margin-top:-0.15em"
+                    >mdi-dots-horizontal</v-icon
                   >
                 </template>
-                <v-list class="px-0">
+                <v-list class="pa-0">
+                  <v-list-item class="" @click="toggleLike()">
+                    <v-layout class="py-2" justify-center>
+                      <v-icon
+                        v-if="liked !== undefined"
+                        :color="liked ? 'brand' : null"
+                        >fa-thumbs-up</v-icon
+                      >
+                      <m-progress v-else></m-progress>
+                    </v-layout>
+                  </v-list-item>
                   <v-list-item
                     @click="(showEdit = true), (newReply = reply.content)"
                     v-if="isReplier"
@@ -75,10 +77,19 @@
                       <v-icon>fa-pencil-alt</v-icon>
                     </v-layout>
                   </v-list-item>
-                  <v-list-item>
-                    <v-list-item-icon>
+                  <v-list-item @click="showFlag = true" class="tile">
+                    <v-layout class="py-2" justify-center>
                       <v-icon>fa-flag</v-icon>
-                    </v-list-item-icon>
+                    </v-layout>
+                  </v-list-item>
+                  <v-list-item
+                    @click="showDelete = true"
+                    v-if="isReplier"
+                    class="tile"
+                  >
+                    <v-layout class="py-2" justify-center>
+                      <v-icon>fa-times</v-icon>
+                    </v-layout>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -117,46 +128,91 @@
           ></v-textarea>
         </v-card-text>
         <v-card-actions>
-          <v-btn
+          <m-btn
             :loading="editing"
-            color="brand white--text"
             @click="editReply()"
             :disabled="newReply == '' || newReply == reply.content"
-            >Edit</v-btn
+            >Edit</m-btn
           >
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <flag-comment
+      v-if="showFlag"
+      :type="'reply'"
+      :path="{
+        list_id: list.id,
+        item_id: item.id,
+        comment_id: comment.id,
+        reply_id: reply.id
+      }"
+      :flaggedItem="reply"
+      @close="showFlag = false"
+      @success="flagSuccess()"
+    ></flag-comment>
+    <v-dialog v-model="showDelete" max-width="500px">
+      <v-card>
+        <v-card-title class="brand--text">Delete Reply</v-card-title>
+        <v-card-text class="ptd"
+          >Are you sure you want to delete this reply?</v-card-text
+        >
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <m-btn text @click="showDelete = false">Cancel</m-btn>
+          <m-btn text :loading="deleting" @click="deleteReply()"
+            >Delete</m-btn
+          >
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-snackbar v-model="successful">
+      {{ successMessage }}
+      <v-spacer></v-spacer>
+      <m-btn text @click="successful = false">OK</m-btn>
+    </v-snackbar>
   </div>
 </template>
 
 <script>
 import { setTimeout } from "timers";
 import swalErrors from "../../public/my-modules/swalErrors";
+import FlagComment from "./FlagComment";
 
 let moment = require("moment");
 export default {
+  components: {
+    FlagComment
+  },
   props: {
     list: Object,
     item: Object,
     comment: Object,
-    reply: Object
+    reply: Object,
+    index: Number
   },
 
   data() {
     return {
-      liked: false,
+      liked: undefined,
       showUser: false,
       more: false,
       showEdit: false,
       newReply: "",
-      editing: false
+      editing: false,
+      showFlag: false,
+      showDelete: false,
+      deleting: false,
+      successful: false,
+      successMessage: ""
     };
   },
 
   methods: {
     toggleLike() {
       let action;
+      if (this.liked == undefined) {
+        return;
+      }
       if (this.liked) {
         this.reply.likes--;
         action = "unlikeReply";
@@ -174,8 +230,16 @@ export default {
       });
     },
 
+    flagSuccess() {
+      this.successMessage = "Reply Flagged Successfully.";
+      this.successful = true;
+      this.showFlag = false;
+    },
+
     async setLiked() {
       if (!this.$store.getters.semiAuthenticated) {
+        this.liked = false;
+      } else if (this.liked !== undefined) {
         return;
       }
       await this.$store
@@ -207,6 +271,20 @@ export default {
           this.editing = false;
           this.showEdit = false;
           this.reply.content = this.newReply;
+        });
+    },
+    deleteReply() {
+      this.deleting = true;
+      this.$store
+        .dispatch("delete_reply", {
+          reply_id: this.reply.id,
+          list_id: this.list.id,
+          item_id: this.item.id,
+          comment_id: this.comment.id
+        })
+        .then(() => {
+          this.deleting = false;
+          this.$emit("delete", this.index);
         });
     }
   },
@@ -251,10 +329,6 @@ export default {
     isReplier() {
       return this.reply.user.id == this.$store.getters.getUser.id;
     }
-  },
-
-  created() {
-    this.setLiked();
   }
 };
 </script>

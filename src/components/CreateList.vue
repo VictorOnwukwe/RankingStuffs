@@ -2,56 +2,78 @@
   <div id="main" class>
     <div style="margin:0 auto;">
       <!-- <div class="page-title">Create List</div> -->
-      <v-card flat style="border: 1px solid var(--brand)" class="grey lighten-3 mt-4" v-if="true">
+      <v-card
+        flat
+        style="border: 1px solid var(--brand)"
+        class="grey lighten-3 mt-4"
+        v-if="true"
+        tile
+      >
         <!-- <v-card style="position:sticky; top:4.5em; z-index:3" tile flat> -->
-          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">
-            Heads-Up
-          </v-card-title>
-          <!-- <v-divider></v-divider> -->
+        <v-card-title
+          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+        >
+          Heads-Up
+        </v-card-title>
+        <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
           <ul class="ptd">
             <li class="subtitle-1">
               A list can be
               <span class="ptd font-weight-medium">Personal / General</span>,
-              <span class="ptd font-weight-medium">Votable / Non-Votable</span> and
+              <span class="ptd font-weight-medium">Votable / Non-Votable</span>
+              and
               <span class="ptd font-weight-medium">Self Moderated.</span>
               <ul>
                 <li class="subtitle-1">
                   A
-                  <span class="ptd font-weight-medium">Personal</span> list appears only on your timeline and is not accesible by public search.
+                  <span class="ptd font-weight-medium">Personal</span> list
+                  appears only on your timeline and is not accesible by public
+                  search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="ptd font-weight-medium">General</span> list appears on the public timeline and is accessible by public search.
+                  <span class="ptd font-weight-medium">General</span> list
+                  appears on the public timeline and is accessible by public
+                  search.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="ptd font-weight-medium">Votable</span> list can be voted on.
+                  <span class="ptd font-weight-medium">Votable</span> list can
+                  be voted on.
                 </li>
                 <li class="subtitle-1">
                   A
-                  <span class="ptd font-weight-medium">Non-Votable</span> list cannot be voted on.
+                  <span class="ptd font-weight-medium">Non-Votable</span> list
+                  cannot be voted on.
                 </li>
                 <li class="subtitle-1">
                   In a
-                  <span class="ptd font-weight-medium">Self-moderated</span> list, only you can add new items.
+                  <span class="ptd font-weight-medium">Self-moderated</span>
+                  list, only you can add new items.
                 </li>
               </ul>
             </li>
 
-            <li class="subtitle-1">Be sure to check if a list already exists before creating yours.</li>
-            <li
-              class="subtitle-1"
-            >Be sure to check if a list is already on demand in order to receive credit for creation.</li>
+            <li class="subtitle-1">
+              Be sure to check if a list already exists before creating yours.
+            </li>
+            <li class="subtitle-1">
+              Be sure to check if a list is already on demand in order to
+              receive credit for creation.
+            </li>
           </ul>
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3">
+      <v-card flat class="mt grey lighten-3" tile>
         <!-- <v-card tile flat style="position:sticky; top:4.5em;z-index:3"> -->
-          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Type</v-card-title>
-          <!-- <v-divider></v-divider> -->
+        <v-card-title
+          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+          >Type</v-card-title
+        >
+        <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
           <v-layout>
@@ -60,36 +82,59 @@
               color="brand"
               class="mr-10"
               v-model="list.personal"
+              :disabled="$route.query.demanded"
             >
               <v-radio color="brand" label="General" :value="false"></v-radio>
               <v-radio color="brand" label="Personal" :value="true"></v-radio>
             </v-radio-group>
-            <v-radio-group color="brand" prepend-icon="fa-vote-yea" v-model="list.votable">
+            <v-radio-group
+              :disabled="$route.query.demanded"
+              color="brand"
+              prepend-icon="fa-vote-yea"
+              v-model="list.votable"
+            >
               <v-radio color="brand" label="Votable" :value="true"></v-radio>
-              <v-radio color="brand" label="Non-Votable" :value="false"></v-radio>
+              <v-radio
+                color="brand"
+                label="Non-Votable"
+                :value="false"
+              ></v-radio>
             </v-radio-group>
           </v-layout>
           <v-checkbox
+            :disabled="$route.query.demanded"
             color="brand"
             class="mt-n2"
             v-model="list.selfModerated"
             label="Self Moderated"
             prepend-icon="fa-lock"
           ></v-checkbox>
+
+          <span v-if="$route.query.demanded"
+            >Demanded Lists Must be general, votable, and publicly
+            moderated</span
+          >
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3">
+      <v-card flat class="mt grey lighten-3" tile>
         <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3;"> -->
-          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Details</v-card-title>
-          <!-- <v-divider></v-divider> -->
+        <v-card-title
+          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+          >Details</v-card-title
+        >
+        <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <v-form v-model="valid">
               <v-layout wrap>
                 <v-flex xs12>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Title</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Title
+                  </p>
                   <v-text-field
                     validate-on-blur
                     :readonly="$route.query.demanded ? true : false"
@@ -101,12 +146,16 @@
                     flat
                     solo
                     v-model="list.title"
-                    @blur="keywords()"
+                    @blur="setKeywords()"
                   ></v-text-field>
                 </v-flex>
 
                 <v-flex xs12 mt-n2>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Description</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Description
+                  </p>
                   <v-textarea
                     no-resize
                     solo
@@ -120,7 +169,11 @@
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Category</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Category
+                  </p>
                   <v-autocomplete
                     :items="categories"
                     item-text="name"
@@ -134,7 +187,11 @@
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Sub-Category</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Sub-Category
+                  </p>
                   <v-autocomplete
                     :disabled="list.category == ''"
                     :items="subCategories"
@@ -163,7 +220,13 @@
                 </v-flex>-->
                 <v-flex>
                   <v-layout wrap class="mt-n9">
-                    <v-chip v-for="(tag, i) in tags" :key="i" close class="mr-2 mt-2">{{tag}}</v-chip>
+                    <v-chip
+                      v-for="(tag, i) in tags"
+                      :key="i"
+                      close
+                      class="mr-2 mt-2"
+                      >{{ tag }}</v-chip
+                    >
                   </v-layout>
                 </v-flex>
               </v-layout>
@@ -172,10 +235,13 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3">
+      <v-card flat class="mt grey lighten-3" tile>
         <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3"> -->
-          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Add Items</v-card-title>
-          <!-- <v-divider></v-divider> -->
+        <v-card-title
+          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+          >Add Items</v-card-title
+        >
+        <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
@@ -196,20 +262,29 @@
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
-              <v-icon color="brand" size="3em" @click="addItem()">mdi-plus-circle</v-icon>
+              <v-icon color="brand" size="3em" @click="addItem()"
+                >mdi-plus-circle</v-icon
+              >
             </div>
           </v-container>
         </v-card-text>
 
         <v-card-actions>
-          <v-btn
-            color="brand darken-1 white--text"
+          <m-btn
             :disabled="!valid || invalidItems > 0"
             :loading="loading"
             @click="upload()"
-          >Submit</v-btn>
+            >Submit</m-btn
+          >
         </v-card-actions>
       </v-card>
+      <alert
+        class="mt-4"
+        :type="'success'"
+        :value="listSubmitted"
+        :message="successMessage"
+        @act="goCategory()"
+      ></alert>
     </div>
     <v-dialog persistent v-model="authDialog" max-width="500px">
       <v-card>
@@ -217,13 +292,17 @@
           <v-layout justify-center>
             <v-icon class="my-8" color="info" size="60">fa-info-circle</v-icon>
           </v-layout>
-          <p>Dear User, for performance reasons, you are required to Login at this point in order to receive notifications. This is to enable us serve you better. Login or Signup to continue...</p>
+          <p>
+            Dear User, for performance reasons, you are required to Login at
+            this point in order to receive notifications. This is to enable us
+            serve you better. Login or Signup to continue...
+          </p>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack()" text color="brand">Back</v-btn>
+          <m-btn @click="goBack()" text>Back</m-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="setSignup(true)" text color="brand">Signup</v-btn>
-          <v-btn @click="setLogin(true)" outlined color="brand">Login</v-btn>
+          <m-btn @click="setSignup(true)" text>Signup</m-btn>
+          <m-btn @click="setLogin(true)" outlined>Login</m-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -261,7 +340,8 @@ export default {
         keywords: [],
         preview_image: false,
         category: "",
-        subCategory: ""
+        subCategory: "",
+        user: this.$store.getters.getUser.id
       },
       n: 0,
       userTags: "",
@@ -272,38 +352,62 @@ export default {
       preview_updated: false,
       authDialog: false,
       invalidItems: 5,
-      itemIndex: [0, 1, 2, 3, 4]
+      itemIndex: [0, 1, 2, 3, 4],
+      listSubmitted: false,
+      tempCategory: ""
     };
   },
 
   methods: {
-    keywords() {
+    setKeywords() {
       this.list.keywords = this.generateKeywords(this.list.title);
     },
 
     upload() {
       this.loading = true;
       setTimeout(async () => {
-        await this.$store
-          .dispatch("upload_list", this.list)
-          .then(async list_id => {
-            if (this.$route.query.demanded) {
-              let id = this.$route.query.id;
-              await this.$store.dispatch("send_notification", {
-                type: "demand-created",
-                list: { id: list_id, title: this.list.title },
-                demand_id: id,
-                title: this.$route.query.title
-              });
-            }
-            return list_id;
-          })
-          .then(list_id => {
-            if (this.$route.query.demanded) {
-              this.$store.dispatch("delete_demand", this.$route.query.id);
-            }
-            this.$router.push({ path: "/lists/" + list_id });
-          });
+        let other;
+        this.$route.query.demanded
+          ? (other = { demanded: true, demand_id: this.$route.query.id })
+          : null;
+        if (this.list.personal) {
+          await this.$store
+            .dispatch("upload_list", { ...other, ...this.list })
+            .then(list_id => {
+              this.$router.push({ path: "/lists/" + list_id });
+            });
+        } else {
+          await this.$store
+            .dispatch("upload_pending_list", { ...other, ...this.list })
+            .then(uploaded => {
+              this.listSubmitted = uploaded;
+              this.tempCategory = this.list.category;
+              this.list = {
+                title: "",
+                description: "",
+                items: [
+                  { name: "" },
+                  { name: "" },
+                  { name: "" },
+                  { name: "" },
+                  { name: "" }
+                ],
+                personal: false,
+                votable: true,
+                selfModerated: false,
+                keywords: [],
+                preview_image: false,
+                category: "",
+                subCategory: ""
+              };
+
+              this.loading = false;
+            })
+            .catch(error => {
+              console.log(error);
+              this.loading = false;
+            });
+        }
       }, 500);
     },
     scrollTo(offset, target) {
@@ -313,17 +417,20 @@ export default {
     },
 
     addItem() {
-      this.list.items.push({name: ""});
+      this.list.items.push({ name: "" });
       this.itemIndex.push(this.itemIndex.length);
       this.invalidItems++;
 
       setTimeout(() => {
-        this.scrollTo(110, 'item' + this.list.items.length);
+        this.scrollTo(110, "item" + this.list.items.length);
       }, 1);
     },
 
     setItem(index, item) {
       this.list.items[index] = item;
+      if (!this.list.preview_image && item.image) {
+        this.preview_image == item.image;
+      }
     },
     setItemComment(index, comment) {
       this.list.items[index].comment = comment;
@@ -359,7 +466,7 @@ export default {
       }
       let med;
       let medInd;
-      medInd = this.itemIndex[index - 1]
+      medInd = this.itemIndex[index - 1];
       this.itemIndex[index - 1] = this.itemIndex[index];
       this.itemIndex[index] = medInd;
       med = this.list.items[index - 1];
@@ -379,14 +486,19 @@ export default {
     authenticated() {
       return this.$store.getters.authenticated;
     },
-    categories(){
+    categories() {
       return this.$store.getters.categories;
     },
-    subCategories(){
-      if(this.list.category == ""){
+    subCategories() {
+      if (this.list.category == "") {
         return;
       }
       return this.categories.find(cat => cat.name == this.list.category).subs;
+    },
+    successMessage() {
+      return `Your list has been submitted. You will be notified on completion of
+        review. In the mean time, you could check out other
+        ${this.tempCategory} lists.`;
     }
   },
   watch: {
@@ -396,9 +508,12 @@ export default {
   },
   created: function() {
     this.$store.dispatch("set_loading", false);
-
     if (this.$route.query.title) {
       this.list.title = this.$route.query.title;
+    }
+
+    if (this.$route.query.demanded) {
+      this.setKeywords();
     }
     if (!this.authenticated) {
       this.authDialog = true;

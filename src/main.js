@@ -37,6 +37,7 @@ import ProfilePic from "./components/ProfilePic";
 import categories from "../public/my-modules/categories";
 import LoadingLists from "./components/LoadingLists";
 import {VueMasonryPlugin} from "vue-masonry";
+import PreviewImage from "./components/PreviewImage";
 
 const options = {}; // Optional options
 
@@ -69,14 +70,15 @@ Vue.use(Masonry, { name: "the-masonry" });
 Vue.component("preview-user", PreviewUser);
 Vue.component("display-lists", DisplayPreviews);
 Vue.component("auto-textarea", CommentBox);
-Vue.component("img-prev", MyImage);
+Vue.component("img-prev", PreviewImage);
 Vue.component("rate", Rate);
 Vue.component("rating", Rating);
-Vue.component("btn", MyButton);
+Vue.component("m-btn", MyButton);
 Vue.component("alert", MyAlert);
 Vue.component("dp", ProfilePic);
 Vue.component("m-progress", MyProgress);
 Vue.component("list-loading", LoadingLists);
+Vue.component("m-img", MyImage);
 
 Vue.mixin({
   methods: {

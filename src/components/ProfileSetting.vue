@@ -137,7 +137,6 @@
                     <v-textarea
                       solo
                       flat
-                      label="Bio"
                       no-resize
                       auto-grow
                       color="brand"
@@ -227,7 +226,7 @@
       <alert :type="'success'" :message="'Profile Updated'" :value="showSuccess" @act="uploadSuccess()"></alert>
     </v-card-text>
     <v-card-actions>
-      <v-btn dark :loading="uploading" color="brand darken-1" @click="setProfile()">Save</v-btn>
+      <m-btn :loading="uploading" @click="setProfile()">Save</m-btn>
     </v-card-actions>
   </v-card>
 </template>

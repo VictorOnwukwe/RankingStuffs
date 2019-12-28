@@ -42,14 +42,13 @@
             clearable
           ></v-text-field>
 
-          <v-btn
+          <m-btn
             :dark="valid"
             :disabled="!valid"
-            color="brand darken-1"
             :loading="eloading"
             @click="emailSignup()"
             class="mx-0"
-          >Sign Up</v-btn>
+          >Sign Up</m-btn>
         </v-form>
 
         <div style="text-align:center; color:var(--link)">
@@ -59,17 +58,16 @@
 
         <v-layout wrap>
           <v-flex xs6 offset-xs3>
-            <v-btn @click="socialSignup('G')" :loading="gloading" block dark color="#F14336">GOOGLE</v-btn>
+            <m-btn @click="socialSignup('G')" :loading="gloading" block :color="'#F14336'">GOOGLE</m-btn>
           </v-flex>
           <v-flex xs6 offset-xs3>
-            <v-btn
+            <m-btn
               @click="socialSignup('F')"
               block
-              dark
               :loading="floading"
               class="mt-3"
-              color="blue darken-3"
-            >FACEBOOK</v-btn>
+              :color="'blue darken-3'"
+            >FACEBOOK</m-btn>
           </v-flex>
         </v-layout>
 
@@ -183,7 +181,7 @@ export default {
         .dispatch("socialLogin", type)
         .then(() => {
           this.close();
-          this.$router.go();
+          // this.$router.go();
         })
         .catch(error => {
           this.gloading = this.floading = false;

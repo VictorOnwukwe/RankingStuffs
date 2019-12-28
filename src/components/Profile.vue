@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-layout>
-      <v-flex xs12 lg10 offset-lg1 v-if="fetched" class="mt">
+      <v-flex xs12 v-if="fetched" class="mt">
         <v-card v-if="user !== {}" tile flat color>
           <v-layout
             v-if="isProfile"
@@ -32,12 +32,14 @@
                     <v-avatar
                       :size="$vuetify.breakpoint.xs ? '150px' : '200px'"
                       @click="showDP = true"
+                      tile
                     >
                       <img
                         v-if="user.profile_pic"
                         :src="user.profile_pic.low"
+                        class="br"
                       />
-                      <img v-else :src="require('../assets/nophoto.jpg')" />
+                      <img class="br" v-else :src="require('../assets/nophoto.jpg')" />
                       <v-fade-transition>
                         <v-overlay
                           v-if="(hover || uploadMenu) && isProfile"
@@ -147,25 +149,23 @@
                     </div>
                   </v-layout>
                   <div v-if="!isProfile" class="mt-2">
-                    <v-btn
+                    <m-btn
                       v-if="!following"
                       @click="follow()"
                       :loading="processing"
                       small
                       outlined
-                      color="brand"
-                      >Follow</v-btn
+                      >Follow</m-btn
                     >
 
                     <v-hover v-else v-slot:default="{ hover }">
-                      <v-btn
+                      <m-btn
                         @click="unfollow()"
                         small
                         depressed
                         :loading="processing"
                         dark
-                        :color="'accent'"
-                        >{{ hover ? "unfollow" : "Following" }}</v-btn
+                        >{{ hover ? "unfollow" : "Following" }}</m-btn
                       >
                     </v-hover>
                   </div>
@@ -223,7 +223,7 @@
       <v-dialog
         :fullscreen="$vuetify.breakpoint.xsOnly ? true : false"
         v-model="showSetting"
-        max-width="500px"
+        max-width="600px"
         persistent
       >
         <Settings

@@ -16,6 +16,7 @@
     "circular-json": "^0.5.9",
     "core-js": "^2.6.5",
     "firebase": "^6.3.0",
+    "flatted": "^2.0.1",
     "hooper": "^0.3.4",
     "masonry-layout": "^4.2.2",
     "moment": "^2.24.0",
@@ -44,6 +45,7 @@
     "vuetify": "^2.0.7",
     "vuetify-lazy-image": "^1.2.4",
     "vuex": "^3.1.1",
+    "vuex-persist": "^2.2.0",
     "vuex-persistedstate": "^2.5.4"
   },
   "devDependencies": {

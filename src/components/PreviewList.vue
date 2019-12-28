@@ -1,46 +1,36 @@
 <template>
-  <div class="main">
+  <v-card flat :min-height="random(120, 60)" class="main">
     <v-hover v-slot:default="{ hover }">
       <v-card
-        :min-height="random(120, 60)"
-        :class="{ loading: !fetched, 'elevation-2': hover }"
+        :class="{ loading: !fetched }"
         width="100%"
-        outlined
+        
       >
         <v-card-text v-if="fetched" class="pa-3">
           <v-layout>
             <v-flex shrink pr-2>
-              <v-img
-                v-if="list.preview_image"
-                :src="list.preview_image.url.low"
-                min-width="80px"
-                max-width="130px"
+              <m-img
+                :src="list.preview_image ? list.preview_image.url.low: false"
+                :minWidth="'80px'"
+                :maxWidth="'130px'"
                 :width="sub ? '10vw' : '20vw'"
-                id="image"
-                aspect-ratio="1"
-              ></v-img>
-              <v-img
-                v-else
-                min-width="80px"
-                max-width="130px"
-                :width="sub ? '10vw' : '20vw'"
-                aspect-ratio="1"
-                :src="require('../assets/emptyimage.jpg')"
-              ></v-img>
+                :aspectRatio="'1'"
+              ></m-img>
             </v-flex>
             <v-flex>
               <v-card height="100%" flat>
                 <v-card-title class="pa-0">
                   <router-link
                     :to="'/lists/' + list.id"
-                    class="link--text text-capitalize no-deco brighten-1"
-                    style="font-weight:normal; font-size:0.85em"
+                    class="text-capitalize no-deco brighten-1 ptd"
+                    :class="{'font-weight-bold': !sub}"
+                    style="font-size:0.8em"
                     @click="goList()"
                   >
                     {{ list.title }}
                   </router-link>
                 </v-card-title>
-                <div class="pa-0">
+                <div class="pa-0" v-if="!sub">
                   <rating
                     :rating="list.rating"
                     :ratersCount="list.raters_count"
@@ -117,7 +107,7 @@
     <v-dialog v-if="list.user" v-model="showUser" max-width="400px">
       <preview-user @close="showUser = false" :id="user.id"></preview-user>
     </v-dialog>
-  </div>
+  </v-card>
 </template>
 
 <script>
@@ -160,14 +150,17 @@ export default {
   },
   created: function() {
     if (this.id) {
-      this.$store.dispatch("fetch_list", this.id).then(list => {
-        this.list = list;
-      }).then(() => {
-        this.fetched = true;
-        this.fetchUser();
-      })
+      this.$store
+        .dispatch("fetch_list", this.id)
+        .then(list => {
+          this.list = list;
+        })
+        .then(() => {
+          this.fetched = true;
+          this.fetchUser();
+        });
     } else {
-      this.list = this.List
+      this.list = this.List;
       this.fetchUser();
       this.fetched = true;
     }

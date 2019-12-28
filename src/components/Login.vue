@@ -35,14 +35,12 @@
             clearable
           ></v-text-field>
 
-          <v-btn
-            dark
+          <m-btn
             @click="emailLogin"
             :loading="eloading"
-            color="brand darken-1"
             id="login-button"
             class="mx-0"
-          >Login</v-btn>
+          >Login</m-btn>
         </v-form>
 
         <div style="text-align:center; color:var(--button)">
@@ -51,17 +49,16 @@
         <br />
         <v-layout wrap>
           <v-flex xs6 offset-xs3>
-            <v-btn :loading="gloading" block @click="socialLogin('G')" dark color="#F14336">GOOGLE</v-btn>
+            <m-btn :loading="gloading" block @click="socialLogin('G')" :color="'#F14336'">GOOGLE</m-btn>
           </v-flex>
           <v-flex xs6 offset-xs3>
-            <v-btn
+            <m-btn
               @click="socialLogin('F')"
-              dark
               block
               :loading="floading"
-              color="blue darken-3"
+              :color="'blue darken-3'"
               class="mt-3"
-            >FACEBOOK</v-btn>
+            >FACEBOOK</m-btn>
           </v-flex>
         </v-layout>
         <div>

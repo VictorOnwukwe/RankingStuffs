@@ -18,9 +18,16 @@
           >
         </div>
       </v-layout> -->
-      <v-breadcrumbs class="px-0 pb-0 crumbs" :items="linkItems">
+      <v-breadcrumbs color="blue" class="px-0 pb-0 crumbs" :items="linkItems">
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
+        </template>
+        <template v-slot:item="props">
+          <v-breadcrumbs-item :to="props.item.to">
+            <span class="">
+              {{ props.item.text }}
+            </span>
+          </v-breadcrumbs-item>
         </template>
       </v-breadcrumbs>
       <v-layout class="list-view">
@@ -48,6 +55,12 @@
                     :ratersCount="list.raters_count"
                     :size="'1.2em'"
                   ></rating>
+                  <v-spacer></v-spacer>
+                  <span class="std"
+                    >{{ list.voters_count }}
+                    {{ list.voters_count > 1 ? "voters" : "voter" }}</span
+                  >
+                  <span class="std">, {{ list.votes }} votes</span>
                 </v-layout>
                 <v-layout v-if="creator" class="mt-4" align-center>
                   <v-avatar class="mr-2" size="1.8em">
@@ -67,7 +80,9 @@
                   style="white-space:pre-wrap;"
                   class="mt-4 grey--text text--darken-2"
                   v-if="list.description"
-                >{{ list.description }}</div>
+                >
+                  {{ list.description }}
+                </div>
               </div>
               <div></div>
             </div>
@@ -78,7 +93,7 @@
                   :id="item.id"
                   :item="{ id: item.id, ...item.data() }"
                   :list="list"
-                  :voted="voted || !list.votable"
+                  :list_voted="voted"
                   :index="index + 1"
                   @hasImage="setPreview"
                   @voted="voted = true"
@@ -104,10 +119,10 @@
                 v-if="list.item_count > list.items.length"
               >
                 <v-flex xs8 offset-xs2>
-                  <v-btn @click="loadMore()" block class="brand" depressed dark>
+                  <m-btn @click="loadMore()" block depressed>
                     <!-- <v-icon>mdi-reload</v-icon> -->
-                    LOAD MORE
-                  </v-btn>
+                    More
+                  </m-btn>
                 </v-flex>
               </v-layout>
 
@@ -117,9 +132,14 @@
                 class="mt-12 grey lighten-3"
                 v-if="!list.self_moderated"
               >
-                <v-card-title class="pl-2 pa-1 title-text grey lighten-2">
-                  <v-icon @click="addItem = !addItem" size="2.5em" class="mr-2"
-                    :color="addItem ? 'accent' : null"
+                <v-card-title
+                  class="pa-1 title-text grey lighten-2 pointer"
+                  @click="addItem = !addItem"
+                >
+                  <v-icon
+                    size="2.5em"
+                    class="mr-2"
+                    :color="addItem ? 'brand' : null"
                     >mdi-plus-box</v-icon
                   >
                   Didn't find your option? Add to the List</v-card-title
@@ -138,12 +158,11 @@
                   </v-card-text>
 
                   <v-card-actions>
-                    <v-btn
+                    <m-btn
                       :disabled="!itemValid"
-                      class="brand darken-1 white--text"
                       :loading="addingItem"
                       @click="upload_item()"
-                      >Submit</v-btn
+                      >Submit</m-btn
                     >
                   </v-card-actions>
                 </div>
@@ -155,7 +174,7 @@
 
       <div class="mt-4">
         <v-card-title
-          class="pl-2 pa-1 grey lighten-2 grey--text text--darken-2 text-capitalize"
+          class="pl-2 pa-1 grey lighten-3 grey--text text--darken-2 text-capitalize"
           style="font-size: 1em"
           >Other {{ list.category }} lists</v-card-title
         >
@@ -268,8 +287,8 @@
     </v-dialog>
 
     <v-navigation-drawer
-      height="calc(100vh - 4.5em)"
-      style="margin-top:4.5em; z-index:8;"
+      height="calc(100vh - 6.5em)"
+      style="margin-top:6.5em; z-index:8;"
       v-model="showSidebar"
       fixed
       class="sidebar"
@@ -317,6 +336,9 @@
               :textColor="'ptd'"
               :size="'1.3em'"
             ></rating>
+          </v-layout>
+          <v-layout v-else justify-center>
+            <m-progress></m-progress>
           </v-layout>
         </v-card>
 
@@ -383,9 +405,9 @@ export default {
       showUser: false,
       featured: [],
       userRating: 0,
-      voted: "undefined",
+      voted: undefined,
       favorited: false,
-      rated: false,
+      rated: undefined,
       showUser: false,
       share: false,
       previewUpdated: false,
@@ -429,10 +451,8 @@ export default {
       this.$store
         .dispatch("fetch_list_items", {
           list_id: this.list.id,
-          last: {
-            created: this.list.items[this.list.items.length - 1].created,
-            votes: this.list.items[this.list.items.length - 1].votes
-          }
+          lastDoc: this.list.items[this.list.items.length - 1],
+          limit: 50
         })
         .then(results => {
           this.fetchingMore = false;
@@ -471,10 +491,11 @@ export default {
         .dispatch("fetch_complete_list", this.$route.params.id)
         .then(list => {
           this.list = list;
-          // setTimeout(() => {
           this.fetched = true;
+          // this.$store.dispatch("set_sidebar_extra", list);
           this.fetchCreator();
           this.$store.dispatch("set_loading", false);
+          // setTimeout(() => {
           // }, 30);
         })
         .then(() => {
@@ -525,8 +546,9 @@ export default {
       });
     },
     scrollTo(target) {
+      let offset = this.$vuetify.breakpoint.xs ? 30 : 120;
       this.$vuetify.goTo(document.getElementById(target), {
-        offset: 90
+        offset: offset
       });
     },
     setFavorited() {
@@ -671,11 +693,11 @@ export default {
     }
   },
   created() {
-    // this.list = this.$route.query.list;
-  },
-  mounted: async function() {
     this.startUp();
-  }
+  },
+  // beforeDestroy() {
+  //   this.$store.dispatch("set_sidebar_extra", null);
+  // }
 };
 </script>
 
@@ -851,5 +873,9 @@ li > a {
 * ::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.54) !important;
   /* border-radius: 10px; */
+}
+
+.crumb {
+  color: blue !important;
 }
 </style>

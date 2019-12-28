@@ -14,7 +14,7 @@
         ></v-flex
       >
       <v-flex shrink>
-        <span class="caption" :class="textColor"
+        <span class="caption" :class="textColor + '--text'"
           >&nbsp;({{ ratersCount }}
           {{ ratersCount != 1 ? "reviews" : "review" }})</span
         >

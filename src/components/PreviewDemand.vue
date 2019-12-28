@@ -3,74 +3,73 @@
     <v-hover v-slot:default="{ hover }">
       <v-card
         :min-height="random(120, 60)"
-        :class="{ loading: !fetched, 'elevation-3': hover }"
-        outlined
+        :class="{ loading: !fetched }"
         width="100%"
         class="card"
       >
         <div v-if="fetched">
           <v-card-title class style>
             <v-layout column>
-              <div>
-                <v-menu
-                  :close-on-content-click="false"
-                  left
-                  min-width="90px"
-                  max-width="90px"
+              <v-layout align-start>
+                <v-flex>
+                  <router-link
+                    :to="'/demands/' + demand.id"
+                    class="ptd text-capitalize no-deco font-weight-bold"
+                    style="font-size:0.85em"
+                  >
+                    {{ demand.title }}
+                  </router-link>
+                </v-flex>
+                <v-flex shrink>
+                  <v-menu
+                    :close-on-content-click="false"
+                    left
+                    min-width="90px"
+                    max-width="90px"
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-icon @click="setWaiting()" class="ml-2" color="accent" v-on="on"
+                        >mdi-dots-vertical</v-icon
+                      >
+                    </template>
+                    <v-list class="pa-0">
+                      <v-list-item @click="create()" class="pt-1 tile">
+                        <v-layout column align-center>
+                          <v-icon>fa-plus</v-icon>
+                          <span class="caption std">Create</span>
+                        </v-layout>
+                      </v-list-item>
+                      <v-divider></v-divider>
+                      <v-list-item
+                        v-if="!isCreator"
+                        @click="toggleWaiting()"
+                        class="tile"
+                      >
+                        <v-layout justify-center v-if="loading || waiting == undefined">
+                          <m-progress></m-progress>
+                        </v-layout>
+                        <v-layout v-else column>
+                          <v-icon :color="waiting ? 'green' : null"
+                            >fa-hand-holding</v-icon
+                          >
+                          <span
+                            class="caption"
+                            :class="waiting ? 'green--text' : 'std'"
+                            >{{ waiting ? "Demanded" : "Demand" }}</span
+                          >
+                        </v-layout>
+                      </v-list-item>
+                    </v-list>
+                  </v-menu>
+                </v-flex>
+              </v-layout>
+              <div style="clear:both"></div>
+              <div class="subtitle-1 ptd">
+                <span class="std">{{created}}</span>
+                <span class="std"
+                  >, <span class="font-weight-bold">{{demand.waiters_count}}</span> {{demand.waiters_count > 1 ? "people" : "person"}} waiting</span
                 >
-                  <template v-slot:activator="{ on }">
-                    <v-icon
-                      class="mt-1"
-                      color="grey"
-                      style="float:right"
-                      v-on="on"
-                      >mdi-dots-vertical</v-icon
-                    >
-                  </template>
-                  <v-list class="pa-0">
-                    <v-list-item @click="create()" class="pt-1 tile">
-                      <v-layout column align-center>
-                        <v-icon>fa-plus</v-icon>
-                        <span class="caption std">Create</span>
-                      </v-layout>
-                    </v-list-item>
-                    <v-divider></v-divider>
-                    <v-list-item
-                      v-if="!isCreator"
-                      @click="toggleWaiting()"
-                      class="tile"
-                    >
-                      <v-layout justify-center v-if="loading">
-                        <v-progress-circular
-                          size="24"
-                          width="2"
-                          indeterminate
-                          color="brand"
-                        ></v-progress-circular>
-                      </v-layout>
-                      <v-layout v-else column>
-                        <v-icon :color="waiting ? 'green' : null"
-                          >fa-hand-holding</v-icon
-                        >
-                        <span
-                          class="caption"
-                          :class="waiting ? 'green--text' : 'std'"
-                          >{{ waiting ? "Demanded" : "Demand" }}</span
-                        >
-                      </v-layout>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-                <router-link
-                  :to="'/demands/' + demand.id"
-                  class="link--text text-capitalize no-deco"
-                  style="font-weight:normal; font-size:0.85em; float:left"
-                >
-                  {{ demand.title }}
-                </router-link>
               </div>
-                <div style="clear:both"></div>
-              <div class="subtitle-1 ptd" v-html="waitingMessage"></div>
             </v-layout>
           </v-card-title>
           <v-card-text class="subtitle-1 pt-1 pb-0">
@@ -98,13 +97,14 @@
 </template>
 
 <script>
+let moment = require("moment");
 export default {
   props: {
     demand: Object
   },
   data() {
     return {
-      waiting: false,
+      waiting: undefined,
       creator: null,
       showUser: false,
       fetched: false,
@@ -119,6 +119,9 @@ export default {
       });
     },
     async setWaiting() {
+      if(this.waiting !== undefined){
+        return;
+      }
       await this.$store
         .dispatch("checkWaiting", this.demand.id)
         .then(result => {
@@ -128,7 +131,6 @@ export default {
     toggleWaiting() {
       this.loading = true;
       if (this.waiting) {
-        console.log("leaving");
         this.$store
           .dispatch("leave_demanders", this.demand)
           .then(() => {
@@ -189,10 +191,13 @@ export default {
     },
     isCreator() {
       return this.$store.getters.getUser.id === this.demand.user;
+    },
+    created(){
+      return moment(this.demand.created.toDate()).calendar();
     }
   },
   created() {
-    Promise.all([this.setWaiting(), this.fetchCreator()]).then(() => {
+    this.fetchCreator().then(() => {
       this.fetched = true;
     });
   }

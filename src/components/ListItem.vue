@@ -1,7 +1,7 @@
 <template>
   <div id="main">
     <v-card tile class="" flat>
-      <v-divider class="black"></v-divider>
+      <v-divider class="grey lighten-1 mt-4 mb-2"></v-divider>
       <v-card-title class="px-2 py-2">
         <v-layout align-center>
           <v-flex shrink mr-2>
@@ -19,46 +19,49 @@
             </div>
           </v-flex>
           <v-flex>
-            <a
-              class="font-weight-medium text-capitalize ptd"
-              style="cursor:pointer; line-height:1em !important font-size:1.6em;"
-              @click.stop="goItem()"
-              >{{ item.name }}</a
+            <router-link
+              v-if="item.is_link"
+              class="font-weight-medium text-capitalize ptd no-deco"
+              style="font-size:1em;line-height:1em !important;"
+              :to="itemPath"
+              >{{ item.name }}</router-link
+            >
+            <span
+              v-else
+              class="font-weight-normal text-capitalize link--text no-deco"
+              >{{ item.name }}</span
             >
           </v-flex>
           <v-spacer></v-spacer>
           <v-flex shrink class>
-            <div v-if="voted !== 'undefined'">
-              <v-layout column justify-center align-center v-if="!voted">
+            <v-layout justify-center align-center>
+              <v-layout column align-center>
                 <v-icon
-                  @click="vote()"
-                  class="action-icon"
-                  color="grey"
-                  size="1.2em"
-                  >fa-vote-yea</v-icon
+                  size="1.4em"
+                  @click="upvote()"
+                  :class="{ 'green--text': votedThis.type == 'upvote' }"
+                  :disabled="!checkedVoted"
+                  :style="{
+                    cursor: votedThis !== false ? 'default' : 'pointer'
+                  }"
+                  >mdi-arrow-up-box</v-icon
                 >
-                <span class="subtitle-2 grey--text" style="margin-top: -0.5em"
-                  >vote</span
-                >
+                <span class="caption std mt-n1">{{ item.upvotes }}</span>
               </v-layout>
-              <v-layout v-else>
-                <v-icon v-if="votedThis" color="green" size="1em"
-                  >fa-vote-yea</v-icon
+              <v-layout column align-center>
+                <v-icon
+                  size="1.4em"
+                  @click="downvote()"
+                  :disabled="!checkedVoted"
+                  :style="{
+                    cursor: votedThis !== false ? 'default' : 'pointer'
+                  }"
+                  :class="{ 'red--text': votedThis.type == 'downvote' }"
+                  >mdi-arrow-down-box</v-icon
                 >
-                <v-layout
-                  class
-                  style="width:2.4375em; border-radius:.3em"
-                  justify-center
-                >
-                  <h4
-                    class="grey--text"
-                    style="font-weight:normal;display:inline-block"
-                  >
-                    {{ votePercentage }}%
-                  </h4>
-                </v-layout>
+                <span class="caption std mt-n1">{{ item.downvotes }}</span>
               </v-layout>
-            </div>
+            </v-layout>
           </v-flex>
         </v-layout>
       </v-card-title>
@@ -67,7 +70,7 @@
         <v-flex shrink v-if="info.image || info.about">
           <v-layout column style="height:100%">
             <v-card-text v-if="info.image || info.about" class="px-2 py-0">
-              <div style="float:left; margin:0 0.5em 0.1em 0" v-if="info.image">
+              <div style="margin:0 0.5em 0.1em 0; float:left" v-if="info.image">
                 <img-prev
                   v-model="info.image"
                   :image="info.image"
@@ -105,17 +108,15 @@
                     :list="list"
                     :item="item"
                   ></display-comments>
-                  <v-layout class="my-4" justify-center>
+                  <v-layout
+                    class="my-3"
+                    justify-center
+                    v-if="
+                      comments.length < item.comment_count && !loadingComments
+                    "
+                  >
                     <v-icon
-                      v-if="
-                        comments.length < item.comment_count && !loadingComments
-                      "
-                      @click="
-                        fetchComments(
-                          10,
-                          comments[comments.length - 1].data().created
-                        )
-                      "
+                      @click="fetchMoreComments(10)"
                       size="1.8em"
                       color="grey darken-1"
                       class="ptd"
@@ -195,7 +196,7 @@ export default {
     item: Object,
     list: Object,
     index: Number,
-    voted: Boolean | Object
+    list_voted: Boolean
   },
   data() {
     return {
@@ -210,10 +211,11 @@ export default {
       favorited: false,
       focused: false,
       loadingComments: false,
-      votedThis: false,
+      votedThis: { type: "undefined" },
       commentsFetched: false,
       infoFetched: false,
-      addingComment: false
+      addingComment: false,
+      checkedVoted: false
     };
   },
 
@@ -231,8 +233,8 @@ export default {
         })
         .then(comment => {
           this.addingComment = false;
-          this.comment = "";
           this.comments.push(comment);
+          this.comment = "";
           this.item.comment_count++;
         })
         .catch(error => {
@@ -244,28 +246,61 @@ export default {
       this.focused = bool;
     },
 
-    vote() {
+    upvote() {
+      if (votedThis !== false) {
+        return;
+      }
       this.$emit("voted");
-      this.votedThis = true;
-      this.$store.dispatch("add_vote", {
+      this.votedThis = { type: "upvote" };
+      this.item.upvotes++;
+      this.$store.dispatch("upvote", {
         item: this.item,
-        list: this.list
+        list: this.list,
+        list_voted: this.list_voted
+      });
+    },
+    downvote() {
+      if (votedThis !== false) {
+        return;
+      }
+      this.$emit("voted");
+      this.votedThis = { type: "downvote" };
+      this.item.downvotes++;
+      this.$store.dispatch("downvote", {
+        item: this.item,
+        list: this.list,
+        list_voted: this.list_voted
       });
     },
 
-    async fetchComments(num, lastTimestamp) {
+    async fetchComments(limit) {
       this.loadingComments = true;
-      return await this.$store
+      this.$store
         .dispatch("fetch_comments", {
           item_id: this.item.id,
           list_id: this.list.id,
-          num: num,
-          timestamp: lastTimestamp
+          limit: limit
         })
         .then(comments => {
-          // for (let i = 0; i < comments.length; i++) {
-          //   this.comments.unshift(comments[i]);
-          // }
+          this.comments = comments;
+          this.loadingComments = false;
+        })
+        .catch(error => {
+          console.log("Error: ", error);
+          this.loadingComments = false;
+        });
+    },
+
+    async fetchMoreComments(limit) {
+      this.loadingComments = true;
+      this.$store
+        .dispatch("fetch_comments", {
+          item_id: this.item.id,
+          list_id: this.list.id,
+          limit: limit,
+          lastDoc: this.comments[this.comments.length - 1]
+        })
+        .then(comments => {
           this.comments = this.comments.concat(comments);
           this.loadingComments = false;
         })
@@ -276,12 +311,7 @@ export default {
     },
 
     goItem() {
-      this.$router.push({
-        path: "/items/" + this.item.name,
-        query: {
-          id: this.info.id
-        }
-      });
+      this.$router.push();
     },
 
     async fetchInfo() {
@@ -298,11 +328,27 @@ export default {
         });
     },
     async checkVoted() {
-      if (!this.voted) {
+      if (this.list_voted == undefined) {
         return;
       }
-      if (this.item.id == this.voted.item) {
-        this.votedThis = true;
+      if (this.list_voted == false) {
+        this.votedThis = false;
+        this.checkedVoted = true;
+        return;
+      }
+      this.votedThis = await this.$store.dispatch("check_item_voted", {
+        list_id: this.list.id,
+        item_id: this.item.id
+      });
+      this.checkedVoted = true;
+    },
+    setRank() {
+      if (this.item.rank !== this.index) {
+        this.$store.dispatch("set_item_rank", {
+          list_id: this.list.id,
+          item_id: this.item.id,
+          rank: this.index
+        });
       }
     }
   },
@@ -321,18 +367,30 @@ export default {
     },
     authenticated() {
       return this.$store.getters.getAuthenticated;
+    },
+    itemPath() {
+      return {
+        path: "/items/" + this.item.name,
+        query: {
+          id: this.info.id
+        }
+      };
     }
   },
 
   watch: {
-    voted() {
+    list_voted() {
       this.checkVoted();
     }
   },
 
-  mounted: function() {
-    this.fetchComments(5, "now");
-    this.fetchInfo();
+  created: function() {
+    this.fetchComments(5);
+    this.checkVoted();
+    if (this.item.is_link) {
+      this.fetchInfo();
+    }
+    this.setRank();
   }
 };
 </script>

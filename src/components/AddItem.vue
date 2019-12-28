@@ -28,7 +28,7 @@
         :rules="[rules.minLength(1, 'Item')]"
         color="brand"
         v-model="item.name"
-        @keyup.delete="info = undefined"
+        @keyup.delete="info = null"
         @blur="emitItem()"
       ></v-text-field>
       <div v-if="showSearch && item.name != ''" class="results elevation-3">
@@ -124,7 +124,7 @@ export default {
     return {
       item: {
         name: "",
-        info: undefined
+        info: null
       },
       comment: "",
       results: [],
@@ -138,15 +138,20 @@ export default {
     emitItem() {
       setTimeout(() => {
         if (this.item.info) {
+          let other = {};
+          if (this.image) {
+            other = { image: this.image };
+          }
           this.item = {
-            image: this.image,
-            ...this.item
+            ...other,
+            ...this.item,
+            isLink: true
           };
         } else {
           this.item = {
             keywords: this.generateKeywords(this.item.name.trim()),
             name: this.item.name,
-            info: this.item.info
+            isLink: false
           };
         }
         this.$emit("receiveItem", this.index, this.item);
@@ -157,9 +162,9 @@ export default {
     },
     deleteItem() {
       this.item.name = "";
-      this.item.exists = false;
       this.comment = "";
       this.image = false;
+      this.info = null;
       this.showSearch = false;
     },
     checkItem() {
@@ -176,10 +181,13 @@ export default {
         });
     },
     async setInfo(result) {
+      this.item.isLink = true;
       this.item.info = result.id;
       this.item.name = result.data().name;
       this.showSearch = false;
-      if(result.data().image) { (this.image = result.data().image) }
+      if (result.data().image) {
+        this.image = result.data().image;
+      }
     },
     oneUp() {
       this.$emit("oneUp", this.index);
@@ -188,6 +196,8 @@ export default {
 
   watch: {
     "item.name"(val) {
+      this.item.info = null;
+      this.image = false;
       this.checkItem();
       val.length > 0 ? (this.valid = true) : (this.valid = false);
     },
@@ -196,7 +206,7 @@ export default {
     },
     propItem() {
       this.item.name = this.propItem.name;
-      this.item.info = this.propItem.info;
+      this.item.info = this.propItem.info ? this.propItem.info : null;
       this.keywords = this.propItem.keywords;
       this.comment = this.propItem.comment;
       this.image = this.propItem.image;
@@ -243,6 +253,6 @@ export default {
   border-right: 2px solid grey; */
 }
 .results > div:hover {
-  background-color:rgb(223, 223, 226);
+  background-color: rgb(223, 223, 226);
 }
 </style>

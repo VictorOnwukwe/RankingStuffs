@@ -88,9 +88,6 @@
       </v-card-text>
       <!-- <v-divider></v-divider> -->
       <v-card-actions class="">
-        <!-- <v-spacer></v-spacer>
-        <v-btn small color="brand" text>Close</v-btn>
-        <v-btn small color="brand" outlined @click="goUser()">Profile</v-btn> -->
         <v-layout justify-space-around class="accent darken-1 foot">
           <router-link :to="'/' + this.user.id + '/profile'" class="no-deco">
             <v-flex shrink class="py-1 foot-item" style="padding:0 3em">
@@ -122,11 +119,7 @@
     </v-card>
     <v-card v-else>
       <v-layout justify-center>
-        <v-progress-circular
-          class="my-8"
-          color="brand"
-          indeterminate
-        ></v-progress-circular>
+        <m-progress :size="'35'" class="my-8"></m-progress>
       </v-layout>
     </v-card>
   </div>

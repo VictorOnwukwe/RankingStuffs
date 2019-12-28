@@ -1,8 +1,6 @@
 <template>
   <div>
-    <v-btn v-if="btn" @click="uploadMenu = true" dark class="brand darken-1"
-      >Upload</v-btn
-    >
+    <m-btn v-if="btn" @click="uploadMenu = true">Upload</m-btn>
     <v-icon
       v-if="icon"
       @click="uploadMenu = true"
@@ -49,7 +47,7 @@
               v-model="imgURL"
               @input="clipper = true"
             >
-              <v-btn color="brand darken-1" dark depressed>Upload</v-btn>
+              <m-btn depressed>Upload</m-btn>
             </clipper-upload>
           </v-layout>
         </v-card-text>
@@ -63,7 +61,9 @@
         >
           Edit Image
           <v-spacer></v-spacer>
-          <v-icon class="close" @click="(clipper = false), isLink = false, imgURL = '', close()"
+          <v-icon
+            class="close"
+            @click="(clipper = false), (isLink = false), (imgURL = ''), close()"
             >mdi-close</v-icon
           >
         </v-card-title>
@@ -75,7 +75,6 @@
               class="my-clipper pr-1"
               :src="imgURL"
               :width="50"
-              :ratio="1"
               :rotate="rotation"
               :initWidth="50"
               :initHeight="50"
@@ -87,6 +86,7 @@
             <clipper-preview
               name="my-preview"
               class="my-clipper my-preview pl-1"
+              v-if="$vuetify.breakpoint.smAndUp"
             >
               <div class="placeholder" slot="placeholder">Preview Area</div>
             </clipper-preview>
@@ -155,16 +155,8 @@
         </v-card-text>
         <v-card-actions>
           <v-spacer></v-spacer>
-          <v-btn @click="result = false" outlined color="brand darken-1"
-            >Cancel</v-btn
-          >
-          <v-btn
-            :loading="uploading"
-            @click="upload()"
-            dark
-            color="brand darken-1"
-            >Upload</v-btn
-          >
+          <m-btn @click="result = false" outlined>Cancel</m-btn>
+          <m-btn :loading="uploading" @click="upload()">Upload</m-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -318,6 +310,12 @@ export default {
 
 <style scoped>
 .my-clipper {
-  width: 50%;
+  width: 100%;
+  max-width: 400px;
+}
+@media (min-width: 600px) {
+  .my-clipper {
+    width: 50%;
+  }
 }
 </style>

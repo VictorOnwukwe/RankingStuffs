@@ -2,7 +2,7 @@
   <div>
     <div style="margin:0 auto;">
       <div class="page-title">Demand List</div>
-      <v-card flat class="grey lighten-3">
+      <v-card flat class="grey lighten-3" tile>
         <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">
           Just A Tip</v-card-title>
         <v-card-text>
@@ -16,7 +16,7 @@
           </ul>
         </v-card-text>
       </v-card>
-      <v-card flat class="mt grey lighten-3">
+      <v-card flat class="mt grey lighten-3" tile>
         <v-card flat tile>
           <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Details</v-card-title>
         </v-card>
@@ -28,8 +28,8 @@
                   <p class="text-capitalize font-weight-medium grey--text text--darken-2">Title</p>
                   <v-text-field
                     @blur="getKeywords()"
-                    counter="100"
-                    :rules="[rules.maxLength(100),rules.minLength(1, 'Title')]"
+                    counter="150"
+                    :rules="[rules.maxLength(150),rules.minLength(1, 'Title')]"
                     solo
                     flat
                     color="brand"
@@ -64,13 +64,12 @@
           </v-container>
         </v-card-text>
         <v-card-actions>
-          <v-btn
+          <m-btn
             :dark="valid"
             :loading="loading"
             :disabled="!valid"
-            class="brand darken-1 white--text"
             @click="demand()"
-          >Submit</v-btn>
+          >Submit</m-btn>
         </v-card-actions>
       </v-card>
     </div>
@@ -83,10 +82,10 @@
           <p>Dear User, for performance reasons, you are required to Login at this point in order to receive notifications. This is to enable us serve you better. Login or Signup to continue...</p>
         </v-card-text>
         <v-card-actions>
-          <v-btn @click="goBack()" text color="brand">Back</v-btn>
+          <m-btn @click="goBack()" text>Back</m-btn>
           <v-spacer></v-spacer>
-          <v-btn @click="setSignup(true)" text color="brand">Signup</v-btn>
-          <v-btn @click="setLogin(true)" outlined color="brand">Login</v-btn>
+          <m-btn @click="setSignup(true)" text>Signup</m-btn>
+          <m-btn @click="setLogin(true)" outlined>Login</m-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -123,11 +122,9 @@ export default {
         title: this.title.toLowerCase(),
         keywords: this.keywords,
         category: this.category,
-        subCategory: this.subCategory
+        sub_category: this.subCategory,
+        comment: this.comment
       };
-      this.comment !== ""
-        ? (upload = { comment: this.comment, ...upload })
-        : null;
 
       this.$store.dispatch("demand_list", upload).then(() => {
         this.loading = false;

@@ -1,95 +1,182 @@
 <template>
-<div>
-  <v-list-item>
-    <v-list-item-content>
-      <v-list-item-title v-if="activity.type == 'list'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} created the list of
-        <span
-          class="link--text font-weight-medium pointer text-capitalize"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.list.title }}</span
+  <div>
+    <v-list-item v-if="activity.type == 'list'">
+      <v-list-item-avatar>
+        <v-icon color="pink">fa-list-alt</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Creation of List: 
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'comment'">
+      <v-list-item-avatar>
+        <v-icon color="blue darken-2" size="2rem">mdi-comment</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Comment on
+          <span class="font-weight-medium text-capitalize pointer">{{
+            activity.item.name
+          }}</span>
+          on the list of
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-title class="italic font-weight-black text-wrap"
+          >"{{ activity.comment }}"</v-list-item-title
         >
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'comment'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} added a comment on
-        <span class="font-weight-medium text-capitalize pointer">{{
-          activity.item.name
-        }}</span>
-        on the list of
-        <span
-          class="font-weight-medium text-capitalize link--text pointer"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.list.title }}</span
-        >
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'comment'" class="italic"
-        >"{{ activity.comment }}"</v-list-item-title
-      >
-      <v-list-item-title v-if="activity.type == 'vote'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} voted for
-        <span class="font-weight-medium pointer">{{ activity.item.name }}</span>
-        on the list of
-        <span class="link--text font-weight-medium pointer">{{
-          activity.list.title
-        }}</span>
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'item'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} added
-        <span class="font-weight-medium pointer">{{ activity.item.name }}</span>
-        to the list of
-        <span
-          class="link--text font-weight-medium pointer"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.list.title }}</span
-        >
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'rate'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} rated
-        <span
-          class="link--text font-weight-medium pointer text-capitalize"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.list.title }}</span
-        >
-        <rating
-          :size="'0.8em'"
-          :rating="activity.rating"
-          :ratersCount="activity.raters_count"
-        ></rating>
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'demand'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} demanded for
-        <span
-          class="link--text font-weight-medium pointer text-capitalize"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.demand.title }}</span
-        >
-      </v-list-item-title>
-      <v-list-item-title
-        v-if="activity.type == 'item-update'"
-        class="text-wrap"
-      >
-        {{ isProfile ? "You" : user.username }} contributed to
-        <span
-          class="font-weight-medium pointer text-capitalize"
-          @click="go('/lists/' + activity.list.id)"
-          >{{ activity.item.name }}</span
-        >
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'reply'" class="text-wrap">
-        {{ isProfile ? "You" : user.username }} replied to a comment on
-        <span class="font-weight-medium text-capitalize">{{ activity.item.name }}</span> on the
-        list of
-        <span class="font-weight-medium link--text text-capitalize">{{
-          activity.list.title
-        }}</span>
-      </v-list-item-title>
-      <v-list-item-title v-if="activity.type == 'reply'" class="italic">
-        {{activity.reply.content}}
-      </v-list-item-title>
-      <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
-    </v-list-item-content>
-  </v-list-item>
-  <v-divider class="grey lighten-3"></v-divider>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+
+    <v-list-item v-if="activity.type == 'upvote'">
+      <v-list-item-avatar>
+        <v-icon color="green" size="2rem">mdi-arrow-up-box</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Upvote for
+          <span class="font-weight-medium pointer">{{
+            activity.item.name
+          }}</span>
+          on the list of
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'downvote'">
+      <v-list-item-avatar>
+        <v-icon color="red" size="2rem">mdi-arrow-down-box</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Downvote for
+          <span class="font-weight-medium pointer">{{
+            activity.item.name
+          }}</span>
+          on the list of
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'item'">
+      <v-list-item-avatar>
+        <v-icon>mdi-arrow-up</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Add item
+          <span class="font-weight-medium pointer">{{
+            activity.item.name
+          }}</span>
+          to the list of
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'rate'">
+      <v-list-item-avatar>
+        <v-icon color="yellow darken-3">fa-star</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Rated
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+          <rating
+            :size="'0.8em'"
+            :rating="activity.rating"
+            :ratersCount="activity.raters_count"
+          ></rating>
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'demand'">
+      <v-list-item-avatar>
+        <v-icon color="brown " size="2rem">fa-hand-holding</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Demand for
+          <span
+            class="link--text font-weight-medium pointer text-capitalize"
+            @click="go('/lists/' + activity.list.id)"
+            >{{ activity.demand.title }}</span
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'item-update'">
+      <v-list-item-avatar>
+        <v-icon size="2rem" color="grey">mdi-plus-box</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Contribution to
+          <span
+            class="font-weight-medium pointer text-capitalize"
+            @click="go('/lists/' + activity.list.id)"
+            >{{ activity.item.name }}</span
+          >
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-list-item v-if="activity.type == 'reply'">
+      <v-list-item-avatar>
+        <v-icon color="blue" size="2rem">mdi-reply</v-icon>
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <v-list-item-title class="text-wrap">
+          Reply to a comment on
+          <span class="font-weight-medium text-capitalize">{{
+            activity.item.name
+          }}</span>
+          on the list of
+          <router-link
+            class="link--text font-weight-medium pointer text-capitalize no-deco"
+            :to="'/lists/' + activity.list.id"
+            >{{ activity.list.title }}</router-link
+          >
+        </v-list-item-title>
+        <v-list-item-title class="italic font-weight-black">
+          "{{ activity.reply.content }}"
+        </v-list-item-title>
+        <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+      </v-list-item-content>
+    </v-list-item>
+    <v-divider class="grey lighten-3"></v-divider>
   </div>
 </template>
 
@@ -112,11 +199,11 @@ export default {
   },
   computed: {
     created() {
-      return moment(this.activity.created.toDate()).calendar();
+      return moment(this.activity.created.toDate()).fromNow();
     }
   },
   created() {
-    
+    // console.log(this.activity);
   }
 };
 </script>

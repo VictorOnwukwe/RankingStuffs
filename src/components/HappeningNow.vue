@@ -8,7 +8,9 @@
         :index="index"
       ></happening-event>
     </v-list>
-    <m-progress v-else></m-progress>
+    <v-layout v-else justify-center class="py-4">
+      <m-progress></m-progress>
+    </v-layout>
   </div>
 </template>
 
@@ -29,6 +31,7 @@ export default {
   methods: {
     updateHappenings(docs) {
       this.happenings = docs;
+      // console.log(docs.map(doc => doc.data()));
     }
   },
   mounted() {

@@ -10,10 +10,10 @@
                 color="rgba(255, 255, 255, 0.902)"
                 class="hidden-sm-and-up mr-2"
               ></v-app-bar-nav-icon>
-              <a @click="go('/')" class="py-1" style="font-size:1.5em">
-                <span class="white--text font-weight-black italic">top</span>
-                <span class="accent--text font-weight-black">TEN</span>
-              </a>
+              <router-link :to="'/'" class="py-1" style="font-size:1.5em">
+                <span class="white--text font-weight-medium italic">top</span>
+                <span class="white--text font-weight-black">TEN</span>
+              </router-link>
             </v-layout>
           </v-flex>
           <v-flex>
@@ -22,85 +22,32 @@
                 <v-layout justify-center class="">
                   <router-link
                     tag="a"
-                    style="margin-right:1em"
-                    class="nav font-weight-medium"
+                    class="nav"
                     to="/"
                     >HOME</router-link
                   >
-                  <v-menu
-                    offset-y
-                    open-on-hover
-                    close-on-content-click
-                    min-width="150px"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <div v-on="on">
-                        <v-layout align-center>
-                          <a class="font-weight-medium">LISTS</a>
-                          <v-icon
-                            class="mt-n1"
-                            color="rgba(255, 255, 255, 0.902)"
-                            >mdi-menu-down</v-icon
-                          >
-                        </v-layout>
-                      </div>
-                    </template>
-                    <v-list dense color="" class="pa-0">
-                      <v-list-item
-                        :to="'/categories'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
-                      >
-                        <v-list-item-content class="">All</v-list-item-content>
-                      </v-list-item>
-                      <v-divider class=""></v-divider>
-                      <v-list-item
-                        :to="'/latest-lists'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
-                      >
-                        <v-list-item-content class=""
-                          >Latest</v-list-item-content
-                        >
-                      </v-list-item>
-                      <v-divider class=""></v-divider>
-                      <v-list-item
-                        :to="'/popular-lists'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
-                      >
-                        <v-list-item-content class=""
-                          >Popular</v-list-item-content
-                        >
-                      </v-list-item>
-                      <v-divider></v-divider>
-                      <v-list-item
-                        :to="'/top-rated-lists'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
-                      >
-                        <v-list-item-content class=""
-                          >Top Rated</v-list-item-content
-                        >
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
                   <router-link
                     tag="a"
-                    class="nav font-weight-medium"
+                    class="nav"
+                    to="/lists"
+                    >LISTS</router-link
+                  >
+                  <router-link
+                    tag="a"
+                    class="nav"
                     style="margin-left:1em"
-                    to="/demanded"
-                    >ON-DEMAND</router-link
+                    to="/demands"
+                    >DEMANDS</router-link
                   >
                   <router-link
                     tag="a"
-                    class="nav font-weight-medium"
+                    class="nav"
                     to="/create"
                     >CREATE</router-link
                   >
                   <router-link
                     tag="a"
-                    class="nav font-weight-medium"
+                    class="nav"
                     to="/demand"
                     >DEMAND</router-link
                   >
@@ -154,7 +101,7 @@
                       </div>
                     </template>
                     <v-list dense color="">
-                      <v-list-item @click="go(profile)" class="tile">
+                      <v-list-item>
                         <v-list-item-avatar>
                           <v-avatar size="2em" v-if="user.profile_pic">
                             <img :src="user.profile_pic.low" />
@@ -228,6 +175,39 @@
         </v-layout>
       </div>
     </div>
+    <v-layout justify-center class="brand px-4">
+      <v-layout
+        class="cat-display brand"
+        style="overflow-x:scroll; max-width: 1200px"
+      >
+        <v-menu
+          v-for="(category, index) in categories"
+          :key="index"
+          max-height="500px"
+          min-width="150px"
+          bottom
+          offset-y
+          open-on-hover
+        >
+          <template v-slot:activator="{ on }">
+            <a v-on="on" class="text-capitalize cat-link brand--text text--lighten-3">{{ category.name }}</a>
+          </template>
+          <div class="menu-display px-4 py-2">
+            <router-link :to="'/categories/' + category.name" class="ptd" style="display:block"
+              >all</router-link
+            >
+            <div v-for="(sub, index) in category.subs" :key="index">
+              <router-link
+                tag="a"
+                :to="'/categories/' + category.name + '/' + sub.name"
+                style="display:block"
+                >{{ sub.name }}</router-link
+              >
+            </div>
+          </div>
+        </v-menu>
+      </v-layout>
+    </v-layout>
     <v-progress-linear
       v-if="loading"
       height="2"
@@ -267,7 +247,7 @@
                   @click="(search = false), go('/lists/' + result.id)"
                   class="underline pointer text-capitalize"
                 >
-                  {{ result.data().title }}<br/>
+                  {{ result.data().title }}<br />
                 </span>
               </div>
             </v-card>
@@ -289,24 +269,24 @@
                   @click="(search = false), go('/demands/' + result.id)"
                   class="underline pointer text-capitalize"
                 >
-                  {{ result.data().title }}<br/>
+                  {{ result.data().title }}<br />
                 </span>
               </div>
             </v-card>
           </div>
           <div v-else-if="keyword.length >= 5 && !searching">
-            <v-card tile flat class="ptd grey lighten-3">
+            <v-card tile flat class="ptd white">
               <v-card-text class
                 >Sorry. This list does not exist yet. Be the first to create or
                 demand it.</v-card-text
               >
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <v-btn text small color="brand" @click="goSearchedDemand()"
-                  >Demand</v-btn
+                <m-btn text small @click="goSearchedDemand()"
+                  >Demand</m-btn
                 >
-                <v-btn small outlined color="brand" @click="goSearchedCreate()"
-                  >Create</v-btn
+                <m-btn text small @click="goSearchedCreate()"
+                  >Create</m-btn
                 >
               </v-card-actions>
             </v-card>
@@ -362,64 +342,75 @@
         <v-spacer></v-spacer>
         <v-icon @click="showSidebar = false">mdi-close</v-icon>
       </v-layout>
+      <!-- <v-list>
+        <v-list-item>
+          <v-list-item-avatar>
+            <v-img :src="user.profile_pic"></v-img>
+          </v-list-item-avatar>
+          <v-list-item-content>
+            <v-list-item-title class="title">{{user.username}}</v-list-item-title>
+            <v-list-item-subtitle class>{{user.email}}</v-list-item-subtitle>
+          </v-list-item-content>
+        </v-list-item>
+      </v-list>
+
+    <v-divider></v-divider>
+
+    <v-list nav dense>
+      <v-list-item @click="">
+        <v-list-item-icon>
+          <v-icon color="#EEEEEE">mdi-view-list</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>My Creations</v-list-item-title>
+      </v-list-item>
+      <v-list-item @click="">
+        <v-list-item-icon>
+          <v-icon color="#EEEEEE">mdi-star</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>My Favorites</v-list-item-title>
+      </v-list-item>
+      <v-list-item link>
+        <v-list-item-icon>
+          <v-icon color="#EEEEEE">mdi-creation</v-icon>
+        </v-list-item-icon>
+        <v-list-item-title>My Timeline</v-list-item-title>
+      </v-list-item>
+    </v-list> -->
       <div style="font-size:20px">
-        <v-list nav class="py-1">
+        <v-list nav class="pt-1 pb-0">
           <v-list-item :to="'/'">
             <v-list-item-icon>
               <v-icon size="1.2em" color="#EEEEEE">fa-home</v-icon>
             </v-list-item-icon>
-            <v-list-item-title class="font-weight-bold">HOME</v-list-item-title>
+            <v-list-item-title class="font-weight-medium">HOME</v-list-item-title>
           </v-list-item>
-        </v-list>
-        <v-list nav class="pt-1 pb-0">
-          <v-list-group no-action>
-            <template v-slot:activator>
-              <v-list-item-icon>
-                <v-icon size="1.2em" color="#EEEEEE">fa-list-alt</v-icon>
-              </v-list-item-icon>
-              <v-list-item-title class="font-weight-bold"
-                >LISTS</v-list-item-title
-              >
-            </template>
-
-            <v-list-item :to="'/latest-lists'">
-              <v-list-item-title>Latest</v-list-item-title>
-            </v-list-item>
-            <v-list-item :to="'/popular-lists'">
-              <v-list-item-title>Popular</v-list-item-title>
-            </v-list-item>
-            <v-list-item :to="'/top-rated-lists'">
-              <v-list-item-title>Top Rated</v-list-item-title>
-            </v-list-item>
-          </v-list-group>
-        </v-list>
-        <v-list nav class="py-1">
-          <v-list-item :to="'/demanded'">
+          <v-list-item :to="'/lists'">
+            <v-list-item-icon>
+              <v-icon size="1.2em" color="#EEEEEE">fa-list-alt</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-medium">LISTS</v-list-item-title>
+          </v-list-item>
+          <v-list-item :to="'/demands'">
             <v-list-item-icon>
               <v-icon size="1.2em" color="#EEEEEE">fa-users</v-icon>
             </v-list-item-icon>
-            <v-list-item-title class="font-weight-bold"
+            <v-list-item-title class="font-weight-medium"
               >ON-DEMAND</v-list-item-title
             >
           </v-list-item>
-        </v-list>
-
-        <v-list nav class="py-1">
           <v-list-item :to="'/demand'">
             <v-list-item-icon>
               <v-icon size="1.2em" color="#EEEEEE">fa-hand-holding</v-icon>
             </v-list-item-icon>
-            <v-list-item-title class="font-weight-bold"
+            <v-list-item-title class="font-weight-medium"
               >DEMAND</v-list-item-title
             >
           </v-list-item>
-        </v-list>
-        <v-list nav class="py-1">
           <v-list-item :to="'/create'">
             <v-list-item-icon>
               <v-icon size="1.2em" color="grey lighten-2">fa-plus</v-icon>
             </v-list-item-icon>
-            <v-list-item-title class="font-weight-bold"
+            <v-list-item-title class="font-weight-medium"
               >CREATE</v-list-item-title
             >
           </v-list-item>
@@ -476,9 +467,10 @@ export default {
     },
 
     goSearchedCreate() {
+      this.search = false;
       this.$router.push({
         path: "/create",
-        query: { demanded: true, id: "jdsfbsijbfjd", title: this.keyword }
+        query: { searched: true, title: this.keyword }
       });
     },
 
@@ -486,6 +478,7 @@ export default {
       this.$router.push({ path: "/lists/pTt8MoCSxEyJxEYwEqRQ" });
     },
     goSearchedDemand() {
+      this.search = false;
       this.$router.push({
         path: "/demand",
         query: {
@@ -523,11 +516,6 @@ export default {
         this.keyword.toLowerCase()
       );
       this.searching = false;
-    },
-    fetchCategories() {
-      this.$store.dispatch("fetch_categories").then(result => {
-        this.categories = result;
-      });
     },
     goFavorites() {
       this.$router.push({ path: this.profile });
@@ -595,6 +583,9 @@ export default {
     },
     signup() {
       return this.$store.getters.signup;
+    },
+    categories() {
+      return this.$store.getters.categories;
     }
   }
 };
@@ -618,7 +609,7 @@ export default {
   ); */
 }
 .content {
-  max-width: 1300px;
+  max-width: 1200px;
   padding: 0 0.5em;
 }
 @media (min-width: 800px) {
@@ -626,7 +617,7 @@ export default {
     padding: 0 1em;
   }
 }
-@media (min-width: 1432px) {
+@media (min-width: 1200px) {
   .content {
     padding: 0;
   }
@@ -676,12 +667,55 @@ export default {
     width: 50%;
   }
 }
+.menu-display {
+  background-color: rgba(255, 255, 255, 0.95);
+}
+.menu-display a {
+  color: rgba(0, 0, 0, 0.87) !important;
+  display: inline-block;
+}
+.menu-display a:hover {
+  color: var(--brand) !important;
+}
+.cat-link {
+  margin-right: 1.5em;
+}
+.cat-link:hover {
+  color: var(--brand) !important;
+}
+
+.cat-display::scrollbar-track {
+  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  background-color: white;
+  display: none;
+}
+
+.cat-display::scrollbar {
+  height: 5px;
+  /* background-color: #f5f5f5; */
+}
+
+.cat-display:hover::scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.cat-display::scrollbar-thumb {
+  background-color: #177424;
+  /* background-color: white; */
+  /* background-color: rgba(255,255,255,0.7); */
+}
 
 .affix {
   position: fixed;
   top: 0;
   z-index: 10;
   width: 100%;
+}
+@media (min-width: 600px) {
+  .affix {
+    position: fixed;
+  }
 }
 #main {
   width: calc(100%);
@@ -694,11 +728,14 @@ div > a {
   padding-bottom: 0.2em;
 }
 a {
-  color: #ffffffe6 !important;
+  color: white !important;
   /* font-weight: bold; */
   text-decoration: none;
   /* color: rgba(255, 255, 255, 0.902) */
   line-height: 200%;
+}
+a:hover {
+  color: #ffffffe6 !important;
 }
 
 .center {
@@ -759,7 +796,12 @@ div a + a {
   }
 }
 .nav.router-link-exact-active {
-  border-bottom: 4px solid var(--accent);
+  color: var(--accent) !important;
+  font-weight: bolder;
+  text-shadow: 0px 0px 8px var(--accent);
+}
+.block{
+  display: block;
 }
 .icon {
   font-size: 20px;

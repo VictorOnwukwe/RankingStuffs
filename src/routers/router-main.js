@@ -9,10 +9,6 @@ import CreateList from "../components/CreateList";
 // @ts-ignore
 import DisplayList from "../components/DisplayList";
 // @ts-ignore
-import PopularLists from "../components/PopularLists";
-// @ts-ignore
-import LatestLists from "../components/LatestLists";
-// @ts-ignore
 import UserCreations from "../components/UserCreations";
 // @ts-ignore
 import UserFavorites from "../components/UserFavorites";
@@ -31,9 +27,19 @@ import Category from "../components/Category";
 // @ts-ignore
 import SubCategory from "../components/SubCategory";
 // @ts-ignore
-import TopRatedLists from "../components/TopRatedLists";
-// @ts-ignore
 import Categories from "../components/Categories";
+// @ts-ignore
+import Admin from "../components/Admin";
+// @ts-ignore
+import AdminLists from "../components/AdminLists";
+// @ts-ignore
+import AdminPendingLists from "../components/AdminPendingLists";
+// @ts-ignore
+import AdminPendingDemands from "../components/AdminPendingDemands";
+// @ts-ignore
+import AdminFlagged from "../components/AdminFlagged";
+// @ts-ignore
+import DisplayLists from "../components/DisplayLists";
 
 Vue.use(Router);
 
@@ -72,24 +78,14 @@ export default new Router({
       component: CreateList
     },
     {
+      path: "/lists",
+      name: "lists",
+      component: DisplayLists
+    },
+    {
       path: "/lists/:id",
       name: "list-display",
       component: DisplayList
-    },
-    {
-      path: "/popular-lists",
-      name: "popular-lists",
-      component: PopularLists
-    },
-    {
-      path: "/latest-lists",
-      name: "latest-lists",
-      component: LatestLists
-    },
-    {
-      path: "/top-rated-lists",
-      name: "top-rated-lists",
-      component: TopRatedLists
     },
     {
       path: "/items/:id",
@@ -97,7 +93,7 @@ export default new Router({
       component: Item
     },
     {
-      path: "/demanded",
+      path: "/demands",
       name: "demanded-lists",
       component: DisplayDemanded
     },
@@ -125,6 +121,28 @@ export default new Router({
       path: "/categories",
       name: "categories",
       component: Categories
+    },
+    {
+      path: "/admin",
+      component: Admin,
+      children: [
+        { path: "/", name: "admin-lists", component: AdminLists },
+        {
+          path: "/admin/pending-lists",
+          name: "admin-pending-lists",
+          component: AdminPendingLists
+        },
+        {
+          path: "/admin/pending-demands",
+          name: "admin-pending-demands",
+          component: AdminPendingDemands
+        },
+        {
+          path: "/admin/flagged",
+          name: "admin-flagged",
+          component: AdminFlagged
+        }
+      ]
     }
   ],
   scrollBehavior(to) {
