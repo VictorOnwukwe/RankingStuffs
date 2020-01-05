@@ -5,7 +5,7 @@
     </v-list-item-avatar>
     <v-list-item-content align-with-title>
       <v-list-item-title
-        class="text-capitalize link--text text-wrap font-weight-medium"
+        class="text-capitalize link--text text-wrap"
         :style="{ fontSize: fontSize }"
         >{{ list.title }}</v-list-item-title
       >

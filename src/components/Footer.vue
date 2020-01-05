@@ -1,36 +1,56 @@
 <template>
-  <v-footer  padless>
+  <v-footer padless>
     <v-card class="flex" flat tile>
-        <v-card tile color="#242729" flat>
-          <v-card-title class="stl title-text">CATEGORIES</v-card-title>
-          <v-card-text>
-            <div id="container" v-masonry transition-duration="0.2s" item-selector=".cat-item">
-              <div v-masonry-tile class="cat-item" v-for="(category, index) in categories" :key="index">
-                <router-link :to="'/categories/' + category.name" style="font-size:0.9em" class="text-uppercase underline font-weight-bold ptl main-cat no-deco">
-                  {{category.name}}
+      <v-card tile color="#242729" flat>
+        <v-card-title class="stl title-text">CATEGORIES</v-card-title>
+        <v-card-text>
+          <div
+            id="container"
+            v-masonry
+            transition-duration="0.2s"
+            item-selector=".cat-item"
+          >
+            <div
+              v-masonry-tile
+              class="cat-item"
+              v-for="(category, index) in categories"
+              :key="index"
+            >
+              <router-link
+                :to="'/categories/' + category.name"
+                style="font-size:0.9em"
+                class="text-uppercase underline font-weight-bold ptl main-cat no-deco block"
+              >
+                {{ category.name }}
+                <br />
+              </router-link>
+              <div>
+                <router-link
+                  v-for="(sub, id) in category.subs"
+                  :key="id"
+                  style="font-size:0.9em;"
+                  class="text-capitalize brighten-1 stl no-deco block"
+                  :to="'/categories/' + category.name + '/' + sub.name"
+                >
+                  {{ sub.name }}&nbsp;({{ sub.list_count }})
                   <br />
                 </router-link>
-                <div>
-                  <router-link
-                    v-for="(sub, id) in category.subs"
-                    :key="id"
-                    style="font-size:0.9em"
-                    class="text-capitalize brighten-1 stl no-deco"
-                    :to="'/categories/' + category.name + '/' + sub.name"
-                  >
-                    {{sub.name}}&nbsp;({{sub.list_count}})
-                    <br/>
-                  </router-link>
-                </div>
               </div>
             </div>
-          </v-card-text>
-        </v-card>
-      <v-card-text class="py-2 grey--text text--lighten-2 text-center footer lighten-1">
+          </div>
+        </v-card-text>
+      </v-card>
+      <v-card-text
+        class="py-2 grey--text text--lighten-2 text-center footer lighten-1"
+      >
         <v-layout class="stl">
           topTEN
-          <a class="grey--text underline">Privacy Policy</a>
-          <a class="grey--text underline">Terms and Conditions</a>
+          <router-link
+            to="/terms-and-conditions"
+            class="grey--text underline no-deco"
+          >
+            Terms and Conditions
+          </router-link>
         </v-layout>
         <!-- <v-btn @click="update()">
           update all
@@ -41,11 +61,8 @@
 </template>
 
 <script>
-import Masonry from "vue-masonry-css";
 export default {
-  components:{
-    Masonry
-  },
+  components: {},
   data() {
     return {};
   },
@@ -59,9 +76,7 @@ export default {
       return this.$store.getters.categories;
     }
   },
-  created(){
-    // this.$redrawVueMasonry();
-  }
+  created() {}
 };
 </script>
 
@@ -72,9 +87,9 @@ a {
 .cat-item {
   width: 50%;
   margin-top: 1em;
-  padding:0 0.25em;
+  padding: 0 0.25em;
 }
-@media (min-width: 650px) {
+@media (min-width: 600px) {
   .cat-item {
     width: 33.3%;
   }
@@ -94,7 +109,6 @@ a {
     width: 16.6%;
   }
 }
-.main-cat{
-  
+.main-cat {
 }
 </style>

@@ -2,13 +2,13 @@
   <div class="affix elevation-3">
     <div id="main" class="brand" @click="action()">
       <div class="mx-auto content">
-        <v-layout>
-          <v-flex shrink>
+        <v-layout justify-space-between>
+          <v-flex>
             <v-layout align-center>
               <v-app-bar-nav-icon
                 @click="showSidebar = !showSidebar"
                 color="rgba(255, 255, 255, 0.902)"
-                class="hidden-sm-and-up mr-2"
+                class="hidden-md-and-up mr-2"
               ></v-app-bar-nav-icon>
               <router-link :to="'/'" class="py-1" style="font-size:1.5em">
                 <span class="white--text font-weight-medium italic">top</span>
@@ -18,42 +18,28 @@
           </v-flex>
           <v-flex>
             <v-layout style="height:4.5em" align-center justify-space-around>
-              <v-flex grow class="hidden-xs-only">
+              <v-flex grow class="hidden-sm-and-down">
                 <v-layout justify-center class="">
-                  <router-link
-                    tag="a"
-                    class="nav"
-                    to="/"
-                    >HOME</router-link
-                  >
-                  <router-link
-                    tag="a"
-                    class="nav"
-                    to="/lists"
-                    >LISTS</router-link
+                  <router-link tag="a" class="nav" to="/">Home</router-link>
+                  <router-link tag="a" class="nav" to="/lists"
+                    >Lists</router-link
                   >
                   <router-link
                     tag="a"
                     class="nav"
                     style="margin-left:1em"
                     to="/demands"
-                    >DEMANDS</router-link
+                    >Demands</router-link
                   >
-                  <router-link
-                    tag="a"
-                    class="nav"
-                    to="/create"
-                    >CREATE</router-link
+                  <router-link tag="a" class="nav" to="/create"
+                    >Create</router-link
                   >
-                  <router-link
-                    tag="a"
-                    class="nav"
-                    to="/demand"
-                    >DEMAND</router-link
+                  <router-link tag="a" class="nav" to="/demand"
+                    >Demand</router-link
                   >
                 </v-layout>
               </v-flex>
-              <v-flex :shrink="$vuetify.breakpoint.xs ? false : true">
+              <v-flex>
                 <v-layout v-if="!authenticated" justify-end class="">
                   <v-icon
                     color="rgba(255, 255, 255, 0.902)"
@@ -90,7 +76,7 @@
                     max-width="250px"
                   >
                     <template v-slot:activator="{ on }">
-                      <div v-on="on" class="ml-4">
+                      <div v-on="on" class="ml-4 hidden-sm-and-down">
                         <!-- <dp :src="user.profile_pic.low" class="ml-4" :size="'30'"></dp> -->
                         <v-avatar size="2em" v-if="user.profile_pic">
                           <img :src="user.profile_pic.low" />
@@ -122,8 +108,8 @@
                       </v-list-item>
                       <v-list-item
                         :to="profile + 'creations'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
+                        class="ml-0"
+                        exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
                       >
                         <v-list-item-icon>
                           <v-icon color size="1.5em">mdi-creation</v-icon>
@@ -133,9 +119,10 @@
                         >
                       </v-list-item>
                       <v-list-item
-                        @click="go(profile)"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
+                        :to="profile"
+                        class="ml-0"
+                        exact
+                        exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
                       >
                         <v-list-item-icon>
                           <v-icon size="1.2em" color>fa-star</v-icon>
@@ -145,9 +132,9 @@
                         >
                       </v-list-item>
                       <v-list-item
+                        class="ml-0"
                         :to="profile + 'activities'"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
+                        exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
                       >
                         <v-list-item-icon>
                           <v-icon color>mdi-timeline</v-icon>
@@ -156,11 +143,7 @@
                           >My Activities</v-list-item-title
                         >
                       </v-list-item>
-                      <v-list-item
-                        @click="logout()"
-                        class="tile"
-                        active-class="accent lighten-3 brand--text font-weight-bold"
-                      >
+                      <v-list-item @click="logout()" class="tile">
                         <v-list-item-icon>
                           <v-icon>mdi-logout</v-icon>
                         </v-list-item-icon>
@@ -190,10 +173,17 @@
           open-on-hover
         >
           <template v-slot:activator="{ on }">
-            <a v-on="on" class="text-capitalize cat-link brand--text text--lighten-3">{{ category.name }}</a>
+            <a
+              v-on="on"
+              class="text-capitalize cat-link brand--text text--lighten-4"
+              >{{ category.name }}</a
+            >
           </template>
           <div class="menu-display px-4 py-2">
-            <router-link :to="'/categories/' + category.name" class="ptd" style="display:block"
+            <router-link
+              :to="'/categories/' + category.name"
+              class="ptd"
+              style="display:block"
               >all</router-link
             >
             <div v-for="(sub, index) in category.subs" :key="index">
@@ -282,12 +272,8 @@
               >
               <v-card-actions>
                 <v-spacer></v-spacer>
-                <m-btn text small @click="goSearchedDemand()"
-                  >Demand</m-btn
-                >
-                <m-btn text small @click="goSearchedCreate()"
-                  >Create</m-btn
-                >
+                <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
+                <m-btn text small @click="goSearchedCreate()">Create</m-btn>
               </v-card-actions>
             </v-card>
           </div>
@@ -329,89 +315,149 @@
     </v-dialog>
 
     <v-navigation-drawer
-      class="hidden-sm-and-up"
+      class="hidden-md-and-up"
       height="100%"
       style=""
-      dark
       fixed
-      :temporary="$vuetify.breakpoint.xs ? true : false"
       v-model="showSidebar"
       width="280px"
     >
-      <v-layout class="pa-4 dim">
+      <v-layout class="pa-4 grey lighten-4">
         <v-spacer></v-spacer>
         <v-icon @click="showSidebar = false">mdi-close</v-icon>
       </v-layout>
-      <!-- <v-list>
-        <v-list-item>
-          <v-list-item-avatar>
-            <v-img :src="user.profile_pic"></v-img>
-          </v-list-item-avatar>
-          <v-list-item-content>
-            <v-list-item-title class="title">{{user.username}}</v-list-item-title>
-            <v-list-item-subtitle class>{{user.email}}</v-list-item-subtitle>
-          </v-list-item-content>
-        </v-list-item>
-      </v-list>
+      <div v-if="authenticated">
+        <v-list class="grey lighten-4">
+          <v-list-item>
+            <v-list-item-avatar>
+              <dp :src="user.profile_pic" :size="'3.8em'"></dp>
+            </v-list-item-avatar>
+            <v-list-item-content>
+              <v-list-item-title class="title font-weight-bold">{{
+                user.username
+              }}</v-list-item-title>
+              <v-list-item-subtitle class="font-weight-medium">{{
+                user.email
+              }}</v-list-item-subtitle>
+            </v-list-item-content>
+          </v-list-item>
+        </v-list>
 
-    <v-divider></v-divider>
+        <v-divider></v-divider>
 
-    <v-list nav dense>
-      <v-list-item @click="">
-        <v-list-item-icon>
-          <v-icon color="#EEEEEE">mdi-view-list</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>My Creations</v-list-item-title>
-      </v-list-item>
-      <v-list-item @click="">
-        <v-list-item-icon>
-          <v-icon color="#EEEEEE">mdi-star</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>My Favorites</v-list-item-title>
-      </v-list-item>
-      <v-list-item link>
-        <v-list-item-icon>
-          <v-icon color="#EEEEEE">mdi-creation</v-icon>
-        </v-list-item-icon>
-        <v-list-item-title>My Timeline</v-list-item-title>
-      </v-list-item>
-    </v-list> -->
+        <v-list nav dense>
+          <v-list-item
+            :to="profile + 'creations'"
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
+            <v-list-item-icon>
+              <v-icon>mdi-creation</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>My Creations</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            :to="profile"
+            class="ml-0"
+            exact
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
+            <v-list-item-icon>
+              <v-icon>mdi-star</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>My Favorites</v-list-item-title>
+          </v-list-item>
+          <v-list-item
+            :to="profile + 'activities'"
+            class="ml-0"
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
+            <v-list-item-icon>
+              <v-icon>mdi-view-list</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title>My Activities</v-list-item-title>
+          </v-list-item>
+        </v-list>
+      </div>
+      <v-layout v-else justify-center class="my-4">
+        <div>
+          <m-btn
+            rounded
+            class="mr-1"
+            @click="(signupDialog = true), (showSidebar = false)"
+            >Register</m-btn
+          >
+          <m-btn
+            outlined
+            rounded
+            class="ml-1"
+            @click="(loginDialog = true), (showSidebar = false)"
+            >Login</m-btn
+          >
+        </div>
+      </v-layout>
+      <v-divider></v-divider>
       <div style="font-size:20px">
-        <v-list nav class="pt-1 pb-0">
-          <v-list-item :to="'/'">
+        <v-list class="pt-1 pb-0">
+          <v-list-item
+            to="/"
+            class="nav-link"
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
             <v-list-item-icon>
-              <v-icon size="1.2em" color="#EEEEEE">fa-home</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title class="font-weight-medium">HOME</v-list-item-title>
-          </v-list-item>
-          <v-list-item :to="'/lists'">
-            <v-list-item-icon>
-              <v-icon size="1.2em" color="#EEEEEE">fa-list-alt</v-icon>
-            </v-list-item-icon>
-            <v-list-item-title class="font-weight-medium">LISTS</v-list-item-title>
-          </v-list-item>
-          <v-list-item :to="'/demands'">
-            <v-list-item-icon>
-              <v-icon size="1.2em" color="#EEEEEE">fa-users</v-icon>
+              <v-icon size="1em">fa-home</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="font-weight-medium"
-              >ON-DEMAND</v-list-item-title
+              >Home</v-list-item-title
             >
           </v-list-item>
-          <v-list-item :to="'/demand'">
+          <v-list-item
+            :to="'/lists'"
+            class="ml-0 nav-link"
+            exact
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
             <v-list-item-icon>
-              <v-icon size="1.2em" color="#EEEEEE">fa-hand-holding</v-icon>
+              <v-icon size="1em">fa-list-alt</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="font-weight-medium"
-              >DEMAND</v-list-item-title
+              >Lists</v-list-item-title
             >
           </v-list-item>
-          <v-list-item :to="'/create'">
+          <v-list-item
+            :to="'/demands'"
+            class="ml-0 nav-link"
+            exact
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
             <v-list-item-icon>
-              <v-icon size="1.2em" color="grey lighten-2">fa-plus</v-icon>
+              <v-icon>$vuetify.icons.queue</v-icon>
             </v-list-item-icon>
             <v-list-item-title class="font-weight-medium"
-              >CREATE</v-list-item-title
+              >On Demand</v-list-item-title
+            >
+          </v-list-item>
+          <v-list-item
+            :to="'/demand'"
+            class="ml-0 nav-link py-0"
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
+            <v-list-item-icon>
+              <v-icon>$vuetify.icons.demand</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-medium"
+              >Demand List</v-list-item-title
+            >
+          </v-list-item>
+          <v-list-item
+            :to="'/create'"
+            class="ml-0 nav-link py-0"
+            exact-active-class="brand lighten-4 brand--text text--darken-1 font-weight-bold"
+          >
+            <v-list-item-icon>
+              <v-icon>$vuetify.icons.create</v-icon>
+            </v-list-item-icon>
+            <v-list-item-title class="font-weight-medium"
+              >Create List</v-list-item-title
             >
           </v-list-item>
         </v-list>
@@ -425,17 +471,12 @@ import Login from "./Login";
 import Signup from "./Signup";
 import { setTimeout } from "timers";
 import Notifications from "./Notifications";
-import Sidebar from "./Sidebar";
-import UserDemanded from "./UserDemanded";
-import firebase, { firestore } from "firebase/app";
 import "firebase/firestore";
 export default {
   components: {
     Login,
     Signup,
-    Notifications,
-    Sidebar,
-    "preview-demanded": UserDemanded
+    Notifications
   },
   props: {
     closeSearch: Boolean
@@ -517,15 +558,6 @@ export default {
       );
       this.searching = false;
     },
-    goFavorites() {
-      this.$router.push({ path: this.profile });
-    },
-    goCreations() {
-      this.$router.push({ path: this.profile + "timeline" });
-    },
-    go(val) {
-      this.$router.push({ path: val });
-    },
     setLogin(val) {
       this.$store.dispatch("set_login", val);
     },
@@ -573,7 +605,7 @@ export default {
       return this.$store.getters.getLoading;
     },
     profile() {
-      return "/" + this.user.id + "/profile/";
+      return "/users/" + this.user.id + "/";
     },
     notifications() {
       return this.$store.getters.notifications;
@@ -679,29 +711,30 @@ export default {
 }
 .cat-link {
   margin-right: 1.5em;
+  font-family: "Oswald", sans-serif;
 }
 .cat-link:hover {
   color: var(--brand) !important;
 }
 
-.cat-display::scrollbar-track {
+.cat-display::-webkit-scrollbar-track {
   box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
   background-color: white;
   display: none;
 }
 
-.cat-display::scrollbar {
+.cat-display::-webkit-scrollbar {
   height: 5px;
   /* background-color: #f5f5f5; */
 }
 
-.cat-display:hover::scrollbar-thumb {
+.cat-display:hover::-webkit-scrollbar-thumb {
   background-color: rgba(255, 255, 255, 0.5);
 }
 
-.cat-display::scrollbar-thumb {
-  background-color: #177424;
+.cat-display::-webkit-scrollbar-thumb {
+  background-color: #388e3c;
   /* background-color: white; */
   /* background-color: rgba(255,255,255,0.7); */
 }
@@ -795,15 +828,24 @@ div a + a {
     background-position: 0 50%;
   }
 }
+.nav {
+  /* font-family: "Oswald", sans-serif; */
+  font-size: 1.2em;
+  /* font-weight: bold; */
+}
 .nav.router-link-exact-active {
-  color: var(--accent) !important;
+  color: var(--brand) !important;
   font-weight: bolder;
   text-shadow: 0px 0px 8px var(--accent);
 }
-.block{
+.block {
   display: block;
 }
 .icon {
   font-size: 20px;
+}
+.tile:active > * {
+  color: var(--brand) !important;
+  font-weight: bold;
 }
 </style>

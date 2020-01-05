@@ -48,27 +48,36 @@
             :loading="eloading"
             @click="emailSignup()"
             class="mx-0"
-          >Sign Up</m-btn>
+            >Sign Up</m-btn
+          >
         </v-form>
 
-        <div style="text-align:center; color:var(--link)">
-          <br />OR SIGN UP WITH
-        </div>
+        <div style="text-align:center;" class=""><br />OR</div>
         <br />
-
-        <v-layout wrap>
-          <v-flex xs6 offset-xs3>
-            <m-btn @click="socialSignup('G')" :loading="gloading" block :color="'#F14336'">GOOGLE</m-btn>
-          </v-flex>
-          <v-flex xs6 offset-xs3>
-            <m-btn
-              @click="socialSignup('F')"
-              block
-              :loading="floading"
-              class="mt-3"
-              :color="'blue darken-3'"
-            >FACEBOOK</m-btn>
-          </v-flex>
+        <div class="mb-2" style="text-align:center;">
+          Signup with your social account
+        </div>
+        <v-layout justify-center>
+          <v-btn
+            :loading="gloading"
+            outlined
+            fab
+            color="red"
+            class="mr-1"
+            @click="socialSignup('G')"
+          >
+            <v-icon>mdi-google</v-icon>
+          </v-btn>
+          <v-btn
+            @click="socialSignup('F')"
+            :loading="floading"
+            outlined
+            class="ml-1"
+            fab
+            :color="'blue darken-3'"
+          >
+            <v-icon>mdi-facebook-box</v-icon>
+          </v-btn>
         </v-layout>
 
         <!-- <v-btn @click="testSwal()">Test swal</v-btn> -->
@@ -219,7 +228,6 @@ export default {
 @import url("../../public/my-modules/animations.css");
 </style>
 
-
 <style scoped>
 .login-link {
   text-decoration: none;
@@ -238,4 +246,3 @@ a {
   padding: 0.5em 1em;
 }
 </style>
-

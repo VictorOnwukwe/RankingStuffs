@@ -36,8 +36,10 @@ import MyProgress from "./components/MyProgress";
 import ProfilePic from "./components/ProfilePic";
 import categories from "../public/my-modules/categories";
 import LoadingLists from "./components/LoadingLists";
-import {VueMasonryPlugin} from "vue-masonry";
+import { VueMasonryPlugin } from "vue-masonry";
 import PreviewImage from "./components/PreviewImage";
+import EmptyPage from "./components/EmptyPage";
+import username from "./components/username";
 
 const options = {}; // Optional options
 
@@ -57,13 +59,7 @@ let moment = require("moment");
 
 Vue.config.productionTip = false;
 
-Vue.use(
-  VueGlide,
-  OverlayScrollbars,
-  VuetifyLazyImagePlugin,
-  VueAutosize,
-  moment
-);
+Vue.use(VuetifyLazyImagePlugin, VueAutosize, moment);
 
 Vue.use(Masonry, { name: "the-masonry" });
 
@@ -79,6 +75,8 @@ Vue.component("dp", ProfilePic);
 Vue.component("m-progress", MyProgress);
 Vue.component("list-loading", LoadingLists);
 Vue.component("m-img", MyImage);
+Vue.component("empty", EmptyPage);
+Vue.component("username", username);
 
 Vue.mixin({
   methods: {

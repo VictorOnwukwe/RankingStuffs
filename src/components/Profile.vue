@@ -33,13 +33,19 @@
                       :size="$vuetify.breakpoint.xs ? '150px' : '200px'"
                       @click="showDP = true"
                       tile
+                      cover
                     >
-                      <img
+                      <v-img
                         v-if="user.profile_pic"
                         :src="user.profile_pic.low"
                         class="br"
+                        style="object-fit:cover"
+                      ></v-img>
+                      <img
+                        class="br"
+                        v-else
+                        :src="require('../assets/nophoto.jpg')"
                       />
-                      <img class="br" v-else :src="require('../assets/nophoto.jpg')" />
                       <v-fade-transition>
                         <v-overlay
                           v-if="(hover || uploadMenu) && isProfile"
@@ -420,7 +426,7 @@ export default {
       return moment(this.user.DOB).format("MMMM D, YYYY");
     },
     homeLink() {
-      return "/" + this.user.id + "/profile/";
+      return "/users/" + this.user.id + "/";
     },
     isUser() {
       return this.$store.getters.getUser.id === this.user.id;

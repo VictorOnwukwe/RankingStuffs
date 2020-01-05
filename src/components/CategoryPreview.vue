@@ -12,16 +12,16 @@
       </router-link>
     </v-card-title>
     <v-card-text>
-        <router-link
-          tag="a"
-          :to="'/lists/' + list.id"
-          class="link--text no-deco underline text-capitalize"
-          style="font-size:1.1em"
-          v-for="(list, index) in lists"
-          :key="index"
-        >
-          {{ list.data().title }}<br/>
-        </router-link>
+      <router-link
+        tag="a"
+        :to="'/lists/' + list.id"
+        class="link--text no-deco underline text-capitalize"
+        style="font-size:1.1em"
+        v-for="(list, index) in lists"
+        :key="index"
+      >
+        {{ list.data().title }}<br />
+      </router-link>
     </v-card-text>
   </div>
 </template>

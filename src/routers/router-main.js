@@ -1,5 +1,6 @@
 import Vue from "vue";
 import Router from "vue-router";
+import store from "../store";
 // @ts-ignore
 import Home from "../components/Home";
 // @ts-ignore
@@ -40,6 +41,10 @@ import AdminPendingDemands from "../components/AdminPendingDemands";
 import AdminFlagged from "../components/AdminFlagged";
 // @ts-ignore
 import DisplayLists from "../components/DisplayLists";
+// @ts-ignore
+import TermsAndConditions from "../components/TermsAndConditions";
+//@ts-ignore
+import ErrorPage from "../components/ErrorPage";
 
 Vue.use(Router);
 
@@ -51,22 +56,22 @@ export default new Router({
       component: Home
     },
     {
-      path: "/:id/profile",
+      path: "/users/:id",
       name: "profile",
       component: Profile,
       children: [
         {
-          path: "/:id/profile/creations",
+          path: "/users/:id/creations",
           name: "user-creations",
           component: UserCreations
         },
         {
-          path: "/:id/profile/activities",
-          name: "activities",
+          path: "/users/:id/activities",
+          name: "user-activities",
           component: Activities
         },
         {
-          path: "/:id/profile/",
+          path: "/users/:id",
           name: "user-favorites",
           component: UserFavorites
         }
@@ -125,6 +130,15 @@ export default new Router({
     {
       path: "/admin",
       component: Admin,
+      beforeEnter(to, from, next) {
+        if (store.getters.getUser.username !== "ike") {
+          next();
+        } else {
+          next({
+            name: "home"
+          });
+        }
+      },
       children: [
         { path: "/", name: "admin-lists", component: AdminLists },
         {
@@ -143,10 +157,23 @@ export default new Router({
           component: AdminFlagged
         }
       ]
+    },
+    {
+      path: "/terms-and-conditions",
+      name: "terms-and-conditions",
+      component: TermsAndConditions
+    },
+    {
+      path: "/error",
+      name: "error",
+      component: ErrorPage
     }
   ],
   scrollBehavior(to) {
-    if (["user-favorites", "user-creations", "activities"].indexOf(to.name) < 0)
+    if (
+      ["user-favorites", "user-creations", "user-activities"].indexOf(to.name) <
+      0
+    )
       return { x: 0, y: 0 };
   }
 });

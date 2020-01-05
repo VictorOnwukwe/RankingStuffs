@@ -88,8 +88,8 @@
       </v-card-text>
       <!-- <v-divider></v-divider> -->
       <v-card-actions class="">
-        <v-layout justify-space-around class="accent darken-1 foot">
-          <router-link :to="'/' + this.user.id + '/profile'" class="no-deco">
+        <v-layout justify-space-around class="brand lighten-2 foot">
+          <router-link :to="'/users/' + this.user.id" class="no-deco">
             <v-flex shrink class="py-1 foot-item" style="padding:0 3em">
               <v-layout column align-center justify-end
                 ><v-icon color="white" size="1.5em">mdi-home</v-icon>
@@ -105,10 +105,17 @@
             v-if="!isProfile"
           >
             <v-layout column align-center>
-                <v-icon class="" v-if="!processing" style="margin-top:0.15em" size="1.3em" color="white">fa-plus</v-icon>
-                <span v-if="!processing" class="subtitle-2 white--text">{{
-                  following ? "Following" : "Follow"
-                }}</span>
+              <v-icon
+                class=""
+                v-if="!processing"
+                style="margin-top:0.15em"
+                size="1.3em"
+                color="white"
+                >fa-plus</v-icon
+              >
+              <span v-if="!processing" class="subtitle-2 white--text">{{
+                following ? "Following" : "Follow"
+              }}</span>
               <div v-else>
                 <m-progress></m-progress>
               </div>

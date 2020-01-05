@@ -184,7 +184,7 @@
       </div>
       <div
         @click="(showSidebar = !showSidebar), (sidebarOpened = true)"
-        class="pull-push accent elevation-4"
+        class="pull-push black elevation-4"
       >
         <v-icon class="pull-push-icon grey--text text--lighten-4" size="35"
           >mdi-chevron-right</v-icon
@@ -408,7 +408,6 @@ export default {
       voted: undefined,
       favorited: false,
       rated: undefined,
-      showUser: false,
       share: false,
       previewUpdated: false,
       showSidebar: false,
@@ -492,7 +491,6 @@ export default {
         .then(list => {
           this.list = list;
           this.fetched = true;
-          // this.$store.dispatch("set_sidebar_extra", list);
           this.fetchCreator();
           this.$store.dispatch("set_loading", false);
           // setTimeout(() => {
@@ -564,7 +562,7 @@ export default {
 
       if (this.$route.query.notification) {
         setTimeout(() => {
-          this.scrollTo(this.$route.query.item_id);
+          this.scrollTo(this.$route.query.item);
         }, 2500);
       }
       // this.setPreview();
@@ -675,6 +673,9 @@ export default {
       return arr;
     },
     isCreator() {
+      if (!this.authenticated) {
+        return false;
+      }
       return this.$store.state.user.id == this.list.user;
     }
   },
@@ -694,10 +695,7 @@ export default {
   },
   created() {
     this.startUp();
-  },
-  // beforeDestroy() {
-  //   this.$store.dispatch("set_sidebar_extra", null);
-  // }
+  }
 };
 </script>
 
@@ -746,9 +744,9 @@ li > a {
   display: flex;
   width: 3em;
   height: 3em;
-  background-color: var(--accent);
+  background-color: grey;
   position: fixed;
-  top: 17.5em;
+  top: 50vh;
   left: -1.5em;
   z-index: 9;
   align-items: center;
@@ -866,12 +864,12 @@ li > a {
 }
 
 * ::-webkit-scrollbar {
-  width: 4px;
+  width: 6px;
   /* background-color: #f5f5f5; */
 }
 
 * ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.54) !important;
+  background-color: rgba(0, 0, 0, 0.2) !important;
   /* border-radius: 10px; */
 }
 

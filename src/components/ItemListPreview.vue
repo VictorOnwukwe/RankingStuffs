@@ -2,13 +2,14 @@
   <div>
     <router-link :to="'/lists/' + list.id" class="no-deco">
       <v-card>
-        <v-layout>
+        <v-layout class="grey lighten-4">
           <div>
             <v-img
               v-if="list.preview_image"
               :src="list.preview_image.url.low"
-              min-width="250px"
-              max-width="250px"
+              width="30vw"
+              min-width="160px"
+              max-width="300px"
               aspect-ratio="1.5"
               id="image"
             ></v-img>
@@ -19,16 +20,20 @@
               :src="require('../assets/emptyimage.jpg')"
             ></v-img>
           </div>
-          <v-layout class="pa-4" column justify-space-between>
+          <v-layout class="px-4 py-2" column justify-space-between>
             <v-flex>
-              <h3 class="font-weight-medium">
-                <span class="text-capitalize">{{
-                  list.title
-                }}</span>
-              </h3>
+              <h2
+                class="font-weight-medium text-capitalize"
+                style="font-family: 'Oswald', sans-serif"
+              >
+                {{ list.title }}
+              </h2>
               <h4 class="">
-                  <!-- <span class="htd">Rank: </span> -->
-                <span class="font-weight-bold accent--text">#{{ listItem.rank }}</span> of {{list.item_count}}
+                <!-- <span class="htd">Rank: </span> -->
+                <span class="font-weight-bold accent--text"
+                  >#{{ listItem.rank }}</span
+                >
+                of {{ list.item_count }}
               </h4>
             </v-flex>
           </v-layout>

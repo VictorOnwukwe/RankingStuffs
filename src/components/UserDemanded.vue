@@ -17,19 +17,19 @@
       }}</v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
-        <v-menu left class="mt-n4">
-          <template v-slot:activator="{ on }">
-            <v-icon @click color="grey" v-on="on">mdi-dots-vertical</v-icon>
-          </template>
-          <v-list class="pa-0">
-            <v-list-item @click="createDemand" class="tile">
-              <v-icon>fa-plus</v-icon>
-            </v-list-item>
-            <v-list-item v-if="!isCreator" @click="toggleWaiting()" class="tile">
-              <v-icon :color="waiting ? 'green' : null">fa-hand-holding</v-icon>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+      <v-menu left class="mt-n4">
+        <template v-slot:activator="{ on }">
+          <v-icon color="grey" v-on="on">mdi-dots-vertical</v-icon>
+        </template>
+        <v-list class="pa-0">
+          <v-list-item @click="createDemand" class="tile">
+            <v-icon>fa-plus</v-icon>
+          </v-list-item>
+          <v-list-item v-if="!isCreator" @click="toggleWaiting()" class="tile">
+            <v-icon :color="waiting ? 'green' : null">fa-hand-holding</v-icon>
+          </v-list-item>
+        </v-list>
+      </v-menu>
     </v-list-item-action>
   </v-list-item>
 </template>

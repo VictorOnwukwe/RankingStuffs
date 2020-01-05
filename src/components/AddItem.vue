@@ -11,7 +11,7 @@
         v-if="index > 0"
         class="mr-3"
         color="grey darken-2"
-        >fa-chevron-up</v-icon
+        >$vuetify.icons.create</v-icon
       >
       <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2"
         >fa-times</v-icon

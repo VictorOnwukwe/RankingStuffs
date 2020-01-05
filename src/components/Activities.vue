@@ -12,6 +12,18 @@
     </v-list>
     <v-layout justify-center>
       <m-progress v-if="fetching"></m-progress>
+      <v-icon v-else-if="!complete" size="32" @click="fetchMoreActivities(20)"
+        >mdi-plus-circle-outline</v-icon
+      >
+      <div v-else-if="complete && activities.length > 0" class="htd">
+        No more Activities
+      </div>
+      <empty
+        v-else
+        :message="'No Activities'"
+        :height="'13em'"
+        :icon="'fa-list-alt'"
+      ></empty>
     </v-layout>
   </div>
 </template>
@@ -29,35 +41,45 @@ export default {
   data() {
     return {
       activities: [],
-      fetching: false
+      fetching: false,
+      complete: false
     };
   },
   methods: {
-    fetchActivities() {
+    fetchActivities(limit) {
       this.fetching = true;
       this.$store
         .dispatch("fetch_user_activities", {
-          timestamp: "now",
-          user: this.user
+          user: this.user,
+          limit: limit
         })
         .then(activities => {
           this.activities = this.activities.concat(activities);
           this.fetching = false;
+          if (activities.length < limit) {
+            this.complete = true;
+          }
         });
     },
-    fetchMoreActivities() {
+    fetchMoreActivities(limit) {
+      this.fetching = true;
       this.$store
         .dispatch("fetch_user_activities", {
-          timestamp: this.activities[this.activities.length - 1].created,
-          user: this.user
+          lastDoc: this.activities[this.activities.length - 1],
+          user: this.user,
+          limit: limit
         })
         .then(activities => {
           this.activities = this.activities.concat(activities);
+          this.fetching = false;
+          if (activities.length < limit) {
+            this.complete = true;
+          }
         });
     }
   },
   created() {
-    this.fetchActivities();
+    this.fetchActivities(20);
   }
 };
 </script>

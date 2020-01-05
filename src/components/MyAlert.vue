@@ -9,9 +9,9 @@
     text
   >
     <v-row align="center">
-      <v-col class="grow">{{message}}</v-col>
+      <v-col class="grow">{{ message }}</v-col>
       <v-col class="shrink">
-        <m-btn small @click="act()" outlined :color="type">{{action}}</m-btn>
+        <m-btn small @click="act()" outlined :color="type">{{ action }}</m-btn>
       </v-col>
     </v-row>
   </v-alert>
@@ -29,18 +29,18 @@ export default {
       default: "success"
     },
     action: {
-        type: String,
-        default: "OK"
+      type: String,
+      default: "OK"
     },
     value: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false
     }
   },
-  data(){
-      return {
-          icon: "fa-check-circle"
-      }
+  data() {
+    return {
+      icon: "fa-check-circle"
+    };
   },
   methods: {
     setup() {
@@ -62,12 +62,12 @@ export default {
           break;
       }
     },
-    act(){
-        this.$emit("act");
+    act() {
+      this.$emit("act");
     }
   },
-  mounted(){
-      this.setup()
+  mounted() {
+    this.setup();
   }
 };
 </script>

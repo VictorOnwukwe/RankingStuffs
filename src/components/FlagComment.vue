@@ -1,21 +1,52 @@
 <template>
   <v-dialog max-width="500px" persistent v-model="dialog">
     <v-card>
-      <v-card-title class="brand--text">Flag Comment</v-card-title>
+      <v-card-title
+        class="brand lighten-2 white--text text-capitalize"
+        style="position:sticky;top:0;z-index:2;border-bottom:1px solid black"
+      >
+        Flag {{ type }}
+        <v-spacer></v-spacer>
+        <v-icon color="white" @click="close()">mdi-close</v-icon>
+      </v-card-title>
       <v-card-text>
-        <div class="grey lighten-4 grey--text text--darken-2 pa-4 mb-4">
+        <div class="grey lighten-4 grey--text text--darken-2 pa-4 my-4">
           {{ flaggedItem.content }}
         </div>
-        <div>Reason for flagging?</div>
+        <div class="brand--text">Reason for flagging?</div>
         <v-radio-group @change="otherReason = ''" v-model="flagReason">
-          <v-radio
-            :label="'This ' + this.type + ' is offensive'"
-            value="offensive"
-          ></v-radio>
-          <v-radio
-            :label="'This ' + this.type + ' is explicit'"
-            value="explicit"
-          ></v-radio>
+          <v-radio value="offensive">
+            <template v-slot:label>
+              <div class="std">
+                <span class="font-weight-bold">Offensive</span> - This
+                {{ type }} is offensive
+              </div>
+            </template>
+          </v-radio>
+          <v-radio value="explicit">
+            <template v-slot:label>
+              <div class="std">
+                <span class="font-weight-bold">Explicit</span> - This
+                {{ type }} is too explicit
+              </div>
+            </template>
+          </v-radio>
+          <v-radio value="obsolete">
+            <template v-slot:label>
+              <div class="std">
+                <span class="font-weight-bold">Obsolete</span> - This
+                {{ type }} is too obsolete
+              </div>
+            </template>
+          </v-radio>
+          <v-radio value="off-topic">
+            <template v-slot:label>
+              <div class="std">
+                <span class="font-weight-bold">Off Topic</span> - This
+                {{ type }} is too off topic
+              </div>
+            </template>
+          </v-radio>
           <v-radio label="Some other reason" value="other"></v-radio>
         </v-radio-group>
 
@@ -37,16 +68,9 @@
         ></alert>
       </v-card-text>
       <v-card-actions>
-        <v-spacer></v-spacer>
-        <m-btn
-          text
-          @click="close(), (flagReason = ''), (otherReason = '')"
-          >Cancel</m-btn
-        >
         <m-btn
           @click="flag()"
           :loading="loading"
-          text
           :disabled="
             flagReason == '' || (flagReason == 'other' && otherReason == '')
           "

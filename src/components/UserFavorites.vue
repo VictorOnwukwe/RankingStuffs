@@ -27,9 +27,12 @@
               </v-list-item-content>
             </v-list-item>
           </v-list>
-          <p v-else class="subtitle-1 mt-4 std text-center">
-            No Favorite Items...
-          </p>
+          <empty
+            v-else
+            :message="'No Favorite Items'"
+            :height="'13em'"
+            :icon="'fa-boxes'"
+          ></empty>
           <v-layout class="my-4" v-if="fetchingMoreItems" justify-center>
             <m-progress></m-progress>
           </v-layout>
@@ -46,11 +49,7 @@
             >
           </v-layout>
 
-          <v-card
-            tile
-            flat
-            v-if="isProfile"
-          >
+          <v-card tile flat v-if="isProfile">
             <div :class="addFavorites ? 'grey lighten-3' : null">
               <v-hover v-slot:default="{ hover }">
                 <v-layout
@@ -174,9 +173,12 @@
               >
             </v-layout>
           </div>
-          <div v-else class="subtitle-1 mt-4 std text-center">
-            No Favorite Lists...
-          </div>
+          <empty
+            v-else
+            :message="'No Favorite Lists'"
+            :height="'13em'"
+            :icon="'fa-list-alt'"
+          ></empty>
         </v-card-text>
       </v-card>
     </v-flex>

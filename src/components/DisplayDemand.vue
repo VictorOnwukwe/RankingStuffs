@@ -16,11 +16,7 @@
         </h1>
         <span class="std">{{ created }}</span>
         <v-layout v-if="demander" class="my-4" align-center>
-          <dp
-            class="mr-2"
-            v-if="demander.profile_pic"
-            :src="demander.profile_pic.low"
-          ></dp>
+          <dp class="mr-2" :src="demander.profile_pic"></dp>
           <a
             @click="showUser = true"
             class="brand--text font-weight-medium pointer"
@@ -32,14 +28,23 @@
           <span class="std" v-html="waitingMessage"></span>
           <v-spacer></v-spacer>
           <m-btn fab depressed small class="mr-2 elevation-3" @click="create()">
-            <v-icon>mdi-plus</v-icon>
+            <v-icon>$vuetify.icons.create</v-icon>
           </m-btn>
-          <m-btn small outlined class="elevation-3" fab :loading="toggling" @click="toggleWaiting()">
-            <v-icon class="mt-n3">fa-hand-holding</v-icon>
+          <m-btn
+            small
+            outlined
+            class="elevation-3"
+            fab
+            :loading="toggling"
+            @click="toggleWaiting()"
+          >
+            <v-icon class="">{{
+              waiting ? "$vuetify.icons.leaveQueue" : "$vuetify.icons.joinQueue"
+            }}</v-icon>
           </m-btn>
         </v-layout>
 
-        <v-divider class="mb-4 mt-2 accent"></v-divider>
+        <v-divider class="mb-4 mt-2"></v-divider>
 
         <div class="">
           <div v-if="demand.comments == 0" class="htd px-4 py-2">
@@ -203,7 +208,7 @@ export default {
       if (this.waiting !== undefined) {
         return;
       }
-      if(this.demand.user == this.$store.getters.getUser.id){
+      if (this.demand.user == this.$store.getters.getUser.id) {
         this.waiting = true;
         return;
       }

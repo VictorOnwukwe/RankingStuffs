@@ -1,17 +1,13 @@
 <template>
   <v-card flat :min-height="random(120, 60)" class="main">
     <v-hover v-slot:default="{ hover }">
-      <v-card
-        :class="{ loading: !fetched }"
-        width="100%"
-        
-      >
+      <v-card :class="{ loading: !fetched }" width="100%">
         <v-card-text v-if="fetched" class="pa-3">
           <v-layout>
             <v-flex shrink pr-2>
               <m-img
-                :src="list.preview_image ? list.preview_image.url.low: false"
-                :minWidth="'80px'"
+                :src="list.preview_image ? list.preview_image.url.low : false"
+                :minWidth="'100px'"
                 :maxWidth="'130px'"
                 :width="sub ? '10vw' : '20vw'"
                 :aspectRatio="'1'"
@@ -22,8 +18,8 @@
                 <v-card-title class="pa-0">
                   <router-link
                     :to="'/lists/' + list.id"
-                    class="text-capitalize no-deco brighten-1 ptd"
-                    :class="{'font-weight-bold': !sub}"
+                    class="text-capitalize no-deco brighten-1"
+                    :class="{ 'font-weight-bold ptd': !sub, 'link--text': sub }"
                     style="font-size:0.8em"
                     @click="goList()"
                   >
@@ -50,8 +46,8 @@
                     </div>
                   </v-layout>
                   <v-layout v-if="!list.description && !sub" class="mt-2">
-                    <v-flex shrink>
-                      <v-avatar size="1.8em">
+                    <v-flex shrink class="mr-1">
+                      <v-avatar tile size="1.8em" style="border-radius:5px">
                         <v-img
                           v-if="user.profile_pic"
                           :src="user.profile_pic.low"
@@ -63,12 +59,8 @@
                       </v-avatar>
                     </v-flex>
                     <v-flex shrink>
-                      <a
-                        @click.stop="showUser = true"
-                        class="subtitle-1 brand--text font-weight-medium ml-2"
-                        >{{ user.username }}</a
-                      ></v-flex
-                    >
+                      <username :user="user"></username>
+                    </v-flex>
                   </v-layout>
                 </div>
               </v-card>
@@ -77,7 +69,7 @@
           <div v-if="list.description && !sub" class="mt-3">
             <v-layout class="mt-2">
               <v-flex shrink>
-                <v-avatar size="1.8em">
+                <v-avatar size="1.8em" style="border-radius:5px">
                   <img v-if="user.profile_pic" :src="user.profile_pic.low" />
                   <img v-else :src="require('../assets/nophoto.jpg')" />
                 </v-avatar>
@@ -85,7 +77,7 @@
               <v-flex shrink>
                 <a
                   @click.stop="showUser = true"
-                  class="subtitle-1 brand--text font-weight-medium ml-2"
+                  class="subtitle-1 brand--text font-weight- ml-2"
                   >{{ user.username }}</a
                 ></v-flex
               >

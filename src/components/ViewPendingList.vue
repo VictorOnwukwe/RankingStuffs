@@ -2,16 +2,21 @@
   <div>
     <v-dialog fullscreen persistent v-model="dialog">
       <v-card>
-        <v-row class="px-4 pt-3">
-          <v-spacer></v-spacer>
-          <v-icon @click="close()" class="close">mdi-close</v-icon>
-        </v-row>
-        <v-row
+        <v-toolbar style="position:fixed;width:100%;z-index:3" color="brand">
+          <v-row>
+            <v-flex xs12 sm8 offset-sm2>
+              <v-row class="px-3">
+                <v-icon color="white" @click="close()">mdi-arrow-left</v-icon>
+                <v-toolbar-title class="ml-4 white--text"
+                  >Pending List</v-toolbar-title
+                >
+              </v-row>
+            </v-flex>
+          </v-row>
+        </v-toolbar>
+        <v-row class="px-3"
           ><v-flex xs12 sm8 offset-sm2>
-            <v-card-title class="font-weight-medium brand--text"
-              >Pending List</v-card-title
-            >
-            <div class="mt-8">
+            <div style="margin-top:5em">
               <v-card-text v-if="!showEdit">
                 <div class="font-weight-bold brand--text">
                   Title
@@ -43,7 +48,9 @@
                       <span class="grey--text text--darken-2 font-weight-medium"
                         >Name:</span
                       >
-                      {{ item.name }}
+                      <span class="text-capitalize font-weight-bold" style="font-size:1.2em">
+                        {{ item.name }}
+                      </span>
                     </p>
                     <p>
                       <span class="grey--text text--darken-2 font-weight-medium"
@@ -55,7 +62,9 @@
                       <span class="grey--text text--darken-2 font-weight-medium"
                         >Comment:</span
                       >
+                      <span class="italic ptd">
                       {{ item.comment }}
+                      </span>
                     </p>
                     <v-checkbox
                       v-if="!newList.items[index].info"
@@ -192,7 +201,7 @@ export default {
   methods: {
     approve() {
       this.approving = true;
-      this.$store.dispatch("upload_list", this.newList).then(id => {
+      this.$store.dispatch("upload_list", this.newList).then(() => {
         console.log("Uploaded");
         this.approving = false;
         // this.$store.dispatch("delete_pending_list", this.list.pend_id);
@@ -200,9 +209,9 @@ export default {
           type: "list-approved",
           data: {
             type: "list-approved",
-            list: { id: id, title: this.newList.title }
+            list: { id: this.newList.id, title: this.newList.title }
           },
-          recipient: this.newList.user
+          recipient: this.newList.user.id
         });
       });
     },

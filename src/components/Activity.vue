@@ -1,12 +1,12 @@
 <template>
   <div>
     <v-list-item v-if="activity.type == 'list'">
-      <v-list-item-avatar>
-        <v-icon color="pink">fa-list-alt</v-icon>
+      <v-list-item-avatar tile>
+        <v-icon color="pink">$vuetify.icons.create</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
-          Creation of List: 
+          Creation of List:
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
             :to="'/lists/' + activity.list.id"
@@ -42,12 +42,12 @@
 
     <v-list-item v-if="activity.type == 'upvote'">
       <v-list-item-avatar>
-        <v-icon color="green" size="2rem">mdi-arrow-up-box</v-icon>
+        <v-icon color="green" size="2rem">mdi-arrow-up-bold-box</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Upvote for
-          <span class="font-weight-medium pointer">{{
+          <span class="font-weight-medium pointer text-capitalize">{{
             activity.item.name
           }}</span>
           on the list of
@@ -62,12 +62,12 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'downvote'">
       <v-list-item-avatar>
-        <v-icon color="red" size="2rem">mdi-arrow-down-box</v-icon>
+        <v-icon color="red" size="2rem">mdi-arrow-down-bold-box</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Downvote for
-          <span class="font-weight-medium pointer">{{
+          <span class="font-weight-medium pointer text-capitalize">{{
             activity.item.name
           }}</span>
           on the list of
@@ -122,16 +122,17 @@
       </v-list-item-content>
     </v-list-item>
     <v-list-item v-if="activity.type == 'demand'">
-      <v-list-item-avatar>
-        <v-icon color="brown " size="2rem">fa-hand-holding</v-icon>
+      <v-list-item-avatar tile>
+        <v-icon color="brown">$vuetify.icons.demand</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Demand for
-          <span
-            class="link--text font-weight-medium pointer text-capitalize"
-            @click="go('/lists/' + activity.list.id)"
-            >{{ activity.demand.title }}</span
+          <router-link :to="'/demands/' + activity.demand.id" class="no-deco">
+            <span
+              class="link--text font-weight-medium pointer text-capitalize"
+              >{{ activity.demand.title }}</span
+            ></router-link
           >
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>

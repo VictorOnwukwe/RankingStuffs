@@ -1,7 +1,7 @@
 <template>
   <div>
     <v-avatar :size="size">
-      <img v-if="src" :src="src" />
+      <img v-if="src" :src="src.low" />
       <img v-else :src="require('../assets/nophoto.jpg')" />
     </v-avatar>
   </div>
@@ -10,7 +10,9 @@
 <script>
 export default {
   props: {
-    src: String,
+    src: {
+      type: Object
+    },
     size: {
       type: String,
       default: "2em"

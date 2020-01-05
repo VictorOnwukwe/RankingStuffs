@@ -76,7 +76,7 @@ export default {
         sortable: false,
         value: "title"
       },
-      { text: "Creator", value: "creator.username" },
+      { text: "Creator", value: "user.username" },
       { text: "Category", value: "category" },
       { text: "Actions", value: "action", sortable: false, align: "center" }
     ],

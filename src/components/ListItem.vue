@@ -28,7 +28,7 @@
             >
             <span
               v-else
-              class="font-weight-normal text-capitalize link--text no-deco"
+              class="font-weight-medium text-capitalize ptd no-deco"
               >{{ item.name }}</span
             >
           </v-flex>
@@ -39,12 +39,19 @@
                 <v-icon
                   size="1.4em"
                   @click="upvote()"
-                  :class="{ 'green--text': votedThis.type == 'upvote' }"
+                  :class="{
+                    'green--text': votedThis.type == 'upvote',
+                    'grey--text': votedThis.type !== 'upvote'
+                  }"
                   :disabled="!checkedVoted"
                   :style="{
                     cursor: votedThis !== false ? 'default' : 'pointer'
                   }"
-                  >mdi-arrow-up-box</v-icon
+                  >{{
+                    votedThis.type == "upvote"
+                      ? "mdi-arrow-up-bold-box"
+                      : "mdi-arrow-up-bold-box-outline"
+                  }}</v-icon
                 >
                 <span class="caption std mt-n1">{{ item.upvotes }}</span>
               </v-layout>
@@ -56,8 +63,15 @@
                   :style="{
                     cursor: votedThis !== false ? 'default' : 'pointer'
                   }"
-                  :class="{ 'red--text': votedThis.type == 'downvote' }"
-                  >mdi-arrow-down-box</v-icon
+                  :class="{
+                    'red--text': votedThis.type == 'downvote',
+                    'grey--text': votedThis.type !== 'downvote'
+                  }"
+                  >{{
+                    votedThis.type == "downvote"
+                      ? "mdi-arrow-down-bold-box"
+                      : "mdi-arrow-down-bold-box-outline"
+                  }}</v-icon
                 >
                 <span class="caption std mt-n1">{{ item.downvotes }}</span>
               </v-layout>
@@ -72,6 +86,7 @@
             <v-card-text v-if="info.image || info.about" class="px-2 py-0">
               <div style="margin:0 0.5em 0.1em 0; float:left" v-if="info.image">
                 <img-prev
+                  class="ml-10 mr-2"
                   v-model="info.image"
                   :image="info.image"
                   :width="200"
@@ -247,7 +262,7 @@ export default {
     },
 
     upvote() {
-      if (votedThis !== false) {
+      if (this.votedThis !== false) {
         return;
       }
       this.$emit("voted");
@@ -257,10 +272,10 @@ export default {
         item: this.item,
         list: this.list,
         list_voted: this.list_voted
-      });
+      })
     },
     downvote() {
-      if (votedThis !== false) {
+      if (this.votedThis !== false) {
         return;
       }
       this.$emit("voted");

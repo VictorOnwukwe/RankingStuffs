@@ -20,43 +20,6 @@
         <v-card-text class="mt-4">
           <ul class="ptd">
             <li class="subtitle-1">
-              A list can be
-              <span class="ptd font-weight-medium">Personal / General</span>,
-              <span class="ptd font-weight-medium">Votable / Non-Votable</span>
-              and
-              <span class="ptd font-weight-medium">Self Moderated.</span>
-              <ul>
-                <li class="subtitle-1">
-                  A
-                  <span class="ptd font-weight-medium">Personal</span> list
-                  appears only on your timeline and is not accesible by public
-                  search.
-                </li>
-                <li class="subtitle-1">
-                  A
-                  <span class="ptd font-weight-medium">General</span> list
-                  appears on the public timeline and is accessible by public
-                  search.
-                </li>
-                <li class="subtitle-1">
-                  A
-                  <span class="ptd font-weight-medium">Votable</span> list can
-                  be voted on.
-                </li>
-                <li class="subtitle-1">
-                  A
-                  <span class="ptd font-weight-medium">Non-Votable</span> list
-                  cannot be voted on.
-                </li>
-                <li class="subtitle-1">
-                  In a
-                  <span class="ptd font-weight-medium">Self-moderated</span>
-                  list, only you can add new items.
-                </li>
-              </ul>
-            </li>
-
-            <li class="subtitle-1">
               Be sure to check if a list already exists before creating yours.
             </li>
             <li class="subtitle-1">
@@ -67,7 +30,7 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3" tile>
+      <v-card flat class="mt grey lighten-3" tile v-if="!$route.query.demanded">
         <!-- <v-card tile flat style="position:sticky; top:4.5em;z-index:3"> -->
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
@@ -76,44 +39,96 @@
         <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
-          <v-layout>
+          <v-layout column>
             <v-radio-group
               prepend-icon="fa-universal-access"
-              color="brand"
+              color="accent"
               class="mr-10"
               v-model="list.personal"
-              :disabled="$route.query.demanded"
+              @change="setTypes()"
             >
-              <v-radio color="brand" label="General" :value="false"></v-radio>
-              <v-radio color="brand" label="Personal" :value="true"></v-radio>
+              <template v-slot:prepend>
+                <v-icon size="2.5em" :color="!list.personal ? 'green' : null"
+                  >fa-universal-access</v-icon
+                >
+              </template>
+              <v-radio color="accent" :value="false">
+                <template v-slot:label>
+                  <div class="ptd">
+                    <span class="font-weight-bold ptd">General</span> - List can
+                    be seen by everybody
+                  </div>
+                </template>
+              </v-radio>
+              <v-radio color="accent" :value="true">
+                <template v-slot:label>
+                  <div class="ptd">
+                    <span class="font-weight-bold ptd">Personal</span> - List
+                    can only be seen in your profile
+                  </div>
+                </template>
+              </v-radio>
             </v-radio-group>
             <v-radio-group
-              :disabled="$route.query.demanded"
-              color="brand"
-              prepend-icon="fa-vote-yea"
+              :disabled="!list.personal"
+              color="accent"
               v-model="list.votable"
             >
-              <v-radio color="brand" label="Votable" :value="true"></v-radio>
-              <v-radio
-                color="brand"
-                label="Non-Votable"
-                :value="false"
-              ></v-radio>
+              <template v-slot:prepend>
+                <v-icon size="2.5em" :color="list.votable ? 'green' : null"
+                  >mdi-swap-vertical-bold</v-icon
+                >
+              </template>
+              <v-radio color="accent" :value="true">
+                <template v-slot:label>
+                  <div :class="list.personal ? 'ptd' : 'htd'">
+                    <span
+                      class="font-weight-bold"
+                      :class="list.personal ? 'ptd' : 'htd'"
+                      >Votable</span
+                    >
+                    - List can be voted on by everybody
+                  </div>
+                </template>
+              </v-radio>
+              <v-radio color="accent" :value="false">
+                <template v-slot:label>
+                  <div :class="list.personal ? 'ptd' : 'htd'">
+                    <span
+                      class="font-weight-bold"
+                      :class="list.personal ? 'ptd' : 'htd'"
+                      >Non-Votable</span
+                    >
+                    - List cannot be voted on by anybody
+                  </div>
+                </template>
+              </v-radio>
             </v-radio-group>
           </v-layout>
           <v-checkbox
-            :disabled="$route.query.demanded"
-            color="brand"
-            class="mt-n2"
+            color="accent"
+            :disabled="!list.personal"
             v-model="list.selfModerated"
-            label="Self Moderated"
-            prepend-icon="fa-lock"
-          ></v-checkbox>
-
-          <span v-if="$route.query.demanded"
-            >Demanded Lists Must be general, votable, and publicly
-            moderated</span
           >
+            <template v-slot:prepend>
+              <v-icon
+                size="2.5em"
+                class="mr-1"
+                :color="list.selfModerated ? 'green' : null"
+                >fa-lock</v-icon
+              >
+            </template>
+            <template v-slot:label>
+              <div :class="list.personal ? 'ptd' : 'htd'">
+                <span
+                  class="font-weight-bold"
+                  :class="list.personal ? 'ptd' : 'htd'"
+                  >Self Moderated</span
+                >
+                - List can only be moderated by you
+              </div>
+            </template>
+          </v-checkbox>
         </v-card-text>
       </v-card>
 
@@ -149,6 +164,35 @@
                     @blur="setKeywords()"
                   ></v-text-field>
                 </v-flex>
+
+                <v-alert
+                  v-if="existing"
+                  :type="'warning'"
+                  text
+                  class="ml-1 mt-2 mb-6 ptd"
+                  border="left"
+                  :icon="false"
+                  width="100%"
+                >
+                  <v-row class="mx-1" align-center>
+                    <v-flex>
+                      The List of
+                      <span
+                        class="ptd text-capitalize font-weight-medium no-deco underline"
+                        >{{ existing.title }}&nbsp;</span
+                      >already exists
+                    </v-flex>
+                    <v-flex shrink>
+                      <v-btn
+                        :to="'/lists/' + existing.id"
+                        color="warning darken-1"
+                        outlined
+                        class="ml-2"
+                        >visit</v-btn
+                      >
+                    </v-flex>
+                  </v-row>
+                </v-alert>
 
                 <v-flex xs12 mt-n2>
                   <p
@@ -262,7 +306,7 @@
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
-              <v-icon color="brand" size="3em" @click="addItem()"
+              <v-icon color="grey" size="3em" @click="addItem()"
                 >mdi-plus-circle</v-icon
               >
             </div>
@@ -271,7 +315,7 @@
 
         <v-card-actions>
           <m-btn
-            :disabled="!valid || invalidItems > 0"
+            :disabled="!valid || invalidItems > 0 || existing !== false"
             :loading="loading"
             @click="upload()"
             >Submit</m-btn
@@ -310,17 +354,14 @@
 </template>
 
 <script>
-import Toolbar from "./Toolbar";
-import Sidebar from "./Sidebar";
 import AddItem from "./AddItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
-import categories from "../../public/my-modules/categories";
+import BaseIcon from "./BaseIcon";
 export default {
   components: {
-    Toolbar,
-    Sidebar,
-    AddItem
+    AddItem,
+    BaseIcon
   },
   data() {
     return {
@@ -341,7 +382,10 @@ export default {
         preview_image: false,
         category: "",
         subCategory: "",
-        user: this.$store.getters.getUser.id
+        user: {
+          id: this.$store.getters.getUser.id,
+          username: this.$store.getters.getUser.username
+        }
       },
       n: 0,
       userTags: "",
@@ -354,13 +398,30 @@ export default {
       invalidItems: 5,
       itemIndex: [0, 1, 2, 3, 4],
       listSubmitted: false,
-      tempCategory: ""
+      tempCategory: "",
+      existing: false
     };
   },
 
   methods: {
-    setKeywords() {
-      this.list.keywords = this.generateKeywords(this.list.title);
+    async setKeywords() {
+      if (this.list.title == "") {
+        return;
+      }
+      await this.$store.dispatch("fetch_list", this.id).then(list => {
+        this.existing = list;
+        if (!this.existing) {
+          this.list.keywords = this.generateKeywords(this.list.title);
+        }
+      });
+    },
+
+    setTypes() {
+      if (!this.list.personal) {
+        this.list.votable = true;
+        this.list.selfModerated = false;
+      }
+      this.setKeywords();
     },
 
     upload() {
@@ -372,13 +433,17 @@ export default {
           : null;
         if (this.list.personal) {
           await this.$store
-            .dispatch("upload_list", { ...other, ...this.list })
+            .dispatch("upload_list", { ...other, ...this.list, id: this.id })
             .then(list_id => {
               this.$router.push({ path: "/lists/" + list_id });
             });
         } else {
           await this.$store
-            .dispatch("upload_pending_list", { ...other, ...this.list })
+            .dispatch("upload_pending_list", {
+              ...other,
+              ...this.list,
+              id: this.id
+            })
             .then(uploaded => {
               this.listSubmitted = uploaded;
               this.tempCategory = this.list.category;
@@ -457,7 +522,7 @@ export default {
     goBack() {
       this.$router.go(-1);
     },
-    setValid(isValid, index) {
+    setValid(isValid) {
       isValid ? this.invalidItems-- : this.invalidItems++;
     },
     oneUp(index) {
@@ -499,6 +564,18 @@ export default {
       return `Your list has been submitted. You will be notified on completion of
         review. In the mean time, you could check out other
         ${this.tempCategory} lists.`;
+    },
+    id() {
+      if (this.list.personal) {
+        return (this.list.user.id + "-" + this.list.title.toLowerCase())
+          .trim()
+          .replace(/ /g, "-");
+      } else {
+        return this.list.title
+          .toLowerCase()
+          .trim()
+          .replace(/ /g, "-");
+      }
     }
   },
   watch: {

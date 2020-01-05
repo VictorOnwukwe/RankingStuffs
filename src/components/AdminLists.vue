@@ -158,9 +158,11 @@
     <v-snackbar v-model="successful" top
       >{{ successMessage }}
       <v-spacer></v-spacer>
-      <m-btn text :color="'primary lighten-4'" @click="successful = false"
-        ></m-btn
-      >
+      <m-btn
+        text
+        :color="'primary lighten-4'"
+        @click="successful = false"
+      ></m-btn>
     </v-snackbar>
   </div>
 </template>
@@ -170,7 +172,7 @@
 // import Blocklist from '../../components/admin/Blocklist'
 // import MakeAdmin from '../../components/admin/MakeAdmin'
 export default {
-  layout: 'admin',
+  layout: "admin",
   components: {
     // SendMail,
     // Deletelist,
@@ -183,27 +185,27 @@ export default {
     itemsPerPage: 50,
     headers: [
       {
-        text: 'Title',
-        align: 'left',
+        text: "Title",
+        align: "left",
         sortable: false,
-        value: 'title'
+        value: "title"
       },
-      { text: 'Creator', value: 'user' },
-      { text: 'Rating', value: 'rating' },
-      { text: 'Popularity', value: 'popularity' },
-      { text: 'Category', value: 'category' },
-      { text: 'No of Items', value: 'item_count' },
-      { text: 'Actions', value: 'action', sortable: false, align: 'center' }
+      { text: "Creator", value: "user" },
+      { text: "Rating", value: "rating" },
+      { text: "Popularity", value: "popularity" },
+      { text: "Category", value: "category" },
+      { text: "No of Items", value: "item_count" },
+      { text: "Actions", value: "action", sortable: false, align: "center" }
     ],
     lists: [],
     listTypes: [
-      { text: 'All lists', value: 'all' },
-      { text: 'Admins', value: 'admins' },
-      { text: 'Blocked lists', value: 'blocked' },
-      { text: 'Active lists', value: 'active' }
+      { text: "All lists", value: "all" },
+      { text: "Admins", value: "admins" },
+      { text: "Blocked lists", value: "blocked" },
+      { text: "Active lists", value: "active" }
     ],
     editedIndex: -1,
-    show: 'all',
+    show: "all",
     adminDialog: false,
     deleteDialog: false,
     blockDialog: false,
@@ -211,81 +213,82 @@ export default {
     currentlist: {},
     fetching: false,
     successful: false,
-    successMessage: 'Action completed successfully!'
+    successMessage: "Action completed successfully!"
   }),
 
   computed: {
     formTitle() {
-      return this.editedIndex === -1 ? 'New Item' : 'Edit Item'
+      return this.editedIndex === -1 ? "New Item" : "Edit Item";
     }
   },
 
   watch: {
     dialog(val) {
-      val || this.close()
+      val || this.close();
     }
   },
 
   created() {
-    this.initialize()
+    this.initialize();
   },
 
   methods: {
     initialize() {
       this.$store
-        .dispatch("fetch_popular", {
+        .dispatch("fetch_lists", {
           limit: 20,
           lastDoc: false
-        }).then(lists => {
-            this.lists = lists.map(list => list.data());
         })
+        .then(lists => {
+          this.lists = lists.map(list => list.data());
+        });
     },
 
     mailSuccess(message) {
-      this.successMessage = message
-      this.successful = true
-      this.mailDialog = false
+      this.successMessage = message;
+      this.successful = true;
+      this.mailDialog = false;
     },
     initAdmin(list) {
-      this.adminDialog = true
-      this.currentlist = list
+      this.adminDialog = true;
+      this.currentlist = list;
     },
     adminSuccess(message) {
-      this.successMessage = message
-      this.successful = true
-      this.adminDialog = false
+      this.successMessage = message;
+      this.successful = true;
+      this.adminDialog = false;
     },
     initMail(list) {
-      this.mailDialog = true
-      this.currentlist = list
+      this.mailDialog = true;
+      this.currentlist = list;
     },
     initDelete(list) {
-      this.deleteDialog = true
-      this.currentlist = list
+      this.deleteDialog = true;
+      this.currentlist = list;
     },
     deleteSuccess(message) {
-      this.successMessage = message
-      this.successful = true
-      this.deleteDialog = false
+      this.successMessage = message;
+      this.successful = true;
+      this.deleteDialog = false;
     },
     initBlock(list) {
-      this.blockDialog = true
-      this.currentlist = list
+      this.blockDialog = true;
+      this.currentlist = list;
     },
     blockSuccess(message) {
-      this.successMessage = message
-      this.successful = true
-      this.blockDialog = false
+      this.successMessage = message;
+      this.successful = true;
+      this.blockDialog = false;
     },
     fetchData() {
-      this.fetching = true
-      const temp = this.lists
-      this.lists = []
+      this.fetching = true;
+      const temp = this.lists;
+      this.lists = [];
       setTimeout(() => {
-        this.lists = temp
-        this.fetching = false
-      }, 3000)
+        this.lists = temp;
+        this.fetching = false;
+      }, 3000);
     }
   }
-}
+};
 </script>

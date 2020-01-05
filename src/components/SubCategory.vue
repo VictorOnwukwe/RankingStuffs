@@ -39,6 +39,19 @@
         :demands="demands"
       ></display-demands>
     </div>
+    <empty
+      v-if="
+        (sort == 'lists' && lists.length == 0 && !fetching) ||
+          (sort == 'demands' && demands.length == 0 && !fetching)
+      "
+      :message="
+        sort == 'lists'
+          ? 'No Lists in this subcategory'
+          : 'No Demands in this subcategory'
+      "
+      :height="'13em'"
+      :icon="'fa-list-alt'"
+    ></empty>
     <mugen-scroll
       :handler="fetchMore"
       :should-handle="!fetching"
@@ -200,8 +213,12 @@ export default {
   },
   watch: {
     sub() {
-      this.lists = [];
-      this.fetchLists();
+      this.lists = this.demands = [];
+      if (this.sort === "lists") {
+        this.fetchLists();
+      } else {
+        this.fetchDemands();
+      }
     }
   },
   created() {

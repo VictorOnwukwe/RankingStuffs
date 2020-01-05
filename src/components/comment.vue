@@ -16,7 +16,7 @@
                     style="cursor:pointer"
                     >{{ !more ? "more" : "less" }}</span
                   ><span
-                    class="brand--text text--darken-1 brighten pointer"
+                    class="brand--text text--lighten-1 brighten pointer"
                     v-if="comment.content.length < 600 || more"
                     @click="
                       comment.user.username.includes('visitor')
@@ -167,9 +167,6 @@
             </div>
           </div>
         </v-flex>
-        <!-- <v-flex shrink>
-          <v-icon class="menu" @click="toggleMore()">mdi-chevron-down</v-icon>
-        </v-flex> -->
       </v-layout>
     </v-card>
 
@@ -182,12 +179,12 @@
     <v-dialog persistent v-model="showEdit" max-width="500px">
       <v-card flat class="grey lighten-3">
         <v-card-title
-          class="grey lighten-2"
+          class="brand lighten-2 white--text"
           style="position:sticky;top:0;z-index:2;border-bottom:1px solid black"
         >
           Edit Comment
           <v-spacer></v-spacer>
-          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
+          <v-icon color="white" @click="showEdit = false">mdi-close</v-icon>
         </v-card-title>
         <v-card-text class="pb-0 pt-4">
           <v-textarea
@@ -244,8 +241,6 @@
 </template>
 
 <script>
-import swalErrors from "../../public/my-modules/swalErrors";
-import autosize from "autosize";
 import Reply from "./Reply";
 import PreviewUser from "./PreviewUser";
 import PreviewComment from "./PreviewComment";
@@ -410,6 +405,7 @@ export default {
           });
         })
         .catch(error => {
+          console.log(error);
           this.addingReply = false;
         });
     },
@@ -502,6 +498,9 @@ export default {
       return convertMoment.getShortTime(this.comment.created);
     },
     isCommenter() {
+      if (!this.$store.getters.authenticated) {
+        return false;
+      }
       return this.comment.user.id == this.$store.getters.getUser.id;
     }
   },

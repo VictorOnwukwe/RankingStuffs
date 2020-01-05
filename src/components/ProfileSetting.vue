@@ -1,7 +1,7 @@
 <template>
   <v-card flat tile class="grey lighten-3">
     <v-card-title
-      class="font-weight-bold grey lighten-2 title"
+      class="font-weight-bold brand lighten-2 title white--text"
       style="position:sticky;z-index:2;top:0;border-bottom:1px solid grey"
     >
       Edit Profile
@@ -10,22 +10,25 @@
     </v-card-title>
     <v-card-text class="mt-4">
       <v-layout wrap>
-            <v-form ref="form">
-              <v-container grid-list-sm class="pa-0">
-                <v-layout wrap pt-4>
-                  <v-flex xs12>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-account</v-icon>
-                    Name</p>
-                    <v-text-field
-                      solo
-                      flat
-                      required
-                      color="brand"
-                      v-model="name"
-                    ></v-text-field>
-                  </v-flex>
-                  <!-- <v-flex xs12 sm6 mt-n4>
+        <v-form ref="form">
+          <v-container grid-list-sm class="pa-0">
+            <v-layout wrap pt-4>
+              <v-flex xs12>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-account</v-icon>
+                  Name
+                </p>
+                <v-text-field
+                  solo
+                  flat
+                  required
+                  color="brand"
+                  v-model="name"
+                ></v-text-field>
+              </v-flex>
+              <!-- <v-flex xs12 sm6 mt-n4>
                   <v-text-field
                     outlined
                     label="Username"
@@ -35,90 +38,105 @@
                     v-model="username"
                   ></v-text-field>
                   </v-flex>-->
-                  <v-flex xs12 sm6 mt-n4>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>event</v-icon>
-                    Date Of Birth</p>
-                    <v-menu
-                      ref="menu"
-                      v-model="menu"
-                      :close-on-content-click="false"
-                      transition="scale-transition"
-                      offset-y
-                      full-width
-                      min-width="290px"
-                      color="brand"
-                    >
-                      <template v-slot:activator="{ on }">
-                        <v-text-field
-                          solo
-                          flat
-                          v-model="date"
-                          readonly
-                          v-on="on"
-                          color="brand"
-                        ></v-text-field>
-                      </template>
-                      <v-date-picker
-                        :landscape="$vuetify.breakpoint.xs ? false : true"
-                        ref="picker"
-                        v-model="date"
-                        :max="new Date().toISOString().substr(0, 10)"
-                        min="1950-01-01"
-                        @change="save"
-                        color="brand"
-                      ></v-date-picker>
-                    </v-menu>
-                  </v-flex>
-                  <v-flex xs12 sm6 mt-n4 pa>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-map-marker</v-icon>
-                    City</p>
+              <v-flex xs12 sm6 mt-n4>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>event</v-icon>
+                  Date Of Birth
+                </p>
+                <v-menu
+                  ref="menu"
+                  v-model="menu"
+                  :close-on-content-click="false"
+                  transition="scale-transition"
+                  offset-y
+                  full-width
+                  min-width="290px"
+                  color="brand"
+                >
+                  <template v-slot:activator="{ on }">
                     <v-text-field
                       solo
                       flat
+                      v-model="date"
+                      readonly
+                      v-on="on"
                       color="brand"
-                      v-model="city"
                     ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 mt-n4 pa>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-map-marker</v-icon>
-                    State</p>
-                    <v-text-field
-                      solo
-                      flat
-                      color="brand"
-                      v-model="state"
-                    ></v-text-field>
-                  </v-flex>
-                  <v-flex xs12 sm6 mt-n4 pa>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-earth</v-icon>
-                    Country</p>
-                    <v-autocomplete
-                      :items="countries"
-                      item-text="name"
-                      solo
-                      flat
-                      color="brand"
-                      v-model="country"
-                      return-object
-                    ></v-autocomplete>
-                  </v-flex>
-                  <v-flex xs12 sm6 mt-n4 pa>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-gender-male-female</v-icon>
-                    Sex</p>
-                    <v-select
-                      :items="['Male', 'Female',]"
-                      solo
-                      flat
-                      color="brand"
-                      v-model="sex"
-                    ></v-select>
-                  </v-flex>
-                  <!-- <v-flex xs12 sm6 mt-n4>
+                  </template>
+                  <v-date-picker
+                    :landscape="$vuetify.breakpoint.xs ? false : true"
+                    ref="picker"
+                    v-model="date"
+                    :max="new Date().toISOString().substr(0, 10)"
+                    min="1950-01-01"
+                    @change="save"
+                    color="brand"
+                  ></v-date-picker>
+                </v-menu>
+              </v-flex>
+              <v-flex xs12 sm6 mt-n4 pa>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-map-marker</v-icon>
+                  City
+                </p>
+                <v-text-field
+                  solo
+                  flat
+                  color="brand"
+                  v-model="city"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6 mt-n4 pa>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-map-marker</v-icon>
+                  State
+                </p>
+                <v-text-field
+                  solo
+                  flat
+                  color="brand"
+                  v-model="state"
+                ></v-text-field>
+              </v-flex>
+              <v-flex xs12 sm6 mt-n4 pa>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-earth</v-icon>
+                  Country
+                </p>
+                <v-autocomplete
+                  :items="countries"
+                  item-text="name"
+                  solo
+                  flat
+                  color="brand"
+                  v-model="country"
+                  return-object
+                ></v-autocomplete>
+              </v-flex>
+              <v-flex xs12 sm6 mt-n4 pa>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-gender-male-female</v-icon>
+                  Sex
+                </p>
+                <v-select
+                  :items="['Male', 'Female']"
+                  solo
+                  flat
+                  color="brand"
+                  v-model="sex"
+                ></v-select>
+              </v-flex>
+              <!-- <v-flex xs12 sm6 mt-n4>
                 <v-autocomplete
                   prepend-inner-icon="mdi-heart"
                   :items="['Skiing', 'Ice hockey', 'Soccer', 'Basketball', 'Hockey', 'Reading', 'Writing', 'Coding', 'Basejump']"
@@ -130,22 +148,25 @@
                   v-model="interests"
                 ></v-autocomplete>
                   </v-flex>-->
-                  <v-flex xs12 mt-n4>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-                    <v-icon>mdi-account</v-icon>
-                    About</p>
-                    <v-textarea
-                      solo
-                      flat
-                      no-resize
-                      auto-grow
-                      color="brand"
-                      v-model="bio"
-                    ></v-textarea>
-                  </v-flex>
-                </v-layout>
-              </v-container>
-            </v-form>
+              <v-flex xs12 mt-n4>
+                <p
+                  class="text-capitalize font-weight-medium grey--text text--darken-2"
+                >
+                  <v-icon>mdi-account</v-icon>
+                  About
+                </p>
+                <v-textarea
+                  solo
+                  flat
+                  no-resize
+                  auto-grow
+                  color="brand"
+                  v-model="bio"
+                ></v-textarea>
+              </v-flex>
+            </v-layout>
+          </v-container>
+        </v-form>
 
         <!-- <v-flex xs12 lg10 offset-lg-1>
           <v-card tile flat class="mt-4">
@@ -223,7 +244,12 @@
           </v-card>
         </v-flex>-->
       </v-layout>
-      <alert :type="'success'" :message="'Profile Updated'" :value="showSuccess" @act="uploadSuccess()"></alert>
+      <alert
+        :type="'success'"
+        :message="'Profile Updated'"
+        :value="showSuccess"
+        @act="uploadSuccess()"
+      ></alert>
     </v-card-text>
     <v-card-actions>
       <m-btn :loading="uploading" @click="setProfile()">Save</m-btn>
@@ -345,8 +371,8 @@ export default {
     close() {
       this.$emit("close");
     },
-    uploadSuccess(){
-      this.close()
+    uploadSuccess() {
+      this.close();
       this.$emit("updated");
     }
   },
@@ -362,12 +388,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.close {
-  color: gray;
-}
-.close:hover {
-  color: red;
-}
-</style>

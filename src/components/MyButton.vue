@@ -53,16 +53,16 @@ export default {
       default: false
     },
     block: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false
     },
     small: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false
     },
     fab: {
-        type: Boolean,
-        default: false
+      type: Boolean,
+      default: false
     }
   },
   methods: {

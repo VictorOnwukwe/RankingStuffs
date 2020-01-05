@@ -20,17 +20,34 @@
     </div>
 
     <div class="mt-8 brand--text" style="max-width:400px">
-      <sorter @change="refetch" :options="options"></sorter>
+      <sorter v-if="newF" @change="refetch" :options="options"></sorter>
     </div>
 
     <div class="mt-12">
-      <display-lists v-if="show == 'lists'" :lists="lists"></display-lists>
+      <display-lists v-if="sort == 'lists'" :lists="lists"></display-lists>
       <display-demands
-        v-if="show == 'demands'"
+        v-if="sort == 'demands'"
         :demands="demands"
       ></display-demands>
     </div>
-    <mugen-scroll :handler="fetchMore" :should-handle="!fetching" :threshold="0.1">
+    <empty
+      v-if="
+        (sort == 'lists' && lists.length == 0 && !fetching) ||
+          (sort == 'demands' && demands.length == 0 && !fetching)
+      "
+      :message="
+        sort == 'lists'
+          ? 'No Lists in this category'
+          : 'No Demands in this category'
+      "
+      :height="'13em'"
+      :icon="'far fa-frown'"
+    ></empty>
+    <mugen-scroll
+      :handler="fetchMore"
+      :should-handle="!fetching"
+      :threshold="0.1"
+    >
       <list-loading v-if="!complete && fetching"></list-loading
     ></mugen-scroll>
   </div>
@@ -50,9 +67,10 @@ export default {
       lists: [],
       demands: [],
       fetching: false,
-      show: "lists",
+      sort: "lists",
       sortBy: "Random",
-      complete: false
+      complete: false,
+      newF: true
     };
   },
   methods: {
@@ -70,7 +88,7 @@ export default {
         });
     },
     fetchMoreLists() {
-      if(this.complete || this.lists.length == 0){
+      if (this.complete || this.lists.length == 0) {
         return;
       }
       this.fetching = true;
@@ -84,7 +102,7 @@ export default {
         .then(lists => {
           this.lists = this.lists.concat(lists);
           this.fetching = false;
-          if(lists.length == 0){
+          if (lists.length == 0) {
             this.complete = true;
           }
         });
@@ -103,7 +121,7 @@ export default {
         });
     },
     fetchMoreDemands() {
-      if(this.complete || this.demands.length == 0){
+      if (this.complete || this.demands.length == 0) {
         return;
       }
       this.fetching = true;
@@ -117,29 +135,29 @@ export default {
         .then(query => {
           this.demands = this.demands.concat(query.docs);
           this.fetching = false;
-          if(query.docs.length == 0){
+          if (query.docs.length == 0) {
             this.complete = true;
           }
         });
     },
     refetch(vals) {
       this.complete = false;
-      this.show = vals.choice;
+      this.sort = vals.choice;
       this.sortBy = vals.subChoice;
       this.lists = [];
       this.demands = [];
-      if (this.show == "lists") {
+      if (this.sort == "lists") {
         this.fetchLists();
       } else {
         this.fetchDemands();
       }
     },
-    fetchMore(){
-      if(this.show == "lists"){
+    fetchMore() {
+      if (this.sort == "lists") {
         this.fetchMoreLists();
-      }else if(this.show == "demands"){
+      } else if (this.sort == "demands") {
         this.fetchMoreDemands();
-      }else{
+      } else {
         console.log("Unregistered Command");
       }
     }
@@ -147,7 +165,7 @@ export default {
   computed: {
     category() {
       let category = this.$store.getters.categories.find(category => {
-      return category.name == this.$route.params.id;
+        return category.name == this.$route.params.id;
       });
       return category;
     },
@@ -178,6 +196,16 @@ export default {
           ]
         }
       ];
+    }
+  },
+  watch: {
+    category() {
+      this.lists = this.demands = [];
+      if (this.sort == "lists") {
+        this.fetchLists();
+      } else {
+        this.fetchDemands();
+      }
     }
   },
   created() {

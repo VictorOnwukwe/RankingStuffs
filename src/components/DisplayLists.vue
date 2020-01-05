@@ -1,7 +1,7 @@
 <template>
   <div>
     <div class="mx-auto mb-4 mt">
-      <v-layout align-center class="mb-8 px-4 grey lighten-3">
+      <v-layout align-center class="mb-8 px-2 grey lighten-3">
         <div class="page-title pa-0">
           <span class="grey--text text--darken-2">
             Lists

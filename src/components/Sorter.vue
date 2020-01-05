@@ -74,7 +74,7 @@ export default {
   display: block;
   font-size: 16px;
   font-family: sans-serif;
-  font-weight: 600;
+  /* font-weight: 600; */
   color: #444;
   line-height: 1.3;
   padding: 0.6em 1.4em 0.5em 0.8em;

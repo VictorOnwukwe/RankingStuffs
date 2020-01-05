@@ -11,7 +11,14 @@
             :style="$route.name == 'home' ? 'margin-top: 2em' : null"
             class="view-container"
           >
-            <v-flex xs12 :class="{'sm9': !$route.name.includes('admin')}">
+            <v-flex
+              xs12
+              :class="{
+                sm9:
+                  !$route.name.includes('admin') &&
+                  !$route.name.includes('terms-and-conditions')
+              }"
+            >
               <transition name="fade" mode="out-in">
                 <router-view></router-view>
               </transition>
@@ -22,7 +29,8 @@
               class="side-preview"
               v-if="
                 (!loading || $vuetify.breakpoint.smAndUp) &&
-                  !$route.name.includes('admin')
+                  !$route.name.includes('admin') &&
+                  !$route.name.includes('terms-and-conditions')
               "
             >
               <side-display></side-display>
@@ -30,7 +38,13 @@
           </v-layout>
         </v-layout>
         <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
-        <v-btn v-if="offset < 0" fab color="accent" @click="scrollUp()" style="position: fixed;bottom:16px;right:16px">
+        <v-btn
+          v-if="offset < 0"
+          fab
+          color="accent"
+          @click="scrollUp()"
+          style="position: fixed;bottom:16px;right:16px"
+        >
           <v-icon size="2rem">mdi-chevron-up</v-icon>
         </v-btn>
       </div>
@@ -39,8 +53,6 @@
 </template>
 
 <script>
-import Home from "./components/Home";
-import User from "./components/User";
 import Toolbar from "./components/Toolbar";
 import Footer from "./components/Footer";
 import { setTimeout } from "timers";
@@ -50,8 +62,6 @@ import SideDisplay from "./components/SideDisplay";
 export default {
   name: "App",
   components: {
-    User,
-    Home,
     Toolbar,
     Footer,
     preview: HomePreview,
@@ -72,29 +82,25 @@ export default {
         this.closeSearch = false;
       }, 500);
     },
-    scrollUp(){
+    scrollUp() {
       console.log(this.offset);
-      window.scrollTo(0,0);
+      window.scrollTo(0, 0);
     }
   },
 
   computed: {
     loading() {
       return this.$store.getters.getLoading;
-    },
+    }
     // offset(){
     //   return document.querySelector("body").getBoundingClientRect().top * -1;
     // }
   },
 
   created: function() {
-    this.$store.dispatch("initialize").then(() => {
-      this.$store.dispatch("fetchCategories");
-      // this.$store.dispatch("clear_state");
-      this.$store.dispatch("watch_notifications");
-    });
+    this.$store.dispatch("initialize").then(() => {});
 
-    window.addEventListener("scroll", function(event){
+    window.addEventListener("scroll", function(event) {
       this.offset = document.querySelector("body").getBoundingClientRect().top;
       // console.log(this.offset);
       // if(document.querySelector("body").getBoundingClientRect().top < -600){
@@ -104,7 +110,7 @@ export default {
       //   console.log("else");
       //   this.showScroll = false;
       // }
-    })
+    });
   }
 };
 </script>
@@ -121,13 +127,13 @@ export default {
   --light-secondary: #ffffffb3;
   --light-hint: #ffffff80;
   --light-divider: #ffffff1f;
-  --accent: #FF9800;
+  --accent: #ff9800;
   --divider: #bdbdbd;
   /* --background: #f5f7f5; */
   --background: #ffffff;
   --link: #000000de;
   --button: #0060ac;
-  --brand: #388e3c;
+  --brand: #388E3C;
   --sidebar: #515151;
 
   --border-radius: 0.3em;
@@ -151,23 +157,44 @@ html {
 }
 
 *::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+  /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
   background-color: white;
-  display: none;
-  position: absolute;
+  /* display: none; */
+  /* position: absolute; */
 }
 
 *::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
   position: absolute;
   /* background-color: #f5f5f5; */
 }
 
 *::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.2);
   /* background-color: white; */
   /* background-color: rgba(255,255,255,0.7); */
+  border-radius: 8px;
+}
+*::-moz-scrollbar-track {
+  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+  /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+  background-color: white;
+  /* display: none; */
+  /* position: absolute; */
+}
+
+*::-moz-scrollbar {
+  width: 8px;
+  position: absolute;
+  /* background-color: #f5f5f5; */
+}
+
+*::-moz-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  /* background-color: white; */
+  /* background-color: rgba(255,255,255,0.7); */
+  border-radius: 8px;
 }
 .italic {
   font-family: "Overlock", cursive;
@@ -449,6 +476,9 @@ html {
 .golden > span {
   color: rgb(238, 238, 238) !important;
 }
+.golden-text {
+  color: goldenrod !important;
+}
 
 .silver {
   background: radial-gradient(
@@ -456,6 +486,9 @@ html {
     rgb(230, 228, 228),
     silver
   ) !important;
+}
+.silver-text {
+  color: silver !important;
 }
 .silver > span {
   color: rgb(238, 238, 238) !important;
@@ -470,6 +503,9 @@ html {
 .bronze > span {
   color: rgb(238, 238, 238) !important;
 }
+.bronze-text {
+  color: chocolate !important;
+}
 
 .plain {
   /* background: radial-gradient(1.5em at 25% 25%, #707070, #515151) !important; */
@@ -478,7 +514,7 @@ html {
 
 .numeric-box {
   /* background-color: hsl(0, 90%, 72%); */
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   min-width: 2.7em;
   min-height: 1.5em;
   display: flex;
@@ -492,9 +528,6 @@ html {
   font-size: 1.5em;
   font-weight: bold;
   color: var(--primary);
-}
-.circle {
-  border-radius: 50%;
 }
 
 .close:hover {
@@ -552,7 +585,7 @@ html {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition-duration: 0.3s;
+  transition-duration: 0.2s;
   transition-property: opacity;
   transition-timing-function: ease;
 }
@@ -585,7 +618,7 @@ html {
 .pr-half {
   padding-right: 0.5em !important;
 }
-.block{
+.block {
   display: block;
 }
 </style>

@@ -40,26 +40,36 @@
             :loading="eloading"
             id="login-button"
             class="mx-0"
-          >Login</m-btn>
+            >Login</m-btn
+          >
         </v-form>
 
-        <div style="text-align:center; color:var(--button)">
-          <br />OR LOGIN WITH
-        </div>
+        <div style="text-align:center;" class=""><br />OR</div>
         <br />
-        <v-layout wrap>
-          <v-flex xs6 offset-xs3>
-            <m-btn :loading="gloading" block @click="socialLogin('G')" :color="'#F14336'">GOOGLE</m-btn>
-          </v-flex>
-          <v-flex xs6 offset-xs3>
-            <m-btn
-              @click="socialLogin('F')"
-              block
-              :loading="floading"
-              :color="'blue darken-3'"
-              class="mt-3"
-            >FACEBOOK</m-btn>
-          </v-flex>
+        <div class="mb-2" style="text-align:center;">
+          Login with your social account
+        </div>
+        <v-layout justify-center>
+          <v-btn
+            :loading="gloading"
+            outlined
+            fab
+            color="red"
+            class="mr-1"
+            @click="socialLogin('G')"
+          >
+            <v-icon>mdi-google</v-icon>
+          </v-btn>
+          <v-btn
+            @click="socialLogin('F')"
+            :loading="floading"
+            outlined
+            class="ml-1"
+            fab
+            :color="'blue darken-3'"
+          >
+            <v-icon>mdi-facebook-box</v-icon>
+          </v-btn>
         </v-layout>
         <div>
           <br />Not a member yet?

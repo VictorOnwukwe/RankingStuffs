@@ -28,14 +28,18 @@
                     max-width="90px"
                   >
                     <template v-slot:activator="{ on }">
-                      <v-icon @click="setWaiting()" class="ml-2" color="accent" v-on="on"
+                      <v-icon
+                        @click="setWaiting()"
+                        class="ml-2"
+                        color="accent"
+                        v-on="on"
                         >mdi-dots-vertical</v-icon
                       >
                     </template>
                     <v-list class="pa-0">
-                      <v-list-item @click="create()" class="pt-1 tile">
+                      <v-list-item @click="create()" class="pt-2 tile">
                         <v-layout column align-center>
-                          <v-icon>fa-plus</v-icon>
+                          <v-icon>$vuetify.icons.create</v-icon>
                           <span class="caption std">Create</span>
                         </v-layout>
                       </v-list-item>
@@ -45,17 +49,22 @@
                         @click="toggleWaiting()"
                         class="tile"
                       >
-                        <v-layout justify-center v-if="loading || waiting == undefined">
+                        <v-layout
+                          justify-center
+                          v-if="loading || waiting == undefined"
+                        >
                           <m-progress></m-progress>
                         </v-layout>
-                        <v-layout v-else column>
-                          <v-icon :color="waiting ? 'green' : null"
-                            >fa-hand-holding</v-icon
-                          >
+                        <v-layout v-else column align-center>
+                          <v-icon :color="waiting ? 'green' : null">{{
+                            waiting
+                              ? "$vuetify.icons.leaveQueue"
+                              : "$vuetify.icons.joinQueue"
+                          }}</v-icon>
                           <span
                             class="caption"
                             :class="waiting ? 'green--text' : 'std'"
-                            >{{ waiting ? "Demanded" : "Demand" }}</span
+                            >{{ waiting ? "Queueing" : "Queue" }}</span
                           >
                         </v-layout>
                       </v-list-item>
@@ -65,16 +74,21 @@
               </v-layout>
               <div style="clear:both"></div>
               <div class="subtitle-1 ptd">
-                <span class="std">{{created}}</span>
+                <span class="std">{{ created }}</span>
                 <span class="std"
-                  >, <span class="font-weight-bold">{{demand.waiters_count}}</span> {{demand.waiters_count > 1 ? "people" : "person"}} waiting</span
+                  >,
+                  <span class="font-weight-bold">{{
+                    demand.waiters_count
+                  }}</span>
+                  {{ demand.waiters_count > 1 ? "people" : "person" }}
+                  waiting</span
                 >
               </div>
             </v-layout>
           </v-card-title>
           <v-card-text class="subtitle-1 pt-1 pb-0">
             <div v-if="creator">
-              <v-avatar size="2em" class="mr-2">
+              <v-avatar size="2em" class="mr-2" style="border-radius:5px">
                 <img
                   v-if="creator.profile_pic"
                   :src="creator.profile_pic.low"
@@ -119,7 +133,7 @@ export default {
       });
     },
     async setWaiting() {
-      if(this.waiting !== undefined){
+      if (this.waiting !== undefined) {
         return;
       }
       await this.$store
@@ -192,7 +206,7 @@ export default {
     isCreator() {
       return this.$store.getters.getUser.id === this.demand.user;
     },
-    created(){
+    created() {
       return moment(this.demand.created.toDate()).calendar();
     }
   },

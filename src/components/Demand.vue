@@ -3,33 +3,50 @@
     <div style="margin:0 auto;">
       <div class="page-title">Demand List</div>
       <v-card flat class="grey lighten-3" tile>
-        <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">
-          Just A Tip</v-card-title>
+        <v-card-title
+          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+        >
+          Just A Tip</v-card-title
+        >
         <v-card-text>
           <ul class="mt-4 ptd">
-            <li
-              class="subtitle-1 ptd"
-            >Make the viewers understand your request by stating a precise title.</li>
-            <li class="subtitle-1 ptd">You can add a comment to clarify what you need to the viewers.</li>
-            <li class="subtitle-1 ptd">Be sure to check if the list already exists.</li>
-            <li class="subtitle-1 ptd">Be sure to check if the list is already on demand.</li>
+            <li class="subtitle-1 ptd">
+              Make the viewers understand your request by stating a precise
+              title.
+            </li>
+            <li class="subtitle-1 ptd">
+              You can add a comment to clarify what you need to the viewers.
+            </li>
+            <li class="subtitle-1 ptd">
+              Be sure to check if the list already exists.
+            </li>
+            <li class="subtitle-1 ptd">
+              Be sure to check if the list is already on demand.
+            </li>
           </ul>
         </v-card-text>
       </v-card>
       <v-card flat class="mt grey lighten-3" tile>
         <v-card flat tile>
-          <v-card-title class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium">Details</v-card-title>
+          <v-card-title
+            class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+            >Details</v-card-title
+          >
         </v-card>
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <v-form v-model="valid">
               <v-layout wrap>
                 <v-flex xs12>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Title</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Title
+                  </p>
                   <v-text-field
                     @blur="getKeywords()"
                     counter="150"
-                    :rules="[rules.maxLength(150),rules.minLength(1, 'Title')]"
+                    :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
                     solo
                     flat
                     color="brand"
@@ -37,7 +54,11 @@
                   ></v-text-field>
                 </v-flex>
                 <v-flex xs12 mt-n2>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Comment</p>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Comment
+                  </p>
                   <v-textarea
                     color="brand"
                     solo
@@ -49,15 +70,38 @@
                   ></v-textarea>
                 </v-flex>
                 <v-flex xs6 mt-n2>
-                  <p class="text-capitalize font-weight-medium grey--text text--darken-2">Category</p>
-                  <v-select item-text="name" v-model="category" :items="categories" placeholder="Optional" color="brand" solo flat></v-select>
+                  <p
+                    class="text-capitalize font-weight-medium grey--text text--darken-2"
+                  >
+                    Category
+                  </p>
+                  <v-select
+                    item-text="name"
+                    v-model="category"
+                    :items="categories"
+                    placeholder="Optional"
+                    color="brand"
+                    solo
+                    flat
+                  ></v-select>
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
                   <p
                     class="text-capitalize font-weight-medium grey--text text--darken-2"
-                  >Sub-Category</p>
-                  <v-select :disabled="this.category == ''" item-text="name" v-model="subCategory" :items="subCategories" placeholder="Optional" color="brand" solo flat></v-select>
+                  >
+                    Sub-Category
+                  </p>
+                  <v-select
+                    :disabled="this.category == ''"
+                    item-text="name"
+                    v-model="subCategory"
+                    :items="subCategories"
+                    placeholder="Optional"
+                    color="brand"
+                    solo
+                    flat
+                  ></v-select>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -69,7 +113,8 @@
             :loading="loading"
             :disabled="!valid"
             @click="demand()"
-          >Submit</m-btn>
+            >Submit</m-btn
+          >
         </v-card-actions>
       </v-card>
     </div>
@@ -79,7 +124,11 @@
           <v-layout justify-center>
             <v-icon class="my-8" color="info" size="60">fa-info-circle</v-icon>
           </v-layout>
-          <p>Dear User, for performance reasons, you are required to Login at this point in order to receive notifications. This is to enable us serve you better. Login or Signup to continue...</p>
+          <p>
+            Dear User, for performance reasons, you are required to Login at
+            this point in order to receive notifications. This is to enable us
+            serve you better. Login or Signup to continue...
+          </p>
         </v-card-text>
         <v-card-actions>
           <m-btn @click="goBack()" text>Back</m-btn>
@@ -116,19 +165,19 @@ export default {
   },
   methods: {
     demand() {
-      let auth = !this.semiAuthenticated;
       this.loading = true;
       let upload = {
         title: this.title.toLowerCase(),
         keywords: this.keywords,
         category: this.category,
         sub_category: this.subCategory,
-        comment: this.comment
+        comment: this.comment,
+        id: this.id
       };
 
       this.$store.dispatch("demand_list", upload).then(() => {
         this.loading = false;
-        this.title = this.comment = "";
+        this.title = this.comment = this.subCategory = this.category = "";
       });
     },
     getKeywords() {
@@ -151,15 +200,20 @@ export default {
     authenticated() {
       return this.$store.getters.authenticated;
     },
-    categories(){
+    categories() {
       return this.$store.getters.categories;
     },
-    subCategories(){
-
-      if(this.category == ""){
+    subCategories() {
+      if (this.category == "") {
         return;
       }
       return this.categories.find(cat => cat.name == this.category).subs;
+    },
+    id() {
+      return this.title
+        .toLowerCase()
+        .trim()
+        .replace(/ /g, "-");
     }
   },
   watch: {
@@ -181,5 +235,4 @@ export default {
 };
 </script>
 
-<style scoped>
-</style>
+<style scoped></style>

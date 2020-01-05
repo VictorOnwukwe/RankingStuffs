@@ -11,8 +11,7 @@
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">
         <v-card-title
-          class="title font-weight-bold"
-          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey"
+          class="title font-weight-bold brand lighten-2 white--text"
         >
           Select Image
           <v-spacer></v-spacer>
@@ -56,8 +55,7 @@
     <v-dialog persistent v-model="clipper" max-width="600px">
       <v-card :loading="cropping">
         <v-card-title
-          class="title font-weight-bold"
-          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey"
+          class="title font-weight-bold brand lighten-2 white--text"
         >
           Edit Image
           <v-spacer></v-spacer>
@@ -78,6 +76,7 @@
               :rotate="rotation"
               :initWidth="50"
               :initHeight="50"
+              :ratio="'1'"
               :bg-color="color"
               preview="my-preview"
             >
@@ -141,10 +140,25 @@
         </v-card-text>
       </v-card>
     </v-dialog>
-    <v-dialog max-width="500px" v-model="result">
+    <v-dialog max-width="600px" v-model="result">
       <v-card>
-        <v-card-text class="pa-2">
-          <v-img :src="resultURL"></v-img>
+        <v-card-title
+          class="title font-weight-bold brand lighten-2 white--text"
+        >
+          Upload
+          <v-spacer></v-spacer>
+          <v-icon class="close" @click="(result = false), (imgURL = '')"
+            >mdi-close</v-icon
+          >
+        </v-card-title>
+        <v-card-text>
+          <v-layout justify-center class="mt-4">
+            <v-img
+              :min-width="'150px'"
+              :max-width="'250px'"
+              :src="resultURL"
+            ></v-img>
+          </v-layout>
           <alert
             class="mt-4"
             :type="'success'"
@@ -154,8 +168,6 @@
           ></alert>
         </v-card-text>
         <v-card-actions>
-          <v-spacer></v-spacer>
-          <m-btn @click="result = false" outlined>Cancel</m-btn>
           <m-btn :loading="uploading" @click="upload()">Upload</m-btn>
         </v-card-actions>
       </v-card>
@@ -230,6 +242,7 @@ export default {
       this.images.high = this.getBlob(canvas.toDataURL("image/jpeg", 1));
       this.cropping = false;
       this.result = true;
+      this.clipper = false;
     },
     rotateLeft() {
       this.rotation -= 5;

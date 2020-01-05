@@ -111,12 +111,12 @@
     <v-dialog persistent v-model="showEdit" max-width="500px">
       <v-card flat class="grey lighten-3">
         <v-card-title
-          class="grey lighten-2"
+          class="brand lighten-2 white--text"
           style="position:sticky;top:0;z-index:2;border-bottom:1px solid black"
         >
           Edit Reply
           <v-spacer></v-spacer>
-          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
+          <v-icon color="white" @click="showEdit = false">mdi-close</v-icon>
         </v-card-title>
         <v-card-text class="pb-0 pt-4">
           <v-textarea
@@ -159,9 +159,7 @@
         <v-card-actions>
           <v-spacer></v-spacer>
           <m-btn text @click="showDelete = false">Cancel</m-btn>
-          <m-btn text :loading="deleting" @click="deleteReply()"
-            >Delete</m-btn
-          >
+          <m-btn text :loading="deleting" @click="deleteReply()">Delete</m-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -327,6 +325,9 @@ export default {
       }
     },
     isReplier() {
+      if (!this.$store.getters.authenticated) {
+        return false;
+      }
       return this.reply.user.id == this.$store.getters.getUser.id;
     }
   }

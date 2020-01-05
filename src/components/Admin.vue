@@ -2,7 +2,7 @@
   <div>
     <v-row>
       <v-flex shrink>
-        <v-navigation-drawer permanent dark class="mr-4">
+        <v-navigation-drawer permanent dark class="mr-2">
           <v-list dense>
             <v-list-item to="/admin/pending-lists">
               <v-list-item-icon>
@@ -50,7 +50,7 @@
         </v-navigation-drawer>
       </v-flex>
       <v-flex grow>
-        <v-card>
+        <v-card flat>
           <router-view></router-view>
         </v-card>
       </v-flex>

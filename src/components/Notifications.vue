@@ -28,7 +28,12 @@
                 @close="close()"
                 :index="index"
               ></Notification>
-                <v-divider class="grey lighten-3 mr-2" style="margin-left:70px" v-if="index < notifications.length - 1" :key="index"></v-divider>
+              <v-divider
+                class="grey lighten-3 mr-2"
+                style="margin-left:70px"
+                v-if="index < notifications.length - 1"
+                :key="index"
+              ></v-divider>
             </div>
           </v-list>
           <p v-else class="subtitle-1 mt-4 std text-center">

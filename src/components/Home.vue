@@ -1,26 +1,35 @@
 <template>
   <div>
-    <h1 class="grey--text text--darken-3">LATEST</h1>
-    <main-list v-if="latest" :list="latest"></main-list>
+    <main-list :list="latest" :type="'Latest'"></main-list>
     <hr class="mt-12 mb-6 accent" />
     <div class="grid">
-      <div v-for="(list, index) in categoryLists.slice(0,2)" :key="index">
+      <div
+        v-for="(list, index) in categoryLists.slice(0, divider)"
+        :key="index"
+      >
         <sub-list :list="list"></sub-list>
       </div>
     </div>
-    <h1 class="mt-12 grey--text text--darken-3">POPULAR</h1>
-    <main-list v-if="popular" :list="popular"></main-list>
+    <main-list class="mt-12" :list="popular" :type="'Popular'"></main-list>
     <hr class="mt-12 mb-6 accent" />
     <div class="grid">
-      <div v-for="(list, index) in categoryLists.slice(2,4)" :key="index">
+      <div
+        v-for="(list, index) in categoryLists.slice(divider, divider * 2)"
+        :key="index"
+      >
         <sub-list :list="list"></sub-list>
       </div>
     </div>
-    <h1 class="mt-12 grey--text text--darken-3">TOP RATED</h1>
-    <main-list v-if="topRated" :list="topRated"></main-list>
+    <main-list class="mt-12" :list="topRated" :type="'Top Rated'"></main-list>
     <hr class="mt-12 mb-6 accent" />
     <div class="grid">
-      <div v-for="(list, index) in categoryLists.slice(4,categoryLists.length)" :key="index">
+      <div
+        v-for="(list, index) in categoryLists.slice(
+          divider * 2,
+          categoryLists.length
+        )"
+        :key="index"
+      >
         <sub-list :list="list"></sub-list>
       </div>
     </div>
@@ -31,87 +40,19 @@
 
 <script>
 // import { Carousel3d, Slide } from "vue-carousel-3d";
-import { Glide, GlideSlide } from "vue-glide-js";
 import categories from "../../public/my-modules/categories";
-import HappeningNow from "./HappeningNow";
-import Slide from "./Slide";
 import HomeMainList from "./HomeMainList";
 import HomeSubList from "./HomeSubList";
 
 export default {
   components: {
-    Slide,
-    happening: HappeningNow,
     mainList: HomeMainList,
     subList: HomeSubList
   },
   data() {
-    return {
-      latest: false,
-      popular: false,
-      topRated: false,
-      index: 0,
-      categoryLists: []
-    };
+    return {};
   },
   methods: {
-    fetchLatest() {
-      this.$store
-        .dispatch("fetch_lists", {
-          sort: "newest",
-          limit: 1
-        })
-        .then(lists => {
-          this.latest = { id: lists[0].id, ...lists[0].data() };
-        });
-    },
-    fetchPopular() {
-      this.$store
-        .dispatch("fetch_lists", {
-          sort: "popularity",
-          limit: 1
-        })
-        .then(lists => {
-          this.popular = { id: lists[0].id, ...lists[0].data() };
-        });
-    },
-    fetchTopRated() {
-      this.$store
-        .dispatch("fetch_lists", {
-          limit: 1,
-          sort: "rating"
-        })
-        .then(lists => {
-          this.topRated = { id: lists[0].id, ...lists[0].data() };
-        });
-    },
-    async fetchCategoryLists() {
-      for (let category of categories) {
-        this.$store
-          .dispatch("fetch_category_lists", {
-            category: category.name,
-            limit: 1
-          })
-          .then(async lists => {
-            if (lists.length > 0) {
-              let list = await {
-                id: lists[0].id,
-                ...lists[0].data()
-              };
-              this.categoryLists.push(list);
-            }
-          });
-      }
-    },
-    clickItem(i) {
-      this.index = i;
-    },
-    slidePrev() {
-      this.$refs.slider.slidePrev();
-    },
-    slideNext() {
-      this.$refs.slider.slideNext();
-    },
     categorize() {
       this.$store.dispatch("upload_categories", categories);
     }
@@ -119,14 +60,26 @@ export default {
   computed: {
     categories() {
       return this.$store.getters.categories;
+    },
+    latest() {
+      return this.$store.getters.latestList;
+    },
+    popular() {
+      return this.$store.getters.popularList;
+    },
+    topRated() {
+      return this.$store.getters.topRatedList;
+    },
+    categoryLists() {
+      return this.$store.getters.categoryLists;
+    },
+    divider() {
+      return Math.round(this.categories.length / 3);
     }
   },
   created: function() {
     this.$store.dispatch("set_loading", false);
-    this.fetchLatest();
-    this.fetchPopular();
-    this.fetchTopRated();
-    this.fetchCategoryLists();
+    this.$store.dispatch("fetch_home_contents");
   }
 };
 </script>
@@ -191,7 +144,7 @@ export default {
 }
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   grid-column-gap: 0.5em;
   grid-row-gap: 1em;
 }
