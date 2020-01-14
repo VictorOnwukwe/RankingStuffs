@@ -129,9 +129,11 @@ export default {
       // this.$store.dispatch("set_current_list", this.list);
     },
     async fetchUser() {
-      await this.$store.dispatch("fetch_user", this.list.user).then(user => {
-        this.user = user;
-      });
+      await this.$store
+        .dispatch("fetch_user", this.list.creator.id)
+        .then(user => {
+          this.user = user;
+        });
     }
   },
   computed: {

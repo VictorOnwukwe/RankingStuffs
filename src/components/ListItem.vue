@@ -166,12 +166,12 @@
                         size="1.2em"
                         @click="uploadComment()"
                         :class="
-                          focused && comment != ''
+                          focused && comment.trim() != ''
                             ? 'accent--text'
                             : 'grey--text'
                         "
                         style="position:absolute; bottom:1em; right:0.8em"
-                        :disabled="comment == '' ? true : false"
+                        :disabled="comment.trim() == ''"
                         >fa-paper-plane</v-icon
                       >
                     </div>
@@ -343,7 +343,7 @@ export default {
         });
     },
     async checkVoted() {
-      if (this.list_voted == undefined) {
+      if (this.list_voted == undefined || this.checkedVoted) {
         return;
       }
       if (this.list_voted == false) {

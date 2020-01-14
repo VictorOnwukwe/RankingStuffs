@@ -1,174 +1,146 @@
 <template>
   <div>
     <div class="main" v-if="fetched">
-      <!-- <v-layout align-center class="std">
-        <span @click="" class="underline pointer">categories</span>
-        <span>&nbsp;>&nbsp;</span>
-        <router-link
-          class="no-deco underline std"
-          :to="`/categories/${list.category}`"
-          >{{ list.category }}</router-link
-        >
-        <div v-if="list.sub_category">
-          <span>&nbsp;>&nbsp;</span>
-          <router-link
-            class="no-deco underline std"
-            :to="`/categories/${list.category}/${list.sub_category}`"
-            >{{ list.sub_category }}</router-link
-          >
-        </div>
-      </v-layout> -->
-      <v-breadcrumbs color="blue" class="px-0 pb-0 crumbs" :items="linkItems">
+      <v-breadcrumbs class="crumbs px-0" :items="linkItems">
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
         </template>
         <template v-slot:item="props">
-          <v-breadcrumbs-item :to="props.item.to">
-            <span class="">
+          <v-breadcrumbs-item :to="props.item.to" class="crumb-parent">
+            <span class="crumb">
               {{ props.item.text }}
             </span>
           </v-breadcrumbs-item>
         </template>
       </v-breadcrumbs>
-      <v-layout class="list-view">
+      <v-layout>
         <v-flex>
-          <v-flex class="mx-auto mt-4">
-            <div id="title-nav" class="inherit">
-              <div
-                style="padding:8px; align-items:center; justify-content:space-between"
-                class="mx-auto"
+          <div id="title-nav" class="inherit">
+            <div>
+              <h1
+                v-if="list"
+                style="font-size:2.2em; font-weight:normal;"
+                class="sidebar--text text--darken-2 text-capitalize"
               >
-                <h1
-                  v-if="list"
-                  style="font-size:2.2em; font-weight:normal;"
-                  class="sidebar--text text--darken-2 text-capitalize"
-                >
-                  {{ list.title }}
-                </h1>
-                <!-- <p>
+                {{ list.title }}
+              </h1>
+              <!-- <p>
                   <span class>Created by</span>
                   <span @click="showUser=true" style="font-weight:bold">&nbsp;{{creator.username}}</span>
                 </p>-->
-                <v-layout align-center class>
-                  <rating
-                    :rating="list.rating"
-                    :ratersCount="list.raters_count"
-                    :size="'1.2em'"
-                  ></rating>
-                  <v-spacer></v-spacer>
-                  <span class="std"
-                    >{{ list.voters_count }}
-                    {{ list.voters_count > 1 ? "voters" : "voter" }}</span
-                  >
-                  <span class="std">, {{ list.votes }} votes</span>
-                </v-layout>
-                <v-layout v-if="creator" class="mt-4" align-center>
-                  <v-avatar class="mr-2" size="1.8em">
-                    <img
-                      v-if="creator.profile_pic"
-                      :src="creator.profile_pic.low"
-                    />
-                    <img v-else :src="require('../assets/nophoto.jpg')" />
-                  </v-avatar>
-                  <a
-                    @click="showUser = true"
-                    class="link--text font-weight-medium pointer"
-                    >{{ creator.username }}</a
-                  >
-                </v-layout>
-                <div
-                  style="white-space:pre-wrap;"
-                  class="mt-4 grey--text text--darken-2"
-                  v-if="list.description"
+              <v-layout align-center class>
+                <rating
+                  :rating="list.rating"
+                  :ratersCount="list.raters_count"
+                  :size="'1.2em'"
+                ></rating>
+                <v-spacer></v-spacer>
+                <span class="std"
+                  >{{ list.voters_count }}
+                  {{ list.voters_count > 1 ? "voters" : "voter" }}</span
                 >
-                  {{ list.description }}
-                </div>
-              </div>
-              <div></div>
-            </div>
-
-            <div id="container" class="mt">
-              <div v-for="(item, index) in list.items" :key="index">
-                <ListItem
-                  :id="item.id"
-                  :item="{ id: item.id, ...item.data() }"
-                  :list="list"
-                  :list_voted="voted"
-                  :index="index + 1"
-                  @hasImage="setPreview"
-                  @voted="voted = true"
-                ></ListItem>
-                <v-card
-                  flat
-                  tile
-                  class="my-8 grey lighten-2 pa-1 pl-2 font-weight-black grey--text text--darken-2"
-                  v-if="index === 9 && list.items.length > 10"
-                  >Top Contenders</v-card
-                >
-              </div>
-
-              <v-layout v-if="fetchingMore" justify-center class="mt-12">
-                <v-progress-circular
-                  indeterminate
-                  color="brand"
-                ></v-progress-circular>
+                <span class="std">, {{ list.votes }} votes</span>
               </v-layout>
-
-              <v-layout
-                class="mt-12"
-                v-if="list.item_count > list.items.length"
+              <v-layout v-if="creator" class="mt-4" align-center>
+                <v-avatar tile class="mr-2 br" size="1.8em">
+                  <img
+                    v-if="creator.profile_pic"
+                    :src="creator.profile_pic.low"
+                  />
+                  <img v-else :src="require('../assets/nophoto.jpg')" />
+                </v-avatar>
+                <username :user="creator"></username>
+              </v-layout>
+              <div
+                style="white-space:pre-wrap;"
+                class="mt-4 grey--text text--darken-2"
+                v-if="list.description"
               >
-                <v-flex xs8 offset-xs2>
-                  <m-btn @click="loadMore()" block depressed>
-                    <!-- <v-icon>mdi-reload</v-icon> -->
-                    More
-                  </m-btn>
-                </v-flex>
-              </v-layout>
+                {{ list.description }}
+              </div>
+            </div>
+            <div></div>
+          </div>
 
+          <div id="container" class="mt">
+            <div v-for="(item, index) in list.items" :key="index">
+              <ListItem
+                :id="item.id"
+                :item="{ id: item.id, ...item.data() }"
+                :list="list"
+                :list_voted="voted"
+                :index="index + 1"
+                @hasImage="setPreview"
+                @voted="voted = true"
+              ></ListItem>
               <v-card
+                flat
                 tile
-                outlined
-                class="mt-12 grey lighten-3"
-                v-if="!list.self_moderated"
+                class="my-8 grey lighten-2 pa-1 pl-2 font-weight-black grey--text text--darken-2"
+                v-if="index === 9 && list.items.length > 10"
+                >Top Contenders</v-card
               >
-                <v-card-title
-                  class="pa-1 title-text grey lighten-2 pointer"
-                  @click="addItem = !addItem"
-                >
-                  <v-icon
-                    size="2.5em"
-                    class="mr-2"
-                    :color="addItem ? 'brand' : null"
-                    >mdi-plus-box</v-icon
-                  >
-                  Didn't find your option? Add to the List</v-card-title
-                >
-                <div v-if="addItem">
-                  <v-card-text>
-                    <AddItem
-                      :numeral="false"
-                      class="mt-4"
-                      :parentLength="list.items.length"
-                      :index="0"
-                      @receiveItem="setItem"
-                      @receiveComment="setItemComment"
-                      @setValid="setValid"
-                    ></AddItem>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <m-btn
-                      :disabled="!itemValid"
-                      :loading="addingItem"
-                      @click="upload_item()"
-                      >Submit</m-btn
-                    >
-                  </v-card-actions>
-                </div>
-              </v-card>
             </div>
-          </v-flex>
+
+            <v-layout v-if="fetchingMore" justify-center class="mt-12">
+              <v-progress-circular
+                indeterminate
+                color="brand"
+              ></v-progress-circular>
+            </v-layout>
+
+            <v-layout class="mt-12" v-if="list.item_count > list.items.length">
+              <v-flex xs8 offset-xs2>
+                <m-btn @click="loadMore()" block depressed>
+                  <!-- <v-icon>mdi-reload</v-icon> -->
+                  More
+                </m-btn>
+              </v-flex>
+            </v-layout>
+
+            <v-card
+              tile
+              outlined
+              class="mt-12 grey lighten-3"
+              v-if="!list.self_moderated"
+            >
+              <v-card-title
+                class="pa-1 title-text grey lighten-2 pointer"
+                @click="addItem = !addItem"
+              >
+                <v-icon
+                  size="2.5em"
+                  class="mr-2"
+                  :color="addItem ? 'brand' : null"
+                  >mdi-plus-box</v-icon
+                >
+                Didn't find your option? Add to the List</v-card-title
+              >
+              <div v-if="addItem">
+                <v-card-text>
+                  <AddItem
+                    ref="addItem"
+                    :numeral="false"
+                    class="mt-4"
+                    :parentLength="list.items.length"
+                    :index="0"
+                    @receiveItem="setItem"
+                    @receiveComment="setItemComment"
+                    @setValid="setValid"
+                  ></AddItem>
+                </v-card-text>
+
+                <v-card-actions>
+                  <m-btn
+                    :disabled="!itemValid"
+                    :loading="addingItem"
+                    @click="upload_item()"
+                    >Submit</m-btn
+                  >
+                </v-card-actions>
+              </div>
+            </v-card>
+          </div>
         </v-flex>
       </v-layout>
 
@@ -287,8 +259,8 @@
     </v-dialog>
 
     <v-navigation-drawer
-      height="calc(100vh - 6.5em)"
-      style="margin-top:6.5em; z-index:8;"
+      height="calc(100vh - 7em)"
+      style="margin-top:7em; z-index:5;"
       v-model="showSidebar"
       fixed
       class="sidebar"
@@ -424,16 +396,34 @@ export default {
   methods: {
     upload_item() {
       this.addingItem = true;
-      this.$store
-        .dispatch("add_list_item", {
-          list_id: this.listID,
-          list_title: this.list.title,
-          votes: 1,
-          item: this.item
-        })
-        .then(() => {
-          this.addingItem = false;
-        });
+      setTimeout(() => {
+        this.$store
+          .dispatch("add_list_item", {
+            list: this.list,
+            net_vote: 1,
+            item: this.item,
+            rank: this.list.item_count + 1
+          })
+          .then(item => {
+            this.addingItem = false;
+            this.item = {
+              name: "",
+              exists: false,
+              comment: ""
+            };
+            this.$refs.addItem.deleteItem();
+            this.list.items.push(item);
+            this.list.item_count++;
+          })
+          .catch(error => {
+            this.addingItem = false;
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. This item already exists",
+              type: "error"
+            });
+          });
+      }, 500);
     },
 
     pull() {
@@ -539,7 +529,7 @@ export default {
       }
     },
     fetchCreator() {
-      this.$store.dispatch("fetch_user", this.list.user).then(user => {
+      this.$store.dispatch("fetch_user", this.list.creator.id).then(user => {
         this.creator = user;
       });
     },
@@ -676,7 +666,7 @@ export default {
       if (!this.authenticated) {
         return false;
       }
-      return this.$store.state.user.id == this.list.user;
+      return this.$store.state.user.id == this.list.creator.id;
     }
   },
 
@@ -748,7 +738,7 @@ li > a {
   position: fixed;
   top: 50vh;
   left: -1.5em;
-  z-index: 9;
+  z-index: 6;
   align-items: center;
   justify-content: center;
   opacity: 0.6;
@@ -767,19 +757,6 @@ li > a {
   margin-left: -1em;
   box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
 }
-/* @media (min-width: 600px) {
-  .list-view {
-    margin-left: calc(80px);
-  }
-  .pull-push {
-    display: none;
-  }
-}
-@media (min-width: 1264px) {
-  .list-view {
-    margin-left: calc(256px - 0.5em);
-  }
-} */
 
 #plus-button {
   display: flex;
@@ -836,6 +813,7 @@ li > a {
   100% {
     transform: translateX(280px);
     opacity: 1;
+    background-color: gray;
   }
 }
 
@@ -874,6 +852,9 @@ li > a {
 }
 
 .crumb {
-  color: blue !important;
+  color: grey !important;
+}
+.crumb:hover {
+  color: var(--brand) !important;
 }
 </style>

@@ -6,10 +6,12 @@ import "@fortawesome/fontawesome-free/css/all.css";
 // @ts-ignore
 import queue from "../icons/queue";
 import create from "../icons/create";
-import favorite from "../icons/favorite";
+import demand from "../icons/demand";
 import ladder from "../icons/ladder";
 import joinQueue from "../icons/joinQueue";
 import leaveQueue from "../icons/leaveQueue";
+import follow from "../icons/follow";
+import unfollow from "../icons/unfollow";
 
 Vue.use(Vuetify);
 
@@ -24,7 +26,7 @@ const vuetify = new Vuetify({
         component: create
       },
       demand: {
-        component: favorite
+        component: demand
       },
       ladder: {
         component: ladder
@@ -35,6 +37,12 @@ const vuetify = new Vuetify({
       leaveQueue: {
         component: leaveQueue
       },
+      follow: {
+        component: follow
+      },
+      unfollow: {
+        component: unfollow
+      }
     }
   },
   theme: {
@@ -48,7 +56,7 @@ const vuetify = new Vuetify({
         link: "#00A65A",
         button: "#0060AC",
         item_title: "#BBDEFB",
-        footer: "#2F363B"
+        footer: "#242729"
       }
     }
   }

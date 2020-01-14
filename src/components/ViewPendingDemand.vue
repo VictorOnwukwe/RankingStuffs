@@ -2,80 +2,55 @@
   <div>
     <v-dialog fullscreen persistent v-model="dialog">
       <v-card>
-        <v-row class="px-4 pt-3">
-          <v-spacer></v-spacer>
-          <v-icon @click="close()" class="close">mdi-close</v-icon>
-        </v-row>
+        <v-toolbar style="position:fixed;width:100%;z-index:3" color="brand">
+          <v-row>
+            <v-flex xs12 sm8 offset-sm2>
+              <v-row class="px-3">
+                <v-icon color="white" @click="close()">mdi-arrow-left</v-icon>
+                <v-toolbar-title class="ml-4 white--text"
+                  >Pending Demand</v-toolbar-title
+                >
+              </v-row>
+            </v-flex>
+          </v-row>
+        </v-toolbar>
         <v-row
           ><v-flex xs12 sm8 offset-sm2>
-            <v-card-title class="font-weight-medium brand--text"
-              >Pending List</v-card-title
-            >
-            <div class="mt-8">
+            <div style="margin-top:5em">
               <v-card-text v-if="!showEdit">
                 <div class="font-weight-bold brand--text">
                   Title
                 </div>
                 <p class="ptd font-weight-medium">
-                  {{ oldList.title }}
+                  {{ oldDemand.title }}
                 </p>
                 <div class="font-weight-bold brand--text">
-                  Description
+                  Comment
                 </div>
                 <p class="ptd">
-                  {{ oldList.description }}
+                  {{ oldDemand.comment }}
                 </p>
 
                 <p>
                   <span class="font-weight-bold brand--text">Category: </span
-                  ><span class="ptd">{{ oldList.category }}</span>
+                  ><span class="ptd">{{ oldDemand.category }}</span>
                 </p>
                 <p>
                   <span class="font-weight-bold brand--text">SubCategory: </span
-                  ><span class="ptd">{{ oldList.subCategory }}</span>
+                  ><span class="ptd">{{ oldDemand.subCategory }}</span>
                 </p>
-                <div class="mt-12">
-                  <p class="font-weight-bold brand--text">Items:</p>
-                  <div v-for="(item, index) in oldList.items" :key="index">
-                    <v-divider class="grey lighten-2"></v-divider>
-                    <p class="font-weight-bold ptd">Item {{ index + 1 }}</p>
-                    <p>
-                      <span class="grey--text text--darken-2 font-weight-medium"
-                        >Name:</span
-                      >
-                      {{ item.name }}
-                    </p>
-                    <p>
-                      <span class="grey--text text--darken-2 font-weight-medium"
-                        >info:</span
-                      >
-                      {{ item.info }}
-                    </p>
-                    <p>
-                      <span class="grey--text text--darken-2 font-weight-medium"
-                        >Comment:</span
-                      >
-                      {{ item.comment }}
-                    </p>
-                  </div>
-                </div>
               </v-card-text>
               <v-card-text v-if="showEdit">
                 <v-text-field
                   outlined
                   label="Title"
-                  v-model="newList.title"
+                  v-model="newDemand.title"
                 ></v-text-field>
-                <v-textarea
-                  outlined
-                  label="Description"
-                  v-model="newList.description"
-                ></v-textarea>
                 <v-row class="px-3">
                   <v-flex xs6>
                     <v-select
                       outlined
-                      v-model="newList.category"
+                      v-model="newDemand.category"
                       label="Category"
                       :items="categories"
                       item-text="name"
@@ -86,34 +61,13 @@
                     <v-select
                       outlined
                       class="ml-1"
-                      v-model="newList.subCategory"
+                      v-model="newDemand.subCategory"
                       label="Sub-Category"
                       :items="subCategories"
                       item-text="name"
                     ></v-select>
                   </v-flex>
                 </v-row>
-
-                <div>
-                  <div
-                    class="mt-6"
-                    v-for="(item, index) of list.items"
-                    :key="index"
-                  >
-                    <p class="font-weight-bold ptd">Item {{ index + 1 }}</p>
-                    <v-text-field
-                      outlined
-                      label="Name"
-                      v-model="newList.items[index].name"
-                    ></v-text-field>
-                    <v-checkbox
-                      class="mt-n4"
-                      v-if="!newList.items[index].info"
-                      label="link"
-                      v-model="newList.items[index].isLink"
-                    ></v-checkbox>
-                  </div>
-                </div>
               </v-card-text>
               <v-card-text v-if="showDisapproveOptions">
                 <div class="brand--text">Reason For Disapproval?</div>
@@ -162,23 +116,19 @@
 <script>
 export default {
   props: {
-    list: Object
+    demand: Object
   },
   data() {
     return {
       dialog: true,
       approving: false,
-      oldList: {},
-      newList: {
+      oldDemand: {},
+      newDemand: {
         title: "",
-        description: "",
+        comment: "",
         category: "",
         subCategory: ""
       },
-      editTitle: false,
-      editDescription: false,
-      editCategory: false,
-      editSubCategory: false,
       showEdit: false,
       showDisapproveOptions: false,
       disapprovalReason: ""
@@ -187,31 +137,30 @@ export default {
   methods: {
     approve() {
       this.approving = true;
-      this.$store.dispatch("upload_list", this.newList).then(id => {
-        console.log("Uploaded");
+      this.$store.dispatch("demand_list", this.newDemand).then(() => {
         this.approving = false;
-        this.$store.dispatch("delete_pending_list", this.list.id);
+        // this.$store.dispatch("delete_pending_demand", this.demand.id);
         this.$store.dispatch("send_notification", {
-          type: "list-approved",
+          type: "demand-approved",
           data: {
-            type: "list-approved",
-            list: { id: id, title: this.newList.title }
+            type: "demand-approved",
+            demand: { id: this.demand.id, title: this.newDemand.title }
           },
-          recipient: this.newList.creator.id
+          recipient: this.newDemand.user.id
         });
       });
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_list", this.list.id);
+        // this.$store.dispatch("delete_pending_list", this.list.id);
         this.$store.dispatch("send_notification", {
-          type: "list-disapproved",
+          type: "demand-disapproved",
           data: {
-            type: "list-disapproved",
-            list: { title: this.newList.title },
+            type: "demand-disapproved",
+            demand: { title: this.newDemand.title },
             reason: this.disapprovalReason
           },
-          recipient: this.newList.creator.id
+          recipient: this.newDemand.user.id
         });
         return;
       }
@@ -222,7 +171,7 @@ export default {
     },
     edit() {
       if (this.showEdit) {
-        this.oldList = { ...this.newList };
+        this.oldDemand = { ...this.newDemand };
         this.showEdit = false;
         return;
       }
@@ -234,16 +183,16 @@ export default {
       return this.$store.getters.categories;
     },
     subCategories() {
-      if (this.newList.category == "") {
+      if (this.newDemand.category == "") {
         return;
       }
-      return this.categories.find(cat => cat.name == this.newList.category)
+      return this.categories.find(cat => cat.name == this.newDemand.category)
         .subs;
     }
   },
   created() {
-    this.newList = { ...this.list };
-    this.oldList = { ...this.list };
+    this.newDemand = { ...this.demand };
+    this.oldDemand = { ...this.demand };
   }
 };
 </script>

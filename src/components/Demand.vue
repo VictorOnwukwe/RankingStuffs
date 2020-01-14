@@ -44,7 +44,7 @@
                     Title
                   </p>
                   <v-text-field
-                    @blur="getKeywords()"
+                    @keyup="checkExistence()"
                     counter="150"
                     :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
                     solo
@@ -53,6 +53,36 @@
                     v-model="title"
                   ></v-text-field>
                 </v-flex>
+
+                <v-alert
+                  v-if="existing.title"
+                  :type="'warning'"
+                  text
+                  class="ml-1 mt-2 mb-6 ptd"
+                  border="left"
+                  :icon="false"
+                  width="100%"
+                >
+                  <v-row class="mx-1" align-center>
+                    <v-flex>
+                      The {{ existType }}
+                      {{ existType == "list" ? " of " : " for " }}
+                      <span
+                        class="ptd text-capitalize font-weight-medium no-deco underline"
+                        >{{ existing.title }}&nbsp;</span
+                      >already exists
+                    </v-flex>
+                    <v-flex shrink>
+                      <v-btn
+                        :to="'/' + existType + 's/' + existing.id"
+                        color="warning darken-1"
+                        outlined
+                        class="ml-2"
+                        >visit</v-btn
+                      >
+                    </v-flex>
+                  </v-row>
+                </v-alert>
                 <v-flex xs12 mt-n2>
                   <p
                     class="text-capitalize font-weight-medium grey--text text--darken-2"
@@ -109,13 +139,19 @@
         </v-card-text>
         <v-card-actions>
           <m-btn
-            :dark="valid"
             :loading="loading"
-            :disabled="!valid"
+            :disabled="!valid || (existing !== false && existing !== undefined)"
             @click="demand()"
             >Submit</m-btn
           >
         </v-card-actions>
+        <alert
+          class="mt-4"
+          :type="'success'"
+          :value="submitted"
+          :message="successMessage"
+          @act="goCategory()"
+        ></alert>
       </v-card>
     </div>
     <v-dialog persistent v-model="authDialog" max-width="500px">
@@ -143,13 +179,10 @@
 
 <script>
 import Rules from "../rules";
-import UploadImage from "./UploadImage";
 import keyword from "../../public/my-modules/generateKeywords";
 
 export default {
-  components: {
-    "upload-image": UploadImage
-  },
+  components: {},
   data() {
     return {
       title: "",
@@ -160,25 +193,74 @@ export default {
       loading: false,
       authDialog: false,
       category: "",
-      subCategory: ""
+      subCategory: "",
+      existing: true,
+      existType: "",
+      timer: null,
+      submitted: false,
+      tempCategory: "",
+      user: {
+        id: this.$store.getters.getUser.id,
+        username: this.$store.getters.getUser.username
+      }
     };
   },
   methods: {
-    demand() {
+    async demand() {
       this.loading = true;
       let upload = {
         title: this.title.toLowerCase(),
         keywords: this.keywords,
         category: this.category,
-        sub_category: this.subCategory,
+        subCategory: this.subCategory,
         comment: this.comment,
-        id: this.id
+        id: this.id,
+        user: this.user
       };
 
-      this.$store.dispatch("demand_list", upload).then(() => {
+      this.$store.dispatch("upload_pending_demand", upload).then(() => {
         this.loading = false;
-        this.title = this.comment = this.subCategory = this.category = "";
+        this.submitted = true;
+        this.tempCategory =
+          upload.subCategory !== ""
+            ? upload.category + "/" + upload.subCategory
+            : upload.category == ""
+            ? "miscellaneous"
+            : "/" + upload.category;
       });
+    },
+    async checkExistence() {
+      if (this.title == "") {
+        console.log("here");
+        return;
+      }
+      clearTimeout(this.timer);
+      this.timer = setTimeout(async () => {
+        await this.$store
+          .dispatch("fetch_list", this.id)
+          .then(list => {
+            if (list) {
+              this.existType = "list";
+              this.existing = list;
+              return true;
+            }
+            return false;
+          })
+          .then(async exists => {
+            if (!exists) {
+              await this.$store
+                .dispatch("fetch_demand", this.id)
+                .then(demand => {
+                  this.existing = demand;
+                  if (demand) {
+                    this.existType = "demand";
+                  } else {
+                    this.getKeywords();
+                  }
+                });
+            }
+          });
+      }, 2500);
     },
     getKeywords() {
       this.keywords = keyword.generateKeywords(this.title);
@@ -191,6 +273,9 @@ export default {
     },
     goBack() {
       this.$router.go(-1);
+    },
+    goCategory() {
+      this.$router.push({ path: "/categories/" + this.tempCategory });
     }
   },
   computed: {
@@ -214,6 +299,11 @@ export default {
         .toLowerCase()
         .trim()
         .replace(/ /g, "-");
+    },
+    successMessage() {
+      return `Your list has been submitted. You will be notified on completion of
+        review. In the mean time, you could check out other
+        ${this.tempCategory} lists.`;
     }
   },
   watch: {

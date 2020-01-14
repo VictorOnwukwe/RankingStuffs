@@ -1,5 +1,5 @@
 <template>
-  <v-dialog max-width="500px" persistent v-model="dialog">
+  <v-dialog max-width="600px" persistent v-model="dialog">
     <v-card>
       <v-card-title
         class="brand lighten-2 white--text text-capitalize"
@@ -17,40 +17,46 @@
         <v-radio-group @change="otherReason = ''" v-model="flagReason">
           <v-radio value="offensive">
             <template v-slot:label>
-              <div class="std">
-                <span class="font-weight-bold">Offensive</span> - This
-                {{ type }} is offensive
+              <div class="ptd">
+                <span class="font-weight-bold">Abusive</span> - This
+                {{ type }} directs derogatory and abusive statements at another
+                user.
               </div>
             </template>
           </v-radio>
-          <v-radio value="explicit">
+          <v-radio value="explicit" class="mt-2">
             <template v-slot:label>
-              <div class="std">
+              <div class="ptd">
                 <span class="font-weight-bold">Explicit</span> - This
-                {{ type }} is too explicit
+                {{ type }} contains vulgar language.
               </div>
             </template>
           </v-radio>
-          <v-radio value="obsolete">
+          <v-radio value="obsolete" class="mt-2">
             <template v-slot:label>
-              <div class="std">
+              <div class="ptd">
                 <span class="font-weight-bold">Obsolete</span> - This
-                {{ type }} is too obsolete
+                {{ type }} does not relate to/contribute to the item.
               </div>
             </template>
           </v-radio>
-          <v-radio value="off-topic">
+          <v-radio value="off-topic" class="mt-2">
             <template v-slot:label>
-              <div class="std">
+              <div class="ptd">
                 <span class="font-weight-bold">Off Topic</span> - This
-                {{ type }} is too off topic
+                {{ type }} does not relate to/contribute to the context of the
+                list.
               </div>
             </template>
           </v-radio>
-          <v-radio label="Some other reason" value="other"></v-radio>
+          <v-radio
+            label="Some other reason"
+            value="other"
+            class="mt-2"
+          ></v-radio>
         </v-radio-group>
 
-        <div v-if="flagReason == 'other'">
+        <div v-if="flagReason == 'other'" class="mt-2">
           <v-textarea
             v-model="otherReason"
             color="brand"

@@ -16,7 +16,7 @@
               >{{ !more ? "more" : "less" }}</span
             ><span
               v-if="reply.content.length <= 600 || more"
-              class="brand--text text--darken-1 pointer"
+              class="brand--text text--lighten-1 pointer"
               @click="
                 reply.user.username.includes('visitor')
                   ? null
@@ -116,7 +116,7 @@
         >
           Edit Reply
           <v-spacer></v-spacer>
-          <v-icon color="white" @click="showEdit = false">mdi-close</v-icon>
+          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
         </v-card-title>
         <v-card-text class="pb-0 pt-4">
           <v-textarea
@@ -131,7 +131,7 @@
           <m-btn
             :loading="editing"
             @click="editReply()"
-            :disabled="newReply == '' || newReply == reply.content"
+            :disabled="newReply.trim() == '' || newReply == reply.content"
             >Edit</m-btn
           >
         </v-card-actions>

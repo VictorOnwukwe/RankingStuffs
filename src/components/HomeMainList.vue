@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card v-if="list" class="mt grey lighten-4" tile flat>
+    <v-card v-if="list.title" class="mt grey lighten-4 elevation-1" tile flat>
       <v-card-text class="">
         <v-layout class="">
           <v-flex shrink style="position:relative">
@@ -15,7 +15,10 @@
           <v-flex class="">
             <h3 class="brand--text">{{ type }}</h3>
             <router-link :to="'/lists/' + list.id" class="no-deco">
-              <h2 class="text-capitalize ptd" style="font-size:1.8em;font-family: 'Oswald', sans-serif">
+              <h2
+                class="text-capitalize ptd"
+                style="font-size:1.8em;font-family: 'Oswald', sans-serif"
+              >
                 {{ list.title }}
               </h2>
             </router-link>
@@ -38,6 +41,7 @@
         </v-layout>
       </v-card-text>
     </v-card>
+    <v-card v-else flat class="loading mt elevation-1" height="250px"></v-card>
   </div>
 </template>
 <script>

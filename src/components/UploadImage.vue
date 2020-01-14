@@ -76,7 +76,7 @@
               :rotate="rotation"
               :initWidth="50"
               :initHeight="50"
-              :ratio="'1'"
+              :ratio="type == 'profile' ? 1 : null"
               :bg-color="color"
               preview="my-preview"
             >
@@ -145,7 +145,7 @@
         <v-card-title
           class="title font-weight-bold brand lighten-2 white--text"
         >
-          Upload
+          {{ type == "addItem" ? "Save" : "Upload" }}
           <v-spacer></v-spacer>
           <v-icon class="close" @click="(result = false), (imgURL = '')"
             >mdi-close</v-icon
@@ -168,7 +168,9 @@
           ></alert>
         </v-card-text>
         <v-card-actions>
-          <m-btn :loading="uploading" @click="upload()">Upload</m-btn>
+          <m-btn :loading="uploading" @click="upload()">{{
+            type == "addItem" ? "Save" : "Upload"
+          }}</m-btn>
         </v-card-actions>
       </v-card>
     </v-dialog>
@@ -176,6 +178,9 @@
 </template>
 
 <script>
+import imageCompressor from "vue-image-compressor";
+import ImageUploader from "vue-image-upload-resize";
+import Compressor from "compressorjs";
 import {
   clipperPreview,
   clipperUpload,
@@ -188,7 +193,9 @@ export default {
     "clipper-basic": clipperBasic,
     "clipper-preview": clipperPreview,
     "clipper-upload": clipperUpload,
-    "clipper-fixed": clipperFixed
+    "clipper-fixed": clipperFixed,
+    imageCompressor,
+    ImageUploader
   },
   props: {
     btn: {
@@ -229,7 +236,9 @@ export default {
       cropping: false,
       images: {},
       imgLink: "",
-      isLink: false
+      isLink: false,
+      img: null,
+      hasImage: false
     };
   },
   methods: {
@@ -238,8 +247,43 @@ export default {
       let canvas = await this.$refs.clipper.clip();
       this.resultURL = canvas.toDataURL("image/jpeg", 1);
       this.uploadMenu = false;
-      this.images.low = this.getBlob(canvas.toDataURL("image/jpeg", 0.2));
-      this.images.high = this.getBlob(canvas.toDataURL("image/jpeg", 1));
+
+      let img = this.getBlob(canvas.toDataURL("image/jpeg", 1));
+      let that = this;
+      let minWidth, maxWidth;
+
+      if (this.type == "profile") {
+        minWidth = 50;
+        maxWidth = 500;
+      } else if (this.type == "item" || this.type == "addItem") {
+        minWidth = 250;
+        maxWidth = 500;
+      }
+
+      new Compressor(img, {
+        quality: 0.8,
+        maxWidth: maxWidth,
+        maxHeight: maxWidth,
+        convertSize: 5000000,
+        success(result) {
+          that.images.high = result;
+        },
+        error(err) {
+          console.log(err.message);
+        }
+      });
+      new Compressor(img, {
+        quality: 0.8,
+        maxWidth: minWidth,
+        maxHeight: minWidth,
+        convertSize: 5000000,
+        success(result) {
+          that.images.low = result;
+        },
+        error(err) {
+          console.log(err.message);
+        }
+      });
       this.cropping = false;
       this.result = true;
       this.clipper = false;
@@ -252,6 +296,10 @@ export default {
     },
     upload() {
       this.clipper = false;
+      if (this.type == "addItem") {
+        this.$emit("save", this.images);
+        this.result = false;
+      }
       let data = {};
       this.isLink
         ? (data = { source: this.imgURL })

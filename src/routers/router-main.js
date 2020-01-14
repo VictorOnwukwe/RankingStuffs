@@ -43,6 +43,8 @@ import AdminFlagged from "../components/AdminFlagged";
 import DisplayLists from "../components/DisplayLists";
 // @ts-ignore
 import TermsAndConditions from "../components/TermsAndConditions";
+// @ts-ignore
+import PrivacyPolicy from "../components/PrivacyPolicy";
 //@ts-ignore
 import ErrorPage from "../components/ErrorPage";
 
@@ -131,7 +133,7 @@ export default new Router({
       path: "/admin",
       component: Admin,
       beforeEnter(to, from, next) {
-        if (store.getters.getUser.username !== "ike") {
+        if (store.getters.getUser.username === "thetoptenersofficial") {
           next();
         } else {
           next({
@@ -162,6 +164,11 @@ export default new Router({
       path: "/terms-and-conditions",
       name: "terms-and-conditions",
       component: TermsAndConditions
+    },
+    {
+      path: "/privacy-policy",
+      name: "privacy-policy",
+      component: PrivacyPolicy
     },
     {
       path: "/error",

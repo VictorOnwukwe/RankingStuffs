@@ -86,7 +86,7 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
-          Add item
+          Addition of item
           <span class="font-weight-medium pointer">{{
             activity.item.name
           }}</span>
@@ -171,7 +171,7 @@
             >{{ activity.list.title }}</router-link
           >
         </v-list-item-title>
-        <v-list-item-title class="italic font-weight-black">
+        <v-list-item-title class="italic font-weight-black text-wrap">
           "{{ activity.reply.content }}"
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>

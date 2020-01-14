@@ -14,7 +14,7 @@
           <div v-if="lists.length > 0">
             <div v-for="(list, index) in lists" :key="index">
               <router-link :to="'/lists/' + list.id" class="no-deco">
-                <a class="blue--text text--darken-2 text-capitalize">{{
+                <a class="link--text text--darken-2 text-capitalize">{{
                   list.title
                 }}</a>
               </router-link>
@@ -39,7 +39,7 @@
           <div v-if="demands.length > 0">
             <div v-for="(demand, index) in demands" :key="index">
               <router-link :to="'/demands/' + demand.id" class="no-deco">
-                <a class="blue--text text--darken-2  text-capitalize">{{
+                <a class="link--text text--darken-2  text-capitalize">{{
                   demand.title
                 }}</a>
               </router-link>

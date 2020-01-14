@@ -37,11 +37,12 @@
       "
       :message="
         sort == 'lists'
-          ? 'No Lists in this category'
-          : 'No Demands in this category'
+          ? 'No List in this category'
+          : 'No Demand in this category'
       "
       :height="'13em'"
       :icon="'far fa-frown'"
+      :iconSize="'5em'"
     ></empty>
     <mugen-scroll
       :handler="fetchMore"

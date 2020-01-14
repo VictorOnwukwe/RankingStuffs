@@ -1,12 +1,7 @@
 <template>
   <div>
-    <v-card flat class="mt-4" v-if="fetched">
-      <div
-        :class="{
-          'px-2': $vuetify.breakpoint.xs,
-          'pa-4': $vuetify.breakpoint.smAndUp
-        }"
-      >
+    <v-card flat class="mt-4" v-if="demand.title">
+      <div>
         <h1
           v-if="demand"
           style="font-size:1.8em; font-weight:normal;"
@@ -23,17 +18,18 @@
             >{{ demander.username }}</a
           >
         </v-layout>
-        <p class="ptd">{{ demand.comment }}</p>
+        <p class="ptd" style="white-space: pre-wrap">{{ demand.comment }}</p>
         <v-layout align-center class="mt-4">
           <span class="std" v-html="waitingMessage"></span>
           <v-spacer></v-spacer>
-          <m-btn fab depressed small class="mr-2 elevation-3" @click="create()">
+          <m-btn fab outlined depressed small class="mr-2" @click="create()">
             <v-icon>$vuetify.icons.create</v-icon>
           </m-btn>
           <m-btn
             small
             outlined
-            class="elevation-3"
+            depressed
+            class=""
             fab
             :loading="toggling"
             @click="toggleWaiting()"
@@ -123,7 +119,6 @@ export default {
     return {
       demand: {},
       comments: [],
-      fetched: false,
       demander: {},
       comment: "",
       focused: false,
@@ -132,18 +127,13 @@ export default {
     };
   },
   methods: {
-    fetchComments() {
-      this.$store.dispatch("fetch_demand_comments").then(comments => {
-        this.comments = comments;
-      });
-    },
     fetchDemand() {
       this.$store
         .dispatch("fetch_complete_demand", this.$route.params.id)
         .then(demand => {
           this.demand = { id: this.$route.params.id, ...demand };
+          this.$store.dispatch("set_loading", false);
           this.fetchDemander().then(() => {
-            this.fetched = true;
             this.setWaiting();
           });
           this.fetchComments();
@@ -251,6 +241,7 @@ export default {
     }
   },
   created() {
+    this.$store.dispatch("set_loading", true);
     this.fetchDemand();
   }
 };

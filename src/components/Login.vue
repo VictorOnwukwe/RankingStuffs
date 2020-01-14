@@ -50,28 +50,34 @@
           Login with your social account
         </div>
         <v-layout justify-center>
-          <v-btn
-            :loading="gloading"
-            outlined
-            fab
-            color="red"
-            class="mr-1"
-            @click="socialLogin('G')"
-          >
-            <v-icon>mdi-google</v-icon>
-          </v-btn>
-          <v-btn
-            @click="socialLogin('F')"
-            :loading="floading"
-            outlined
-            class="ml-1"
-            fab
-            :color="'blue darken-3'"
-          >
-            <v-icon>mdi-facebook-box</v-icon>
-          </v-btn>
+          <v-hover v-slot:default="{ hover }">
+            <v-btn
+              :loading="gloading"
+              :outlined="!hover"
+              depressed
+              fab
+              color="red white--text"
+              class="mr-1"
+              @click="socialLogin('G')"
+            >
+              <v-icon>mdi-google</v-icon>
+            </v-btn>
+          </v-hover>
+          <v-hover v-slot:default="{ hover }">
+            <v-btn
+              @click="socialLogin('F')"
+              :loading="floading"
+              :outlined="!hover"
+              depressed
+              class="ml-1"
+              fab
+              :color="'blue darken-3 white--text'"
+            >
+              <v-icon>mdi-facebook</v-icon>
+            </v-btn>
+          </v-hover>
         </v-layout>
-        <div>
+        <div class="ptd">
           <br />Not a member yet?
           <a class="underline" @click="goSignup()">SIGN UP</a>
         </div>
@@ -117,7 +123,12 @@ export default {
             password: this.password
           })
           .then(() => {
-            this.close();
+            this.eloading = false;
+            if (this.$route.name.includes("user")) {
+              // this.$router.go();
+            } else {
+              this.close();
+            }
           })
           .catch(error => {
             this.eloading = false;
@@ -156,6 +167,7 @@ export default {
         .dispatch("socialLogin", type)
         .then(() => {
           this.gloading = this.floading = false;
+          // this.$router.go();
         })
         .catch(error => {
           this.gloading = this.floading = false;

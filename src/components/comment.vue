@@ -16,7 +16,7 @@
                     style="cursor:pointer"
                     >{{ !more ? "more" : "less" }}</span
                   ><span
-                    class="brand--text text--lighten-1 brighten pointer"
+                    class="brand--text text--lighten-1 pointer"
                     v-if="comment.content.length < 600 || more"
                     @click="
                       comment.user.username.includes('visitor')
@@ -114,7 +114,11 @@
                 >
               </v-layout>
 
-              <div v-if="loading" style="display:flex; justify-content:center">
+              <div
+                v-if="loading"
+                class="my-4"
+                style="display:flex; justify-content:center"
+              >
                 <m-progress></m-progress>
               </div>
               <v-layout column reverse>
@@ -158,10 +162,10 @@
                 @click="replyComment()"
                 size="1.2em"
                 :class="
-                  focused && comment != '' ? 'accent--text' : 'grey--text'
+                  focused && reply.trim() != '' ? 'accent--text' : 'grey--text'
                 "
                 style="position:absolute; bottom:1em; right:0.8em"
-                :disabled="comment == '' ? true : false"
+                :disabled="reply.trim() == '' ? true : false"
                 >fa-paper-plane</v-icon
               >
             </div>
@@ -184,9 +188,12 @@
         >
           Edit Comment
           <v-spacer></v-spacer>
-          <v-icon color="white" @click="showEdit = false">mdi-close</v-icon>
+          <v-icon class="close" @click="showEdit = false">mdi-close</v-icon>
         </v-card-title>
-        <v-card-text class="pb-0 pt-4">
+        <v-card-text
+          class="pb-0 pt-4"
+          :class="{ 'px-2': $vuetify.breakpoint.xs }"
+        >
           <v-textarea
             auto-grow
             no-resize
@@ -199,7 +206,7 @@
           <m-btn
             :loading="editing"
             @click="editComment()"
-            :disabled="newComment == '' || newComment == comment.content"
+            :disabled="newComment.trim() == '' || newComment == comment.content"
             >Edit</m-btn
           >
         </v-card-actions>
@@ -447,7 +454,7 @@ export default {
         });
     },
 
-    showReplies(num) {
+    showReplies() {
       if (!this.repliesShown) {
         if (this.replies.length === this.comment.replies_count) {
           return;
@@ -517,7 +524,7 @@ export default {
   /* background-color: #f5f5f5; */
 }
 .replies-display {
-  border-left: 2px solid var(--accent);
+  border-left: 2px solid #a6fda1;
   padding-left: 8px;
 }
 .shift {

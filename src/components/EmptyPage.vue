@@ -2,7 +2,7 @@
   <div>
     <v-layout :style="{ height: height }" justify-center align-center>
       <v-layout align-center column>
-        <v-icon size="5em" color="grey lighten-2">{{ icon }}</v-icon>
+        <v-icon :size="iconSize" color="grey lighten-2">{{ icon }}</v-icon>
         <div class="htd mt-2">{{ message }}</div>
         <slot></slot>
       </v-layout>
@@ -23,6 +23,10 @@ export default {
     message: {
       type: String,
       default: "No Files Found"
+    },
+    iconSize: {
+      type: String,
+      default: "3em"
     }
   }
 };

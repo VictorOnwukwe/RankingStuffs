@@ -39,96 +39,98 @@
         <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
         <v-card-text class="mt-4">
-          <v-layout column>
-            <v-radio-group
-              prepend-icon="fa-universal-access"
-              color="accent"
-              class="mr-10"
-              v-model="list.personal"
-              @change="setTypes()"
-            >
-              <template v-slot:prepend>
-                <v-icon size="2.5em" :color="!list.personal ? 'green' : null"
-                  >fa-universal-access</v-icon
-                >
-              </template>
-              <v-radio color="accent" :value="false">
-                <template v-slot:label>
-                  <div class="ptd">
-                    <span class="font-weight-bold ptd">General</span> - List can
-                    be seen by everybody
-                  </div>
-                </template>
-              </v-radio>
-              <v-radio color="accent" :value="true">
-                <template v-slot:label>
-                  <div class="ptd">
-                    <span class="font-weight-bold ptd">Personal</span> - List
-                    can only be seen in your profile
-                  </div>
-                </template>
-              </v-radio>
-            </v-radio-group>
-            <v-radio-group
-              :disabled="!list.personal"
-              color="accent"
-              v-model="list.votable"
-            >
-              <template v-slot:prepend>
-                <v-icon size="2.5em" :color="list.votable ? 'green' : null"
-                  >mdi-swap-vertical-bold</v-icon
-                >
-              </template>
-              <v-radio color="accent" :value="true">
-                <template v-slot:label>
-                  <div :class="list.personal ? 'ptd' : 'htd'">
-                    <span
-                      class="font-weight-bold"
-                      :class="list.personal ? 'ptd' : 'htd'"
-                      >Votable</span
-                    >
-                    - List can be voted on by everybody
-                  </div>
-                </template>
-              </v-radio>
-              <v-radio color="accent" :value="false">
-                <template v-slot:label>
-                  <div :class="list.personal ? 'ptd' : 'htd'">
-                    <span
-                      class="font-weight-bold"
-                      :class="list.personal ? 'ptd' : 'htd'"
-                      >Non-Votable</span
-                    >
-                    - List cannot be voted on by anybody
-                  </div>
-                </template>
-              </v-radio>
-            </v-radio-group>
-          </v-layout>
-          <v-checkbox
-            color="accent"
-            :disabled="!list.personal"
-            v-model="list.selfModerated"
-          >
-            <template v-slot:prepend>
-              <v-icon
-                size="2.5em"
-                class="mr-1"
-                :color="list.selfModerated ? 'green' : null"
-                >fa-lock</v-icon
+          <div :class="{ 'compact left': $vuetify.breakpoint.xs }">
+            <v-layout column>
+              <v-radio-group
+                prepend-icon="fa-universal-access"
+                color="accent"
+                class="mr-10"
+                v-model="list.personal"
+                @change="setTypes()"
               >
-            </template>
-            <template v-slot:label>
-              <div :class="list.personal ? 'ptd' : 'htd'">
-                <span
-                  class="font-weight-bold"
-                  :class="list.personal ? 'ptd' : 'htd'"
-                  >Self Moderated</span
+                <template v-slot:prepend>
+                  <v-icon size="2.5em" :color="!list.personal ? 'green' : null"
+                    >fa-universal-access</v-icon
+                  >
+                </template>
+                <v-radio color="accent" :value="false">
+                  <template v-slot:label>
+                    <div class="ptd">
+                      <span class="font-weight-bold ptd">General</span> - List
+                      can be seen by everybody
+                    </div>
+                  </template>
+                </v-radio>
+                <v-radio color="accent" :value="true">
+                  <template v-slot:label>
+                    <div class="ptd">
+                      <span class="font-weight-bold ptd">Personal</span> - List
+                      can only be seen in your profile
+                    </div>
+                  </template>
+                </v-radio>
+              </v-radio-group>
+              <v-radio-group
+                :disabled="!list.personal"
+                color="accent"
+                v-model="list.votable"
+              >
+                <template v-slot:prepend>
+                  <v-icon size="2.5em" :color="list.votable ? 'green' : null"
+                    >mdi-swap-vertical-bold</v-icon
+                  >
+                </template>
+                <v-radio color="accent" :value="true">
+                  <template v-slot:label>
+                    <div :class="list.personal ? 'ptd' : 'htd'">
+                      <span
+                        class="font-weight-bold"
+                        :class="list.personal ? 'ptd' : 'htd'"
+                        >Votable</span
+                      >
+                      - List can be voted on by everybody
+                    </div>
+                  </template>
+                </v-radio>
+                <v-radio color="accent" :value="false">
+                  <template v-slot:label>
+                    <div :class="list.personal ? 'ptd' : 'htd'">
+                      <span
+                        class="font-weight-bold"
+                        :class="list.personal ? 'ptd' : 'htd'"
+                        >Non-Votable</span
+                      >
+                      - List cannot be voted on by anybody
+                    </div>
+                  </template>
+                </v-radio>
+              </v-radio-group>
+            </v-layout>
+            <v-checkbox
+              color="accent"
+              :disabled="!list.personal"
+              v-model="list.selfModerated"
+            >
+              <template v-slot:prepend>
+                <v-icon
+                  size="2.5em"
+                  class="mr-1"
+                  :color="list.selfModerated ? 'green' : null"
+                  >fa-lock</v-icon
                 >
-                - List can only be moderated by you
-              </div>
-            </template>
-          </v-checkbox>
+              </template>
+              <template v-slot:label>
+                <div :class="list.personal ? 'ptd' : 'htd'">
+                  <span
+                    class="font-weight-bold"
+                    :class="list.personal ? 'ptd' : 'htd'"
+                    >Self Moderated</span
+                  >
+                  - List can only be moderated by you
+                </div>
+              </template>
+            </v-checkbox>
+          </div>
         </v-card-text>
       </v-card>
 
@@ -142,7 +144,7 @@
         <!-- </v-card> -->
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
-            <v-form v-model="valid">
+            <v-form class="compact-form" v-model="valid">
               <v-layout wrap>
                 <v-flex xs12>
                   <p
@@ -161,12 +163,12 @@
                     flat
                     solo
                     v-model="list.title"
-                    @blur="setKeywords()"
+                    @keyup="checkExistence()"
                   ></v-text-field>
                 </v-flex>
 
                 <v-alert
-                  v-if="existing"
+                  v-if="existing.title"
                   :type="'warning'"
                   text
                   class="ml-1 mt-2 mb-6 ptd"
@@ -357,11 +359,9 @@
 import AddItem from "./AddItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
-import BaseIcon from "./BaseIcon";
 export default {
   components: {
-    AddItem,
-    BaseIcon
+    AddItem
   },
   data() {
     return {
@@ -399,7 +399,8 @@ export default {
       itemIndex: [0, 1, 2, 3, 4],
       listSubmitted: false,
       tempCategory: "",
-      existing: false
+      existing: true,
+      timer: null
     };
   },
 
@@ -408,12 +409,7 @@ export default {
       if (this.list.title == "") {
         return;
       }
-      await this.$store.dispatch("fetch_list", this.id).then(list => {
-        this.existing = list;
-        if (!this.existing) {
-          this.list.keywords = this.generateKeywords(this.list.title);
-        }
-      });
+      this.list.keywords = this.generateKeywords(this.list.title);
     },
 
     setTypes() {
@@ -424,7 +420,24 @@ export default {
       this.setKeywords();
     },
 
-    upload() {
+    async checkExistence() {
+      if (this.list.title == "") {
+        this.existing = true;
+        return;
+      }
+      console.log("checking");
+      clearTimeout(this.timer);
+      this.timer = setTimeout(async () => {
+        await this.$store.dispatch("fetch_list", this.id).then(list => {
+          this.existing = list;
+          if (!this.existing) {
+            this.list.keywords = this.setKeywords(this.list.title);
+          }
+        });
+      }, 2500);
+    },
+
+    async upload() {
       this.loading = true;
       setTimeout(async () => {
         let other;
@@ -446,7 +459,12 @@ export default {
             })
             .then(uploaded => {
               this.listSubmitted = uploaded;
-              this.tempCategory = this.list.category;
+              this.tempCategory =
+                this.list.subCategory !== ""
+                  ? this.list.category + "/" + this.list.subCategory
+                  : this.list.category == ""
+                  ? "miscellaneous"
+                  : this.list.category;
               this.list = {
                 title: "",
                 description: "",
@@ -474,6 +492,9 @@ export default {
             });
         }
       }, 500);
+    },
+    goCategory() {
+      this.$router.push({ path: "/categories/" + this.tempCategory });
     },
     scrollTo(offset, target) {
       this.$vuetify.goTo(document.getElementById(target), {
@@ -649,5 +670,11 @@ ol > li::before {
   appearance: none;
   display: inline-block;
   position: relative;
+}
+.compact {
+  transform: scale(0.875);
+}
+.left {
+  transform-origin: left;
 }
 </style>

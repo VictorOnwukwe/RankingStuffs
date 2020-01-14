@@ -1,7 +1,10 @@
 <template>
   <div id="main">
     <v-app id="body">
-      <toolbar :closeSearch="closeSearch"></toolbar>
+      <toolbar
+        @showSidebar="showSidebar = !showSidebar"
+        :closeSearch="closeSearch"
+      ></toolbar>
 
       <div @click="setClose()">
         <preview v-if="$route.name == 'home'" id="preview"></preview>
@@ -39,15 +42,183 @@
         </v-layout>
         <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
         <v-btn
-          v-if="offset < 0"
           fab
+          size="1.5em"
           color="accent"
           @click="scrollUp()"
-          style="position: fixed;bottom:16px;right:16px"
+          style="position: fixed;bottom:16px;right:16px;z-index:4"
         >
           <v-icon size="2rem">mdi-chevron-up</v-icon>
         </v-btn>
       </div>
+      <v-navigation-drawer
+        class="hidden-md-and-up"
+        height="100%"
+        style="z-index:10"
+        fixed
+        v-model="showSidebar"
+        width="280px"
+      >
+        <div v-if="authenticated">
+          <div class="accent lighten-1" style="position:relative">
+            <v-icon
+              style="position:absolute;right:8px;top:8px"
+              color="white"
+              @click="showSidebar = false"
+              >mdi-close</v-icon
+            >
+            <v-avatar class="ml-5 mt-7"
+              ><dp :src="user.profile_pic" :size="'3.8em'"></dp
+            ></v-avatar>
+            <v-list-item class="mt-2">
+              <v-list-item-content>
+                <v-list-item-title class="font-weight-bold">{{
+                  user.username
+                }}</v-list-item-title>
+                <v-list-item-subtitle class="ptd">{{
+                  user.email
+                }}</v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+          </div>
+
+          <div class="std font-weight-bold ml-4 my-2">Profile</div>
+
+          <v-list dense>
+            <v-list-item
+              :to="profile + 'creations'"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>mdi-creation</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>My Creations</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              :to="profile"
+              class="ml-0"
+              exact
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>mdi-star</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>My Favorites</v-list-item-title>
+            </v-list-item>
+            <v-list-item
+              :to="profile + 'activities'"
+              class="ml-0"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>mdi-view-list</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>My Activities</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </div>
+        <v-layout v-else justify-center class="my-4">
+          <div>
+            <m-btn
+              rounded
+              class="mr-1"
+              @click="(signupDialog = true), (showSidebar = false)"
+              >Register</m-btn
+            >
+            <m-btn
+              outlined
+              rounded
+              class="ml-1"
+              @click="(loginDialog = true), (showSidebar = false)"
+              >Login</m-btn
+            >
+          </div>
+        </v-layout>
+        <v-divider></v-divider>
+        <div class="std font-weight-bold ml-4 my-2">Site</div>
+        <div style="font-size:20px">
+          <v-list dense class="pt-1 pb-0">
+            <v-list-item
+              to="/"
+              class="nav-link"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon size="1em">fa-home</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Home</v-list-item-title
+              >
+            </v-list-item>
+            <v-list-item
+              :to="'/lists'"
+              class="ml-0 nav-link"
+              exact
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon size="1em">fa-list-alt</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Lists</v-list-item-title
+              >
+            </v-list-item>
+            <v-list-item
+              :to="'/demands'"
+              class="ml-0 nav-link"
+              exact
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>$vuetify.icons.queue</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >On Demand</v-list-item-title
+              >
+            </v-list-item>
+            <v-list-item
+              :to="'/create'"
+              class="ml-0 nav-link py-0"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>$vuetify.icons.create</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Create List</v-list-item-title
+              >
+            </v-list-item>
+            <v-list-item
+              :to="'/demand'"
+              class="ml-0 nav-link py-0"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>$vuetify.icons.demand</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Demand List</v-list-item-title
+              >
+            </v-list-item>
+          </v-list>
+          <v-divider></v-divider>
+          <v-list dense>
+            <v-list-item v-if="authenticated" @click="logout()">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>
+                Logout
+              </v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </div>
+      </v-navigation-drawer>
+      <v-snackbar v-model="snackbar.show" :color="snackbar.type"
+        >{{ snackbar.message }}
+        <v-spacer></v-spacer>
+        <m-btn text :color="'white'" @click="hideSnackbar()">OK</m-btn>
+      </v-snackbar>
     </v-app>
   </div>
 </template>
@@ -71,7 +242,8 @@ export default {
     return {
       closeSearch: false,
       showScroll: true,
-      offset: 0
+      offset: 0,
+      showSidebar: false
     };
   },
 
@@ -85,32 +257,36 @@ export default {
     scrollUp() {
       console.log(this.offset);
       window.scrollTo(0, 0);
+    },
+    hideSnackbar() {
+      this.$store.dispatch("set_snackbar", { show: false });
     }
   },
 
   computed: {
     loading() {
       return this.$store.getters.getLoading;
-    }
+    },
+    authenticated() {
+      return this.$store.getters.authenticated;
+    },
+    profile() {
+      return "/users/" + this.user.id + "/";
+    },
+
+    user() {
+      return this.$store.getters.getUser;
+    },
     // offset(){
     //   return document.querySelector("body").getBoundingClientRect().top * -1;
     // }
+    snackbar() {
+      return this.$store.getters.snackbar;
+    }
   },
 
   created: function() {
     this.$store.dispatch("initialize").then(() => {});
-
-    window.addEventListener("scroll", function(event) {
-      this.offset = document.querySelector("body").getBoundingClientRect().top;
-      // console.log(this.offset);
-      // if(document.querySelector("body").getBoundingClientRect().top < -600){
-      //   console.log("here");
-      //   this.showScroll = true;
-      // }else{
-      //   console.log("else");
-      //   this.showScroll = false;
-      // }
-    });
   }
 };
 </script>
@@ -133,7 +309,7 @@ export default {
   --background: #ffffff;
   --link: #000000de;
   --button: #0060ac;
-  --brand: #388E3C;
+  --brand: #388e3c;
   --sidebar: #515151;
 
   --border-radius: 0.3em;
@@ -531,7 +707,7 @@ html {
 }
 
 .close:hover {
-  color: rgb(187, 54, 54);
+  color: rgb(187, 54, 54) !important;
 }
 
 .action-icon:hover {

@@ -174,9 +174,10 @@ export default {
   border: 1px solid black;
 }
 .text:focus {
-  border: 1px solid white;
+  border: 2px solid var(--brand);
+  outline: none;
   /* box-shadow: 0px 0px 0px 1px var(--brand); */
-  border-radius: 0.2em;
-  box-shadow: 0px 2px 6px gray
+  /* border-radius: 0.2em; */
+  /* box-shadow: 0px 1px 6px gray; */
 }
 </style>

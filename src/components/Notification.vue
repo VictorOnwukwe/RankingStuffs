@@ -1,8 +1,5 @@
 <template>
-  <v-list-item
-    :class="{ 'blue lighten-4': recent }"
-    @click="goNotification()"
-  >
+  <v-list-item :class="{ 'blue lighten-4': recent }" @click="goNotification()">
     <v-list-item-avatar>
       <dp v-if="notifier" :size="'2.5em'" :src="notifier.profile_pic"></dp>
     </v-list-item-avatar>
@@ -65,6 +62,13 @@
         >
         has been approved
       </div>
+      <div v-if="notification.type == 'demand-approved'">
+        Your demanded list
+        <span class="link--text font-weight-medium text-capitalize"
+          >{{ notification.demand.title }}&nbsp;</span
+        >
+        has been approved
+      </div>
     </v-list-item-content>
     <v-list-item-action>
       <v-list-item-action-text>{{ created }}</v-list-item-action-text>
@@ -108,6 +112,16 @@ export default {
         case "demand-created":
           this.$router.push({
             path: "/lists/" + this.notification.list.id
+          });
+          break;
+        case "list-approved":
+          this.$router.push({
+            path: "/lists/" + this.notification.list.id
+          });
+          break;
+        case "demand-approved":
+          this.$router.push({
+            path: "/demands/" + this.notification.demand.id
           });
           break;
       }

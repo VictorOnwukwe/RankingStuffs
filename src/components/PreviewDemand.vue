@@ -31,7 +31,7 @@
                       <v-icon
                         @click="setWaiting()"
                         class="ml-2"
-                        color="accent"
+                        color=""
                         v-on="on"
                         >mdi-dots-vertical</v-icon
                       >
@@ -56,14 +56,14 @@
                           <m-progress></m-progress>
                         </v-layout>
                         <v-layout v-else column align-center>
-                          <v-icon :color="waiting ? 'green' : null">{{
+                          <v-icon :color="waiting ? 'accent' : null">{{
                             waiting
                               ? "$vuetify.icons.leaveQueue"
                               : "$vuetify.icons.joinQueue"
                           }}</v-icon>
                           <span
                             class="caption"
-                            :class="waiting ? 'green--text' : 'std'"
+                            :class="waiting ? 'accent--text' : 'std'"
                             >{{ waiting ? "Queueing" : "Queue" }}</span
                           >
                         </v-layout>
@@ -87,7 +87,7 @@
             </v-layout>
           </v-card-title>
           <v-card-text class="subtitle-1 pt-1 pb-0">
-            <div v-if="creator">
+            <v-layout v-if="creator">
               <v-avatar size="2em" class="mr-2" style="border-radius:5px">
                 <img
                   v-if="creator.profile_pic"
@@ -95,10 +95,8 @@
                 />
                 <img v-else :src="require('../assets/nophoto.jpg')" alt="" />
               </v-avatar>
-              <a class="brand--text" @click="showUser = true">{{
-                creator.username
-              }}</a>
-            </div>
+              <username :user="creator"></username>
+            </v-layout>
             <p style="white-space:pre-wrap" class="ptd mt-2">{{ demand.comment }}</p>
           </v-card-text>
         </div>
@@ -133,7 +131,7 @@ export default {
       });
     },
     async setWaiting() {
-      if (this.waiting !== undefined) {
+      if (this.waiting !== undefined || this.isCreator) {
         return;
       }
       await this.$store
@@ -204,6 +202,9 @@ export default {
       }
     },
     isCreator() {
+      if (!this.$store.getters.authenticated) {
+        return false;
+      }
       return this.$store.getters.getUser.id === this.demand.user;
     },
     created() {

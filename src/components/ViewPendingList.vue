@@ -189,10 +189,6 @@ export default {
         category: "",
         subCategory: ""
       },
-      editTitle: false,
-      editDescription: false,
-      editCategory: false,
-      editSubCategory: false,
       showEdit: false,
       showDisapproveOptions: false,
       disapprovalReason: ""

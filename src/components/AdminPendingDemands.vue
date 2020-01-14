@@ -10,7 +10,7 @@
       <template v-slot:top>
         <v-toolbar class="mb-6" flat color="white">
           <v-toolbar-title class="font-weight-bold primary--text"
-            >demandS</v-toolbar-title
+            >Demands</v-toolbar-title
           >
           <v-spacer></v-spacer>
           <v-col cols="4">
@@ -76,7 +76,7 @@ export default {
         sortable: false,
         value: "title"
       },
-      { text: "Creator", value: "creator.username" },
+      { text: "Creator", value: "user.username" },
       { text: "Category", value: "category" },
       { text: "Actions", value: "action", sortable: false, align: "center" }
     ],

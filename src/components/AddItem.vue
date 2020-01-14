@@ -6,16 +6,21 @@
         <span>{{ parentLength + index + 1 }}</span>
       </div>
       <v-spacer></v-spacer>
-      <v-icon
-        @click="oneUp()"
+      <div
         v-if="index > 0"
-        class="mr-3"
-        color="grey darken-2"
-        >$vuetify.icons.create</v-icon
+        class="white py-1 br mr-3"
+        style="width:2.5em;display:flex;justify-content:center"
       >
-      <v-icon @click="deleteItem()" class="close mr-2" color="grey darken-2"
-        >fa-times</v-icon
+        <v-icon @click="oneUp()" class="" color="brand"
+          >$vuetify.icons.ladder</v-icon
+        >
+      </div>
+      <div
+        class="white py-1 br"
+        style="width:2.5em;display:flex;justify-content:center"
       >
+        <v-icon @click="deleteItem()" class="close">fa-times</v-icon>
+      </div>
     </v-layout>
     <div style="position:relative">
       <p class="text-capitalize font-weight-medium grey--text text--darken-2">
@@ -69,6 +74,13 @@
       aspect-ratio="1"
       :src="image.url.low"
     ></v-img>
+    <v-img
+      v-if="displayImg"
+      class="mt-n4 mb-4"
+      width="100px"
+      aspect-ratio="1"
+      :src="displayImg"
+    ></v-img>
     <div class="mt-n1">
       <p class="text-capitalize font-weight-medium grey--text text--darken-1">
         <v-icon color="grey darken-1" size="1.5em">fa-comment</v-icon
@@ -86,13 +98,18 @@
         @blur="emitComment()"
       ></v-textarea>
     </div>
+    <upload-image @save="setImage" :type="'addItem'"></upload-image>
   </div>
 </template>
 
 <script>
+import UploadImage from "./UploadImage";
 import Rules from "../rules";
 import { setTimeout } from "timers";
 export default {
+  components: {
+    UploadImage
+  },
   props: {
     parentLength: Number,
     index: {
@@ -115,7 +132,7 @@ export default {
       type: Boolean,
       default: true
     },
-    rImage: {
+    receivedImage: {
       type: Boolean | Object,
       default: false
     }
@@ -129,9 +146,11 @@ export default {
       comment: "",
       results: [],
       showSearch: true,
-      image: this.rImage,
+      image: this.receivedImage,
       rules: Rules,
-      valid: false
+      valid: false,
+      userImage: undefined,
+      displayImg: false
     };
   },
   methods: {
@@ -191,9 +210,16 @@ export default {
     },
     oneUp() {
       this.$emit("oneUp", this.index);
+    },
+    setImage(image) {
+      this. userImage = image;
+      let reader = new FileReader();
+      reader.readAsDataURL(image.high);
+      reader.onloadend = () => {
+        this.displayImg = reader.result;
+      };
     }
   },
-
   watch: {
     "item.name"(val) {
       this.item.info = null;
@@ -225,21 +251,6 @@ export default {
 </script>
 
 <style scoped>
-.close-container {
-  position: relative;
-}
-.close-button {
-  right: 0.5em;
-  top: 1em;
-}
-.close-button::after {
-  content: "\00D7";
-  font-size: 2em;
-}
-.close-button:hover {
-  color: rgb(172, 5, 5);
-  cursor: pointer;
-}
 .results {
   position: absolute;
   top: 90px;

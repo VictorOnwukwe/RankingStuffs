@@ -37,7 +37,7 @@
                     >
                       <v-img
                         v-if="user.profile_pic"
-                        :src="user.profile_pic.low"
+                        :src="user.profile_pic.high"
                         class="br"
                         style="object-fit:cover"
                       ></v-img>
@@ -136,23 +136,27 @@
                       >
                     </div>
                   </v-layout>
-                  <v-layout class="mt-2 black--text" wrap>
-                    <div class="mr-3">
-                      <span class="subtitle-1 ptd font-weight-bold">{{
+                  <v-layout class="mt-2 black--text" style="width:170px" wrap>
+                    <v-layout class="" column align-center>
+                      <span class="subtitle-1 ptd font-weight-black">{{
                         user.followers ? user.followers : 0
                       }}</span>
-                      <a class="std font-weight-medium"
-                        >&nbsp;{{
-                          user.followers == 1 ? "Follower" : "Followers"
-                        }}</a
-                      >
-                    </div>
-                    <div>
-                      <span class="subtitle-1 ptd font-weight-bold">{{
+                      <follow
+                        class="mt-n2"
+                        :id="user.id"
+                        :type="'followers'"
+                      ></follow>
+                    </v-layout>
+                    <v-layout column align-center>
+                      <span class="subtitle-1 ptd font-weight-black">{{
                         user.following ? user.following : 0
                       }}</span>
-                      <a class="std font-weight-medium">&nbsp;Following</a>
-                    </div>
+                      <follow
+                        class="mt-n2"
+                        :id="user.id"
+                        :type="'following'"
+                      ></follow>
+                    </v-layout>
                   </v-layout>
                   <div v-if="!isProfile" class="mt-2">
                     <m-btn
@@ -284,19 +288,19 @@
 
 <script>
 import Settings from "./ProfileSetting";
-import CountryFlag from "vue-country-flag";
+// import CountryFlag from "vue-country-flag";
 import UploadImage from "./UploadImage";
+import follow from "./Follow";
 let moment = require("moment");
 export default {
   components: {
     "upload-image": UploadImage,
     Settings,
-    CountryFlag
+    follow
   },
   data() {
     return {
       user: {},
-      isProfile: false,
       following: null,
       showSetting: false,
       fetched: false,
@@ -348,9 +352,7 @@ export default {
       if (!this.$store.getters.authenticated) {
         return;
       }
-      if (this.userID === this.$store.getters.getUser.id) {
-        this.isProfile = true;
-      } else {
+      if (!this.isProfile) {
         await this.checkFollowing();
       }
       return;
@@ -430,12 +432,17 @@ export default {
     },
     isUser() {
       return this.$store.getters.getUser.id === this.user.id;
+    },
+    isProfile() {
+      if (!this.$store.getters.authenticated) {
+        return false;
+      }
+      return this.userID === this.$store.getters.getUser.id;
     }
   },
   watch: {
     userID() {
       this.fetched = false;
-      this.isProfile = false;
       this.following = false;
       this.fetchUser(this.$route.params.id).then(async () => {
         this.matchProfile().then(() => {

@@ -88,20 +88,22 @@
       </v-card-text>
       <!-- <v-divider></v-divider> -->
       <v-card-actions class="">
-        <v-layout justify-space-around class="brand lighten-2 foot">
+        <v-layout
+          justify-space-around
+          align-center
+          class="brand lighten-2 foot py-1"
+        >
           <router-link :to="'/users/' + this.user.id" class="no-deco">
-            <v-flex shrink class="py-1 foot-item" style="padding:0 3em">
+            <div class="foot-item">
               <v-layout column align-center justify-end
                 ><v-icon color="white" size="1.5em">mdi-home</v-icon>
                 <span class="subtitle-2 white--text">Profile</span>
               </v-layout>
-            </v-flex>
+            </div>
           </router-link>
-          <v-flex
+          <div
             @click="toggleFollowing()"
-            shrink
-            class="py-1 foot-item pointer"
-            style="padding:0 3em"
+            class="foot-item pointer"
             v-if="!isProfile"
           >
             <v-layout column align-center>
@@ -111,7 +113,11 @@
                 style="margin-top:0.15em"
                 size="1.3em"
                 color="white"
-                >fa-plus</v-icon
+                >{{
+                  !following
+                    ? "$vuetify.icons.follow"
+                    : "$vuetify.icons.unfollow"
+                }}</v-icon
               >
               <span v-if="!processing" class="subtitle-2 white--text">{{
                 following ? "Following" : "Follow"
@@ -120,7 +126,7 @@
                 <m-progress></m-progress>
               </div>
             </v-layout>
-          </v-flex>
+          </div>
         </v-layout>
       </v-card-actions>
     </v-card>
@@ -248,7 +254,11 @@ export default {
 .close-btn:hover {
   color: rgb(212, 12, 12);
 }
+.foot-item {
+  padding: 0 3em;
+}
 .foot-item:hover {
-  background-color: #55a955 !important;
+  /* background-color: #55a955 !important; */
+  outline: 1px solid white;
 }
 </style>

@@ -1,6 +1,8 @@
 <template>
   <div>
-    <span @click="showUser = true" class="pointer" :class="color">{{ user.username }}</span>
+    <span @click="showUser = true" class="pointer" :class="color">{{
+      user.username
+    }}</span>
     <v-dialog v-model="showUser" max-width="400px">
       <preview-user @close="showUser = false" :id="user.id"></preview-user>
     </v-dialog>
@@ -16,7 +18,7 @@ export default {
     user: Object,
     color: {
       type: String,
-      default: "brand--text"
+      default: "brand--text text--lighten-1"
     }
   },
   data() {

@@ -91,7 +91,7 @@ export default {
 <style scoped>
 .img-overlay {
   position: absolute;
-  z-index: 2;
+  z-index: 1;
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.3);

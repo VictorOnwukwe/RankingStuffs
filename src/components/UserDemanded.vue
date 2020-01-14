@@ -3,30 +3,58 @@
     <v-list-item-content>
       <v-list-item-title
         class="text-capitalize text-wrap"
-        :class="!searched ? 'link--text' : null"
         :style="{ fontSize: fontSize }"
-        >{{ demand.title }}</v-list-item-title
       >
-      <v-list-item-subtitle
-        v-if="!searched"
-        class="ptd"
-        v-html="waitingMessage"
-      ></v-list-item-subtitle>
-      <v-list-item-subtitle v-if="!searched">{{
-        created
-      }}</v-list-item-subtitle>
+        <router-link :to="'/demands/' + demand.id" class="no-deco link--text">
+          {{ demand.title }}</router-link
+        ></v-list-item-title
+      >
+      <v-list-item-subtitle class="ptd"
+        >{{ demand.waiters_count }}
+        {{ demand.waiters_count < 2 ? " person" : " people" }} waiting for this
+        list</v-list-item-subtitle
+      >
+      <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
     </v-list-item-content>
     <v-list-item-action>
-      <v-menu left class="mt-n4">
+      <v-menu
+        :close-on-content-click="false"
+        min-width="90px"
+        max-width="90px"
+        left
+        class="mt-n4"
+      >
         <template v-slot:activator="{ on }">
-          <v-icon color="grey" v-on="on">mdi-dots-vertical</v-icon>
+          <v-icon
+            @click.stop="fetchWaiting()"
+            class="mr-2"
+            color="grey"
+            v-on="on"
+            >mdi-dots-vertical</v-icon
+          >
         </template>
         <v-list class="pa-0">
-          <v-list-item @click="createDemand" class="tile">
-            <v-icon>fa-plus</v-icon>
+          <v-list-item @click="createDemand" class="pt-2 tile">
+            <v-layout column align-center>
+              <v-icon>$vuetify.icons.create</v-icon>
+              <span class="caption std">Create</span>
+            </v-layout>
           </v-list-item>
+          <v-divider></v-divider>
           <v-list-item v-if="!isCreator" @click="toggleWaiting()" class="tile">
-            <v-icon :color="waiting ? 'green' : null">fa-hand-holding</v-icon>
+            <v-layout justify-center v-if="loading || waiting == undefined">
+              <m-progress></m-progress>
+            </v-layout>
+            <v-layout v-else column align-center>
+              <v-icon :color="waiting ? 'accent' : null">{{
+                waiting
+                  ? "$vuetify.icons.leaveQueue"
+                  : "$vuetify.icons.joinQueue"
+              }}</v-icon>
+              <span class="caption" :class="waiting ? 'accent--text' : 'std'">{{
+                waiting ? "Queueing" : "Queue"
+              }}</span>
+            </v-layout>
           </v-list-item>
         </v-list>
       </v-menu>
@@ -48,8 +76,9 @@ export default {
   },
   data() {
     return {
-      waiting: false,
-      loading: false
+      waiting: undefined,
+      loading: false,
+      checked: false
     };
   },
   methods: {
@@ -60,10 +89,13 @@ export default {
       });
     },
     toggleWaiting() {
+      if (this.waiting == undefined) {
+        return;
+      }
       this.loading = true;
       if (this.waiting) {
         this.$store
-          .dispatch("leave_demanders", this.demand.id)
+          .dispatch("leave_demanders", this.demand)
           .then(() => {
             this.demand.waiters_count--;
             this.waiting = false;
@@ -71,10 +103,11 @@ export default {
           })
           .catch(error => {
             this.loading = false;
+            console.log(error);
           });
       } else {
         this.$store
-          .dispatch("join_demanders", this.demand.id)
+          .dispatch("join_demanders", this.demand)
           .then(() => {
             this.demand.waiters_count++;
             this.waiting = true;
@@ -82,67 +115,66 @@ export default {
           })
           .catch(error => {
             this.loading = false;
+            console.log(error);
           });
       }
     },
     async fetchWaiting() {
-      if (this.isProfile) {
-        this.waiting = true;
-      } else {
-        this.waiting = await this.$store.dispatch(
-          "checkWaiting",
-          this.demand.id
-        );
+      if (this.checked || this.isProfile) {
+        return;
       }
+      this.checked = true;
+      this.waiting = await this.$store.dispatch("checkWaiting", this.demand.id);
     }
   },
   computed: {
     waitingMessage() {
-      if (this.demand.waiters_count > 1) {
-        if (this.demand.waiters_count > 2) {
-          if (this.isProfile) {
-            return (
-              "<b>" +
-              (this.demand.waiters_count - 1) +
-              "</b> other people are waiting for this list"
-            );
-          } else {
-            if (this.waiting) {
-              if (this.demand.waiters_count == 3) {
-                return "You and <b>1</b> other person are also waiting for this list";
-              } else {
-                return (
-                  "You and <b>" +
-                  (this.demand.waiters_count - 2) +
-                  "</b> other people are also waiting for this list"
-                );
-              }
-            } else {
-              return (
-                "<b>" +
-                (this.demand.waiters_count - 1) +
-                "</b> other people are waiting for this list"
-              );
-            }
-          }
-        } else {
-          if (this.isProfile) {
-            return "<b>1</b> other person is waiting for this list";
-          } else {
-            if (this.waiting) {
-              return "You are also waiting for this list";
-            } else {
-              return "<b>1</b> other person is waiting for this list";
-            }
-          }
-        }
-      } else {
-        if (this.isProfile) {
-          return "Only you are waiting for this list";
-        } else {
-          return `Only ${this.user.username} is waiting for this list`;
-        }
-      }
+      return this.demand.waiters_count + " people waiting for this list";
+      // if (this.demand.waiters_count > 1) {
+      //   if (this.demand.waiters_count > 2) {
+      //     if (this.isProfile) {
+      //       return (
+      //         "<b>" +
+      //         (this.demand.waiters_count - 1) +
+      //         "</b> other people are waiting for this list"
+      //       );
+      //     } else {
+      //       if (this.waiting) {
+      //         if (this.demand.waiters_count == 3) {
+      //           return "You and <b>1</b> other person are also waiting for this list";
+      //         } else {
+      //           return (
+      //             "You and <b>" +
+      //             (this.demand.waiters_count - 2) +
+      //             "</b> other people are also waiting for this list"
+      //           );
+      //         }
+      //       } else {
+      //         return (
+      //           "<b>" +
+      //           (this.demand.waiters_count - 1) +
+      //           "</b> other people are waiting for this list"
+      //         );
+      //       }
+      //     }
+      //   } else {
+      //     if (this.isProfile) {
+      //       return "<b>1</b> other person is waiting for this list";
+      //     } else {
+      //       if (this.waiting) {
+      //         return "You are also waiting for this list";
+      //       } else {
+      //         return "<b>1</b> other person is waiting for this list";
+      //       }
+      //     }
+      //   }
+      // } else {
+      //   if (this.isProfile) {
+      //     return "Only you are waiting for this list";
+      //   } else {
+      //     return `Only ${this.user.username} is waiting for this list`;
+      //   }
+      // }
     },
     created() {
       return moment(this.demand.created.toDate()).calendar();
@@ -153,9 +185,6 @@ export default {
     fontSize() {
       return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
     }
-  },
-  mounted() {
-    this.fetchWaiting();
   }
 };
 </script>

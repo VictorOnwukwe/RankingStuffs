@@ -46,11 +46,12 @@
       "
       :message="
         sort == 'lists'
-          ? 'No Lists in this subcategory'
-          : 'No Demands in this subcategory'
+          ? 'No List in this subcategory'
+          : 'No Demand in this subcategory'
       "
       :height="'13em'"
-      :icon="'fa-list-alt'"
+      :icon="'far fa-frown'"
+      :iconSize="'5em'"
     ></empty>
     <mugen-scroll
       :handler="fetchMore"

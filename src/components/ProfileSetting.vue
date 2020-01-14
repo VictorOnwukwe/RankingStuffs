@@ -1,7 +1,7 @@
 <template>
   <v-card flat tile class="grey lighten-3">
     <v-card-title
-      class="font-weight-bold brand lighten-2 title white--text"
+      class="font-weight-bold brand lighten-3 title white--text"
       style="position:sticky;z-index:2;top:0;border-bottom:1px solid grey"
     >
       Edit Profile

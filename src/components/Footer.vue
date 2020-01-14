@@ -44,12 +44,23 @@
         class="py-2 grey--text text--lighten-2 text-center footer lighten-1"
       >
         <v-layout class="stl">
-          topTEN
+          <router-link
+            to="/"
+            class="no-deco font-weight-bold brand--text text--lighten-2"
+          >
+            topTEN
+          </router-link>
           <router-link
             to="/terms-and-conditions"
-            class="grey--text underline no-deco"
+            class="grey--text underline no-deco mx-4"
           >
             Terms and Conditions
+          </router-link>
+          <router-link
+            to="/privacy-policy"
+            class="grey--text underline no-deco"
+          >
+            Privacy Policy
           </router-link>
         </v-layout>
         <!-- <v-btn @click="update()">
