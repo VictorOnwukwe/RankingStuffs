@@ -45,11 +45,7 @@
         >
           <v-layout>
             <v-avatar tile size="2.5em">
-              <v-img
-                v-if="result.data().image"
-                :src="result.data().image.url.low"
-                class="mr-4"
-              ></v-img>
+              <m-img :src="result.data().image.url.low" class="mr-4"></m-img>
             </v-avatar>
             <div class="pl-1 pt-1">
               <v-layout>
@@ -67,17 +63,22 @@
         </div>
       </div>
     </div>
+    <upload-image
+      @save="setImage"
+      :type="'addItem'"
+      class="mb-4"
+    ></upload-image>
     <v-img
       class="mt-n4 mb-4"
       v-if="image"
-      width="100px"
+      width="150px"
       aspect-ratio="1"
       :src="image.url.low"
     ></v-img>
     <v-img
       v-if="displayImg"
       class="mt-n4 mb-4"
-      width="100px"
+      width="150px"
       aspect-ratio="1"
       :src="displayImg"
     ></v-img>
@@ -98,7 +99,6 @@
         @blur="emitComment()"
       ></v-textarea>
     </div>
-    <upload-image @save="setImage" :type="'addItem'"></upload-image>
   </div>
 </template>
 
@@ -135,6 +135,10 @@ export default {
     receivedImage: {
       type: Boolean | Object,
       default: false
+    },
+    creation: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -146,7 +150,7 @@ export default {
       comment: "",
       results: [],
       showSearch: true,
-      image: this.receivedImage,
+      image: undefined,
       rules: Rules,
       valid: false,
       userImage: undefined,
@@ -167,10 +171,15 @@ export default {
             isLink: true
           };
         } else {
+          let data = {};
+          if (this.userImage) {
+            data = { userImage: this.userImage };
+          }
           this.item = {
             keywords: this.generateKeywords(this.item.name.trim()),
             name: this.item.name,
-            isLink: false
+            isLink: false,
+            ...data
           };
         }
         this.$emit("receiveItem", this.index, this.item);
@@ -180,11 +189,17 @@ export default {
       this.$emit("receiveComment", this.index, this.comment);
     },
     deleteItem() {
-      this.item.name = "";
-      this.comment = "";
-      this.image = false;
-      this.info = null;
-      this.showSearch = false;
+      if (!this.creation) {
+        this.item.name = "";
+        this.comment = "";
+        this.image = false;
+        this.info = null;
+        this.showSearch = false;
+        this.userImage = false;
+        this.displayImg = false;
+      } else {
+        this.$emit("delete", this.index);
+      }
     },
     checkItem() {
       if (this.item.name.length < 3) {
@@ -200,6 +215,7 @@ export default {
         });
     },
     async setInfo(result) {
+      this.userImage = false;
       this.item.isLink = true;
       this.item.info = result.id;
       this.item.name = result.data().name;
@@ -211,13 +227,22 @@ export default {
     oneUp() {
       this.$emit("oneUp", this.index);
     },
-    setImage(image) {
-      this. userImage = image;
+    setImage(obj) {
+      let data = {};
       let reader = new FileReader();
-      reader.readAsDataURL(image.high);
+      reader.readAsDataURL(obj.image.high);
       reader.onloadend = () => {
         this.displayImg = reader.result;
+        data.high = reader.result;
       };
+      setTimeout(() => {
+        reader.readAsDataURL(obj.image.low);
+        reader.onloadend = () => {
+          data.low = reader.result;
+          this.userImage = { image: data, source: obj.source };
+          this.emitItem();
+        };
+      }, 500);
     }
   },
   watch: {
@@ -260,8 +285,6 @@ export default {
 }
 .results > div {
   padding: 1em 1.5em;
-  /* border-left: 2px solid grey;
-  border-right: 2px solid grey; */
 }
 .results > div:hover {
   background-color: rgb(223, 223, 226);

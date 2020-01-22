@@ -12,9 +12,9 @@ let Rules = {
       : len == 1
       ? field + " cannot be empty"
       : `This field must contain at least ${len} characters`,
-  maxLength: len => v =>
+  maxLength: (len, field) => v =>
     (v || "").length <= len ||
-    `This field must contain at most ${len} characters`,
+    `${field} must contain at most ${len} characters`,
   password: [
     v => !!v || "Please enter your password",
     v => (v && v.length >= 8) || "Password must contain at least 8 characters"

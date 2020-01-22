@@ -159,7 +159,9 @@ export default {
         .then(result => {
           this.demands = result;
           this.fetchingDemands = false;
-        });
+        }).catch(_ => {
+          
+        })
     },
     fetchMoreDemands() {
       this.fetchingMoreDemands = true;
@@ -173,7 +175,9 @@ export default {
         .then(results => {
           this.demands = this.demands.concat(results);
           this.fetchingMoreDemands = false;
-        });
+        }).catch(_ => {
+          
+        })
     },
     fetchMoreLists() {
       this.fetchingMoreLists = true;
@@ -187,7 +191,9 @@ export default {
         .then(results => {
           this.lists = this.lists.concat(results);
           this.fetchingMoreLists = false;
-        });
+        }).catch(_ => {
+          
+        })
     }
   },
   mounted() {

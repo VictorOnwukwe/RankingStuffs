@@ -1,7 +1,15 @@
 <template>
-  <v-list-item :class="{ 'blue lighten-4': recent }" @click="goNotification()">
+  <v-list-item :class="{ recent: recent }" @click="$emit('close')" :to="link">
     <v-list-item-avatar>
       <dp v-if="notifier" :size="'2.5em'" :src="notifier.profile_pic"></dp>
+      <v-icon v-else-if="notification.type.includes('approved')" color="brand"
+        >$vuetify.icons.approved</v-icon
+      >
+      <v-icon
+        v-else-if="notification.type.includes('disapproved')"
+        color="brand"
+        >fa-times-circle</v-icon
+      >
     </v-list-item-avatar>
     <v-list-item-content>
       <!-- <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div> -->
@@ -62,12 +70,40 @@
         >
         has been approved
       </div>
+      <div v-if="notification.type == 'list-disapproved'">
+        Your submitted list
+        <span class="link--text font-weight-medium text-capitalize"
+          >{{ notification.list.title }}&nbsp;</span
+        >
+        was not approved for being {{ notification.reason }}
+      </div>
       <div v-if="notification.type == 'demand-approved'">
         Your demanded list
         <span class="link--text font-weight-medium text-capitalize"
           >{{ notification.demand.title }}&nbsp;</span
         >
         has been approved
+      </div>
+      <div v-if="notification.type == 'demand-disapproved'">
+        Your demanded list
+        <span class="link--text font-weight-medium text-capitalize"
+          >{{ notification.demand.title }}&nbsp;</span
+        >
+        was not approved for being {{ notification.reason }}
+      </div>
+      <div v-if="notification.type == 'item-approved'">
+        Your submitted item {{ notification.item.name }} on the list of
+        <span class="link--text font-weight-medium text-capitalize"
+          >{{ notification.list.title }}&nbsp;</span
+        >
+        has been approved
+      </div>
+      <div v-if="notification.type == 'item-approved'">
+        Your submitted item {{ notification.item.name }} on the list of
+        <span class="link--text font-weight-medium text-capitalize"
+          >{{ notification.list.title }}&nbsp;</span
+        >
+        was not approved for being {{ notification.reason }}
       </div>
     </v-list-item-content>
     <v-list-item-action>
@@ -86,44 +122,48 @@ export default {
   },
   data() {
     return {
-      notifier: false
+      notifier: false,
+      link: ""
     };
   },
   methods: {
-    goNotification() {
-      this.$emit("close");
+    setLink() {
       switch (this.notification.type) {
         case "reply":
-          this.$router.push({
+          this.link = {
             path: "/lists/" + this.notification.list.id,
             query: {
               notification: true,
               item: this.notification.item.id
             }
-          });
+          };
           break;
 
         case "follow":
-          this.$router.push({
+          this.link = {
             path: "/users/" + this.notification.user.id
-          });
+          };
           break;
 
         case "demand-created":
-          this.$router.push({
+          this.link = {
             path: "/lists/" + this.notification.list.id
-          });
+          };
           break;
         case "list-approved":
-          this.$router.push({
+          this.link = {
             path: "/lists/" + this.notification.list.id
-          });
+          };
           break;
         case "demand-approved":
-          this.$router.push({
+          this.link = {
             path: "/demands/" + this.notification.demand.id
-          });
+          };
           break;
+        case "item-approved":
+          this.link = {
+            path: "/lists/" + this.notification.list.id
+          };
       }
     }
   },
@@ -141,10 +181,17 @@ export default {
         .dispatch("fetch_user", this.notification.user.id)
         .then(result => {
           this.notifier = result;
+          this.setLink();
         });
+    } else {
+      this.setLink();
     }
   }
 };
 </script>
 
-<style scoped></style>
+<style scoped>
+.recent {
+  background-color: rgb(212, 247, 212);
+}
+</style>

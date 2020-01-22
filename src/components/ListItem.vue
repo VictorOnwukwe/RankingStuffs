@@ -40,7 +40,7 @@
                   size="1.4em"
                   @click="upvote()"
                   :class="{
-                    'green--text': votedThis.type == 'upvote',
+                    'green--text': votedThis.type == 'upvote' || isCreator,
                     'grey--text': votedThis.type !== 'upvote'
                   }"
                   :disabled="!checkedVoted"
@@ -48,7 +48,7 @@
                     cursor: votedThis !== false ? 'default' : 'pointer'
                   }"
                   >{{
-                    votedThis.type == "upvote"
+                    votedThis.type == "upvote" || isCreator
                       ? "mdi-arrow-up-bold-box"
                       : "mdi-arrow-up-bold-box-outline"
                   }}</v-icon
@@ -79,19 +79,27 @@
           </v-flex>
         </v-layout>
       </v-card-title>
-      <!-- <v-divider class="hidden-xs-only"></v-divider> -->
       <v-layout :column="true" class="mt-2">
-        <v-flex shrink v-if="info.image || info.about">
+        <v-flex shrink v-if="info.image || info.about || item.image">
           <v-layout column style="height:100%">
-            <v-card-text v-if="info.image || info.about" class="px-2 py-0">
-              <div style="margin:0 0.5em 0.1em 0; float:left" v-if="info.image">
+            <v-card-text class="px-2 py-0">
+              <div
+                style="margin:0 0.5em 0.1em 0; float:left"
+                v-if="info.image || item.image"
+              >
                 <img-prev
                   class="ml-10 mr-2"
-                  v-model="info.image"
+                  v-if="info.image"
                   :image="info.image"
                   :width="200"
-                  :aspect-ratio="1"
+                  :aspectRatio="1"
                   :path="{ item: info.id }"
+                ></img-prev>
+                <img-prev
+                  class="ml-10 mr-2"
+                  v-else-if="item.image"
+                  :image="item.image"
+                  :width="200"
                 ></img-prev>
               </div>
               <p v-if="info.about" class="std pa-0" style="pre-wrap;">
@@ -127,7 +135,8 @@
                     class="my-3"
                     justify-center
                     v-if="
-                      comments.length < item.comment_count && !loadingComments
+                      comments.length < item.comment_count &&
+                        comments.length > 0
                     "
                   >
                     <v-icon
@@ -148,7 +157,6 @@
                 <!-- <div v-if="addingComment" style="display:flex; justify-content:center">
                   <v-progress-circular indeterminate :size="20" :width="3"></v-progress-circular>
                 </div> -->
-                <!-- <p v-for="n in 12">good</p> -->
               </v-card>
               <v-card-actions>
                 <v-layout column reverse>
@@ -252,7 +260,10 @@ export default {
           this.comment = "";
           this.item.comment_count++;
         })
-        .catch(error => {
+        .catch(_ => {
+          this.$store.dispatch("setSnackbar", {show: true,
+            message: "sorry. An error occured",
+            type: "error"})
           this.addingComment = false;
         });
     },
@@ -272,7 +283,7 @@ export default {
         item: this.item,
         list: this.list,
         list_voted: this.list_voted
-      })
+      });
     },
     downvote() {
       if (this.votedThis !== false) {
@@ -301,8 +312,12 @@ export default {
           this.loadingComments = false;
         })
         .catch(error => {
-          console.log("Error: ", error);
           this.loadingComments = false;
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            message: "Sorry. An error occured while fetching comments",
+            type: "error"
+          });
         });
     },
 
@@ -320,8 +335,12 @@ export default {
           this.loadingComments = false;
         })
         .catch(error => {
-          console.log("Error: ", error);
           this.loadingComments = false;
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            message: "Sorry. An error occured while fetching comments",
+            type: "error"
+          });
         });
     },
 
@@ -372,14 +391,6 @@ export default {
     windowSmall() {
       return screen.width < 600;
     },
-    checkHeight() {
-      setTimeout(() => {
-        return document.getElementById("comment-reply").scrollHeight < 130;
-      }, 3000);
-    },
-    votePercentage() {
-      return Math.round((this.item.votes / this.list.votes) * 100);
-    },
     authenticated() {
       return this.$store.getters.getAuthenticated;
     },
@@ -390,6 +401,12 @@ export default {
           id: this.info.id
         }
       };
+    },
+    isCreator() {
+      if (!this.authenticated) {
+        return false;
+      }
+      return this.$store.getters.getUser.id == this.item.user;
     }
   },
 
@@ -404,20 +421,10 @@ export default {
     this.checkVoted();
     if (this.item.is_link) {
       this.fetchInfo();
+    } else if (this.item.image) {
+      this.$emit("hasImage", this.item.image);
     }
     this.setRank();
   }
 };
 </script>
-
-<style scoped>
-@media (min-width: 600px) {
-  #comment-border {
-    /* border-left: 1px solid lightgray; */
-  }
-}
-
-.clear-float {
-  clear: both;
-}
-</style>

@@ -1,5 +1,5 @@
 <template>
-  <v-card flat :min-height="random(120, 60)" class="main">
+  <v-card flat :min-height="random(120, 60)" style="display:flex">
     <v-hover v-slot:default="{ hover }">
       <v-card :class="{ loading: !fetched }" width="100%">
         <v-card-text v-if="fetched" class="pa-3">
@@ -19,9 +19,8 @@
                   <router-link
                     :to="'/lists/' + list.id"
                     class="text-capitalize no-deco brighten-1"
-                    :class="{ 'font-weight-bold ptd': !sub, 'link--text': sub }"
+                    :class="{ 'font-weight-bold ptd': !sub }"
                     style="font-size:0.8em"
-                    @click="goList()"
                   >
                     {{ list.title }}
                   </router-link>
@@ -86,7 +85,7 @@
               {{ !more ? list.description.slice(0, 200) : list.description }}
               <span
                 @click="more = !more"
-                class="link--text pointer"
+                class="brand--text pointer"
                 v-if="list.description.length > 200"
                 >...{{ !more ? "see more" : "see less" }}</span
               >
@@ -125,9 +124,6 @@ export default {
     };
   },
   methods: {
-    goList() {
-      // this.$store.dispatch("set_current_list", this.list);
-    },
     async fetchUser() {
       await this.$store
         .dispatch("fetch_user", this.list.creator.id)
@@ -161,10 +157,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-@import url("../../public/my-modules/animations.css");
-.main {
-  display: flex;
-}
-</style>

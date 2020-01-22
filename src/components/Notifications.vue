@@ -73,7 +73,11 @@ export default {
         })
         .catch(error => {
           this.loading = false;
-          console.log("No network");
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            message: "Sorry. An error occured while fetching notifications",
+            type: "error"
+          });
         });
     },
     close() {

@@ -7,12 +7,7 @@
       &quot;us&quot;, &quot;we&quot; or &quot;our&quot;) and you
       (&quot;User&quot;, &quot;you&quot; or &quot;your&quot;). This Agreement
       sets forth the general terms and conditions of your use of the
-      <a
-        target="_blank"
-        rel="nofollow"
-        href="https://www.top-ten-534ca.firebaseapp.com"
-        >top-ten-534ca.firebaseapp.com</a
-      >
+      <router-link to="/">top-ten-534ca.firebaseapp.com</router-link>
       website and any of its products or services (collectively,
       &quot;Website&quot; or &quot;Services&quot;).
     </p>

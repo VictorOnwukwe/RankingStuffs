@@ -7,12 +7,7 @@
       &quot;our&quot;) collects, protects and uses the personally identifiable
       information (&quot;Personal Information&quot;) you (&quot;User&quot;,
       &quot;you&quot; or &quot;your&quot;) may provide on the
-      <a
-        target="_blank"
-        rel="nofollow"
-        href="https://www.top-ten-534ca.firebaseapp.com"
-        >top-ten-534ca.firebaseapp.com</a
-      >
+      <router-link to="/">top-ten-534ca.firebaseapp.com</router-link>
       website and any of its products or services (collectively,
       &quot;Website&quot; or &quot;Services&quot;). It also describes the
       choices available to you regarding our use of your Personal Information

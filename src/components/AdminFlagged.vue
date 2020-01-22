@@ -100,7 +100,9 @@ export default {
             };
           });
           this.fetching = false;
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     initView(item) {
       this.currentElement = item;
@@ -125,7 +127,9 @@ export default {
             })
           );
           this.fetching = false;
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     }
   },
   created() {

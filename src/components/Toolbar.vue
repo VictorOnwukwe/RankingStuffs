@@ -1,8 +1,8 @@
 <template>
   <div class="affix elevation-3">
-    <div id="main" class="brand" @click="action()">
+    <div style="width:100%" class="brand" @click="action()">
       <div class="mx-auto content">
-        <v-layout justify-space-between>
+        <v-layout justify-space-between align-center>
           <v-flex>
             <v-layout align-center>
               <v-app-bar-nav-icon
@@ -11,9 +11,11 @@
                 class="hidden-md-and-up mr-2"
               ></v-app-bar-nav-icon>
               <router-link :to="'/'" class="py-1" style="font-size:1.5em">
-                <span class="white--text">the</span>
-                <span class="white--text font-weight-medium">TOP</span>
-                <span class="accent--text font-weight-black">TENERS</span>
+                <!-- <span class="white--text">the</span> -->
+                <span class="accent--text font-weight-black">top</span>
+                <span class="white--text font-weight-black">TENERS</span>
+                <span class="accent--text font-weight-black">...</span>
+                <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
               </router-link>
             </v-layout>
           </v-flex>
@@ -33,10 +35,13 @@
                     >Demands</router-link
                   >
                   <router-link tag="a" class="nav" to="/create"
-                    >Create</router-link
+                    >Create List</router-link
                   >
                   <router-link tag="a" class="nav" to="/demand"
-                    >Demand</router-link
+                    >Demand List</router-link
+                  >
+                  <router-link v-if="isAdmin" tag="a" class="nav" to="/admin"
+                    >Admin</router-link
                   >
                 </v-layout>
               </v-flex>
@@ -44,12 +49,16 @@
                 <v-layout v-if="!authenticated" justify-end class="">
                   <v-icon
                     color="rgba(255, 255, 255, 0.902)"
-                    class="mr-2"
+                    class="mr-4"
                     @click.stop="search = !search"
                     >search</v-icon
                   >
-                  <a @click="loginDialog = true" class="">Login</a>
-                  <a @click="signupDialog = true" class="">Signup</a>
+                  <a @click="$store.dispatch('set_login', true)" class=""
+                    >Login</a
+                  >
+                  <a @click="$store.dispatch('set_signup', true)" class=""
+                    >Signup</a
+                  >
                 </v-layout>
                 <v-layout v-else justify-end align-center>
                   <v-icon
@@ -166,7 +175,8 @@
           v-for="(category, index) in categories"
           :key="index"
           max-height="500px"
-          min-width="150px"
+          max-width="250px"
+          min-width="200px"
           bottom
           offset-y
           open-on-hover
@@ -181,15 +191,14 @@
           <div class="menu-display px-4 py-2">
             <router-link
               :to="'/categories/' + category.name"
-              class="ptd"
-              style="display:block"
-              >all</router-link
+              class="category block"
+              >{{ category.name }}</router-link
             >
             <div v-for="(sub, index) in category.subs" :key="index">
               <router-link
                 tag="a"
                 :to="'/categories/' + category.name + '/' + sub.name"
-                style="display:block"
+                class="font-weight-medium sub-category block"
                 >{{ sub.name }}</router-link
               >
             </div>
@@ -216,20 +225,15 @@
             >search</v-icon
           >
         </div>
-        <div class="search-results grey lighten-3">
+        <div class="search-results white">
           <div v-if="demands.length > 0 || lists.length > 0" style="">
-            <v-card
-              flat
-              tile
-              v-if="lists.length > 0"
-              class="ptd grey lighten-3"
-            >
+            <div v-if="lists.length > 0" class="ptd">
               <div
                 class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
               >
                 Lists
               </div>
-              <div class="px-2 my-4">
+              <div class="px-2 mb-4">
                 <span
                   v-for="(result, index) in lists"
                   :key="index"
@@ -239,19 +243,14 @@
                   {{ result.data().title }}<br />
                 </span>
               </div>
-            </v-card>
-            <v-card
-              flat
-              tile
-              v-if="demands.length > 0"
-              class="ptd grey lighten-3"
-            >
+            </div>
+            <div v-if="demands.length > 0" class="ptd">
               <div
                 class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
               >
                 Demands
               </div>
-              <div class="px-2 my-4">
+              <div class="px-2 mb-4">
                 <span
                   v-for="(result, index) in demands"
                   :key="index"
@@ -261,7 +260,7 @@
                   {{ result.data().title }}<br />
                 </span>
               </div>
-            </v-card>
+            </div>
           </div>
           <div v-else-if="keyword.length >= 5 && !searching">
             <v-card tile flat class="ptd white">
@@ -296,35 +295,16 @@
         <Notifications @close="notification = false"></Notifications>
       </div>
     </transition>
-
-    <v-dialog v-if="!authenticated" v-model="loginDialog" max-width="500px">
-      <Login
-        @signup="(loginDialog = false), (signupDialog = true)"
-        v-if="loginDialog"
-        @close="loginDialog = false"
-      ></Login>
-    </v-dialog>
-
-    <v-dialog v-if="!authenticated" v-model="signupDialog" max-width="500px">
-      <Signup
-        v-if="signupDialog"
-        @login="(signupDialog = false), (loginDialog = true)"
-        @close="signupDialog = false"
-      ></Signup>
-    </v-dialog>
   </div>
 </template>
 
 <script>
-import Login from "./Login";
-import Signup from "./Signup";
 import { setTimeout } from "timers";
 import Notifications from "./Notifications";
 import "firebase/firestore";
+let _ = require("lodash");
 export default {
   components: {
-    Login,
-    Signup,
     Notifications
   },
   props: {
@@ -333,8 +313,6 @@ export default {
   data() {
     return {
       navDrawer: null,
-      loginDialog: false,
-      signupDialog: false,
       search: false,
       results: [],
       keyword: "",
@@ -385,11 +363,12 @@ export default {
     logout() {
       this.signupDialog = false;
       this.loginDialog = false;
-      this.$store.dispatch("logout").then(() => {
-        // this.$router.go();
-      });
+      this.$store
+        .dispatch("logout")
+        .then(() => {})
+        .catch(_ => {});
     },
-    async fetchResults() {
+    fetchResults: _.throttle(async function() {
       if (this.keyword.length < 5) {
         if (this.keyword.length == 0) {
           this.lists = this.demands = [];
@@ -406,7 +385,7 @@ export default {
         this.keyword.toLowerCase()
       );
       this.searching = false;
-    },
+    }, 1000),
     setLogin(val) {
       this.$store.dispatch("set_login", val);
     },
@@ -472,28 +451,18 @@ export default {
       return this.$store.getters.categories.filter(
         category => category.name !== "miscellaneous"
       );
+    },
+    isAdmin() {
+      if (!this.authenticated) {
+        return false;
+      }
+      return this.user.id == "w4NsNxycJtbGqSjpLsp9KuTln6B2";
     }
   }
 };
 </script>
 
 <style scoped>
-.loader-bar {
-  height: 4px;
-  width: 100%;
-  background-color: white;
-  border-bottom: 1px solid #e2e8f7;
-}
-.dim {
-  background-color: rgba(0, 0, 0, 0.1);
-  /* background: repeating-linear-gradient(
-    -45deg,
-    #606dbc,
-    #606dbc 10px,
-    #424242 10px,
-    #424242 20px
-  ); */
-}
 .content {
   max-width: 1200px;
   padding: 0 0.5em;
@@ -556,11 +525,18 @@ export default {
 .menu-display {
   background-color: rgba(255, 255, 255, 0.95);
 }
-.menu-display a {
+.sub-category {
   color: rgba(0, 0, 0, 0.87) !important;
   display: inline-block;
 }
-.menu-display a:hover {
+.sub-category:hover {
+  color: var(--brand) !important;
+}
+.category {
+  color: rgba(0, 0, 0, 0.54) !important;
+  display: inline-block;
+}
+.category:hover {
   color: var(--brand) !important;
 }
 .cat-link {
@@ -580,7 +556,6 @@ export default {
 
 .cat-display::-webkit-scrollbar {
   height: 5px;
-  /* background-color: #f5f5f5; */
 }
 
 .cat-display:hover::-webkit-scrollbar-thumb {
@@ -589,8 +564,6 @@ export default {
 
 .cat-display::-webkit-scrollbar-thumb {
   background-color: #388e3c;
-  /* background-color: white; */
-  /* background-color: rgba(255,255,255,0.7); */
 }
 
 .affix {
@@ -604,33 +577,13 @@ export default {
     position: fixed;
   }
 }
-#main {
-  width: calc(100%);
-  /* background-color: grey; */
-  /* background: linear-gradient(180deg, #1565c0, #1976d2); */
-  /* background: var(--brand); */
-  /* background: rgba(0,0,0,0); */
-}
-div > a {
-  padding-bottom: 0.2em;
-}
 a {
   color: white !important;
-  /* font-weight: bold; */
   text-decoration: none;
-  /* color: rgba(255, 255, 255, 0.902) */
   line-height: 200%;
 }
 a:hover {
   color: #ffffffe6 !important;
-}
-
-.center {
-  align-self: center;
-}
-
-div.flex {
-  display: flex;
 }
 
 div a + a {
@@ -663,25 +616,6 @@ div a + a {
     transform: scaleY(1);
   }
 }
-.loading {
-  /* background-image: linear-gradient(90deg, var(--brand) 30%, #75CCFF 50%, var(--brand) 70%); */
-  background-image: linear-gradient(
-    90deg,
-    white 30%,
-    var(--sidebar) 50%,
-    white
-  );
-  background-size: 300%;
-  animation: loading 1s ease-in-out infinite;
-}
-@keyframes loading {
-  0% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
 .nav {
   /* font-family: "Oswald", sans-serif; */
   font-size: 1.2em;
@@ -694,9 +628,6 @@ div a + a {
 }
 .block {
   display: block;
-}
-.icon {
-  font-size: 20px;
 }
 .tile:active > * {
   color: var(--brand) !important;

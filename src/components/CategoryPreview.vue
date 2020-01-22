@@ -43,7 +43,9 @@ export default {
       })
       .then(lists => {
         this.lists = lists;
-      });
+      }).catch(_ => {
+        
+      })
   }
 };
 </script>

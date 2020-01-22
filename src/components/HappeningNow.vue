@@ -31,7 +31,6 @@ export default {
   methods: {
     updateHappenings(docs) {
       this.happenings = docs;
-      // console.log(docs.map(doc => doc.data()));
     }
   },
   mounted() {

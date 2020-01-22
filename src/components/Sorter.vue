@@ -59,11 +59,6 @@ export default {
       return this.options.find(option => option.value == this.choice).sorts;
     }
   },
-  created() {
-    // console.log(this.choice);
-    // this.choice = this.options[0].value;
-    // console.log(this.choice);
-  },
   mounted() {
     this.subChoice = this.subs ? this.subs[0] : undefined;
   }

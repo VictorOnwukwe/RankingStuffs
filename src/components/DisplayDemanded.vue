@@ -1,9 +1,13 @@
 <template>
   <div>
     <div class="mx-auto mb-4 mt">
-      <v-layout align-center class="mb-8 px-4 grey lighten-3">
+      <v-layout
+        align-center
+        class="mb-8 px-2"
+        style="border:1px solid lightgrey"
+      >
         <div class="page-title pa-0">
-          <span class="grey--text text--darken-2">
+          <span class="ptd">
             Demands
           </span>
         </div>
@@ -26,13 +30,11 @@
 </template>
 
 <script>
-import PreviewDemand from "./PreviewDemand";
 import MugenScroll from "vue-mugen-scroll";
 import DisplayDemands from "./DisplayDemands";
 import Sorter from "./Sorter";
 export default {
   components: {
-    PreviewDemand,
     MugenScroll,
     DisplayDemands,
     Sorter
@@ -43,11 +45,7 @@ export default {
       sort: "random",
       lastDoc: false,
       loading: false,
-      complete: false,
-      config: {
-        itemSelector: ".item",
-        gutter: 10
-      }
+      complete: false
     };
   },
   methods: {
@@ -61,7 +59,6 @@ export default {
         .then(demands => {
           this.lastDoc = demands[demands.length - 1];
           this.demands = demands;
-          // this.$store.dispatch("set_loading", false);
         });
     },
     fetchMore() {
@@ -83,7 +80,8 @@ export default {
           } else {
             this.complete = true;
           }
-        });
+        })
+        .catch(_ => {});
     },
     shuffle(val) {
       this.sort = val.choice;
@@ -111,42 +109,8 @@ export default {
       ];
     }
   },
-  mounted() {
+  created() {
     this.fetchDemands();
-    // this.$store.dispatch("set_loading", true);
-    // this.$redrawVueMasonry();
   }
 };
 </script>
-
-<style scoped>
-.item {
-  width: 100%;
-  padding: 0.25em;
-  margin-bottom: 0.125em;
-}
-@media (min-width: 700px) {
-  .item {
-    width: 50%;
-  }
-}
-@media (min-width: 900px) {
-  .item {
-    width: 33.3%;
-  }
-}
-.grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 0.5em;
-}
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.v-text-field.v-text-field--enclosed .v-text-field__details {
-  margin-bottom: 0px !important;
-}
-</style>

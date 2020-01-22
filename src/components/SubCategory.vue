@@ -4,7 +4,7 @@
       class="cover"
       :style="{
         backgroundImage:
-          'url(' + require('../assets/' + category.name + '.jpg') + ')'
+          'url(' + require('../assets/' + name + '.jpg') + ')'
       }"
     >
       <div class="tint">
@@ -95,7 +95,7 @@ export default {
         .then(lists => {
           this.lists = this.lists.concat(lists);
           this.fetching = false;
-        });
+        }).catch(_ => {})
     },
     fetchMoreLists() {
       if (this.complete || this.lists.length == 0) {
@@ -116,7 +116,7 @@ export default {
           if (lists.length == 0) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {})
     },
     fetchDemands() {
       this.fetching = true;
@@ -130,7 +130,7 @@ export default {
         .then(query => {
           this.demands = query.docs;
           this.fetching = false;
-        });
+        }).catch(_ => {})
     },
     fetchMoreDemands() {
       if (this.complete || this.demands.length == 0) {
@@ -151,7 +151,7 @@ export default {
           if (query.docs.length == 0) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {})
     },
     refetch(vals) {
       this.complete = false;
@@ -210,6 +210,11 @@ export default {
           ]
         }
       ];
+    },
+    name() {
+      return this.$vuetify.breakpoint.xs
+        ? this.category.name + "-low"
+        : this.category.name;
     }
   },
   watch: {

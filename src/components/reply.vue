@@ -269,7 +269,12 @@ export default {
           this.editing = false;
           this.showEdit = false;
           this.reply.content = this.newReply;
-        });
+        }).catch(_ => {
+          this.$store.dispatch("setSnackbar", {show: true,
+            message: "sorry. An error occured",
+            type: "error"})
+            this.editing = false;
+        })
     },
     deleteReply() {
       this.deleting = true;
@@ -283,7 +288,9 @@ export default {
         .then(() => {
           this.deleting = false;
           this.$emit("delete", this.index);
-        });
+        }).catch(_ => {
+          this.deleting = false;
+        })
     }
   },
 
@@ -333,16 +340,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-#reply {
-  /* padding: 0.3em; */
-}
-#reply:hover {
-  /* background-color: hsl(207, 90%, 95%); */
-  /* background-color: #f5f5f5; */
-}
-#container {
-  /* display: flex; */
-}
-</style>

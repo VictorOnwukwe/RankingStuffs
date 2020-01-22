@@ -145,13 +145,15 @@
             >Submit</m-btn
           >
         </v-card-actions>
-        <alert
-          class="mt-4"
-          :type="'success'"
-          :value="submitted"
-          :message="successMessage"
-          @act="goCategory()"
-        ></alert>
+        <v-card-text>
+          <alert
+            class="mt-4"
+            :type="'success'"
+            :value="submitted"
+            :message="successMessage"
+            @act="goCategory()"
+          ></alert>
+        </v-card-text>
       </v-card>
     </div>
     <v-dialog persistent v-model="authDialog" max-width="500px">
@@ -181,6 +183,8 @@
 import Rules from "../rules";
 import keyword from "../../public/my-modules/generateKeywords";
 
+let _ = require("lodash");
+
 export default {
   components: {},
   data() {
@@ -198,11 +202,7 @@ export default {
       existType: "",
       timer: null,
       submitted: false,
-      tempCategory: "",
-      user: {
-        id: this.$store.getters.getUser.id,
-        username: this.$store.getters.getUser.username
-      }
+      tempCategory: ""
     };
   },
   methods: {
@@ -218,50 +218,54 @@ export default {
         user: this.user
       };
 
-      this.$store.dispatch("upload_pending_demand", upload).then(() => {
-        this.loading = false;
-        this.submitted = true;
-        this.tempCategory =
-          upload.subCategory !== ""
-            ? upload.category + "/" + upload.subCategory
-            : upload.category == ""
-            ? "miscellaneous"
-            : "/" + upload.category;
-      });
+      this.$store
+        .dispatch("upload_pending_demand", upload)
+        .then(() => {
+          this.loading = false;
+          this.submitted = true;
+          this.tempCategory =
+            upload.subCategory !== ""
+              ? upload.category + "/" + upload.subCategory
+              : upload.category == ""
+              ? "miscellaneous"
+              : "/" + upload.category;
+        })
+        .catch(_ => {
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.loading = false;
+        });
     },
-    async checkExistence() {
+    checkExistence: _.debounce(async function() {
       if (this.title == "") {
-        console.log("here");
         return;
       }
-      clearTimeout(this.timer);
-      this.timer = setTimeout(async () => {
-        await this.$store
-          .dispatch("fetch_list", this.id)
-          .then(list => {
-            if (list) {
-              this.existType = "list";
-              this.existing = list;
-              return true;
-            }
-            return false;
-          })
-          .then(async exists => {
-            if (!exists) {
-              await this.$store
-                .dispatch("fetch_demand", this.id)
-                .then(demand => {
-                  this.existing = demand;
-                  if (demand) {
-                    this.existType = "demand";
-                  } else {
-                    this.getKeywords();
-                  }
-                });
-            }
-          });
-      }, 2500);
-    },
+      await this.$store
+        .dispatch("fetch_list", this.id)
+        .then(list => {
+          if (list) {
+            this.existType = "list";
+            this.existing = list;
+            return true;
+          }
+          return false;
+        })
+        .then(async exists => {
+          if (!exists) {
+            await this.$store.dispatch("fetch_demand", this.id).then(demand => {
+              this.existing = demand;
+              if (demand) {
+                this.existType = "demand";
+              } else {
+                this.getKeywords();
+              }
+            });
+          }
+        });
+    }, 2500),
     getKeywords() {
       this.keywords = keyword.generateKeywords(this.title);
     },
@@ -304,6 +308,12 @@ export default {
       return `Your list has been submitted. You will be notified on completion of
         review. In the mean time, you could check out other
         ${this.tempCategory} lists.`;
+    },
+    user() {
+      return {
+        id: this.$store.getters.getUser.id,
+        username: this.$store.getters.getUser.username
+      };
     }
   },
   watch: {
@@ -311,18 +321,13 @@ export default {
       this.authenticated ? (this.authDialog = false) : (this.authDialog = true);
     }
   },
-  async created() {
-    this.setLogin(false);
-    this.setSignup(false);
+  created() {
     this.$store.dispatch("set_loading", false);
-    if (this.$route.query.searched) {
-      this.title = this.$route.query.title;
-    }
     if (!this.authenticated) {
       this.authDialog = true;
+    } else if (this.$route.query.searched) {
+      this.title = this.$route.query.title;
     }
   }
 };
 </script>
-
-<style scoped></style>

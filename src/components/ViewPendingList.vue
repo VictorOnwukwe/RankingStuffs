@@ -24,12 +24,13 @@
                 <p class="ptd font-weight-medium" style="font-size:1.4em">
                   {{ oldList.title }}
                 </p>
-                <div class="font-weight-bold brand--text">
+                <div
+                  class="font-weight-bold brand--text"
+                >
                   Description
                 </div>
-                <p class="ptd">
-                  {{ oldList.description }}
-                </p>
+                <p class="ptd"
+                  style="white-space:pre-wrap">{{ oldList.description }}</p>
 
                 <p>
                   <span class="font-weight-bold brand--text">Category: </span
@@ -48,7 +49,10 @@
                       <span class="grey--text text--darken-2 font-weight-medium"
                         >Name:</span
                       >
-                      <span class="text-capitalize font-weight-bold" style="font-size:1.2em">
+                      <span
+                        class="text-capitalize font-weight-bold"
+                        style="font-size:1.2em"
+                      >
                         {{ item.name }}
                       </span>
                     </p>
@@ -63,7 +67,7 @@
                         >Comment:</span
                       >
                       <span class="italic ptd">
-                      {{ item.comment }}
+                        {{ item.comment }}
                       </span>
                     </p>
                     <v-checkbox
@@ -72,6 +76,12 @@
                       v-model="newList.items[index].isLink"
                     ></v-checkbox>
                   </div>
+                  <v-checkbox
+                    class="mt-4"
+                    @change="setAllLinks()"
+                    label="Set All Links"
+                    v-model="allLinks"
+                  ></v-checkbox>
                 </div>
               </v-card-text>
               <v-card-text v-if="showEdit">
@@ -127,6 +137,13 @@
                       v-model="newList.items[index].isLink"
                     ></v-checkbox>
                   </div>
+
+                  <v-checkbox
+                    class=""
+                    @change="setAllLinks()"
+                    label="Set All Links"
+                    v-model="allLinks"
+                  ></v-checkbox>
                 </div>
               </v-card-text>
               <v-card-text v-if="showDisapproveOptions">
@@ -191,16 +208,21 @@ export default {
       },
       showEdit: false,
       showDisapproveOptions: false,
-      disapprovalReason: ""
+      disapprovalReason: "",
+      allLinks: false
     };
   },
   methods: {
     approve() {
       this.approving = true;
       this.$store.dispatch("upload_list", this.newList).then(() => {
-        console.log("Uploaded");
         this.approving = false;
-        // this.$store.dispatch("delete_pending_list", this.list.pend_id);
+        this.$store.dispatch("set_snackbar", {
+                show: true,
+                message: "List approved successfully",
+                type: "success"
+              });
+        this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-approved",
           data: {
@@ -213,7 +235,7 @@ export default {
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_list", this.list.pend_id);
+        // this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-disapproved",
           data: {
@@ -226,6 +248,13 @@ export default {
         return;
       }
       this.showDisapproveOptions = true;
+    },
+    setAllLinks() {
+      for (let i = 0; i < this.newList.items.length; i++) {
+        if (this.newList.items[i].info) continue;
+        this.newList.items[i].isLink = this.allLinks;
+        this.oldList.items[i].isLink = this.allLinks;
+      }
     },
     close() {
       this.$emit("close");

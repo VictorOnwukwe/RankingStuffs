@@ -325,11 +325,6 @@ export default {
       });
     },
 
-    toggleMore() {
-      this.showMore = !this.showMore;
-      document.querySelector(".menu").classList.toggle("rotate");
-    },
-
     setReply(user) {
       this.showReplyBox = true;
       this.reply = "@" + user + " ";
@@ -359,7 +354,9 @@ export default {
         .then(() => {
           this.deleting = false;
           this.$emit("delete", this.index);
-        });
+        }).catch(_ => {
+          this.deleting = false;
+        })
     },
 
     showBox() {
@@ -412,7 +409,9 @@ export default {
           });
         })
         .catch(error => {
-          console.log(error);
+          this.dispatch("setSnackbar", {show: true,
+          message: "sorry. An error occured",
+          type: "error"})
           this.addingReply = false;
         });
     },
@@ -430,8 +429,11 @@ export default {
           this.replies = replies;
           this.loading = false;
         })
-        .catch(error => {
-          console.log(error);
+        .catch(_ => {
+          this.loading = false;
+         this.dispatch("setSnackbar", {show: true,
+          message: "sorry. An error occured",
+          type: "error"})
         });
     },
 
@@ -450,7 +452,10 @@ export default {
           this.loading = false;
         })
         .catch(error => {
-          console.log(error);
+          this.loading = false;
+          this.dispatch("setSnackbar", {show: true,
+          message: "sorry. An error occured",
+          type: "error"})
         });
     },
 
@@ -496,7 +501,9 @@ export default {
           this.comment.content = this.newComment;
           this.editing = false;
           this.showEdit = false;
-        });
+        }).catch(_ => {
+          this.editing = false;
+        })
     }
   },
 
@@ -519,10 +526,6 @@ export default {
 </script>
 
 <style scoped>
-#comment:hover {
-  /* background-color: hsl(207, 90%, 95%); */
-  /* background-color: #f5f5f5; */
-}
 .replies-display {
   border-left: 2px solid #a6fda1;
   padding-left: 8px;
@@ -535,39 +538,8 @@ export default {
     margin-left: 2em;
   }
 }
-.content-container {
-  overflow-wrap: break-word;
-  margin-left: 1.5em;
-  padding: 0.5em;
-  white-space: pre-wrap;
-}
-
-#reply-container {
-  background-color: #f4f4f4;
-  width: 100%;
-}
 
 #reply-box {
   position: relative;
-}
-
-#action-buttons {
-  padding: 0.5em;
-  position: absolute;
-  right: 0;
-  bottom: 0;
-}
-.rotate {
-  animation: rotate-180 0.1s ease-in;
-  animation-fill-mode: forwards;
-}
-
-@keyframes rotate-180 {
-  0% {
-    transform: rotate(0);
-  }
-  100% {
-    transform: rotate(180deg);
-  }
 }
 </style>

@@ -12,6 +12,8 @@ import joinQueue from "../icons/joinQueue";
 import leaveQueue from "../icons/leaveQueue";
 import follow from "../icons/follow";
 import unfollow from "../icons/unfollow";
+import approved from "../icons/approved";
+import people from "../icons/people";
 
 Vue.use(Vuetify);
 
@@ -42,7 +44,13 @@ const vuetify = new Vuetify({
       },
       unfollow: {
         component: unfollow
-      }
+      },
+      approved: {
+        component: approved
+      },
+      people: {
+        component: people
+      },
     }
   },
   theme: {

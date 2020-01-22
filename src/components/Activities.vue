@@ -59,7 +59,9 @@ export default {
           if (activities.length < limit) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     fetchMoreActivities(limit) {
       this.fetching = true;
@@ -75,7 +77,9 @@ export default {
           if (activities.length < limit) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     }
   },
   created() {

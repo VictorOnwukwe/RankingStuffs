@@ -46,7 +46,7 @@
                   </div>
                 </v-layout>
               </div>
-              <div v-if="completeImage" class="">
+              <!-- <div v-if="completeImage" class="">
                 <v-layout>
                   <div class="label">
                     Source:
@@ -68,7 +68,7 @@
                     </div>
                   </div>
                 </v-layout>
-              </div>
+              </div> -->
             </div>
           </v-card-text>
         </div>
@@ -84,7 +84,10 @@ export default {
     width: Number | String,
     aspectRatio: Number,
     image: Object,
-    path: Object
+    path: {
+      type: Object | Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -97,21 +100,29 @@ export default {
   methods: {
     getDetails() {
       this.loading = true;
-      this.$store
-        .dispatch("fetch_item_image", {
-          item_id: this.path.item,
-          image_id: this.image.id
-        })
-        .then(result => {
-          this.completeImage = result;
-          return result.user;
-        })
-        .then(user => {
-          this.fetchUser(user);
-        })
-        .then(() => {
-          this.loading = false;
-        });
+      if (this.path) {
+        this.$store
+          .dispatch("fetch_item_image", {
+            item_id: this.path.item,
+            image_id: this.image.id
+          })
+          .then(result => {
+            this.completeImage = result;
+            return result.user;
+          })
+          .then(user => {
+            this.fetchUser(user);
+          })
+          .then(() => {
+            this.loading = false;
+          }).catch(_ => {
+            this.loading = false;
+          })
+      } else {
+        this.completeImage = this.image;
+        this.fetchUser(this.image.user);
+        this.loading = false;
+      }
     },
     fetchUser(id) {
       this.$store.dispatch("fetch_user", id).then(result => {
@@ -129,16 +140,6 @@ export default {
     }
   },
   computed: {
-    url() {
-      let base64data;
-      let URL = new FileReader();
-      URL.readAsDataURL(this.image.src);
-      URL.onloadend = function() {
-        base64data = reader.result;
-        console.log(base64data);
-      };
-      return base64data;
-    },
     created() {
       return moment(this.completeImage.created.toDate()).format("MMMM Do YYYY");
     }

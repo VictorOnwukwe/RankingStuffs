@@ -10,15 +10,10 @@ import firebase from "firebase/app";
 import store from "./store";
 import Swal from "sweetalert2";
 import autosize from "autosize";
-import OverlayScrollbars from "os-vue";
 import { VuetifyLazyImagePlugin } from "vuetify-lazy-image";
-import VueGlide from "vue-glide-js";
 // @ts-ignore
 import PreviewUser from "./components/PreviewUser";
 import DisplayPreviews from "./components/DisplayPreviews";
-
-import VueAutosize from "vue-autosize";
-import Masonry from "vue-masonry-css";
 
 import VuePacker from "vue-packer";
 
@@ -26,7 +21,6 @@ import CommentBox from "../src/components/CommentBox";
 
 // @ts-ignore
 import MyImage from "../src/components/MyImage";
-import VueLodash from "vue-lodash";
 import Rate from "../src/components/Rate";
 import Rating from "../src/components/Rating";
 import VueRx from "vue-rx";
@@ -47,8 +41,6 @@ Vue.use(VueMasonryPlugin);
 
 Vue.use(VuePacker, {});
 
-Vue.use(VueLodash, { name: "lodash" });
-
 Vue.use(VueRx);
 
 window.Swal = Swal;
@@ -59,9 +51,7 @@ let moment = require("moment");
 
 Vue.config.productionTip = false;
 
-Vue.use(VuetifyLazyImagePlugin, VueAutosize, moment);
-
-Vue.use(Masonry, { name: "the-masonry" });
+Vue.use(VuetifyLazyImagePlugin, moment);
 
 Vue.component("preview-user", PreviewUser);
 Vue.component("display-lists", DisplayPreviews);

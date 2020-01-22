@@ -101,9 +101,13 @@ export default {
             this.waiting = false;
             this.loading = false;
           })
-          .catch(error => {
+          .catch(_ => {
             this.loading = false;
-            console.log(error);
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       } else {
         this.$store
@@ -113,9 +117,13 @@ export default {
             this.waiting = true;
             this.loading = false;
           })
-          .catch(error => {
+          .catch(_ => {
             this.loading = false;
-            console.log(error);
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       }
     },

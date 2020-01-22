@@ -15,7 +15,7 @@
       </v-breadcrumbs>
       <v-layout>
         <v-flex>
-          <div id="title-nav" class="inherit">
+          <div style="width:100%" class="inherit">
             <div>
               <h1
                 v-if="list"
@@ -24,23 +24,20 @@
               >
                 {{ list.title }}
               </h1>
-              <!-- <p>
-                  <span class>Created by</span>
-                  <span @click="showUser=true" style="font-weight:bold">&nbsp;{{creator.username}}</span>
-                </p>-->
               <v-layout align-center class>
                 <rating
                   :rating="list.rating"
                   :ratersCount="list.raters_count"
                   :size="'1.2em'"
                 ></rating>
-                <v-spacer></v-spacer>
+              </v-layout>
+              <div>
                 <span class="std"
                   >{{ list.voters_count }}
                   {{ list.voters_count > 1 ? "voters" : "voter" }}</span
                 >
                 <span class="std">, {{ list.votes }} votes</span>
-              </v-layout>
+              </div>
               <v-layout v-if="creator" class="mt-4" align-center>
                 <v-avatar tile class="mr-2 br" size="1.8em">
                   <img
@@ -52,12 +49,9 @@
                 <username :user="creator"></username>
               </v-layout>
               <div
-                style="white-space:pre-wrap;"
-                class="mt-4 grey--text text--darken-2"
+                class="mt-4 grey--text text--darken-2 pre-wrap"
                 v-if="list.description"
-              >
-                {{ list.description }}
-              </div>
+              >{{ list.description }}</div>
             </div>
             <div></div>
           </div>
@@ -128,6 +122,15 @@
                     @receiveComment="setItemComment"
                     @setValid="setValid"
                   ></AddItem>
+                  <alert
+                    class="mt-4"
+                    :type="'success'"
+                    :value="itemSubmitted"
+                    :message="
+                      'Your item has been submitted successfully. You will be notified on review'
+                    "
+                    @act="itemSubmitted = false"
+                  ></alert>
                 </v-card-text>
 
                 <v-card-actions>
@@ -167,11 +170,11 @@
       <v-card class="pa-4">
         <social-sharing
           v-if="fetched"
-          url="https://top-ten-534ca.com/"
+          url="https://top-ten-534ca.firebaseapp.com/"
           :title="list.title"
           :description="list.about"
           quote="Visit trending top tens for more lists"
-          twitter-user="topteneverything"
+          twitter-user="thetopteners"
           inline-template
         >
           <div>
@@ -350,7 +353,6 @@
 <script>
 import { setTimeout } from "timers";
 import ListItem from "./ListItem";
-import Sidebar from "./Sidebar";
 import AddItem from "./AddItem";
 import SocialSharing from "vue-social-sharing";
 import Rate from "./Rate";
@@ -358,7 +360,6 @@ import Rate from "./Rate";
 export default {
   components: {
     ListItem,
-    Sidebar,
     AddItem,
     SocialSharing,
     rate: Rate
@@ -389,40 +390,71 @@ export default {
       itemValid: false,
       otherLists: [],
       sidebarOpened: false,
-      addItem: false
+      addItem: false,
+      itemSubmitted: false
     };
   },
 
   methods: {
     upload_item() {
       this.addingItem = true;
+      this.itemSubmitted = false;
       setTimeout(() => {
-        this.$store
-          .dispatch("add_list_item", {
-            list: this.list,
-            net_vote: 1,
-            item: this.item,
-            rank: this.list.item_count + 1
-          })
-          .then(item => {
-            this.addingItem = false;
-            this.item = {
-              name: "",
-              exists: false,
-              comment: ""
-            };
-            this.$refs.addItem.deleteItem();
-            this.list.items.push(item);
-            this.list.item_count++;
-          })
-          .catch(error => {
-            this.addingItem = false;
-            this.$store.dispatch("set_snackbar", {
-              show: true,
-              message: "Sorry. This item already exists",
-              type: "error"
+        if (!this.list.personal) {
+          this.$store
+            .dispatch("add_pending_list_item", {
+              list: { title: this.list.title, id: this.list.id },
+              net_vote: 1,
+              item: this.item,
+              rank: this.list.item_count + 1
+            })
+            .then(() => {
+              this.addingItem = false;
+              this.itemSubmitted = true;
+              this.item = {
+                name: "",
+                exists: false,
+                comment: "",
+                userImage: false
+              };
+              this.$refs.addItem.deleteItem();
+            })
+            .catch(error => {
+              this.addingItem = false;
+              this.$store.dispatch("set_snackbar", {
+                show: true,
+                message: "Sorry. An error occured while adding item",
+                type: "error"
+              });
             });
-          });
+        } else {
+          this.$store
+            .dispatch("add_list_item", {
+              list: { title: this.list.title, id: this.list.id },
+              net_vote: 1,
+              item: this.item,
+              rank: this.list.item_count + 1
+            })
+            .then(item => {
+              this.addingItem = false;
+              this.item = {
+                name: "",
+                exists: false,
+                comment: ""
+              };
+              this.$refs.addItem.deleteItem();
+              this.list.items.push(item);
+              this.list.item_count++;
+            })
+            .catch(error => {
+              this.addingItem = false;
+              this.$store.dispatch("set_snackbar", {
+                show: true,
+                message: "Sorry. This item already exists",
+                type: "info"
+              });
+            });
+        }
       }, 500);
     },
 
@@ -451,7 +483,7 @@ export default {
               return { name: result.data().name, id: result.id };
             })
           );
-        });
+        })
     },
 
     rate(rating) {
@@ -469,7 +501,8 @@ export default {
     },
 
     setItem(index, item) {
-      this.item = item;
+      this.item = { ...this.item, ...item };
+      this.itemSubmitted = false;
     },
     setItemComment(index, comment) {
       this.item.comment = comment;
@@ -495,7 +528,7 @@ export default {
           });
         })
         .catch(error => {
-          console.log("error: ", error);
+          
         });
     },
 
@@ -585,9 +618,7 @@ export default {
         if (
           this.list.preview_image &&
           this.list.preview_image.url.low == image.url.low &&
-          this.list.preview_image.url.high == image.url.high &&
-          this.list.preview_image.id == image.id &&
-          this.list.preview_image.item == image.item
+          this.list.preview_image.url.high == image.url.high
         ) {
           return;
         }
@@ -697,37 +728,12 @@ export default {
 .main {
   position: relative;
 }
-
-/* @media (min-width: 600px) {
-  .main {
-    margin-left: calc((80px - 0.5em) * -1);
-  }
-}
-@media (min-width: 1264px) {
-  .main {
-    margin-left: calc((256px - 0.5em) * -1);
-  }
-} */
-
 #container {
-  /* max-width: 950px; */
   margin: 0 auto;
   margin-bottom: 2em;
 }
-.nav-bg {
-  /* background: linear-gradient(90deg, rgb(241, 241, 243), rgb(247, 247, 248)); */
-  background: #424242;
-}
 #item {
   margin-top: 2em;
-}
-
-#title-nav {
-  width: 100%;
-}
-
-li > a {
-  font-weight: normal;
 }
 
 .pull-push {
@@ -749,15 +755,6 @@ li > a {
   margin-left: 1rem;
 }
 
-.list-info {
-  display: none;
-  position: fixed;
-  z-index: 5;
-  width: 200px;
-  margin-left: -1em;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.3);
-}
-
 #plus-button {
   display: flex;
   margin: 1em 0;
@@ -769,30 +766,6 @@ li > a {
   display: grid;
   grid-template-columns: 1fr;
   margin-top: 2em;
-}
-.divide {
-  display: block;
-  height: 1em;
-  background-color: grey;
-  margin-top: 1em;
-}
-
-.close-container {
-  display: none;
-}
-.close-button {
-  position: absolute;
-  right: 3px;
-  top: 7px;
-}
-.close-button:hover {
-  color: rgb(172, 5, 5);
-  cursor: pointer;
-}
-
-.list-info {
-  animation: expand-in 0.1s ease-in;
-  transform-origin: left;
 }
 
 .slide {
@@ -832,23 +805,25 @@ li > a {
   }
 }
 
-* ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  background-color: inherit;
-  opacity: 0;
-  border-radius: 10px;
-  display: none;
-}
+@media (min-width: 600px) {
+  * ::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+    background-color: inherit;
+    opacity: 0;
+    border-radius: 10px;
+    display: none;
+  }
 
-* ::-webkit-scrollbar {
-  width: 6px;
-  /* background-color: #f5f5f5; */
-}
+  * ::-webkit-scrollbar {
+    width: 6px;
+    /* background-color: #f5f5f5; */
+  }
 
-* ::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2) !important;
-  /* border-radius: 10px; */
+  * ::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2) !important;
+    /* border-radius: 10px; */
+  }
 }
 
 .crumb {

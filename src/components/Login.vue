@@ -7,7 +7,9 @@
       >
         Login
         <v-spacer></v-spacer>
-        <v-icon class="close" @click="close()">mdi-close</v-icon>
+        <v-icon class="close" @click="$store.dispatch('set_login', false)"
+          >mdi-close</v-icon
+        >
       </v-card-title>
       <v-card-text class="mt-7">
         <v-form v-model="valid" id="form">
@@ -44,11 +46,7 @@
           >
         </v-form>
 
-        <div style="text-align:center;" class=""><br />OR</div>
-        <br />
-        <div class="mb-2" style="text-align:center;">
-          Login with your social account
-        </div>
+        <div style="text-align:center;" class="mb-4 ptd"><br />OR</div>
         <v-layout justify-center>
           <v-hover v-slot:default="{ hover }">
             <v-btn
@@ -79,7 +77,9 @@
         </v-layout>
         <div class="ptd">
           <br />Not a member yet?
-          <a class="underline" @click="goSignup()">SIGN UP</a>
+          <a class="underline" @click="$store.dispatch('set_signup', true)"
+            >SIGN UP</a
+          >
         </div>
       </v-card-text>
     </v-card>
@@ -88,8 +88,6 @@
 
 <script>
 import Rules from "../rules";
-import { setTimeout } from "timers";
-import firebase from "firebase/app";
 import "firebase/auth";
 
 export default {
@@ -124,11 +122,7 @@ export default {
           })
           .then(() => {
             this.eloading = false;
-            if (this.$route.name.includes("user")) {
-              // this.$router.go();
-            } else {
-              this.close();
-            }
+            this.close();
           })
           .catch(error => {
             this.eloading = false;
@@ -167,20 +161,20 @@ export default {
         .dispatch("socialLogin", type)
         .then(() => {
           this.gloading = this.floading = false;
-          // this.$router.go();
+          this.close();
         })
-        .catch(error => {
+        .catch(_ => {
           this.gloading = this.floading = false;
-          swal("Login Unsuccessful", {
-            icon: "error"
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            message: "Sorry. An error occured",
+            type: "error"
           });
+          this.close();
         });
     },
     close() {
-      this.$emit("close");
-    },
-    goSignup() {
-      this.$emit("signup");
+      this.$store.dispatch("set_login", false);
     }
   }
 };

@@ -186,12 +186,7 @@ let moment = require("moment");
 export default {
   props: {
     activity: Object,
-    isProfile: Boolean,
-    user: Object,
-    index: Number
-  },
-  data() {
-    return {};
+    isProfile: Boolean
   },
   methods: {
     go(link) {
@@ -202,9 +197,6 @@ export default {
     created() {
       return moment(this.activity.created.toDate()).fromNow();
     }
-  },
-  created() {
-    // console.log(this.activity);
   }
 };
 </script>

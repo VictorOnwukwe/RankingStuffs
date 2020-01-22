@@ -1,24 +1,24 @@
 <template>
-    <div>
-        <div class="grid" style="margin-bottom:1em">
-        <PreviewDemand
-          v-for="(demand, index) in demands"
-          :key="index"
-          :demand="{ id: demand.id, ...demand.data() }"
-        ></PreviewDemand>
-      </div>
+  <div>
+    <div class="grid" style="margin-bottom:1em">
+      <PreviewDemand
+        v-for="(demand, index) in demands"
+        :key="index"
+        :demand="{ id: demand.id, ...demand.data() }"
+      ></PreviewDemand>
     </div>
+  </div>
 </template>
 <script>
 import PreviewDemand from "./PreviewDemand";
 export default {
-    components: {
-        PreviewDemand
-    },
-    props: {
-        demands: Array
-    }
-}
+  components: {
+    PreviewDemand
+  },
+  props: {
+    demands: Array
+  }
+};
 </script>
 <style scoped>
 .grid {

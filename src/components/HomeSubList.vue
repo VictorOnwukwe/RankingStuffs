@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-layout justify-center class="mb-2">
+    <!-- <v-layout justify-center class="mb-2">
       <router-link
         :to="'/categories/' + list.category"
         class="no-deco mx-auto"
@@ -13,12 +13,12 @@
           {{ list.category }}
         </div>
       </router-link>
-    </v-layout>
+    </v-layout> -->
     <div style="border:1px solid rgba(0,0,0,0.2);border-radius:3px" class="">
       <router-link :to="'/lists/' + list.id" class="no-deco">
         <v-card flat>
           <div class="img-overlay pa-2">
-            <!-- <router-link
+            <router-link
               :to="'/categories/' + list.category"
               class="no-deco mx-auto"
               style=""
@@ -29,7 +29,7 @@
               >
                 {{ list.category }}
               </div>
-            </router-link> -->
+            </router-link>
             <div>
               <h2
                 class="text-capitalize white--text font-weight-medium"
@@ -42,12 +42,11 @@
           <m-img
             :src="list.preview_image ? list.preview_image.url.low : false"
             :width="'100%'"
-            class=""
             :aspectRatio="'1.5'"
           ></m-img>
         </v-card>
       </router-link>
-      <div class="">
+      <!-- <div class="">
         <div v-if="list.items.length > 0">
           <div
             v-for="(item, index) in list.items"
@@ -74,7 +73,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   </div>
 </template>
@@ -101,10 +100,11 @@ export default {
   overflow: hidden;
 }
 .cat-name {
-  border: 1px solid rgb(73, 169, 245);
+  border: 1px solid white;
+  background-color: rgba(0, 0, 0, 0.1);
   cursor: pointer;
 }
 .cat-name:hover {
-  background-color: rgba(73, 169, 245, 0.1);
+  background-color: rgba(255,255,255,0.2);
 }
 </style>

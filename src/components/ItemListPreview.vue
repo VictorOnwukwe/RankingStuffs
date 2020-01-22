@@ -15,8 +15,9 @@
             ></v-img>
             <v-img
               v-else
-              min-width="100px"
-              max-width="150px"
+              min-width="160px"
+              max-width="300px"
+              aspect-ratio="1.5"
               :src="require('../assets/emptyimage.jpg')"
             ></v-img>
           </div>
@@ -30,7 +31,9 @@
               </h2>
               <h4 class="">
                 <!-- <span class="htd">Rank: </span> -->
-                <span class="font-weight-bold accent--text"
+                <span
+                  class="font-weight-bold accent--text"
+                  style="font-size:1.7em"
                   >#{{ listItem.rank }}</span
                 >
                 of {{ list.item_count }}

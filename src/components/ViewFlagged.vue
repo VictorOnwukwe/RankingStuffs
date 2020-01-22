@@ -66,9 +66,6 @@ export default {
           });
       }
     }
-  },
-  created() {
-    console.log(this.element);
   }
 };
 </script>

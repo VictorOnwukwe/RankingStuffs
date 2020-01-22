@@ -51,7 +51,7 @@
                   }}</span>
                 </v-flex>
                 <v-flex shrink>
-                  <v-layout @click="contribute = true" column>
+                  <v-layout @click="initContribute()" column>
                     <v-icon size="1em" color="grey" class="pointer"
                       >fa-pencil-alt</v-icon
                     >
@@ -64,7 +64,8 @@
               <p
                 class="subtitle-1 ptd my-8"
                 style="white-space:pre-wrap; font-size:0.9em"
-              >{{ item.about }}
+              >
+                {{ item.about }}
               </p>
             </div>
             <div>
@@ -153,11 +154,7 @@
             ></alert>
           </v-card-text>
           <v-card-actions>
-            <m-btn
-              :loading="updating"
-              @click="update()"
-              >Submit</m-btn
-            >
+            <m-btn :loading="updating" @click="update()">Submit</m-btn>
           </v-card-actions>
         </v-card>
       </v-dialog>
@@ -200,6 +197,14 @@ export default {
         })
         .then(() => {
           this.uploading = false;
+        })
+        .catch(_ => {
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.uploading = false;
         });
     },
     update() {
@@ -231,9 +236,18 @@ export default {
         .then(() => {
           this.updating = false;
           this.updated = true;
-        });
+        }).catch(_ => {
+          this.updating = false;
+        })
     },
-    updateSuccess(){
+    initContribute() {
+      if (!this.$store.getters.authenticated) {
+        this.$store.dispatch("set_login", true);
+        return;
+      }
+      this.contribute = true;
+    },
+    updateSuccess() {
       this.contribute = false;
       this.$router.go(1);
     },
@@ -314,7 +328,7 @@ export default {
     emptyphoto() {
       return this.$store.getters.noPhoto;
     },
-    successMessage(){
+    successMessage() {
       return "Item Updated Successfully. Thanks for your contribution";
     }
   },
@@ -323,9 +337,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-.hide {
-  display: none;
-}
-</style>

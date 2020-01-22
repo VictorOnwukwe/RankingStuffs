@@ -1,29 +1,31 @@
 <template>
-    <v-card tile class="" flat>
-      <div>
-        <div id="comment" style="display:flex">
-          <div>
-            <v-avatar size="26" class="ma-2">
-              <img :src="comment.user.profile_pic.low" />
-            </v-avatar>
+  <v-card tile class="" flat>
+    <div>
+      <div id="comment" style="display:flex">
+        <div>
+          <v-avatar size="26" class="ma-2">
+            <img :src="comment.user.profile_pic.low" />
+          </v-avatar>
+        </div>
+        <div>
+          <div class="mt-2 mr-2">
+            <p>
+              <a class="blue--text subtitle-2 font-weight-bold">{{
+                comment.user.username
+              }}</a>
+              {{ comment.content }}
+            </p>
           </div>
-          <div>
-            <div class="mt-2 mr-2">
-              <p>
-                <a class="blue--text subtitle-2 font-weight-bold">{{comment.user.username}}</a>
-                 {{comment.content}}
-              </p>
-            </div>
-            <!-- <div style="display:flex" class="mt-n2">
+          <!-- <div style="display:flex" class="mt-n2">
               <div @click="toggleLike()" style="display:flex">
                 <v-icon class="like-button" @click v-if="!liked" small>mdi-thumb-up</v-icon>
                 <v-icon class="like-button" @click v-if="liked" color="blue" small>mdi-thumb-up</v-icon>
                 <span v-if="comment.likes>0" class="ml-1">{{comment.likes}}</span>
               </div>
             </div> -->
-          </div>
         </div>
-        <!-- <div class="mt-2 pl-2">
+      </div>
+      <!-- <div class="mt-2 pl-2">
           <div v-if="replies.length>0 && replies[0].index!=1">
             <a class="accent--text" @click="fetchReplies(5,replies[0].created)">Load more...</a>
           </div>
@@ -41,14 +43,14 @@
             :reply="reply"
           ></Reply>
         </div> -->
-      </div>
-    </v-card>
+    </div>
+  </v-card>
 </template>
 
 <script>
 export default {
-    props:{
-        comment: Object
-    }
-}
+  props: {
+    comment: Object
+  }
+};
 </script>

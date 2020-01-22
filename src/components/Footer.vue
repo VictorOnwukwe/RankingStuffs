@@ -48,7 +48,9 @@
             to="/"
             class="no-deco font-weight-bold brand--text text--lighten-2"
           >
-            topTEN
+            <span class="accent--text font-weight-black">Top</span>
+            <span class="white--text font-weight-bold">TENERS</span>
+                <span class="accent--text font-weight-black">...</span>
           </router-link>
           <router-link
             to="/terms-and-conditions"
@@ -86,15 +88,11 @@ export default {
     categories() {
       return this.$store.getters.categories;
     }
-  },
-  created() {}
+  }
 };
 </script>
 
 <style scoped>
-a {
-  /* margin-left: 1em; */
-}
 .cat-item {
   width: 50%;
   margin-top: 1em;
@@ -119,7 +117,5 @@ a {
   .cat-item {
     width: 16.6%;
   }
-}
-.main-cat {
 }
 </style>

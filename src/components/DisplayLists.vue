@@ -1,9 +1,13 @@
 <template>
   <div>
     <div class="mx-auto mb-4 mt">
-      <v-layout align-center class="mb-8 px-2 grey lighten-3">
+      <v-layout
+        align-center
+        class="mb-8 px-2"
+        style="border:1px solid lightgrey"
+      >
         <div class="page-title pa-0">
-          <span class="grey--text text--darken-2">
+          <span class="ptd">
             Lists
           </span>
         </div>
@@ -79,7 +83,8 @@ export default {
           } else {
             this.complete = true;
           }
-        });
+        })
+        .catch(_ => {});
     },
     shuffle(val) {
       this.sort = val.choice;
@@ -114,5 +119,3 @@ export default {
   }
 };
 </script>
-
-<style scoped></style>

@@ -106,18 +106,6 @@ export default {
     go(val) {
       this.$router.push({ path: val });
     }
-  },
-  computed: {},
-  mounted() {
-    // console.log(this.event);
   }
 };
 </script>
-
-<style scoped>
-.medium {
-}
-* > * {
-  /* font-size: 1em !important; */
-}
-</style>

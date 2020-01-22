@@ -47,6 +47,8 @@ import TermsAndConditions from "../components/TermsAndConditions";
 import PrivacyPolicy from "../components/PrivacyPolicy";
 //@ts-ignore
 import ErrorPage from "../components/ErrorPage";
+// @ts-ignore
+import AdminPendingListItems from "../components/AdminPendingListItems";
 
 Vue.use(Router);
 
@@ -133,7 +135,7 @@ export default new Router({
       path: "/admin",
       component: Admin,
       beforeEnter(to, from, next) {
-        if (store.getters.getUser.username === "thetoptenersofficial") {
+        if (store.getters.getUser.id === "w4NsNxycJtbGqSjpLsp9KuTln6B2") {
           next();
         } else {
           next({
@@ -157,6 +159,11 @@ export default new Router({
           path: "/admin/flagged",
           name: "admin-flagged",
           component: AdminFlagged
+        },
+        {
+          path: "/admin/pending-list-items",
+          name: "admin-pending-list-items",
+          component: AdminPendingListItems
         }
       ]
     },

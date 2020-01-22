@@ -119,7 +119,7 @@ export default {
     initialize() {
       this.$store
         .dispatch("fetch_pending_demands", {
-          limit: 20,
+          limit: 50,
           lastDoc: false
         })
         .then(demands => {

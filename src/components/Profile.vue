@@ -276,7 +276,7 @@
         </v-card>
       </v-dialog>
       <upload-image
-        class="hidden"
+        style="display:none"
         ref="upload"
         @close="uploadMenu = false"
         :uploading="uploadingImage"
@@ -316,7 +316,9 @@ export default {
       this.uploadingImage = true;
       this.$store.dispatch("update_profile_pic", data.image).then(() => {
         this.uploadingImage = false;
-      });
+      }).catch(_ => {
+        this.uploadingImage = false;
+      })
     },
     async fetchUser(id) {
       await this.$store.dispatch("fetch_complete_user", id).then(user => {
@@ -332,11 +334,12 @@ export default {
           this.user.followers++;
           this.processing = false;
         })
-        .catch(error => {
+        .catch(_ => {
           this.processing = false;
         });
     },
     unfollow() {
+      this.processing = true;
       this.$store
         .dispatch("unfollow_user", this.user.id)
         .then(() => {
@@ -344,7 +347,7 @@ export default {
           this.user.followers--;
           this.processing = false;
         })
-        .catch(error => {
+        .catch(_ => {
           this.processing = false;
         });
     },
@@ -474,15 +477,6 @@ export default {
 </script>
 
 <style scoped>
-#container {
-  display: flex;
-}
-#profile-container {
-  /* background-image: linear-gradient(90deg, rgb(5, 26, 53), rgb(8, 47, 99)); */
-}
-#user-details {
-  display: flex;
-}
 .nav-link {
   color: rgba(0, 0, 0, 0.87);
   text-decoration: none;
@@ -515,10 +509,6 @@ div .nav-link.router-link-exact-active {
   opacity: 0;
   transform: translate(-2em, 0);
 }
-.test {
-  color: #000000b3;
-  color: rgba(0, 0, 0, 0.4);
-}
 .upload {
   position: absolute;
   z-index: 4;
@@ -533,9 +523,6 @@ div .nav-link.router-link-exact-active {
   justify-content: center;
   align-items: center;
   border-radius: 50%;
-}
-.hidden {
-  display: none;
 }
 .close {
   position: sticky;

@@ -1,11 +1,10 @@
 <template>
-  <div class="main">
+  <div style="display:flex">
     <v-hover v-slot:default="{ hover }">
       <v-card
         :min-height="random(120, 60)"
         :class="{ loading: !fetched }"
         width="100%"
-        class="card"
       >
         <div v-if="fetched">
           <v-card-title class style>
@@ -72,7 +71,6 @@
                   </v-menu>
                 </v-flex>
               </v-layout>
-              <div style="clear:both"></div>
               <div class="subtitle-1 ptd">
                 <span class="std">{{ created }}</span>
                 <span class="std"
@@ -86,7 +84,7 @@
               </div>
             </v-layout>
           </v-card-title>
-          <v-card-text class="subtitle-1 pt-1 pb-0">
+          <v-card-text class="subtitle-1 pt-1 pb-3">
             <v-layout v-if="creator">
               <v-avatar size="2em" class="mr-2" style="border-radius:5px">
                 <img
@@ -97,7 +95,18 @@
               </v-avatar>
               <username :user="creator"></username>
             </v-layout>
-            <p style="white-space:pre-wrap" class="ptd mt-2">{{ demand.comment }}</p>
+            <div
+              v-if="demand.comment"
+              class="ptd mt-2 pre-wrap"
+              style="font-size:0.85em"
+            >{{ demand.comment.slice(0, 200)
+              }}{{ demand.comment.length > 200 ? "..." : ""
+              }}<router-link
+                :to="'/demands/' + demand.id"
+                v-if="demand.comment.length > 200"
+                class="no-deco"
+                >more</router-link
+              ></div>
           </v-card-text>
         </div>
       </v-card>
@@ -141,6 +150,10 @@ export default {
         });
     },
     toggleWaiting() {
+      if (!this.$store.getters.authenticated) {
+        this.$store.dispatch("set_login", true);
+        return;
+      }
       this.loading = true;
       if (this.waiting) {
         this.$store
@@ -150,9 +163,13 @@ export default {
             this.waiting = false;
             this.loading = false;
           })
-          .catch(error => {
-            console.log(error);
+          .catch(_ => {
             this.loading = false;
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       } else {
         this.$store
@@ -162,9 +179,13 @@ export default {
             this.waiting = true;
             this.loading = false;
           })
-          .catch(error => {
+          .catch(_ => {
             this.loading = false;
-            console.log(error);
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       }
     },
@@ -218,16 +239,3 @@ export default {
   }
 };
 </script>
-
-<style scoped>
-@import url("../../public/my-modules/animations.css");
-.main {
-  display: flex;
-}
-.card {
-  transition: all 0.3s ease-in-out;
-}
-.clear {
-  clear: both;
-}
-</style>

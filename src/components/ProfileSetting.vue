@@ -328,9 +328,13 @@ export default {
           this.uploading = false;
           this.showSuccess = true;
         })
-        .catch(error => {
-          console.log(error);
+        .catch(_ => {
           this.uploading = false;
+          this.$store.dispatch("set_snackbar", {
+                show: true,
+                message: "Sorry. An error occured while updating profile",
+                type: "error"
+              });
         });
     },
     setPermissions() {

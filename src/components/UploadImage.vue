@@ -1,11 +1,7 @@
 <template>
   <div>
-    <m-btn v-if="btn" @click="uploadMenu = true">Upload</m-btn>
-    <v-icon
-      v-if="icon"
-      @click="uploadMenu = true"
-      size="2em"
-      :color="actionColor"
+    <m-btn v-if="btn" @click="showMenu()">Upload</m-btn>
+    <v-icon v-if="icon" @click="showMenu()" size="2em" :color="actionColor"
       >mdi-camera</v-icon
     >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
@@ -178,24 +174,14 @@
 </template>
 
 <script>
-import imageCompressor from "vue-image-compressor";
-import ImageUploader from "vue-image-upload-resize";
 import Compressor from "compressorjs";
-import {
-  clipperPreview,
-  clipperUpload,
-  clipperBasic,
-  clipperFixed
-} from "vuejs-clipper";
+import { clipperPreview, clipperUpload, clipperBasic } from "vuejs-clipper";
 
 export default {
   components: {
     "clipper-basic": clipperBasic,
     "clipper-preview": clipperPreview,
-    "clipper-upload": clipperUpload,
-    "clipper-fixed": clipperFixed,
-    imageCompressor,
-    ImageUploader
+    "clipper-upload": clipperUpload
   },
   props: {
     btn: {
@@ -268,9 +254,7 @@ export default {
         success(result) {
           that.images.high = result;
         },
-        error(err) {
-          console.log(err.message);
-        }
+        error(err) {}
       });
       new Compressor(img, {
         quality: 0.8,
@@ -280,9 +264,7 @@ export default {
         success(result) {
           that.images.low = result;
         },
-        error(err) {
-          console.log(err.message);
-        }
+        error(err) {}
       });
       this.cropping = false;
       this.result = true;
@@ -296,14 +278,14 @@ export default {
     },
     upload() {
       this.clipper = false;
-      if (this.type == "addItem") {
-        this.$emit("save", this.images);
-        this.result = false;
-      }
       let data = {};
       this.isLink
         ? (data = { source: this.imgURL })
         : (data = { source: "user" });
+      if (this.type == "addItem") {
+        this.$emit("save", { image: this.images, ...data });
+        this.result = false;
+      }
       this.$emit("upload", { image: this.images, ...data });
     },
     close() {
@@ -353,15 +335,19 @@ export default {
       let blob = this.b64toBlob(realData, contentType);
       return blob;
     },
-    ext() {
-      console.log(this.imgURL);
-    },
     getSiteName(link) {
       let sliced = link.slice(link.indexOf("//") + 2);
       let result = sliced.slice(0, sliced.indexOf("/"));
       return result;
     },
     open() {
+      this.uploadMenu = true;
+    },
+    showMenu() {
+      if (!this.$store.getters.authenticated) {
+        this.$store.dispatch("set_login", true);
+        return;
+      }
       this.uploadMenu = true;
     }
   },

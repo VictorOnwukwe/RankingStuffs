@@ -12,24 +12,21 @@
         <span class="std">{{ created }}</span>
         <v-layout v-if="demander" class="my-4" align-center>
           <dp class="mr-2" :src="demander.profile_pic"></dp>
-          <a
-            @click="showUser = true"
-            class="brand--text font-weight-medium pointer"
-            >{{ demander.username }}</a
-          >
+          <username :user="demander"></username>
         </v-layout>
-        <p class="ptd" style="white-space: pre-wrap">{{ demand.comment }}</p>
+        <p class="ptd pre-wrap">{{ demand.comment }}</p>
         <v-layout align-center class="mt-4">
           <span class="std" v-html="waitingMessage"></span>
           <v-spacer></v-spacer>
-          <m-btn fab outlined depressed small class="mr-2" @click="create()">
+          <m-btn fab outlined depressed small @click="create()">
             <v-icon>$vuetify.icons.create</v-icon>
           </m-btn>
           <m-btn
             small
             outlined
             depressed
-            class=""
+            class="ml-2"
+            v-if="!isCreator"
             fab
             :loading="toggling"
             @click="toggleWaiting()"
@@ -42,25 +39,31 @@
 
         <v-divider class="mb-4 mt-2"></v-divider>
 
-        <div class="">
+        <div>
           <div v-if="demand.comments == 0" class="htd px-4 py-2">
             Be the first to comment
           </div>
-          <div v-else>
+          <v-layout v-else-if="fetching" justify-center>
+            <m-progress></m-progress>
+          </v-layout>
+          <div v-else class="mt-6">
             <div v-for="comment in comments" :key="comment.id">
-              <v-divider class="grey lighten-4 my-1"></v-divider>
-              <div class="ptd ml-2">
+              <div class="ptd ml-2" style="font-size:0.9em">
                 {{ comment.data().content }} -
-                <span class="pointer brand--text brighten">{{
-                  comment.data().user.username
-                }}</span>
+                <span
+                  @click="showUser(comment)"
+                  class="brand--text"
+                  :class="{ pointer: !isVisitor(comment) }"
+                  >{{ comment.data().user.username }}</span
+                >
               </div>
+              <v-divider class="grey lighten-4 my-2"></v-divider>
             </div>
           </div>
-          <v-divider
-            v-if="comments.length > 0"
-            class="grey lighten-4 mt-1"
-          ></v-divider>
+
+          <v-layout v-if="commenting" justify-center class="my-2">
+            <m-progress></m-progress>
+          </v-layout>
 
           <v-layout column reverse class="mt-4">
             <v-flex>
@@ -94,25 +97,15 @@
           </v-layout>
         </div>
       </div>
-      <!-- <v-row class="px-3 mt-2">
-        <m-btn fab small class="mr-2">
-          <v-icon>mdi-plus</v-icon>
-        </m-btn>
-        <m-btn small fab :loading="toggling" @click="toggleWaiting()">
-          <v-icon>fa-hand-holding</v-icon>
-        </m-btn>
-      </v-row> -->
     </v-card>
   </div>
 </template>
 
 <script>
 import commentBox from "./CommentBox";
-import DisplayComments from "./DisplayComments";
 let moment = require("moment");
 export default {
   components: {
-    DisplayComments,
     commentBox
   },
   data() {
@@ -123,7 +116,11 @@ export default {
       comment: "",
       focused: false,
       waiting: undefined,
-      toggling: false
+      toggling: false,
+      commenting: false,
+      fetching: false,
+      userPreview: false,
+      currentUser: null
     };
   },
   methods: {
@@ -137,7 +134,14 @@ export default {
             this.setWaiting();
           });
           this.fetchComments();
-          // console.log(demand);
+        })
+        .catch(_ => {
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.$store.dispatch("set_loading", false);
         });
     },
     async fetchDemander() {
@@ -149,14 +153,29 @@ export default {
       this.focused = val;
     },
     uploadComment() {
+      this.commenting = true;
       this.$store
         .dispatch("upload_demand_comment", {
           id: this.$route.params.id,
           comment: this.comment
         })
-        .then(() => {});
+        .then(comment => {
+          this.comments.push(comment);
+          this.comment = "";
+          this.commenting = false;
+        }).catch(_ => {
+          
+          this.dispatch("setSnackbar", {show: true,
+          message: "sorry. An error occured",
+          type: "error"})
+          this.commenting = false;
+        })
+    },
+    isVisitor(comment) {
+      return comment.data().user.username.includes("visitor");
     },
     fetchComments() {
+      this.fetching = true;
       this.$store
         .dispatch("fetch_demand_comments", {
           limit: 20,
@@ -164,9 +183,26 @@ export default {
         })
         .then(comments => {
           this.comments = this.comments.concat(comments);
-        });
+          this.fetching = false;
+        }).catch(_ => {
+          
+          this.dispatch("setSnackbar", {show: true,
+          message: "sorry. An error occured",
+          type: "error"})
+        })
+    },
+    showUser(comment) {
+      if (this.isVisitor(comment)) {
+        return;
+      }
+      this.currentUser = comment.data().user;
+      this.userPreview = true;
     },
     toggleWaiting() {
+      if (!this.$store.getters.authenticated) {
+        this.$store.dispatch("set_login", true);
+        return;
+      }
       this.toggling = true;
       if (this.waiting) {
         this.$store
@@ -177,8 +213,12 @@ export default {
             this.toggling = false;
           })
           .catch(error => {
-            console.log(error);
             this.toggling = false;
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       } else {
         this.$store
@@ -190,7 +230,11 @@ export default {
           })
           .catch(error => {
             this.toggling = false;
-            console.log(error);
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
           });
       }
     },
@@ -198,7 +242,7 @@ export default {
       if (this.waiting !== undefined) {
         return;
       }
-      if (this.demand.user == this.$store.getters.getUser.id) {
+      if (this.isCreator) {
         this.waiting = true;
         return;
       }
@@ -238,6 +282,12 @@ export default {
           return `<b>${this.demand.waiters_count}</b> people are waiting for this list`;
         }
       }
+    },
+    isCreator() {
+      if (!this.$store.getters.authenticated) {
+        return false;
+      }
+      return this.demand.user == this.$store.getters.getUser.id;
     }
   },
   created() {

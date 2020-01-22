@@ -2,6 +2,7 @@
   <div id="main">
     <v-app id="body">
       <toolbar
+        style="z-index: 4"
         @showSidebar="showSidebar = !showSidebar"
         :closeSearch="closeSearch"
       ></toolbar>
@@ -122,14 +123,14 @@
             <m-btn
               rounded
               class="mr-1"
-              @click="(signupDialog = true), (showSidebar = false)"
-              >Register</m-btn
+              @click="$store.dispatch('set_signup', true)"
+              >Sign up</m-btn
             >
             <m-btn
               outlined
               rounded
               class="ml-1"
-              @click="(loginDialog = true), (showSidebar = false)"
+              @click="$store.dispatch('set_login', true)"
               >Login</m-btn
             >
           </div>
@@ -173,7 +174,7 @@
                 <v-icon>$vuetify.icons.queue</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
-                >On Demand</v-list-item-title
+                >Demands</v-list-item-title
               >
             </v-list-item>
             <v-list-item
@@ -200,10 +201,26 @@
                 >Demand List</v-list-item-title
               >
             </v-list-item>
+            <v-list-item
+              v-if="isAdmin"
+              :to="'/admin'"
+              class="ml-0 nav-link py-0"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>fa-user-shield</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Admin</v-list-item-title
+              >
+            </v-list-item>
           </v-list>
           <v-divider></v-divider>
           <v-list dense>
-            <v-list-item v-if="authenticated" @click="logout()">
+            <v-list-item
+              v-if="authenticated"
+              @click="$store.dispatch('logout')"
+            >
               <v-list-item-icon>
                 <v-icon>mdi-logout</v-icon>
               </v-list-item-icon>
@@ -219,6 +236,23 @@
         <v-spacer></v-spacer>
         <m-btn text :color="'white'" @click="hideSnackbar()">OK</m-btn>
       </v-snackbar>
+      <v-dialog
+        v-if="!authenticated"
+        persistent
+        v-model="loginDialog"
+        max-width="500px"
+      >
+        <Login v-if="loginDialog"></Login>
+      </v-dialog>
+
+      <v-dialog
+        v-if="!authenticated"
+        persistent
+        v-model="signupDialog"
+        max-width="500px"
+      >
+        <Signup v-if="signupDialog"></Signup>
+      </v-dialog>
     </v-app>
   </div>
 </template>
@@ -229,6 +263,8 @@ import Footer from "./components/Footer";
 import { setTimeout } from "timers";
 import HomePreview from "./components/HomePreview";
 import SideDisplay from "./components/SideDisplay";
+import Login from "./components/Login";
+import Signup from "./components/Signup";
 
 export default {
   name: "App",
@@ -236,13 +272,14 @@ export default {
     Toolbar,
     Footer,
     preview: HomePreview,
-    SideDisplay
+    SideDisplay,
+    Login,
+    Signup
   },
   data() {
     return {
       closeSearch: false,
       showScroll: true,
-      offset: 0,
       showSidebar: false
     };
   },
@@ -255,7 +292,6 @@ export default {
       }, 500);
     },
     scrollUp() {
-      console.log(this.offset);
       window.scrollTo(0, 0);
     },
     hideSnackbar() {
@@ -275,13 +311,25 @@ export default {
     },
 
     user() {
+      if (!this.authenticated) {
+        return null;
+      }
       return this.$store.getters.getUser;
     },
-    // offset(){
-    //   return document.querySelector("body").getBoundingClientRect().top * -1;
-    // }
     snackbar() {
       return this.$store.getters.snackbar;
+    },
+    loginDialog() {
+      return this.$store.getters.login;
+    },
+    signupDialog() {
+      return this.$store.getters.signup;
+    },
+    isAdmin() {
+      if (!this.authenticated) {
+        return false;
+      }
+      return this.user.id == "w4NsNxycJtbGqSjpLsp9KuTln6B2";
     }
   },
 
@@ -303,7 +351,7 @@ export default {
   --light-secondary: #ffffffb3;
   --light-hint: #ffffff80;
   --light-divider: #ffffff1f;
-  --accent: #ff9800;
+  --accent: rgb(255, 152, 0);
   --divider: #bdbdbd;
   /* --background: #f5f7f5; */
   --background: #ffffff;
@@ -332,45 +380,53 @@ html {
   overflow-y: auto;
 }
 
-*::-webkit-scrollbar-track {
-  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  background-color: white;
-  /* display: none; */
-  /* position: absolute; */
-}
+@media (min-width: 600px) {
+  *::-webkit-scrollbar-track {
+    /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+    background-color: rgb(235, 231, 231);
+    /* display: none; */
+    /* position: absolute; */
+  }
 
-*::-webkit-scrollbar {
-  width: 8px;
-  position: absolute;
-  /* background-color: #f5f5f5; */
-}
+  *::-webkit-scrollbar {
+    width: 8px;
+    position: absolute;
+    /* background-color: #f5f5f5; */
+  }
 
-*::-webkit-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  /* background-color: white; */
-  /* background-color: rgba(255,255,255,0.7); */
-  border-radius: 8px;
-}
-*::-moz-scrollbar-track {
-  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  background-color: white;
-  /* display: none; */
-  /* position: absolute; */
-}
+  *::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    /* background-color: white; */
+    /* background-color: rgba(255,255,255,0.7); */
+    border-radius: 8px;
+  }
+  *::-moz-scrollbar-track {
+    /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
+    background-color: white;
+    /* display: none; */
+    /* position: absolute; */
+  }
 
-*::-moz-scrollbar {
-  width: 8px;
-  position: absolute;
-  /* background-color: #f5f5f5; */
-}
+  *::-moz-scrollbar {
+    width: 8px;
+    position: absolute;
+    /* background-color: #f5f5f5; */
+  }
 
-*::-moz-scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0.2);
-  /* background-color: white; */
-  /* background-color: rgba(255,255,255,0.7); */
-  border-radius: 8px;
+  *::-moz-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    /* background-color: white; */
+    /* background-color: rgba(255,255,255,0.7); */
+    border-radius: 8px;
+  }
+}
+.sub-note {
+  font-size: 0.95em;
+}
+.pre-wrap {
+  white-space: pre-wrap;
 }
 .italic {
   font-family: "Overlock", cursive;

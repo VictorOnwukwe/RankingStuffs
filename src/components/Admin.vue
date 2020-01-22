@@ -16,7 +16,7 @@
               </v-list-item-icon>
               <v-list-item-content>Pending Demands</v-list-item-content>
             </v-list-item>
-            <v-list-item @click="">
+            <v-list-item to="/admin/pending-list-items">
               <v-list-item-icon>
                 <v-icon>fa-flag</v-icon>
               </v-list-item-icon>

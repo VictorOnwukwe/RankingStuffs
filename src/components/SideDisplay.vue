@@ -25,7 +25,7 @@
             </div>
           </div>
           <v-layout v-else justify-center class="my-4">
-            <m-progress :color="'blue lighten-2'"></m-progress>
+            <m-progress></m-progress>
           </v-layout>
         </v-card-text>
       </v-card>
@@ -50,7 +50,7 @@
             </div>
           </div>
           <v-layout v-else justify-center class="my-4">
-            <m-progress :color="'blue lighten-2'"></m-progress>
+            <m-progress></m-progress>
           </v-layout>
         </v-card-text>
       </v-card>

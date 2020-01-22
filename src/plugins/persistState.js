@@ -14,6 +14,8 @@ const plugin = store => {
       if (storage) {
         if (storage.data.authenticated) {
           store.commit("login", storage.data.user);
+        } else if (storage.data.anonymous) {
+          store.commit("anonymousLogin", storage.data.user);
         }
       }
 
@@ -30,6 +32,10 @@ const plugin = store => {
         store.commit("setCategories", storage.data);
         store.dispatch("fetch_home_category_lists");
       } else {
+        if (storage.data) {
+          store.commit("setCategories", storage.data);
+          store.dispatch("fetch_home_category_lists");
+        }
         store.dispatch("fetchCategories");
       }
 
@@ -45,21 +51,10 @@ const plugin = store => {
       if (storage && new Date().getTime() < storage.ts) {
         store.commit("setHotLists", storage.data);
       } else {
-        store.dispatch("fetch_sidebar_contents");
-      }
-
-      storage = false;
-
-      try {
-        storage = localStorage.getItem("hotDemands") || false;
-        if (storage) {
-          storage = JSON.parse(storage);
+        if (storage.data) {
+          store.commit("setHotLists", storage.data);
         }
-      } catch (e) {}
 
-      if (storage && new Date().getTime() < storage.ts) {
-        store.commit("setHotDemands", storage.data);
-      } else {
         store.dispatch("fetch_sidebar_contents");
       }
     } else if ("setCategories" === mutation.type) {
@@ -85,9 +80,9 @@ const plugin = store => {
     } else if ("logout" === mutation.type) {
       let record = {
         data: {
-          user: state.user,
-          authenticated: state.authenticated,
-          anonymous: state.anonymous
+          user: null,
+          authenticated: false,
+          anonymous: false
         }
       };
       try {
@@ -107,15 +102,14 @@ const plugin = store => {
     } else if ("setHotLists" === mutation.type) {
       let record = {
         data: state.hotLists,
-        ts: new Date().getTime() + persistInterval
+        ts: new Date().getTime() + persistInterval / 12
       };
       try {
         localStorage.setItem("hotLists", JSON.stringify(record));
       } catch (e) {}
     } else if ("setHotDemands" === mutation.type) {
       let record = {
-        data: state.hotDemands,
-        ts: new Date().getTime() + persistInterval
+        data: state.hotDemands
       };
       try {
         localStorage.setItem("hotDemands", JSON.stringify(record));

@@ -241,7 +241,7 @@ export default {
         })
         .then(lists => {
           this.lists = lists.map(list => list.data());
-        });
+        }).catch(_ => {})
     },
 
     mailSuccess(message) {

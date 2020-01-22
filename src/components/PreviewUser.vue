@@ -166,19 +166,41 @@ export default {
     },
     follow() {
       this.processing = true;
-      this.$store.dispatch("follow_user", this.user).then(() => {
-        this.following = true;
-        this.processing = false;
-        this.user.followers ? this.user.followers++ : (this.user.followers = 1);
-      });
+      this.$store
+        .dispatch("follow_user", this.user)
+        .then(() => {
+          this.following = true;
+          this.processing = false;
+          this.user.followers
+            ? this.user.followers++
+            : (this.user.followers = 1);
+        })
+        .catch(_ => {
+          this.$store.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.following = false;
+        });
     },
     unfollow() {
       this.processing = true;
-      this.$store.dispatch("unfollow_user", this.user.id).then(() => {
-        this.following = false;
-        this.processing = false;
-        this.user.followers--;
-      });
+      this.$store
+        .dispatch("unfollow_user", this.user.id)
+        .then(() => {
+          this.following = false;
+          this.processing = false;
+          this.user.followers--;
+        })
+        .catch(_ => {
+          this.$store.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.following = false;
+        });
     },
     async checkFollowing() {
       await this.$store

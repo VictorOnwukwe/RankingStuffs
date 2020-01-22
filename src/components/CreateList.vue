@@ -31,33 +31,32 @@
       </v-card>
 
       <v-card flat class="mt grey lighten-3" tile v-if="!$route.query.demanded">
-        <!-- <v-card tile flat style="position:sticky; top:4.5em;z-index:3"> -->
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
           >Type</v-card-title
         >
-        <!-- <v-divider></v-divider> -->
-        <!-- </v-card> -->
         <v-card-text class="mt-4">
           <div :class="{ 'compact left': $vuetify.breakpoint.xs }">
             <v-layout column>
               <v-radio-group
-                prepend-icon="fa-universal-access"
                 color="accent"
-                class="mr-10"
+                class="ml-2"
                 v-model="list.personal"
                 @change="setTypes()"
               >
                 <template v-slot:prepend>
-                  <v-icon size="2.5em" :color="!list.personal ? 'green' : null"
-                    >fa-universal-access</v-icon
+                  <v-icon
+                    size=""
+                    class="mr-2 mt-1"
+                    :color="!list.personal ? 'green' : null"
+                    >$vuetify.icons.people</v-icon
                   >
                 </template>
                 <v-radio color="accent" :value="false">
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">General</span> - List
-                      can be seen by everybody
+                      is open to everyone and is accessible by public search
                     </div>
                   </template>
                 </v-radio>
@@ -65,7 +64,7 @@
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">Personal</span> - List
-                      can only be seen in your profile
+                      is displayed only on your profile
                     </div>
                   </template>
                 </v-radio>
@@ -113,8 +112,8 @@
             >
               <template v-slot:prepend>
                 <v-icon
-                  size="2.5em"
-                  class="mr-1"
+                  size="2em"
+                  class="mr-3 mt-n1"
                   :color="list.selfModerated ? 'green' : null"
                   >fa-lock</v-icon
                 >
@@ -292,7 +291,6 @@
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <AddItem
-              class="item"
               :multi="true"
               v-for="(item, index) in list.items"
               :key="itemIndex[index]"
@@ -304,7 +302,7 @@
               @receiveComment="setItemComment"
               @setValid="setValid"
               @oneUp="oneUp"
-              :rImage="list.items[index].image"
+              @delete="deleteItem"
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
@@ -359,6 +357,7 @@
 import AddItem from "./AddItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
+let _ = require("lodash");
 export default {
   components: {
     AddItem
@@ -381,11 +380,7 @@ export default {
         keywords: [],
         preview_image: false,
         category: "",
-        subCategory: "",
-        user: {
-          id: this.$store.getters.getUser.id,
-          username: this.$store.getters.getUser.username
-        }
+        subCategory: ""
       },
       n: 0,
       userTags: "",
@@ -399,16 +394,12 @@ export default {
       itemIndex: [0, 1, 2, 3, 4],
       listSubmitted: false,
       tempCategory: "",
-      existing: true,
-      timer: null
+      existing: true
     };
   },
 
   methods: {
     async setKeywords() {
-      if (this.list.title == "") {
-        return;
-      }
       this.list.keywords = this.generateKeywords(this.list.title);
     },
 
@@ -420,22 +411,18 @@ export default {
       this.setKeywords();
     },
 
-    async checkExistence() {
+    checkExistence: _.debounce(async function() {
       if (this.list.title == "") {
         this.existing = true;
         return;
       }
-      console.log("checking");
-      clearTimeout(this.timer);
-      this.timer = setTimeout(async () => {
-        await this.$store.dispatch("fetch_list", this.id).then(list => {
-          this.existing = list;
-          if (!this.existing) {
-            this.list.keywords = this.setKeywords(this.list.title);
-          }
-        });
-      }, 2500);
-    },
+      await this.$store.dispatch("fetch_list", this.id).then(list => {
+        this.existing = list;
+        if (!this.existing) {
+          this.setKeywords();
+        }
+      });
+    }, 2000),
 
     async upload() {
       this.loading = true;
@@ -443,12 +430,15 @@ export default {
         let other;
         this.$route.query.demanded
           ? (other = { demanded: true, demand_id: this.$route.query.id })
-          : null;
+          : {};
         if (this.list.personal) {
           await this.$store
             .dispatch("upload_list", { ...other, ...this.list, id: this.id })
             .then(list_id => {
               this.$router.push({ path: "/lists/" + list_id });
+            })
+            .catch(_ => {
+              this.loading = false;
             });
         } else {
           await this.$store
@@ -463,7 +453,7 @@ export default {
                 this.list.subCategory !== ""
                   ? this.list.category + "/" + this.list.subCategory
                   : this.list.category == ""
-                  ? "miscellaneous"
+                  ? "Miscellaneous"
                   : this.list.category;
               this.list = {
                 title: "",
@@ -487,8 +477,12 @@ export default {
               this.loading = false;
             })
             .catch(error => {
-              console.log(error);
               this.loading = false;
+              this.dispatch("setSnackbar", {
+                show: true,
+                message: "sorry. An error occured",
+                type: "error"
+              });
             });
         }
       }, 500);
@@ -562,10 +556,12 @@ export default {
       medL = this.list.items;
       this.list.items = [];
       this.list.items = medL;
-
-      // setTimeout(() => {
-      //   this.scrollTo(110, 'item' + (index));
-      // }, 1);
+    },
+    deleteItem(index) {
+      if (this.list.items.length < 6) {
+        return;
+      }
+      this.list.items.splice(index, 1);
     }
   },
   computed: {
@@ -597,6 +593,12 @@ export default {
           .trim()
           .replace(/ /g, "-");
       }
+    },
+    user() {
+      return {
+        id: this.$store.getters.getUser.id,
+        username: this.$store.getters.getUser.username
+      };
     }
   },
   watch: {
@@ -621,55 +623,10 @@ export default {
 </script>
 
 <style scoped>
-.item {
-  position: relative;
-}
-
-.item + .item {
-  display: grid;
-  grid-template-columns: 1fr;
-  margin-top: 2em;
-}
-
 #plus-button {
   display: flex;
   margin: 1em 0;
   justify-content: center;
-}
-
-ol {
-  counter-reset: my-awesome-counter;
-  list-style: none;
-}
-
-ol > li {
-  margin: 0 0 0.5em 0;
-  counter-increment: my-awesome-counter;
-  position: relative;
-}
-
-ol > li::before {
-  content: counter(my-awesome-counter);
-  color: black;
-  opacity: 0.65;
-  font-size: 1.2em;
-  position: absolute;
-  --size: 1.5em;
-  left: calc(-1.25 * var(--size));
-  line-height: var(--size);
-  width: var(--size);
-  height: var(--size);
-  top: 0.1em;
-  /* background: black; */
-  border-radius: 50%;
-  text-align: center;
-  /* box-shadow: 1px 1px 0 #999; */
-}
-
-.radio {
-  appearance: none;
-  display: inline-block;
-  position: relative;
 }
 .compact {
   transform: scale(0.875);

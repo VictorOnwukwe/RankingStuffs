@@ -139,7 +139,7 @@ export default {
       this.approving = true;
       this.$store.dispatch("demand_list", this.newDemand).then(() => {
         this.approving = false;
-        // this.$store.dispatch("delete_pending_demand", this.demand.id);
+        this.$store.dispatch("delete_pending_demand", this.demand.id);
         this.$store.dispatch("send_notification", {
           type: "demand-approved",
           data: {
@@ -152,7 +152,7 @@ export default {
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        // this.$store.dispatch("delete_pending_list", this.list.id);
+        this.$store.dispatch("delete_pending_list", this.list.id);
         this.$store.dispatch("send_notification", {
           type: "demand-disapproved",
           data: {

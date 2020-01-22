@@ -11,21 +11,11 @@
             <m-progress></m-progress>
           </v-layout>
           <v-list v-else-if="favoriteItems.length > 0">
-            <v-list-item v-for="(favItem, index) in favoriteItems" :key="index">
-              <v-list-item-avatar v-if="favItem.data().image" size="80" tile>
-                <v-img :src="favItem.data().image.src"></v-img>
-              </v-list-item-avatar>
-              <v-list-item-content>
-                <v-list-item-title
-                  class="text-capitalize link--text text-wrap"
-                  :style="{ fontSize: fontSize }"
-                  >{{ favItem.data().name }}</v-list-item-title
-                >
-                <v-list-item-subtitle class="subtitle-2">{{
-                  favItem.id
-                }}</v-list-item-subtitle>
-              </v-list-item-content>
-            </v-list-item>
+            <user-item
+              v-for="(favItem, index) in favoriteItems"
+              :key="index"
+              :item="favItem"
+            ></user-item>
           </v-list>
           <empty
             v-else
@@ -124,9 +114,10 @@
 
                   <v-card-actions>
                     <m-btn
-                      :disabled="!valid || newFav.category == ''"
+                      :disabled="!valid || newFav.category.trim() == ''"
                       @click="addFavorite()"
                       class="ml-n4"
+                      :loading="favoriting"
                       >Add</m-btn
                     >
                   </v-card-actions>
@@ -188,10 +179,12 @@
 <script>
 import AddItem from "./AddItem";
 import UserList from "./UserList";
+import UserItem from "./UserItem";
 export default {
   components: {
     AddItem,
-    "list-preview": UserList
+    "list-preview": UserList,
+    UserItem
   },
   props: {
     id: String,
@@ -214,7 +207,8 @@ export default {
         item: {},
         comment: ""
       },
-      valid: false
+      valid: false,
+      favoriting: false
     };
   },
   methods: {
@@ -230,8 +224,8 @@ export default {
           this.favoriteItems = results;
           this.fetchingItems = false;
         })
-        .catch(error => {
-          this.fetchingItems = false;
+        .catch(_ => {
+          
         });
     },
     fetchMoreItems() {
@@ -249,8 +243,8 @@ export default {
           }
           this.fetchingMoreItems = false;
         })
-        .catch(error => {
-          this.fetchingMoreItems = false;
+        .catch(_ => {
+          
         });
     },
     setValid(val) {
@@ -267,8 +261,8 @@ export default {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingLists = false;
         })
-        .catch(error => {
-          this.fetchingLists = false;
+        .catch(_ => {
+          
         });
     },
     fetchMoreLists() {
@@ -284,15 +278,23 @@ export default {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingMoreLists = false;
         })
-        .catch(error => {
-          this.fetchingMoreLists = false;
+        .catch(_ => {
+          
         });
     },
     addFavorite() {
-      this.$store.dispatch("favorite_item", this.newFav).then(() => {});
+      this.favoriting = true;
+      this.$store
+        .dispatch("favorite_item", this.newFav)
+        .then(() => {
+          this.favoriting = false;
+        })
+        .catch(_ => {
+          this.favoriting = false;
+        });
     },
     setItem(index, item) {
-      this.newFav.item = item;
+      this.newFav.item = { ...this.newFav.item, ...item };
     },
     setItemComment(index, comment) {
       this.newFav.comment = comment;
@@ -321,5 +323,3 @@ export default {
   }
 };
 </script>
-
-<style scoped></style>

@@ -4,7 +4,7 @@
       class="cover"
       :style="{
         backgroundImage:
-          'url(' + require('../assets/' + category.name + '.jpg') + ')'
+          'url(' + require('../assets/' + name + '.jpg') + ')'
       }"
     >
       <div class="tint">
@@ -86,7 +86,9 @@ export default {
         .then(lists => {
           this.lists = lists;
           this.fetching = false;
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     fetchMoreLists() {
       if (this.complete || this.lists.length == 0) {
@@ -106,7 +108,9 @@ export default {
           if (lists.length == 0) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     fetchDemands() {
       this.fetching = true;
@@ -119,7 +123,9 @@ export default {
         .then(query => {
           this.demands = query.docs;
           this.fetching = false;
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     fetchMoreDemands() {
       if (this.complete || this.demands.length == 0) {
@@ -139,7 +145,9 @@ export default {
           if (query.docs.length == 0) {
             this.complete = true;
           }
-        });
+        }).catch(_ => {
+          this.fetching = false;
+        })
     },
     refetch(vals) {
       this.complete = false;
@@ -158,8 +166,6 @@ export default {
         this.fetchMoreLists();
       } else if (this.sort == "demands") {
         this.fetchMoreDemands();
-      } else {
-        console.log("Unregistered Command");
       }
     }
   },
@@ -169,14 +175,6 @@ export default {
         return category.name == this.$route.params.id;
       });
       return category;
-    },
-    cover() {
-      let cover = "../assets/" + this.category.name.toLowerCase() + ".jpg";
-      console.log(cover);
-      return cover;
-    },
-    categoryID() {
-      return this.$route.params.id;
     },
     options() {
       return [
@@ -197,6 +195,11 @@ export default {
           ]
         }
       ];
+    },
+    name() {
+      return this.$vuetify.breakpoint.xs
+        ? this.category.name + "-low"
+        : this.category.name;
     }
   },
   watch: {
@@ -238,10 +241,5 @@ export default {
   bottom: 0em;
   left: 2em;
   padding: 1em;
-}
-select {
-  background: white;
-  padding: 4px 8px;
-  border: 1px solid black;
 }
 </style>
