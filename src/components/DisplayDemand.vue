@@ -12,9 +12,9 @@
         <span class="std">{{ created }}</span>
         <v-layout v-if="demander" class="my-4" align-center>
           <dp class="mr-2" :src="demander.profile_pic"></dp>
-          <username :user="demander"></username>
+          <username v-if="demander" :user="demander"></username>
         </v-layout>
-        <p class="ptd pre-wrap">{{ demand.comment }}</p>
+        <p class="ptd pre-wrap spacious">{{ demand.comment }}</p>
         <v-layout align-center class="mt-4">
           <span class="std" v-html="waitingMessage"></span>
           <v-spacer></v-spacer>
@@ -26,6 +26,7 @@
             outlined
             depressed
             class="ml-2"
+            :color="waiting ? 'accent' : 'grey'"
             v-if="!isCreator"
             fab
             :loading="toggling"
@@ -50,12 +51,7 @@
             <div v-for="comment in comments" :key="comment.id">
               <div class="ptd ml-2" style="font-size:0.9em">
                 {{ comment.data().content }} -
-                <span
-                  @click="showUser(comment)"
-                  class="brand--text"
-                  :class="{ pointer: !isVisitor(comment) }"
-                  >{{ comment.data().user.username }}</span
-                >
+                <username :user="comment.data().user"></username>
               </div>
               <v-divider class="grey lighten-4 my-2"></v-divider>
             </div>
@@ -95,6 +91,17 @@
               </v-layout>
             </v-flex>
           </v-layout>
+
+          <v-card-title
+          class="ptd pl-0 font-weight-bold mt-6 mb-4"
+          style="font-size: 1em"
+          >Other Demands in {{ demand.category }} category</v-card-title
+        >
+
+          <display-demands
+            :demands="otherDemands"
+            :sub="true"
+          ></display-demands>
         </div>
       </div>
     </v-card>
@@ -103,16 +110,18 @@
 
 <script>
 import commentBox from "./CommentBox";
+import DisplayDemands from "./DisplayDemands";
 let moment = require("moment");
 export default {
   components: {
-    commentBox
+    commentBox,
+    DisplayDemands
   },
   data() {
     return {
       demand: {},
       comments: [],
-      demander: {},
+      demander: null,
       comment: "",
       focused: false,
       waiting: undefined,
@@ -120,7 +129,8 @@ export default {
       commenting: false,
       fetching: false,
       userPreview: false,
-      currentUser: null
+      currentUser: null,
+      otherDemands: []
     };
   },
   methods: {
@@ -134,6 +144,7 @@ export default {
             this.setWaiting();
           });
           this.fetchComments();
+          this.fetchOtherDemands();
         })
         .catch(_ => {
           this.dispatch("setSnackbar", {
@@ -142,6 +153,16 @@ export default {
             type: "error"
           });
           this.$store.dispatch("set_loading", false);
+        });
+    },
+    async fetchOtherDemands() {
+      await this.$store
+        .dispatch("fetch_category_demands", {
+          category: this.demand.category,
+          limit: 10
+        })
+        .then(demands => {
+          this.otherDemands = this.otherDemands.concat(demands.docs);
         });
     },
     async fetchDemander() {
@@ -163,13 +184,15 @@ export default {
           this.comments.push(comment);
           this.comment = "";
           this.commenting = false;
-        }).catch(_ => {
-          
-          this.dispatch("setSnackbar", {show: true,
-          message: "sorry. An error occured",
-          type: "error"})
-          this.commenting = false;
         })
+        .catch(_ => {
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+          this.commenting = false;
+        });
     },
     isVisitor(comment) {
       return comment.data().user.username.includes("visitor");
@@ -184,12 +207,14 @@ export default {
         .then(comments => {
           this.comments = this.comments.concat(comments);
           this.fetching = false;
-        }).catch(_ => {
-          
-          this.dispatch("setSnackbar", {show: true,
-          message: "sorry. An error occured",
-          type: "error"})
         })
+        .catch(_ => {
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
+        });
     },
     showUser(comment) {
       if (this.isVisitor(comment)) {

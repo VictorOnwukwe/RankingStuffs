@@ -89,6 +89,10 @@ export default {
       });
     },
     toggleWaiting() {
+      if (!this.authenticated) {
+        this.$store.dispatch("set_login", true);
+        return;
+      }
       if (this.waiting == undefined) {
         return;
       }
@@ -191,8 +195,16 @@ export default {
       return this.$store.getters.getUser.id === this.demand.user;
     },
     fontSize() {
-      return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
+      return this.$vuetify.breakpoint.xs ? "1.2em" : "1.3em";
+    },
+    authenticated() {
+      return this.$store.getters.authenticated;
     }
   }
 };
 </script>
+<style scoped>
+*>*{
+  line-height: 1.6em !important;
+}
+</style>

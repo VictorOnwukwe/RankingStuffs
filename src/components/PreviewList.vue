@@ -1,14 +1,12 @@
 <template>
-  <v-card flat :min-height="random(120, 60)" style="display:flex">
-    <v-hover v-slot:default="{ hover }">
-      <v-card :class="{ loading: !fetched }" width="100%">
+      <v-card :outlined="sub" :class="{ loading: !fetched }" width="100%">
         <v-card-text v-if="fetched" class="pa-3">
           <v-layout>
             <v-flex shrink pr-2>
               <m-img
                 :src="list.preview_image ? list.preview_image.url.low : false"
                 :minWidth="'100px'"
-                :maxWidth="'130px'"
+                :maxWidth="'120px'"
                 :width="sub ? '10vw' : '20vw'"
                 :aspectRatio="'1'"
               ></m-img>
@@ -18,87 +16,64 @@
                 <v-card-title class="pa-0">
                   <router-link
                     :to="'/lists/' + list.id"
-                    class="text-capitalize no-deco brighten-1"
-                    :class="{ 'font-weight-bold ptd': !sub }"
+                    class="text-capitalize no-deco brighten-1 oswald"
+                    :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
                     style="font-size:0.8em"
                   >
                     {{ list.title }}
                   </router-link>
                 </v-card-title>
-                <div class="pa-0" v-if="!sub">
+                <div class="pa-0 mt-1" v-if="!sub">
                   <rating
                     :rating="list.rating"
                     :ratersCount="list.raters_count"
                   ></rating>
-                  <v-layout>
-                    <div>
+                  <span>
+                    <span class="">
                       <span class="ptd font-weight-medium">
                         {{ list.votes }}</span
                       >
-                      <span class="std">&nbsp;votes,&nbsp;</span>
-                    </div>
-                    <div>
+                      <span class="ptd">&nbsp;votes&nbsp;|&nbsp;</span>
+                    </span>
+                    <span>
                       <span class="ptd font-weight-medium">{{
                         list.item_count
                       }}</span>
-                      <span class="std">&nbsp;items</span>
-                    </div>
-                  </v-layout>
-                  <v-layout v-if="!list.description && !sub" class="mt-2">
-                    <v-flex shrink class="mr-1">
-                      <v-avatar tile size="1.8em" style="border-radius:5px">
-                        <v-img
-                          v-if="user.profile_pic"
-                          :src="user.profile_pic.low"
-                        ></v-img>
-                        <v-img
-                          v-else
-                          :src="require('../assets/nophoto.jpg')"
-                        ></v-img>
-                      </v-avatar>
+                      <span class="ptd">&nbsp;items</span>
+                    </span>
+                  </span>
+                  <v-layout class="mt-2">
+                    <v-flex shrink>
+                      <dp class="mr-2" v-if="user" :src="user.profile_pic"></dp>
                     </v-flex>
                     <v-flex shrink>
-                      <username :user="user"></username>
+                      <username v-if="user" :user="user"></username>
                     </v-flex>
                   </v-layout>
                 </div>
               </v-card>
             </v-flex>
           </v-layout>
-          <div v-if="list.description && !sub" class="mt-3">
+          <!-- <div v-if="list.description && !sub" class="mt-3">
             <v-layout class="mt-2">
               <v-flex shrink>
-                <v-avatar size="1.8em" style="border-radius:5px">
-                  <img v-if="user.profile_pic" :src="user.profile_pic.low" />
-                  <img v-else :src="require('../assets/nophoto.jpg')" />
-                </v-avatar>
+                <dp class="mr-2" v-if="user" :src="user.profile_pic"></dp>
               </v-flex>
               <v-flex shrink>
-                <a
-                  @click.stop="showUser = true"
-                  class="subtitle-1 brand--text font-weight- ml-2"
-                  >{{ user.username }}</a
-                ></v-flex
-              >
+                <username v-if="user" :user="user"></username
+              ></v-flex>
             </v-layout>
-            <div v-if="list.description" class="ptd">
-              {{ !more ? list.description.slice(0, 200) : list.description }}
+            <div v-if="list.description" class="ptd">{{ !more ? list.description.slice(0, 200) : list.description }}
               <span
                 @click="more = !more"
                 class="brand--text pointer"
                 v-if="list.description.length > 200"
                 >...{{ !more ? "see more" : "see less" }}</span
               >
-            </div>
+            </div> -->
           </div>
         </v-card-text>
       </v-card>
-    </v-hover>
-
-    <v-dialog v-if="list.user" v-model="showUser" max-width="400px">
-      <preview-user @close="showUser = false" :id="user.id"></preview-user>
-    </v-dialog>
-  </v-card>
 </template>
 
 <script>
@@ -115,7 +90,7 @@ export default {
   },
   data() {
     return {
-      user: {},
+      user: null,
       flatten: true,
       showUser: false,
       fetched: false,

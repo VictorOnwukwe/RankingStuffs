@@ -49,6 +49,10 @@ import PrivacyPolicy from "../components/PrivacyPolicy";
 import ErrorPage from "../components/ErrorPage";
 // @ts-ignore
 import AdminPendingListItems from "../components/AdminPendingListItems";
+// @ts-ignore
+import AdminPendingItemImages from "../components/AdminPendingItemImages";
+// @ts-ignore
+import AdminPendingItemInfos from "../components/AdminPendingItemInfos";
 
 Vue.use(Router);
 
@@ -70,12 +74,12 @@ export default new Router({
           component: UserCreations
         },
         {
-          path: "/users/:id/activities",
+          path: "/users/:id",
           name: "user-activities",
           component: Activities
         },
         {
-          path: "/users/:id",
+          path: "/users/:id/favorites",
           name: "user-favorites",
           component: UserFavorites
         }
@@ -135,7 +139,7 @@ export default new Router({
       path: "/admin",
       component: Admin,
       beforeEnter(to, from, next) {
-        if (store.getters.getUser.id === "w4NsNxycJtbGqSjpLsp9KuTln6B2") {
+        if (store.getters.getUser.id === "c6F7pgDchSfyY931qz1kUUWDKOR2") {
           next();
         } else {
           next({
@@ -144,11 +148,15 @@ export default new Router({
         }
       },
       children: [
-        { path: "/", name: "admin-lists", component: AdminLists },
         {
-          path: "/admin/pending-lists",
+          path: "/",
           name: "admin-pending-lists",
           component: AdminPendingLists
+        },
+        {
+          path: "/admin/lists",
+          name: "admin-lists",
+          component: AdminLists
         },
         {
           path: "/admin/pending-demands",
@@ -164,6 +172,16 @@ export default new Router({
           path: "/admin/pending-list-items",
           name: "admin-pending-list-items",
           component: AdminPendingListItems
+        },
+        {
+          path: "/admin/pending-item-images",
+          name: "admin-pending-item-images",
+          component: AdminPendingItemImages
+        },
+        {
+          path: "/admin/pending-item-infos",
+          name: "admin-pending-item-infos",
+          component: AdminPendingItemInfos
         }
       ]
     },

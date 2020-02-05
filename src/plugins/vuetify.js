@@ -6,6 +6,7 @@ import "@fortawesome/fontawesome-free/css/all.css";
 // @ts-ignore
 import queue from "../icons/queue";
 import create from "../icons/create";
+import createOutline from "../icons/create-outline";
 import demand from "../icons/demand";
 import ladder from "../icons/ladder";
 import joinQueue from "../icons/joinQueue";
@@ -14,6 +15,14 @@ import follow from "../icons/follow";
 import unfollow from "../icons/unfollow";
 import approved from "../icons/approved";
 import people from "../icons/people";
+import demandOutline from "../icons/demand-outline";
+import contribute from "../icons/contribute";
+import addItemOutline from "../icons/add-item-outline";
+import starOutline from "../icons/star-outline";
+import replyOutline from "../icons/reply-outline";
+import commentOutline from "../icons/comment-outline";
+import arrowUp from "../icons/arrow-up";
+import arrowDown from "../icons/arrow-down";
 
 Vue.use(Vuetify);
 
@@ -29,6 +38,9 @@ const vuetify = new Vuetify({
       },
       demand: {
         component: demand
+      },
+      demandOutline: {
+        component: demandOutline
       },
       ladder: {
         component: ladder
@@ -51,6 +63,30 @@ const vuetify = new Vuetify({
       people: {
         component: people
       },
+      createOutline: {
+        component: createOutline
+      },
+      contribute: {
+        component: contribute
+      },
+      addItemOutline: {
+        component: addItemOutline
+      },
+      starOutline: {
+        component: starOutline
+      },
+      replyOutline: {
+        component: replyOutline
+      },
+      commentOutline: {
+        component: commentOutline
+      },
+      arrowUp: {
+        component: arrowUp
+      },
+      arrowDown: {
+        component: arrowDown
+      }
     }
   },
   theme: {

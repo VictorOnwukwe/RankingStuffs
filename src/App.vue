@@ -2,7 +2,7 @@
   <div id="main">
     <v-app id="body">
       <toolbar
-        style="z-index: 4"
+        style="z-index: 9"
         @showSidebar="showSidebar = !showSidebar"
         :closeSearch="closeSearch"
       ></toolbar>
@@ -33,8 +33,7 @@
               class="side-preview"
               v-if="
                 (!loading || $vuetify.breakpoint.smAndUp) &&
-                  !$route.name.includes('admin') &&
-                  !$route.name.includes('terms-and-conditions')
+                  !$route.name.includes('admin')
               "
             >
               <side-display></side-display>
@@ -44,7 +43,7 @@
         <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
         <v-btn
           fab
-          size="1.5em"
+          :small="$vuetify.breakpoint.xs"
           color="accent"
           @click="scrollUp()"
           style="position: fixed;bottom:16px;right:16px;z-index:4"
@@ -96,9 +95,8 @@
               <v-list-item-title>My Creations</v-list-item-title>
             </v-list-item>
             <v-list-item
-              :to="profile"
+              :to="profile + 'favorites'"
               class="ml-0"
-              exact
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
@@ -107,8 +105,9 @@
               <v-list-item-title>My Favorites</v-list-item-title>
             </v-list-item>
             <v-list-item
-              :to="profile + 'activities'"
+              :to="profile"
               class="ml-0"
+              exact
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
@@ -136,9 +135,21 @@
           </div>
         </v-layout>
         <v-divider></v-divider>
-        <div class="std font-weight-bold ml-4 my-2">Site</div>
         <div style="font-size:20px">
           <v-list dense class="pt-1 pb-0">
+            <v-list-item
+              v-if="isAdmin"
+              :to="'/admin'"
+              class="ml-0 nav-link py-0"
+              exact-active-class="grey lighten-4 accent--text font-weight-bold"
+            >
+              <v-list-item-icon>
+                <v-icon>fa-user-shield</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title class="font-weight-medium"
+                >Admin</v-list-item-title
+              >
+            </v-list-item>
             <v-list-item
               to="/"
               class="nav-link"
@@ -202,8 +213,7 @@
               >
             </v-list-item>
             <v-list-item
-              v-if="isAdmin"
-              :to="'/admin'"
+              :to="'/categories'"
               class="ml-0 nav-link py-0"
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
@@ -211,7 +221,7 @@
                 <v-icon>fa-user-shield</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
-                >Admin</v-list-item-title
+                >Categories</v-list-item-title
               >
             </v-list-item>
           </v-list>
@@ -329,7 +339,7 @@ export default {
       if (!this.authenticated) {
         return false;
       }
-      return this.user.id == "w4NsNxycJtbGqSjpLsp9KuTln6B2";
+      return this.user.id == "c6F7pgDchSfyY931qz1kUUWDKOR2";
     }
   },
 
@@ -355,7 +365,7 @@ export default {
   --divider: #bdbdbd;
   /* --background: #f5f7f5; */
   --background: #ffffff;
-  --link: #000000de;
+  --link: #00a65a;
   --button: #0060ac;
   --brand: #388e3c;
   --sidebar: #515151;
@@ -376,7 +386,6 @@ span,
 }
 
 html {
-  scroll-behavior: smooth;
   overflow-y: auto;
 }
 
@@ -425,6 +434,9 @@ html {
 .sub-note {
   font-size: 0.95em;
 }
+.spacious{
+  line-height: 1.9em;
+}
 .pre-wrap {
   white-space: pre-wrap;
 }
@@ -444,6 +456,9 @@ html {
   /* background: white; */
   font-size: 2em;
   color: rgba(0, 0, 0, 0.87);
+}
+.oswald {
+  font-family: "Oswald", sans-serif !important;
 }
 
 .icon {
@@ -481,13 +496,13 @@ html {
   box-sizing: inherit;
 }
 * > * {
-  font-family: Georgia, "Times New Roman", Times, serif;
-  font-family: "Overlock", cursive;
+  /* font-family: Georgia, "Times New Roman", Times, serif;
+  font-family: "Overlock", cursive; */
   font-family: "Roboto", sans-serif;
+  font-family: 'Open Sans', sans-serif;
   /* transition: all 0.15s ease-in; */
 }
 #body {
-  /* background: radial-gradient(#f1f5f8 80%, white); */
   background: var(--background);
   height: auto;
   font-family: "Overlock", cursive;
@@ -521,13 +536,13 @@ html {
 } */
 .view-container {
   padding: 0 0.5em;
-  margin-top: 7.5em;
+  margin-top: 5.5em;
   margin-bottom: 1em;
   width: 100%;
   max-width: 1200px !important;
 }
 .mt {
-  margin-top: 0.5em !important;
+  margin-top: 1em !important;
 }
 .mb {
   margin-bottom: 0.5em !important;
@@ -550,7 +565,7 @@ html {
 .pb {
   padding-bottom: 0.5em !important;
 }
-@media (min-width: 600px) {
+@media (min-width: 960px) {
   .view-container {
     margin-top: 7.5em;
   }
@@ -560,7 +575,7 @@ html {
     padding: 0 1em;
   }
   .mt {
-    margin-top: 1em !important;
+    margin-top: 2em !important;
   }
   .mb {
     margin-bottom: 1em !important;
@@ -589,7 +604,7 @@ html {
     padding: 0;
   }
   .mt {
-    margin-top: 1em !important;
+    margin-top: 2em !important;
   }
   .mb {
     margin-bottom: 1em !important;

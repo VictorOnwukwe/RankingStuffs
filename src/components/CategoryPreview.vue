@@ -12,16 +12,16 @@
       </router-link>
     </v-card-title>
     <v-card-text>
-      <router-link
-        tag="a"
-        :to="'/lists/' + list.id"
-        class="link--text no-deco underline text-capitalize"
-        style="font-size:1.1em"
-        v-for="(list, index) in lists"
-        :key="index"
-      >
-        {{ list.data().title }}<br />
-      </router-link>
+      <div v-for="(list, index) in lists" :key="index" class="mt-1">
+        <router-link
+          tag="a"
+          :to="'/lists/' + list.id"
+          class="link--text no-deco underline text-capitalize"
+          style="font-size:1.1em"
+        >
+          {{ list.data().title }}
+        </router-link>
+      </div>
     </v-card-text>
   </div>
 </template>
@@ -43,9 +43,8 @@ export default {
       })
       .then(lists => {
         this.lists = lists;
-      }).catch(_ => {
-        
       })
+      .catch(_ => {});
   }
 };
 </script>

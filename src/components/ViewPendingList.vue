@@ -24,13 +24,10 @@
                 <p class="ptd font-weight-medium" style="font-size:1.4em">
                   {{ oldList.title }}
                 </p>
-                <div
-                  class="font-weight-bold brand--text"
-                >
+                <div class="font-weight-bold brand--text">
                   Description
                 </div>
-                <p class="ptd"
-                  style="white-space:pre-wrap">{{ oldList.description }}</p>
+                <p class="ptd" style="white-space:pre-wrap">{{ oldList.description }}</p>
 
                 <p>
                   <span class="font-weight-bold brand--text">Category: </span
@@ -56,6 +53,12 @@
                         {{ item.name }}
                       </span>
                     </p>
+                    <div v-if="item.userImage">
+                      <v-img
+                        :src="item.userImage.low"
+                        max-width="200px"
+                      ></v-img>
+                    </div>
                     <p>
                       <span class="grey--text text--darken-2 font-weight-medium"
                         >info:</span
@@ -63,7 +66,7 @@
                       {{ item.info }}
                     </p>
                     <p>
-                      <span class="grey--text text--darken-2 font-weight-medium"
+                      <span class="grey--text text--darken-2 font-weight-medium pre-wrap"
                         >Comment:</span
                       >
                       <span class="italic ptd">
@@ -88,6 +91,7 @@
                 <v-text-field
                   outlined
                   label="Title"
+                  P
                   v-model="newList.title"
                 ></v-text-field>
                 <v-textarea
@@ -218,10 +222,10 @@ export default {
       this.$store.dispatch("upload_list", this.newList).then(() => {
         this.approving = false;
         this.$store.dispatch("set_snackbar", {
-                show: true,
-                message: "List approved successfully",
-                type: "success"
-              });
+          show: true,
+          message: "List approved successfully",
+          type: "success"
+        });
         this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-approved",

@@ -10,7 +10,6 @@
   "dependencies": {
     "@glidejs/glide": "^3.3.0",
     "@mdi/font": "^3.7.95",
-    "animate.css": "^3.7.2",
     "circular-json": "^0.5.9",
     "compressorjs": "^1.0.6",
     "core-js": "^2.6.5",

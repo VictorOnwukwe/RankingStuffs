@@ -31,7 +31,7 @@
                   <m-img
                     :aspectRatio="null"
                     :width="'250px'"
-                    :src="oldItem.item.userImage.image.high"
+                    :src="oldItem.item.userImage.high"
                   ></m-img>
                 </div>
 
@@ -52,6 +52,11 @@
                   <span class="font-weight-bold brand--text">Rank: </span>
                   <span class="ptd">{{ oldItem.rank }}</span>
                 </p>
+                <v-checkbox
+                  v-if="!newItem.item.info"
+                  v-model="newItem.item.isLink"
+                  label="Is Link"
+                ></v-checkbox>
               </v-card-text>
               <v-card-text v-if="showEdit">
                 <v-text-field
@@ -61,7 +66,7 @@
                 ></v-text-field>
                 <v-checkbox
                   v-if="!newItem.item.info"
-                  v-model="newItem.item.is_link"
+                  v-model="newItem.item.isLink"
                   label="Is Link"
                 ></v-checkbox>
               </v-card-text>
@@ -129,6 +134,11 @@ export default {
       this.approving = true;
       this.$store.dispatch("add_list_item", this.newItem).then(() => {
         this.approving = false;
+        this.$store.dispatch("set_snackbar", {
+          show: true,
+          message: "List approved successfully",
+          type: "success"
+        });
         this.$store.dispatch("delete_pending_list_item", this.item.id);
         this.$store.dispatch("send_notification", {
           type: "item-approved",

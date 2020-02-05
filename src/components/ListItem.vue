@@ -37,15 +37,16 @@
             <v-layout justify-center align-center>
               <v-layout column align-center>
                 <v-icon
-                  size="1.4em"
+                  :size="downvoted ? '1.4em' : '1.8em'"
                   @click="upvote()"
                   :class="{
                     'green--text': votedThis.type == 'upvote' || isCreator,
-                    'grey--text': votedThis.type !== 'upvote'
+                    'grey--text': votedThis.type !== 'upvote' && !isCreator
                   }"
                   :disabled="!checkedVoted"
                   :style="{
-                    cursor: votedThis !== false ? 'default' : 'pointer'
+                    cursor:
+                      votedThis !== false || isCreator ? 'default' : 'pointer'
                   }"
                   >{{
                     votedThis.type == "upvote" || isCreator
@@ -57,11 +58,12 @@
               </v-layout>
               <v-layout column align-center>
                 <v-icon
-                  size="1.4em"
+                  :size="upvoted || isCreator ? '1.4em' : '1.8em'"
                   @click="downvote()"
                   :disabled="!checkedVoted"
                   :style="{
-                    cursor: votedThis !== false ? 'default' : 'pointer'
+                    cursor:
+                      votedThis !== false || isCreator ? 'default' : 'pointer'
                   }"
                   :class="{
                     'red--text': votedThis.type == 'downvote',
@@ -79,36 +81,43 @@
           </v-flex>
         </v-layout>
       </v-card-title>
-      <v-layout :column="true" class="mt-2">
+      <v-layout
+        :column="info.about || $vuetify.breakpoint.smAndDown ? true : false"
+        class="mt-2"
+      >
         <v-flex shrink v-if="info.image || info.about || item.image">
           <v-layout column style="height:100%">
-            <v-card-text class="px-2 py-0">
+            <v-card-text class="py-0">
               <div
                 style="margin:0 0.5em 0.1em 0; float:left"
                 v-if="info.image || item.image"
               >
                 <img-prev
-                  class="ml-10 mr-2"
+                  class="mr-2"
                   v-if="info.image"
                   :image="info.image"
-                  :width="200"
-                  :aspectRatio="1"
+                  :high="true"
+                  :width="$vuetify.breakpoint.xs ? 150 : 200"
+                  :aspect-ratio="1"
                   :path="{ item: info.id }"
+                  :radius="'5px'"
                 ></img-prev>
                 <img-prev
-                  class="ml-10 mr-2"
+                  class="mr-2"
                   v-else-if="item.image"
                   :image="item.image"
-                  :width="200"
+                  :width="$vuetify.breakpoint.xs ? 150 : 200"
+                  :radius="'5px'"
+                  :high="true"
                 ></img-prev>
               </div>
               <p v-if="info.about" class="std pa-0" style="pre-wrap;">
                 {{ info.about.slice(0, 500) }}
-                <a
+                <router-link
                   v-if="info.about.length > 500"
-                  class="link--text underline"
-                  @click.stop="goItem()"
-                  >...read more</a
+                  class="link--text underline no-deco"
+                  :to="'/items/' + item.id"
+                  >...read more</router-link
                 >
               </p>
             </v-card-text>
@@ -119,14 +128,22 @@
           <v-card flat height="100%" class="pa-0">
             <v-layout style="height:100%" class column justify-space-between>
               <v-card flat tile>
+                <v-layout
+                  justify-center
+                  v-if="loadingComments || addingComment"
+                  class="my-4"
+                >
+                  <m-progress></m-progress>
+                </v-layout>
                 <v-card
                   class="subtitle-1 px-4 py-1 htd"
                   flat
-                  v-if="item.comment_count == 0"
+                  v-else-if="item.comment_count == 0 && (votedThis.type=='upvote' || votedThis.type=='downvote')"
                   >Be the first to comment...</v-card
                 >
                 <v-card flat v-else>
                   <display-comments
+                    :class="{'mt-4': info.about}"
                     :comments="comments"
                     :list="list"
                     :item="item"
@@ -146,19 +163,10 @@
                       class="ptd"
                       >mdi-plus-circle-outline</v-icon
                     >
-                    <div
-                      v-if="loadingComments || addingComment"
-                      style="display:flex; justify-content:center"
-                    >
-                      <m-progress></m-progress>
-                    </div>
                   </v-layout>
                 </v-card>
-                <!-- <div v-if="addingComment" style="display:flex; justify-content:center">
-                  <v-progress-circular indeterminate :size="20" :width="3"></v-progress-circular>
-                </div> -->
               </v-card>
-              <v-card-actions>
+              <v-card-actions v-if="votedThis.type=='upvote' || votedThis.type=='downvote'">
                 <v-layout column reverse>
                   <v-flex>
                     <div style="position:relative;">
@@ -186,9 +194,11 @@
                   </v-flex>
                   <v-flex class="mr-2">
                     <v-layout class justify-end>
-                      <a v-if="item.comment_count > 0" class="std underline"
+                      <span v-if="item.comment_count > 0" class="std"
                         >{{ item.comment_count }}
-                        {{ item.comment_count > 1 ? "comments" : "comment" }}</a
+                        {{
+                          item.comment_count > 1 ? "comments" : "comment"
+                        }}</span
                       >
                     </v-layout>
                   </v-flex>
@@ -216,7 +226,7 @@ export default {
     "display-comments": DisplayComments
   },
   props: {
-    item: Object,
+    rItem: Object,
     list: Object,
     index: Number,
     list_voted: Boolean
@@ -238,7 +248,8 @@ export default {
       commentsFetched: false,
       infoFetched: false,
       addingComment: false,
-      checkedVoted: false
+      checkedVoted: false,
+      item: {}
     };
   },
 
@@ -261,9 +272,11 @@ export default {
           this.item.comment_count++;
         })
         .catch(_ => {
-          this.$store.dispatch("setSnackbar", {show: true,
+          this.$store.dispatch("setSnackbar", {
+            show: true,
             message: "sorry. An error occured",
-            type: "error"})
+            type: "error"
+          });
           this.addingComment = false;
         });
     },
@@ -273,7 +286,7 @@ export default {
     },
 
     upvote() {
-      if (this.votedThis !== false) {
+      if (this.votedThis !== false || this.isCreator) {
         return;
       }
       this.$emit("voted");
@@ -286,7 +299,7 @@ export default {
       });
     },
     downvote() {
-      if (this.votedThis !== false) {
+      if (this.votedThis !== false || this.isCreator) {
         return;
       }
       this.$emit("voted");
@@ -344,10 +357,6 @@ export default {
         });
     },
 
-    goItem() {
-      this.$router.push();
-    },
-
     async fetchInfo() {
       this.$store
         .dispatch("fetch_item", this.item.info)
@@ -392,14 +401,11 @@ export default {
       return screen.width < 600;
     },
     authenticated() {
-      return this.$store.getters.getAuthenticated;
+      return this.$store.getters.authenticated;
     },
     itemPath() {
       return {
-        path: "/items/" + this.item.name,
-        query: {
-          id: this.info.id
-        }
+        path: "/items/" + this.info.id
       };
     },
     isCreator() {
@@ -407,6 +413,18 @@ export default {
         return false;
       }
       return this.$store.getters.getUser.id == this.item.user;
+    },
+    upvoted(){
+      if(!this.votedThis){
+        return;
+      }
+      return this.votedThis.type === "upvote";
+    },
+    downvoted(){
+      if(!this.votedThis){
+        return;
+      }
+      return this.votedThis.type === "downvote";
     }
   },
 
@@ -417,6 +435,7 @@ export default {
   },
 
   created: function() {
+    this.item = this.rItem;
     this.fetchComments(5);
     this.checkVoted();
     if (this.item.is_link) {

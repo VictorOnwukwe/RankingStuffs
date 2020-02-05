@@ -1,8 +1,8 @@
 <template>
   <div>
     <div style="margin:0 auto;">
-      <div class="page-title">Demand List</div>
-      <v-card flat class="grey lighten-3" tile>
+      <!-- <div class="page-title">Demand List</div> -->
+      <v-card flat class="grey lighten-3 mt">
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
         >
@@ -26,7 +26,7 @@
           </ul>
         </v-card-text>
       </v-card>
-      <v-card flat class="mt grey lighten-3" tile>
+      <v-card flat class="mt grey lighten-3">
         <v-card flat tile>
           <v-card-title
             class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
@@ -145,7 +145,7 @@
             >Submit</m-btn
           >
         </v-card-actions>
-        <v-card-text>
+        <v-card-text v-if="submitted">
           <alert
             class="mt-4"
             :type="'success'"
@@ -305,7 +305,7 @@ export default {
         .replace(/ /g, "-");
     },
     successMessage() {
-      return `Your list has been submitted. You will be notified on completion of
+      return `Your demand has been submitted. You will be notified on completion of
         review. In the mean time, you could check out other
         ${this.tempCategory} lists.`;
     },

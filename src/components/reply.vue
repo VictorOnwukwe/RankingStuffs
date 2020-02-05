@@ -4,7 +4,7 @@
       <div>
         <v-divider class="grey lighten-4 my-1"></v-divider>
       </div>
-      <v-layout>
+      <v-layout align-center>
         <v-flex class="pl-2">
           <div style="white-space:pre-wrap;" class="ptd">{{ !more ? reply.content.slice(0, 600) : reply.content
             }}{{ reply.content.length > 600 ? "..." : " "
@@ -14,25 +14,15 @@
               class="link--text"
               style="cursor:pointer"
               >{{ !more ? "more" : "less" }}</span
-            ><span
-              v-if="reply.content.length <= 600 || more"
-              class="brand--text text--lighten-1 pointer"
-              @click="
-                reply.user.username.includes('visitor')
-                  ? null
-                  : (showUser = true)
-              "
-              >-&nbsp;{{
-                reply.user.username.includes("visitor")
-                  ? "visitor"
-                  : reply.user.username
-              }}</span
-            >
+            >-&nbsp;<username :user="reply.user"></username>
           </div>
           <v-layout class="mt-2 mb-1" align-center>
-            <div class="std" style="display:flex; min-width:4.5em;">
+            <div class="std" style="display:flex; min-width:3em;">
               {{ created }}
             </div>
+                <div v-if="reply.likes" style="display:flex; min-width:4.5em;" class="std">
+                  {{reply.likes}} {{ reply.likes > 1 ? "likes" : "like" }}
+                </div>
 
             <div
               style="display:flex; min-width:4.5em;"

@@ -20,7 +20,7 @@
               </router-link>
               <v-divider
                 v-if="index !== lists.length - 1"
-                class="my-1 grey lighten-2"
+                class="my-2 grey lighten-2"
               ></v-divider>
             </div>
           </div>
@@ -45,7 +45,7 @@
               </router-link>
               <v-divider
                 v-if="index !== demands.length - 1"
-                class="my-1 grey lighten-2"
+                class="my-2 grey lighten-2"
               ></v-divider>
             </div>
           </div>

@@ -1,8 +1,14 @@
 <template>
-  <v-footer padless>
+  <v-footer padless class="mt-12">
     <v-card class="flex" flat tile>
       <v-card tile color="#242729" flat>
-        <v-card-title class="stl title-text">CATEGORIES</v-card-title>
+        <v-card-title class="stl title-text">
+          <v-layout justify-center>
+            <router-link to="/categories" class="stl no-deco"
+              >CATEGORIES</router-link
+            ></v-layout
+          >
+        </v-card-title>
         <v-card-text>
           <div
             id="container"
@@ -30,7 +36,12 @@
                   :key="id"
                   style="font-size:0.9em;"
                   class="text-capitalize brighten-1 stl no-deco block"
-                  :to="'/categories/' + category.name + '/' + sub.name"
+                  :to="
+                    '/categories/' +
+                      category.name +
+                      '/' +
+                      encryptCategory(sub.name)
+                  "
                 >
                   {{ sub.name }}&nbsp;({{ sub.list_count }})
                   <br />
@@ -43,14 +54,19 @@
       <v-card-text
         class="py-2 grey--text text--lighten-2 text-center footer lighten-1"
       >
-        <v-layout class="stl">
-          <router-link
-            to="/"
-            class="no-deco font-weight-bold brand--text text--lighten-2"
-          >
-            <span class="accent--text font-weight-black">Top</span>
-            <span class="white--text font-weight-bold">TENERS</span>
-                <span class="accent--text font-weight-black">...</span>
+        <v-layout class="stl" align-center>
+          <router-link :to="'/'" class="py-1 no-deco" style="font-size:1em">
+            <!-- <span class="white--text">the</span> -->
+            <div style="font-size:1em">
+              <div>
+                <span class="accent--text font-weight-black">Ranking</span>
+              </div>
+              <div class="mt-n3">
+                <span class="white--text font-weight-black">STUFFS</span>
+                <!-- <span class="accent--text font-weight-black">...</span> -->
+              </div>
+            </div>
+            <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
           </router-link>
           <router-link
             to="/terms-and-conditions"
@@ -82,6 +98,12 @@ export default {
   methods: {
     update() {
       this.$store.dispatch("update_all_users");
+    },
+    encryptCategory(name) {
+      return name.replace(/\//g, "zzsl");
+    },
+    decryptCategory(name) {
+      return name.replace(/%sl/g, "/");
     }
   },
   computed: {

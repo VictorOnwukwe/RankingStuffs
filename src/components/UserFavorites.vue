@@ -86,20 +86,17 @@
                         persistent-hint
                         solo
                         flat
-                        :items="[
-                          'person',
-                          'sport',
-                          'pet',
-                          'animal',
-                          'movie',
-                          'music',
-                          'singer',
-                          'footballer'
-                        ]"
+                        :items="favoriteCategories()"
                         color="brand"
                         v-model="newFav.category"
-                        no-data-text="Oops! This is new to us..."
-                      ></v-autocomplete>
+                      >
+                        <template v-slot:no-data>
+                          <v-layout class="px-2">
+                            <v-icon class="mr-2 grey--text">far fa-frown</v-icon>
+                            <span>Oops! This is new to us...</span>
+                          </v-layout>
+                        </template>
+                      </v-autocomplete>
                     </v-flex>
                     <add-item
                       :commentPlaceholder="
@@ -224,9 +221,7 @@ export default {
           this.favoriteItems = results;
           this.fetchingItems = false;
         })
-        .catch(_ => {
-          
-        });
+        .catch(_ => {});
     },
     fetchMoreItems() {
       this.fetchingMoreItems = true;
@@ -243,9 +238,7 @@ export default {
           }
           this.fetchingMoreItems = false;
         })
-        .catch(_ => {
-          
-        });
+        .catch(_ => {});
     },
     setValid(val) {
       this.valid = val;
@@ -261,9 +254,7 @@ export default {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingLists = false;
         })
-        .catch(_ => {
-          
-        });
+        .catch(_ => {});
     },
     fetchMoreLists() {
       this.fetchingMoreLists = true;
@@ -278,9 +269,7 @@ export default {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingMoreLists = false;
         })
-        .catch(_ => {
-          
-        });
+        .catch(_ => {});
     },
     addFavorite() {
       this.favoriting = true;
@@ -310,6 +299,46 @@ export default {
           id: item.info
         }
       });
+    },
+    favoriteCategories() {
+      return [
+        "Song",
+        "Sport",
+        "Movie",
+        "Animal",
+        "Country",
+        "Tennis Player",
+        "Golf Player",
+        "Album",
+        "Soccer Player",
+        "Soccer Team",
+        "Basketball Team",
+        "City",
+        "Basketball Player",
+        "Youtuber",
+        "Game",
+        "Food",
+        "Actor",
+        "Actress",
+        "Television Show",
+        "Comedian",
+        "Music Album",
+        "Music Genre",
+        "Movie Genre",
+        "Cartoon",
+        "Cartoon Character",
+        "Book",
+        "Book Genre",
+        "Writer",
+        "Rapper",
+        "Singer",
+        "Song Writer",
+        "Sportsperson",
+        "Animal",
+        "Model",
+        "Cricket Player",
+        "Cricket Team"
+      ].sort();
     }
   },
   computed: {

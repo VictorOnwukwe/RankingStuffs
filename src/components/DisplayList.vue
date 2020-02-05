@@ -39,17 +39,11 @@
                 <span class="std">, {{ list.votes }} votes</span>
               </div>
               <v-layout v-if="creator" class="mt-4" align-center>
-                <v-avatar tile class="mr-2 br" size="1.8em">
-                  <img
-                    v-if="creator.profile_pic"
-                    :src="creator.profile_pic.low"
-                  />
-                  <img v-else :src="require('../assets/nophoto.jpg')" />
-                </v-avatar>
+                <dp class="mr-2" :src="creator.profile_pic"></dp>
                 <username :user="creator"></username>
               </v-layout>
               <div
-                class="mt-4 grey--text text--darken-2 pre-wrap"
+                class="mt-4 pre-wrap spacious"
                 v-if="list.description"
               >{{ list.description }}</div>
             </div>
@@ -60,34 +54,24 @@
             <div v-for="(item, index) in list.items" :key="index">
               <ListItem
                 :id="item.id"
-                :item="{ id: item.id, ...item.data() }"
+                :rItem="{ id: item.id, ...item.data() }"
                 :list="list"
                 :list_voted="voted"
                 :index="index + 1"
                 @hasImage="setPreview"
                 @voted="voted = true"
               ></ListItem>
-              <v-card
-                flat
-                tile
-                class="my-8 grey lighten-2 pa-1 pl-2 font-weight-black grey--text text--darken-2"
-                v-if="index === 9 && list.items.length > 10"
-                >Top Contenders</v-card
-              >
             </div>
 
-            <v-layout v-if="fetchingMore" justify-center class="mt-12">
-              <v-progress-circular
-                indeterminate
-                color="brand"
-              ></v-progress-circular>
+            <v-layout v-if="fetchingMore" justify-center style="margin-top:5em">
+              <m-progress :size="'28'"></m-progress>
             </v-layout>
 
-            <v-layout class="mt-12" v-if="list.item_count > list.items.length">
-              <v-flex xs8 offset-xs2>
-                <m-btn @click="loadMore()" block depressed>
-                  <!-- <v-icon>mdi-reload</v-icon> -->
+            <v-layout v-if="list.item_count > list.items.length" style="margin-top:5em">
+              <v-flex xs6 offset-xs3>
+                <m-btn @click="loadMore()" block outlined>
                   More
+                  <v-icon>mdi-chevron-down</v-icon>
                 </m-btn>
               </v-flex>
             </v-layout>
@@ -95,7 +79,8 @@
             <v-card
               tile
               outlined
-              class="mt-12 grey lighten-3"
+              style="margin-top:5em"
+              class="grey lighten-3"
               v-if="!list.self_moderated"
             >
               <v-card-title
@@ -149,9 +134,9 @@
 
       <div class="mt-4">
         <v-card-title
-          class="pl-2 pa-1 grey lighten-3 grey--text text--darken-2 text-capitalize"
+          class="ptd pl-0 font-weight-bold"
           style="font-size: 1em"
-          >Other {{ list.category }} lists</v-card-title
+          >Other Lists in {{ list.category }} category</v-card-title
         >
         <div class="mt-6">
           <display-lists :lists="otherLists" :sub="true"></display-lists>
@@ -257,13 +242,15 @@
         </social-sharing>
       </v-card>
     </v-dialog>
-    <v-dialog v-model="showUser" max-width="400px">
-      <preview-user @close="showUser = false" :id="creator.id"></preview-user>
-    </v-dialog>
 
     <v-navigation-drawer
-      height="calc(100vh - 7em)"
-      style="margin-top:7em; z-index:5;"
+      :style="{
+        marginTop: $vuetify.breakpoint.smAndDown ? '4.4em' : '6em',
+        zIndex: 5,
+        height: $vuetify.breakpoint.smAndDown
+          ? 'calc(100vh - 4.4em)'
+          : 'calc(100vh - 6em)'
+      }"
       v-model="showSidebar"
       fixed
       class="sidebar"
@@ -312,8 +299,8 @@
               :size="'1.3em'"
             ></rating>
           </v-layout>
-          <v-layout v-else justify-center>
-            <m-progress></m-progress>
+          <v-layout v-else>
+            <m-progress class="ml-4 mt-2"></m-progress>
           </v-layout>
         </v-card>
 
@@ -374,7 +361,7 @@ export default {
         comment: ""
       },
       fetched: false,
-      creator: {},
+      creator: null,
       showUser: false,
       featured: [],
       userRating: 0,
@@ -483,7 +470,7 @@ export default {
               return { name: result.data().name, id: result.id };
             })
           );
-        })
+        });
     },
 
     rate(rating) {
@@ -527,9 +514,7 @@ export default {
             };
           });
         })
-        .catch(error => {
-          
-        });
+        .catch(error => {});
     },
 
     checkVoted() {
@@ -567,7 +552,7 @@ export default {
       });
     },
     scrollTo(target) {
-      let offset = this.$vuetify.breakpoint.xs ? 30 : 120;
+      let offset = this.$vuetify.breakpoint.xs ? 110 : 120;
       this.$vuetify.goTo(document.getElementById(target), {
         offset: offset
       });
@@ -591,6 +576,7 @@ export default {
       // this.setPreview();
     },
     reset() {
+      this.rated = false;
       this.index = null;
       this.list = null;
       this.item = {
@@ -602,6 +588,9 @@ export default {
       this.showUser = false;
       this.featured = [];
       this.userRating = 0;
+      this.otherLists = [];
+      this.itemValid = false;
+      this.addItem = false;
     },
     async checkRated() {
       await this.$store.dispatch("check_rated", this.listID).then(rated => {
@@ -734,6 +723,10 @@ export default {
 }
 #item {
   margin-top: 2em;
+}
+
+.sidebar{
+  box-shadow:3px 0px 9px rgba(0, 0, 0, 0.3)
 }
 
 .pull-push {

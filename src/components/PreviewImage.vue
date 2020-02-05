@@ -2,9 +2,12 @@
   <div>
     <v-img
       @click="previewImage()"
-      :src="image.url.low"
+      :src="srcUrl"
       :width="width"
       :aspect-ratio="aspectRatio"
+      :style="{ borderRadius: radius }"
+      :min-width="minWidth"
+      :max-width="maxWidth"
     ></v-img>
     <v-dialog v-model="preview" max-width="450px">
       <v-card tile>
@@ -81,12 +84,34 @@
 let moment = require("moment");
 export default {
   props: {
-    width: Number | String,
-    aspectRatio: Number,
+    width: {
+      type: Number | String,
+      default: "200px"
+    },
+    maxWidth: {
+      type: Number | String,
+      default: "100%"
+    },
+    minWidth: {
+      type: Number | String,
+      default: "0"
+    },
+    aspectRatio: {
+      type: Number,
+      default: 1
+    },
     image: Object,
     path: {
       type: Object | Boolean,
       default: false
+    },
+    high: {
+      type: Boolean,
+      default: false
+    },
+    radius: {
+      type: String,
+      default: "5px"
     }
   },
   data() {
@@ -94,33 +119,21 @@ export default {
       preview: false,
       loading: false,
       completeImage: {},
-      user: {}
+      user: {},
+      observer: null,
+      intersected: false
     };
   },
   methods: {
     getDetails() {
       this.loading = true;
       if (this.path) {
-        this.$store
-          .dispatch("fetch_item_image", {
-            item_id: this.path.item,
-            image_id: this.image.id
-          })
-          .then(result => {
-            this.completeImage = result;
-            return result.user;
-          })
-          .then(user => {
-            this.fetchUser(user);
-          })
-          .then(() => {
-            this.loading = false;
-          }).catch(_ => {
-            this.loading = false;
-          })
+        this.completeImage = this.image;
+        this.fetchUser(this.image.user.id);
+        this.loading = false;
       } else {
         this.completeImage = this.image;
-        this.fetchUser(this.image.user);
+        this.fetchUser(this.image.user.id);
         this.loading = false;
       }
     },
@@ -140,9 +153,29 @@ export default {
     }
   },
   computed: {
+    inter() {
+      return this.intersected;
+    },
     created() {
       return moment(this.completeImage.created.toDate()).format("MMMM Do YYYY");
+    },
+    srcUrl() {
+      return this.intersected ? this.image.url.high : this.image.url.low;
     }
+  },
+  mounted() {
+    this.observer = new IntersectionObserver(entries => {
+      const image = entries[0];
+      if (image.isIntersecting) {
+        this.intersected = true;
+        this.observer.disconnect();
+      }
+    });
+
+    this.observer.observe(this.$el);
+  },
+  destroyed() {
+    this.observer.disconnect();
   }
 };
 </script>
@@ -174,5 +207,11 @@ p {
 }
 .label {
   min-width: 6em;
+}
+.blur {
+  filter: blur(2px);
+}
+.unblur {
+  filter: blur(0);
 }
 </style>

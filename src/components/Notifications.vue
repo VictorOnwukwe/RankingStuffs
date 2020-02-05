@@ -2,7 +2,7 @@
   <div id="main">
     <v-layout>
       <v-card
-        class="elevation-4"
+        class="elevation-6"
         tile
         :height="$vuetify.breakpoint.xs ? '100vh' : 'calc(100vh - 3.5em)'"
         style="overflow-y:scroll"

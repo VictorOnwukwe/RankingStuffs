@@ -1,101 +1,84 @@
 <template>
-  <div style="display:flex">
-    <v-hover v-slot:default="{ hover }">
-      <v-card
-        :min-height="random(120, 60)"
-        :class="{ loading: !fetched }"
-        width="100%"
-      >
-        <div v-if="fetched">
-          <v-card-title class style>
-            <v-layout column>
-              <v-layout align-start>
-                <v-flex>
-                  <router-link
-                    :to="'/demands/' + demand.id"
-                    class="ptd text-capitalize no-deco font-weight-bold"
-                    style="font-size:0.85em"
+  <v-card :class="{ loading: !fetched }" width="100%" :outlined="sub">
+    <div v-if="fetched">
+      <v-card-title class style>
+        <v-layout column>
+          <v-layout align-start>
+            <v-flex>
+              <router-link
+                :to="'/demands/' + demand.id"
+                class="text-capitalize no-deco oswald"
+                :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
+                style="font-size:0.85em"
+              >
+                {{ demand.title }}
+              </router-link>
+            </v-flex>
+            <v-flex shrink>
+              <v-menu
+                :close-on-content-click="false"
+                left
+                min-width="90px"
+                max-width="90px"
+              >
+                <template v-slot:activator="{ on }">
+                  <v-icon @click="setWaiting()" class="ml-2" color="" v-on="on"
+                    >mdi-dots-vertical</v-icon
                   >
-                    {{ demand.title }}
-                  </router-link>
-                </v-flex>
-                <v-flex shrink>
-                  <v-menu
-                    :close-on-content-click="false"
-                    left
-                    min-width="90px"
-                    max-width="90px"
+                </template>
+                <v-list class="pa-0">
+                  <v-list-item @click="create()" class="pt-2 tile">
+                    <v-layout column align-center>
+                      <v-icon>$vuetify.icons.create</v-icon>
+                      <span class="caption std">Create</span>
+                    </v-layout>
+                  </v-list-item>
+                  <v-divider></v-divider>
+                  <v-list-item
+                    v-if="!isCreator"
+                    @click="toggleWaiting()"
+                    class="tile"
                   >
-                    <template v-slot:activator="{ on }">
-                      <v-icon
-                        @click="setWaiting()"
-                        class="ml-2"
-                        color=""
-                        v-on="on"
-                        >mdi-dots-vertical</v-icon
+                    <v-layout
+                      justify-center
+                      v-if="loading || waiting == undefined"
+                    >
+                      <m-progress></m-progress>
+                    </v-layout>
+                    <v-layout v-else column align-center>
+                      <v-icon :color="waiting ? 'accent' : null">{{
+                        waiting
+                          ? "$vuetify.icons.leaveQueue"
+                          : "$vuetify.icons.joinQueue"
+                      }}</v-icon>
+                      <span
+                        class="caption"
+                        :class="waiting ? 'accent--text' : 'std'"
+                        >{{ waiting ? "Queueing" : "Queue" }}</span
                       >
-                    </template>
-                    <v-list class="pa-0">
-                      <v-list-item @click="create()" class="pt-2 tile">
-                        <v-layout column align-center>
-                          <v-icon>$vuetify.icons.create</v-icon>
-                          <span class="caption std">Create</span>
-                        </v-layout>
-                      </v-list-item>
-                      <v-divider></v-divider>
-                      <v-list-item
-                        v-if="!isCreator"
-                        @click="toggleWaiting()"
-                        class="tile"
-                      >
-                        <v-layout
-                          justify-center
-                          v-if="loading || waiting == undefined"
-                        >
-                          <m-progress></m-progress>
-                        </v-layout>
-                        <v-layout v-else column align-center>
-                          <v-icon :color="waiting ? 'accent' : null">{{
-                            waiting
-                              ? "$vuetify.icons.leaveQueue"
-                              : "$vuetify.icons.joinQueue"
-                          }}</v-icon>
-                          <span
-                            class="caption"
-                            :class="waiting ? 'accent--text' : 'std'"
-                            >{{ waiting ? "Queueing" : "Queue" }}</span
-                          >
-                        </v-layout>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                </v-flex>
-              </v-layout>
-              <div class="subtitle-1 ptd">
-                <span class="std">{{ created }}</span>
-                <span class="std"
-                  >,
-                  <span class="font-weight-bold">{{
-                    demand.waiters_count
-                  }}</span>
-                  {{ demand.waiters_count > 1 ? "people" : "person" }}
-                  waiting</span
-                >
-              </div>
-            </v-layout>
-          </v-card-title>
-          <v-card-text class="subtitle-1 pt-1 pb-3">
-            <v-layout v-if="creator">
-              <v-avatar size="2em" class="mr-2" style="border-radius:5px">
-                <img
-                  v-if="creator.profile_pic"
-                  :src="creator.profile_pic.low"
-                />
-                <img v-else :src="require('../assets/nophoto.jpg')" alt="" />
-              </v-avatar>
-              <username :user="creator"></username>
-            </v-layout>
-            <div
+                    </v-layout>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </v-flex>
+          </v-layout>
+          <div class="ptd oswald" style="font-size:0.6em">
+            <span class="ptd">{{ created }}</span>
+            <span class="ptd">
+              |
+              <span>{{ demand.waiters_count }}</span>
+              {{ demand.waiters_count > 1 ? "people" : "person" }}
+              waiting</span
+            >
+          </div>
+        </v-layout>
+      </v-card-title>
+      <v-card-text class="subtitle-1 pt-1 pb-3" v-if="!sub">
+        <v-layout v-if="creator">
+          <dp class="mr-2" :src="creator.profile_pic"></dp>
+          <username :user="creator"></username>
+        </v-layout>
+        <!-- <div
               v-if="demand.comment"
               class="ptd mt-2 pre-wrap"
               style="font-size:0.85em"
@@ -106,22 +89,25 @@
                 v-if="demand.comment.length > 200"
                 class="no-deco"
                 >more</router-link
-              ></div>
-          </v-card-text>
-        </div>
-      </v-card>
-    </v-hover>
+              >
+            </div> -->
+      </v-card-text>
+    </div>
     <v-dialog v-if="creator" v-model="showUser" max-width="400px">
       <preview-user :id="creator.id" @close="showUser = false"></preview-user>
     </v-dialog>
-  </div>
+  </v-card>
 </template>
 
 <script>
 let moment = require("moment");
 export default {
   props: {
-    demand: Object
+    demand: Object,
+    sub: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {
@@ -229,7 +215,7 @@ export default {
       return this.$store.getters.getUser.id === this.demand.user;
     },
     created() {
-      return moment(this.demand.created.toDate()).calendar();
+      return moment(this.demand.created.toDate()).fromNow();
     }
   },
   created() {

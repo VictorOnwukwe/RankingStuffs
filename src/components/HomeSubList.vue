@@ -14,9 +14,9 @@
         </div>
       </router-link>
     </v-layout> -->
-    <div style="border:1px solid rgba(0,0,0,0.2);border-radius:3px" class="">
+    <div style="border-radius:3px" class="">
       <router-link :to="'/lists/' + list.id" class="no-deco">
-        <v-card flat>
+        <v-card flat tile>
           <div class="img-overlay pa-2">
             <router-link
               :to="'/categories/' + list.category"
@@ -30,20 +30,51 @@
                 {{ list.category }}
               </div>
             </router-link>
-            <div>
+            <!-- <div>
               <h2
                 class="text-capitalize white--text font-weight-medium"
                 style="font-family: 'Oswald', sans-serif;font-size:1.8em"
               >
                 {{ list.title }}
               </h2>
-            </div>
+            </div> -->
           </div>
-          <m-img
-            :src="list.preview_image ? list.preview_image.url.low : false"
-            :width="'100%'"
-            :aspectRatio="'1.5'"
-          ></m-img>
+          <v-card
+            :style="
+              $vuetify.breakpoint.xs
+                ? 'min-width:calc(100vw + 1em);margin-left:-0.5em'
+                : null
+            "
+          >
+            <m-img
+              :src="list.preview_image ? list.preview_image.url.high : false"
+              :width="'100%'"
+              :aspectRatio="'1.5'"
+            ></m-img>
+          </v-card>
+          <v-card
+            flat
+            tile
+            shaped
+            width="80%"
+            class="mx-auto elevation-1"
+            style="margin-top:-10%"
+          >
+            <div style="border: 1px solid grey">
+              <v-card-title
+                class="text-capitalize ptd"
+                style="font-family: 'Oswald', sans-serif"
+                >{{ list.title }}</v-card-title
+              >
+              <v-card-text class="">
+                <rating
+                  :rating="list.rating"
+                  :ratersCount="list.raters_count"
+                  :size="'1em'"
+                ></rating>
+              </v-card-text>
+            </div>
+          </v-card>
         </v-card>
       </router-link>
       <!-- <div class="">
@@ -93,7 +124,7 @@ export default {
   z-index: 1;
   width: 100%;
   height: 100%;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -101,10 +132,10 @@ export default {
 }
 .cat-name {
   border: 1px solid white;
-  background-color: rgba(0, 0, 0, 0.1);
+  background-color: rgba(0, 0, 0, 0.3);
   cursor: pointer;
 }
 .cat-name:hover {
-  background-color: rgba(255,255,255,0.2);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 </style>

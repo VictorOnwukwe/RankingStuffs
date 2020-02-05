@@ -3,14 +3,16 @@
     <div
       class="cover"
       :style="{
-        backgroundImage:
-          'url(' + require('../assets/' + name + '.jpg') + ')'
+        backgroundImage: 'url(' + require('../assets/' + name + '.jpg') + ')'
       }"
     >
       <div class="tint">
-        <h1 class="text-capitalize ptl">{{ category.name }}</h1>
+        <h1 class="text-capitalize ptl">
+          <router-link to="/categories" class="no-deco b-link">Categories</router-link> /
+          {{ category.name }}
+        </h1>
         <router-link
-          :to="'/categories/' + category.name + '/' + sub.name"
+          :to="'/categories/' + category.name + '/' + encryptCategory(sub.name)"
           v-for="(sub, index) in category.subs"
           :key="index"
           class="stl brighten-1 no-deco"
@@ -86,9 +88,10 @@ export default {
         .then(lists => {
           this.lists = lists;
           this.fetching = false;
-        }).catch(_ => {
-          this.fetching = false;
         })
+        .catch(_ => {
+          this.fetching = false;
+        });
     },
     fetchMoreLists() {
       if (this.complete || this.lists.length == 0) {
@@ -108,9 +111,10 @@ export default {
           if (lists.length == 0) {
             this.complete = true;
           }
-        }).catch(_ => {
-          this.fetching = false;
         })
+        .catch(_ => {
+          this.fetching = false;
+        });
     },
     fetchDemands() {
       this.fetching = true;
@@ -123,9 +127,10 @@ export default {
         .then(query => {
           this.demands = query.docs;
           this.fetching = false;
-        }).catch(_ => {
-          this.fetching = false;
         })
+        .catch(_ => {
+          this.fetching = false;
+        });
     },
     fetchMoreDemands() {
       if (this.complete || this.demands.length == 0) {
@@ -145,9 +150,10 @@ export default {
           if (query.docs.length == 0) {
             this.complete = true;
           }
-        }).catch(_ => {
-          this.fetching = false;
         })
+        .catch(_ => {
+          this.fetching = false;
+        });
     },
     refetch(vals) {
       this.complete = false;
@@ -167,6 +173,12 @@ export default {
       } else if (this.sort == "demands") {
         this.fetchMoreDemands();
       }
+    },
+    encryptCategory(name) {
+      return name.replace(/\//g, "zzsl");
+    },
+    decryptCategory(name) {
+      return name.replace(/%sl/g, "/");
     }
   },
   computed: {
@@ -197,9 +209,10 @@ export default {
       ];
     },
     name() {
-      return this.$vuetify.breakpoint.xs
+      let data = this.$vuetify.breakpoint.xs
         ? this.category.name + "-low"
         : this.category.name;
+      return data.replace(/ /g, "");
     }
   },
   watch: {
@@ -241,5 +254,11 @@ export default {
   bottom: 0em;
   left: 2em;
   padding: 1em;
+}
+.b-link {
+  color: white;
+}
+.b-link:hover {
+  color: var(--accent);
 }
 </style>

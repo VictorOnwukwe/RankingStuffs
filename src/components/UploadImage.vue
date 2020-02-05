@@ -27,9 +27,9 @@
               clearable
             ></v-text-field>
             <v-icon
-              :disabled="imgURL == ''"
-              @click="(isLink = true), (clipper = true)"
-              :color="imgURL !== '' ? 'green' : ''"
+              :disabled="imgURL.trim() == ''"
+              @click="showClipper()"
+              :color="imgURL.trim() !== '' ? 'green' : ''"
               style="margin-top:-0.7em;margin-left:0.2em"
               large
               >mdi-check-circle</v-icon
@@ -57,7 +57,7 @@
           <v-spacer></v-spacer>
           <v-icon
             class="close"
-            @click="(clipper = false), (isLink = false), (imgURL = ''), close()"
+            @click="(clipper = false), (isLink = false), (imgURL = '')"
             >mdi-close</v-icon
           >
         </v-card-title>
@@ -151,7 +151,7 @@
           <v-layout justify-center class="mt-4">
             <v-img
               :min-width="'150px'"
-              :max-width="'250px'"
+              :max-width="$vuetify.breakpoint.xs ? '200px' : '250px'"
               :src="resultURL"
             ></v-img>
           </v-layout>
@@ -221,7 +221,6 @@ export default {
       blobImage: null,
       cropping: false,
       images: {},
-      imgLink: "",
       isLink: false,
       img: null,
       hasImage: false
@@ -229,46 +228,70 @@ export default {
   },
   methods: {
     async crop() {
-      this.cropping = true;
-      let canvas = await this.$refs.clipper.clip();
-      this.resultURL = canvas.toDataURL("image/jpeg", 1);
-      this.uploadMenu = false;
+      let canvas;
+      let process = () => {
+        this.cropping = true;
+        canvas = this.$refs.clipper.clip();
+        this.resultURL = canvas.toDataURL("image/jpeg", 1);
+        this.uploadMenu = false;
 
-      let img = this.getBlob(canvas.toDataURL("image/jpeg", 1));
-      let that = this;
-      let minWidth, maxWidth;
+        let img = this.getBlob(canvas.toDataURL("image/jpeg", 1));
+        let that = this;
+        let minWidth, maxWidth;
 
-      if (this.type == "profile") {
-        minWidth = 50;
-        maxWidth = 500;
-      } else if (this.type == "item" || this.type == "addItem") {
-        minWidth = 250;
-        maxWidth = 500;
+        if (this.type == "profile") {
+          minWidth = 50;
+          maxWidth = 500;
+        } else if (this.type == "item" || this.type == "addItem") {
+          minWidth = 250;
+          maxWidth = 500;
+        }
+
+        new Compressor(img, {
+          quality: 0.8,
+          maxWidth: maxWidth,
+          maxHeight: maxWidth,
+          convertSize: 5000000,
+          success(result) {
+            that.images.high = result;
+          },
+          error(err) {}
+        });
+        new Compressor(img, {
+          quality: 0.8,
+          maxWidth: minWidth,
+          maxHeight: minWidth,
+          convertSize: 5000000,
+          success(result) {
+            that.images.low = result;
+          },
+          error(err) {}
+        });
+        this.cropping = false;
+        this.result = true;
+        this.clipper = false;
+      };
+      try {
+        this.cropping = true;
+        process();
+      } catch (error) {
+        this.$store.dispatch("set_snackbar", {
+          show: true,
+          type: "error",
+          message: "Sorry. Invalid image"
+        });
+        this.cropping = false;
       }
-
-      new Compressor(img, {
-        quality: 0.8,
-        maxWidth: maxWidth,
-        maxHeight: maxWidth,
-        convertSize: 5000000,
-        success(result) {
-          that.images.high = result;
-        },
-        error(err) {}
-      });
-      new Compressor(img, {
-        quality: 0.8,
-        maxWidth: minWidth,
-        maxHeight: minWidth,
-        convertSize: 5000000,
-        success(result) {
-          that.images.low = result;
-        },
-        error(err) {}
-      });
+    },
+    showClipper() {
+      this.isLink = true;
+      this.clipper = true;
+      let tempUrl = this.imgURL;
+      this.imgURL = "";
       this.cropping = false;
-      this.result = true;
-      this.clipper = false;
+      setTimeout(() => {
+        this.imgURL = tempUrl;
+      }, 100);
     },
     rotateLeft() {
       this.rotation -= 5;
@@ -283,10 +306,10 @@ export default {
         ? (data = { source: this.imgURL })
         : (data = { source: "user" });
       if (this.type == "addItem") {
-        this.$emit("save", { image: this.images, ...data });
+        this.$emit("save", { ...this.images, ...data });
         this.result = false;
       }
-      this.$emit("upload", { image: this.images, ...data });
+      this.$emit("upload", { ...this.images, ...data });
     },
     close() {
       this.$emit("close");
@@ -294,7 +317,6 @@ export default {
     uploadSuccess() {
       this.result = false;
       this.close();
-      this.$router.go();
     },
     b64toBlob(b64Data, contentType, sliceSize) {
       contentType = contentType || "";
@@ -350,8 +372,7 @@ export default {
       }
       this.uploadMenu = true;
     }
-  },
-  created() {}
+  }
 };
 </script>
 

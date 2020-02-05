@@ -10,13 +10,16 @@
               width="30vw"
               min-width="160px"
               max-width="300px"
+              min-height="100%"
               aspect-ratio="1.5"
               id="image"
             ></v-img>
             <v-img
               v-else
+              width="30vw"
               min-width="160px"
               max-width="300px"
+              min-height="100%"
               aspect-ratio="1.5"
               :src="require('../assets/emptyimage.jpg')"
             ></v-img>
@@ -29,6 +32,10 @@
               >
                 {{ list.title }}
               </h2>
+              <span class="std subtitle-2">
+                {{ listItem.upvotes }} {{listItem.upvotes > 1 ? "upvotes" : "upvote"}},
+                {{ listItem.downvotes }} {{listItem.downvotes > 1 ? "downvotes" : "downvote"}}
+              </span>
               <h4 class="">
                 <!-- <span class="htd">Rank: </span> -->
                 <span
@@ -61,8 +68,8 @@ export default {
     fetchItemRank() {
       this.$store
         .dispatch("fetch_item_rank", { list_id: this.id, item: this.item })
-        .then(items => {
-          this.listItem = items[0].data();
+        .then(item => {
+          this.listItem = item;
         });
     }
   },

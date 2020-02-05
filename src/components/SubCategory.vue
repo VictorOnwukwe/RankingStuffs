@@ -3,12 +3,15 @@
     <div
       class="cover"
       :style="{
-        backgroundImage:
-          'url(' + require('../assets/' + name + '.jpg') + ')'
+        backgroundImage: 'url(' + require('../assets/' + name + '.jpg') + ')'
       }"
     >
       <div class="tint">
         <h1 class="text-capitalize ptl">
+          <router-link to="/categories" class="no-deco b-link"
+            >Categories</router-link
+          >
+          /
           <router-link
             :to="`/categories/${category.name}`"
             class="no-deco b-link"
@@ -18,7 +21,7 @@
           / <span class="">{{ subCategory.name }}</span>
         </h1>
         <router-link
-          :to="'/categories/' + category.name + '/' + sub.name"
+          :to="'/categories/' + category.name + '/' + encryptCategory(sub.name)"
           v-for="(sub, index) in category.subs"
           :key="index"
           class="stl brighten-1 no-deco"
@@ -95,7 +98,8 @@ export default {
         .then(lists => {
           this.lists = this.lists.concat(lists);
           this.fetching = false;
-        }).catch(_ => {})
+        })
+        .catch(_ => {});
     },
     fetchMoreLists() {
       if (this.complete || this.lists.length == 0) {
@@ -116,7 +120,8 @@ export default {
           if (lists.length == 0) {
             this.complete = true;
           }
-        }).catch(_ => {})
+        })
+        .catch(_ => {});
     },
     fetchDemands() {
       this.fetching = true;
@@ -130,7 +135,8 @@ export default {
         .then(query => {
           this.demands = query.docs;
           this.fetching = false;
-        }).catch(_ => {})
+        })
+        .catch(_ => {});
     },
     fetchMoreDemands() {
       if (this.complete || this.demands.length == 0) {
@@ -151,7 +157,8 @@ export default {
           if (query.docs.length == 0) {
             this.complete = true;
           }
-        }).catch(_ => {})
+        })
+        .catch(_ => {});
     },
     refetch(vals) {
       this.complete = false;
@@ -173,6 +180,12 @@ export default {
       } else {
         console.log("Unregistered Command");
       }
+    },
+    encryptCategory(name) {
+      return name.replace(/\//g, "zzsl");
+    },
+    decryptCategory(name) {
+      return name.replace(/%sl/g, "/");
     }
   },
   computed: {
@@ -184,7 +197,7 @@ export default {
     },
     subCategory() {
       let subCategory = this.category.subs.find(sub => {
-        return sub.name == this.$route.params.subcategory;
+        return this.encryptCategory(sub.name) == this.$route.params.subcategory;
       });
       return subCategory;
     },
@@ -212,9 +225,10 @@ export default {
       ];
     },
     name() {
-      return this.$vuetify.breakpoint.xs
+      let data = this.$vuetify.breakpoint.xs
         ? this.category.name + "-low"
         : this.category.name;
+      return data.replace(/ /g, "");
     }
   },
   watch: {

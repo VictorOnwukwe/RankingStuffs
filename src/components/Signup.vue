@@ -138,68 +138,59 @@ export default {
     },
 
     async emailSignup() {
-      if (!this.valid) {
-        let form = document.getElementById("form");
+      this.eloading = true;
 
-        form.classList.add("animated", "shake", "faster");
-        form.addEventListener("animationend", () => {
-          form.classList.remove("animated", "shake", "faster");
+      await this.$store
+        .dispatch("emailSignup", {
+          email: this.email.toLowerCase().trim(),
+          password: this.password,
+          username: this.username.toLowerCase().replace(/\s/g, "")
+        })
+        .then(() => {
+          this.close();
+        })
+        .catch(error => {
+          this.eloading = false;
+          if (error.code === "auth/email-already-in-use") {
+            Swal.fire({
+              type: "info",
+              html:
+                "<div>" +
+                '<h1 style="margin-top:-10px; margin-bottom:10px">Oops...</h1>' +
+                "<p>This email already exists. You may have previously signed in with a social platform. Continue to sign in with Facebook or google</p>" +
+                '<button id="facebook" style="background-color:#1565C0" class="alert-button">FACEBOOK</button><br>' +
+                '<button id="google" style="background-color:#F14336" class="alert-button">GOOGLE</button>' +
+                "</div>",
+              showCloseButton: true,
+              showConfirmButton: false,
+              focusCancel: true,
+              background: "#f4f4f4",
+              onBeforeOpen: () => {
+                const content = Swal.getContent();
+                const $ = content.querySelector.bind(content);
+
+                const facebook = $("#facebook");
+                const google = $("#google");
+
+                facebook.addEventListener("click", () => {
+                  this.socialSignup("F");
+                  Swal.close();
+                });
+
+                google.addEventListener("click", () => {
+                  this.socialSignup("G");
+                  Swal.close();
+                });
+              }
+            });
+          } else {
+            this.$store.dispatch("set_snackbar", {
+              show: true,
+              message: "Sorry. An error occured",
+              type: "error"
+            });
+          }
         });
-      } else {
-        this.eloading = true;
-
-        await this.$store
-          .dispatch("emailSignup", {
-            email: this.email.toLowerCase().trim(),
-            password: this.password,
-            username: this.username.toLowerCase().replace(/\s/g, "")
-          })
-          .then(() => {
-            this.close();
-          })
-          .catch(error => {
-            this.eloading = false;
-            if (error.code === "auth/email-already-in-use") {
-              Swal.fire({
-                type: "info",
-                html:
-                  "<div>" +
-                  '<h1 style="margin-top:-10px; margin-bottom:10px">Oops...</h1>' +
-                  "<p>This email already exists. You may have previously signed in with a social platform. Continue to sign in with Facebook or google</p>" +
-                  '<button id="facebook" style="background-color:#1565C0" class="alert-button">FACEBOOK</button><br>' +
-                  '<button id="google" style="background-color:#F14336" class="alert-button">GOOGLE</button>' +
-                  "</div>",
-                showCloseButton: true,
-                showConfirmButton: false,
-                focusCancel: true,
-                background: "#f4f4f4",
-                onBeforeOpen: () => {
-                  const content = Swal.getContent();
-                  const $ = content.querySelector.bind(content);
-
-                  const facebook = $("#facebook");
-                  const google = $("#google");
-
-                  facebook.addEventListener("click", () => {
-                    this.socialSignup("F");
-                    Swal.close();
-                  });
-
-                  google.addEventListener("click", () => {
-                    this.socialSignup("G");
-                    Swal.close();
-                  });
-                }
-              });
-            } else {
-              this.dispatch("setSnackbar", {
-                show: true,
-                message: "sorry. An error occured",
-                type: "error"
-              });
-            }
-          });
-      }
     },
 
     async socialSignup(type) {

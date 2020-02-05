@@ -1,12 +1,23 @@
 <template>
   <div>
-    <div class="top-view">
+    <div
+      class="top-view"
+      :style="{
+        backgroundImage: $vuetify.breakpoint.xs
+          ? 'url(' + require('../assets/background-low.jpg') + ')'
+          : 'url(' + require('../assets/background.jpg') + ')'
+      }"
+    >
       <div class="overlay">
         <div class="foreground">
           <div style="font-size:2em">
-            <span class="accent--text font-weight-black">top</span>
-            <span class="white--text font-weight-black">TENERS</span>
-            <span class="accent--text font-weight-black">...</span>
+            <div>
+            <span class="accent--text font-weight-black">Ranking</span>
+            </div>
+            <div class="mt-n4">
+            <span class="white--text font-weight-black">STUFFS</span>
+            <!-- <span class="accent--text font-weight-black">...</span> -->
+            </div>
           </div>
           <p class="ptl text-center">
             Journey with us! As we reach the very top of everything the mind can
@@ -18,8 +29,8 @@
                 >Create</router-link
               >
               <div class="mt-2 ptl text-center">
-                Share the fun with other Top-Teners by creating lists and
-                getting others' opinions
+                Share the fun with other Rankers by creating lists and getting
+                others' opinions
               </div>
             </div>
             <div class="display demand">
@@ -27,8 +38,8 @@
                 >Demand</router-link
               >
               <div class="mt-2 ptl text-center">
-                Curious about top ten stuff? Place it on demand. Maybe a
-                Top-Tener could just help out
+                Curious about top ten stuff? Place it on demand. Maybe a Rankers
+                could just help out
               </div>
             </div>
           </div>
@@ -44,7 +55,6 @@ export default {};
 
 <style scoped>
 .top-view {
-  background-image: url("../../public/background3.jpg");
   width: calc(100% + 1em);
   margin-left: -0.5em;
   min-height: 80vh;

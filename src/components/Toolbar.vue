@@ -1,300 +1,315 @@
 <template>
-  <div class="affix elevation-3">
-    <div style="width:100%" class="brand" @click="action()">
-      <div class="mx-auto content">
-        <v-layout justify-space-between align-center>
-          <v-flex>
-            <v-layout align-center>
-              <v-app-bar-nav-icon
-                @click="emitSidebar()"
-                color="rgba(255, 255, 255, 0.902)"
-                class="hidden-md-and-up mr-2"
-              ></v-app-bar-nav-icon>
-              <router-link :to="'/'" class="py-1" style="font-size:1.5em">
-                <!-- <span class="white--text">the</span> -->
-                <span class="accent--text font-weight-black">top</span>
-                <span class="white--text font-weight-black">TENERS</span>
-                <span class="accent--text font-weight-black">...</span>
-                <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
-              </router-link>
-            </v-layout>
-          </v-flex>
-          <v-flex>
-            <v-layout style="height:4.5em" align-center justify-space-around>
-              <v-flex grow class="hidden-sm-and-down">
-                <v-layout justify-center class="">
-                  <router-link tag="a" class="nav" to="/">Home</router-link>
-                  <router-link tag="a" class="nav" to="/lists"
-                    >Lists</router-link
-                  >
-                  <router-link
-                    tag="a"
-                    class="nav"
-                    style="margin-left:1em"
-                    to="/demands"
-                    >Demands</router-link
-                  >
-                  <router-link tag="a" class="nav" to="/create"
-                    >Create List</router-link
-                  >
-                  <router-link tag="a" class="nav" to="/demand"
-                    >Demand List</router-link
-                  >
-                  <router-link v-if="isAdmin" tag="a" class="nav" to="/admin"
-                    >Admin</router-link
-                  >
-                </v-layout>
-              </v-flex>
-              <v-flex>
-                <v-layout v-if="!authenticated" justify-end class="">
-                  <v-icon
-                    color="rgba(255, 255, 255, 0.902)"
-                    class="mr-4"
-                    @click.stop="search = !search"
-                    >search</v-icon
-                  >
-                  <a @click="$store.dispatch('set_login', true)" class=""
-                    >Login</a
-                  >
-                  <a @click="$store.dispatch('set_signup', true)" class=""
-                    >Signup</a
-                  >
-                </v-layout>
-                <v-layout v-else justify-end align-center>
-                  <v-icon
-                    color="rgba(255, 255, 255, 0.902)"
-                    @click.stop="search = !search"
-                    size="25"
-                    >{{ !search ? "search" : "mdi-close" }}</v-icon
-                  >
-                  <v-badge overlap class="ml-4" color="accent">
-                    <template v-slot:badge>
-                      <span v-if="notifications > 0">{{ notifications }}</span>
-                    </template>
-                    <v-icon
-                      @click.stop="notification = !notification"
-                      color="rgba(255, 255, 255, 0.902)"
-                      size="25"
-                      >mdi-bell</v-icon
-                    >
-                  </v-badge>
-                  <v-menu
-                    offset-y
-                    open-on-hover
-                    close-on-content-click
-                    close-on-click
-                    max-width="250px"
-                    v-if="$vuetify.breakpoint.mdAndUp"
-                  >
-                    <template v-slot:activator="{ on }">
-                      <div v-on="on" class="ml-4">
-                        <dp :src="user.profile_pic" :size="'2em'"></dp>
-                      </div>
-                    </template>
-                    <v-list dense color="">
-                      <v-list-item>
-                        <v-list-item-avatar>
-                          <v-avatar size="2em" v-if="user.profile_pic">
-                            <img :src="user.profile_pic.low" />
-                          </v-avatar>
-                          <v-avatar size="2em" v-else>
-                            <img :src="require('../assets/nophoto.jpg')" />
-                          </v-avatar>
-                        </v-list-item-avatar>
-                        <v-list-item-content>
-                          <v-list-item-title
-                            class="font-weight-black subtitle-1 "
-                            >{{ user.username }}</v-list-item-title
-                          >
-                          <v-list-item-subtitle class="">{{
-                            user.email
-                          }}</v-list-item-subtitle>
-                        </v-list-item-content>
-                      </v-list-item>
-                      <v-list-item
-                        :to="profile + 'creations'"
-                        class="ml-0"
-                        exact-active-class="grey lighten-4 accent--text font-weight-bold"
+  <div>
+    <div class="affix elevation-3">
+      <v-progress-linear
+        v-if="loading"
+        height="2"
+        color="accent"
+        indeterminate
+        style="position:absolute;top:0"
+      ></v-progress-linear>
+      <div style="width:100%" class="brand" @click="action()">
+        <div class="mx-auto content">
+          <v-layout justify-space-between align-center>
+            <v-flex>
+              <v-layout align-center>
+                <v-app-bar-nav-icon
+                  @click="emitSidebar()"
+                  color="rgba(255, 255, 255, 0.902)"
+                  class="hidden-md-and-up mr-2"
+                ></v-app-bar-nav-icon>
+                <router-link :to="'/'" class="py-1" style="font-size:1.5em">
+                  <!-- <span class="white--text">the</span> -->
+                  <div style="font-size:1em">
+                    <div>
+                      <span class="accent--text font-weight-black"
+                        >Ranking</span
                       >
-                        <v-list-item-icon>
-                          <v-icon color size="1.5em">mdi-creation</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-title class=""
-                          >My Creations</v-list-item-title
-                        >
-                      </v-list-item>
-                      <v-list-item
-                        :to="profile"
-                        class="ml-0"
-                        exact
-                        exact-active-class="grey lighten-4 accent--text font-weight-bold"
-                      >
-                        <v-list-item-icon>
-                          <v-icon size="1.2em" color>fa-star</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-title class=""
-                          >My Favorites</v-list-item-title
-                        >
-                      </v-list-item>
-                      <v-list-item
-                        class="ml-0"
-                        :to="profile + 'activities'"
-                        exact-active-class="grey lighten-4 accent--text font-weight-bold"
-                      >
-                        <v-list-item-icon>
-                          <v-icon color>mdi-timeline</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-title class=""
-                          >My Activities</v-list-item-title
-                        >
-                      </v-list-item>
-                      <v-list-item @click="logout()" class="tile">
-                        <v-list-item-icon>
-                          <v-icon>mdi-logout</v-icon>
-                        </v-list-item-icon>
-                        <v-list-item-title class="">Logout</v-list-item-title>
-                      </v-list-item>
-                    </v-list>
-                  </v-menu>
-                  <div v-else class="ml-4">
-                    <dp :src="user.profile_pic" :size="'2em'"></dp>
+                    </div>
+                    <div class="mt-n3">
+                      <span class="white--text font-weight-black">STUFFS</span>
+                      <!-- <span class="accent--text font-weight-black">...</span> -->
+                    </div>
                   </div>
-                </v-layout>
-              </v-flex>
-            </v-layout>
-          </v-flex>
-        </v-layout>
+                  <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
+                </router-link>
+              </v-layout>
+            </v-flex>
+            <v-flex>
+              <v-layout style="height:4.5em" align-center justify-space-around>
+                <v-flex grow class="hidden-sm-and-down">
+                  <v-layout justify-center class="">
+                    <router-link tag="a" class="nav" to="/">Home</router-link>
+                    <router-link tag="a" class="nav" to="/lists"
+                      >Lists</router-link
+                    >
+                    <router-link
+                      tag="a"
+                      class="nav"
+                      style="margin-left:1em"
+                      to="/demands"
+                      >Demands</router-link
+                    >
+                    <router-link tag="a" class="nav" to="/create"
+                      >Create List</router-link
+                    >
+                    <router-link tag="a" class="nav" to="/demand"
+                      >Demand List</router-link
+                    >
+                    <router-link v-if="isAdmin" tag="a" class="nav" to="/admin"
+                      >Admin</router-link
+                    >
+                  </v-layout>
+                </v-flex>
+                <v-flex>
+                  <v-layout v-if="!authenticated" justify-end class="">
+                    <v-icon
+                      color="rgba(255, 255, 255, 0.902)"
+                      class="mr-4"
+                      @click.stop="search = !search"
+                      >{{ !search ? "search" : "mdi-close" }}</v-icon
+                    >
+                    <a @click="$store.dispatch('set_login', true)" class="white--text"
+                      >Login</a
+                    >
+                    <a @click="$store.dispatch('set_signup', true)" class="white--text"
+                      >Signup</a
+                    >
+                  </v-layout>
+                  <v-layout v-else justify-end align-center>
+                    <v-icon
+                      color="rgba(255, 255, 255, 0.902)"
+                      @click.stop="search = !search"
+                      size="25"
+                      >{{ !search ? "search" : "mdi-close" }}</v-icon
+                    >
+                    <v-badge overlap class="ml-4" color="accent">
+                      <template v-slot:badge>
+                        <span v-if="notifications > 0">{{
+                          notifications
+                        }}</span>
+                      </template>
+                      <v-icon
+                        @click.stop="notification = !notification"
+                        color="rgba(255, 255, 255, 0.902)"
+                        size="25"
+                        >mdi-bell</v-icon
+                      >
+                    </v-badge>
+                    <v-menu
+                      offset-y
+                      open-on-hover
+                      close-on-content-click
+                      close-on-click
+                      max-width="250px"
+                      v-if="$vuetify.breakpoint.mdAndUp"
+                    >
+                      <template v-slot:activator="{ on }">
+                        <div v-on="on" class="ml-4">
+                          <dp :src="user.profile_pic"></dp>
+                        </div>
+                      </template>
+                      <v-list dense color="">
+                        <v-list-item>
+                          <v-list-item-avatar>
+                            <dp :src="user.profile_pic"></dp>
+                          </v-list-item-avatar>
+                          <v-list-item-content>
+                            <v-list-item-title
+                              class="font-weight-black subtitle-1 "
+                              >{{ user.username }}</v-list-item-title
+                            >
+                            <v-list-item-subtitle>{{
+                              user.email
+                            }}</v-list-item-subtitle>
+                          </v-list-item-content>
+                        </v-list-item>
+                        <v-list-item
+                          :to="profile + 'creations'"
+                          class="ml-0"
+                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                        >
+                          <v-list-item-icon>
+                            <v-icon color size="1.5em">mdi-creation</v-icon>
+                          </v-list-item-icon>
+                          <v-list-item-title class=""
+                            >My Creations</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item
+                          :to="profile + 'favorites'"
+                          class="ml-0"
+                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                        >
+                          <v-list-item-icon>
+                            <v-icon size="1.2em" color>fa-star</v-icon>
+                          </v-list-item-icon>
+                          <v-list-item-title class=""
+                            >My Favorites</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item
+                          class="ml-0"
+                          :to="profile"
+                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                          exact
+                        >
+                          <v-list-item-icon>
+                            <v-icon color>mdi-view-list</v-icon>
+                          </v-list-item-icon>
+                          <v-list-item-title class=""
+                            >My Activities</v-list-item-title
+                          >
+                        </v-list-item>
+                        <v-list-item @click="logout()" class="tile">
+                          <v-list-item-icon>
+                            <v-icon>mdi-logout</v-icon>
+                          </v-list-item-icon>
+                          <v-list-item-title class="">Logout</v-list-item-title>
+                        </v-list-item>
+                      </v-list>
+                    </v-menu>
+                    <div v-else class="ml-4">
+                      <dp :src="user.profile_pic" :size="'2em'"></dp>
+                    </div>
+                  </v-layout>
+                </v-flex>
+              </v-layout>
+            </v-flex>
+          </v-layout>
+        </div>
       </div>
-    </div>
-    <v-layout justify-center class="brand px-4">
       <v-layout
-        class="cat-display brand"
-        style="overflow-x:scroll; max-width: 1200px"
+        v-if="$vuetify.breakpoint.mdAndUp"
+        justify-center
+        class="brand px-4"
       >
-        <v-menu
-          v-for="(category, index) in categories"
-          :key="index"
-          max-height="500px"
-          max-width="250px"
-          min-width="200px"
-          bottom
-          offset-y
-          open-on-hover
+        <v-layout
+          class="cat-display brand"
+          style="overflow-x:scroll; max-width: 1200px"
         >
-          <template v-slot:activator="{ on }">
-            <a
-              v-on="on"
-              class="text-capitalize cat-link brand--text text--lighten-4"
-              >{{ category.name }}</a
-            >
-          </template>
-          <div class="menu-display px-4 py-2">
-            <router-link
-              :to="'/categories/' + category.name"
-              class="category block"
-              >{{ category.name }}</router-link
-            >
-            <div v-for="(sub, index) in category.subs" :key="index">
-              <router-link
-                tag="a"
-                :to="'/categories/' + category.name + '/' + sub.name"
-                class="font-weight-medium sub-category block"
-                >{{ sub.name }}</router-link
-              >
-            </div>
-          </div>
-        </v-menu>
-      </v-layout>
-    </v-layout>
-    <v-progress-linear
-      v-if="loading"
-      height="2"
-      color="brand darken-1"
-      indeterminate
-    ></v-progress-linear>
-    <transition name="search-bar">
-      <div v-if="search" class="search elevation-3 grey lighten-3">
-        <div class="search-field">
-          <input
-            style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
-            type="text"
-            v-model="keyword"
-            @keyup="fetchResults()"
-          />
-          <v-icon style="position:absolute; right:0.5em; top:0.5em"
-            >search</v-icon
+          <v-menu
+            v-for="(category, index) in categories"
+            :key="index"
+            max-height="500px"
+            max-width="250px"
+            min-width="200px"
+            bottom
+            offset-y
+            open-on-hover
           >
-        </div>
-        <div class="search-results white">
-          <div v-if="demands.length > 0 || lists.length > 0" style="">
-            <div v-if="lists.length > 0" class="ptd">
-              <div
-                class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
+            <template v-slot:activator="{ on }">
+              <a
+                style="white-space:nowrap"
+                v-on="on"
+                class="text-capitalize cat-link brand--text text--lighten-4"
               >
-                Lists
-              </div>
-              <div class="px-2 mb-4">
-                <span
-                  v-for="(result, index) in lists"
-                  :key="index"
-                  @click="(search = false), go('/lists/' + result.id)"
-                  class="underline pointer text-capitalize"
+                {{ category.name }}
+              </a>
+            </template>
+            <div class="menu-display px-4 py-2">
+              <router-link
+                :to="'/categories/' + category.name"
+                class="category block ptd"
+                >{{ category.name }}</router-link
+              >
+              <div v-for="(sub, index) in category.subs" :key="index">
+                <router-link
+                  tag="a"
+                  style="line-height:200%"
+                  :to="subLink(category.name, sub.name)"
+                  class="font-weight-medium sub-category block std"
+                  >{{ sub.name }}</router-link
                 >
-                  {{ result.data().title }}<br />
-                </span>
               </div>
             </div>
-            <div v-if="demands.length > 0" class="ptd">
-              <div
-                class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
-              >
-                Demands
-              </div>
-              <div class="px-2 mb-4">
-                <span
-                  v-for="(result, index) in demands"
-                  :key="index"
-                  @click="(search = false), go('/demands/' + result.id)"
-                  class="underline pointer text-capitalize"
+          </v-menu>
+        </v-layout>
+      </v-layout>
+      <transition name="search-bar">
+        <div v-if="search" class="search elevation-3 grey lighten-3">
+          <div class="search-field">
+            <input
+              style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
+              type="text"
+              v-model="keyword"
+              @keyup="fetchResults()"
+            />
+            <v-icon style="position:absolute; right:0.5em; top:0.5em"
+              >search</v-icon
+            >
+          </div>
+          <div class="search-results white">
+            <div v-if="demands.length > 0 || lists.length > 0" style="">
+              <div v-if="lists.length > 0" class="ptd">
+                <div
+                  class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
                 >
-                  {{ result.data().title }}<br />
-                </span>
+                  Lists
+                </div>
+                <div class="px-2 mb-4">
+                  <span
+                    v-for="(result, index) in lists"
+                    :key="index"
+                    @click="(search = false), go('/lists/' + result.id)"
+                    class="underline pointer text-capitalize"
+                  >
+                    {{ result.data().title }}<br />
+                  </span>
+                </div>
+              </div>
+              <div v-if="demands.length > 0" class="ptd">
+                <div
+                  class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
+                >
+                  Demands
+                </div>
+                <div class="px-2 mb-4">
+                  <span
+                    v-for="(result, index) in demands"
+                    :key="index"
+                    @click="(search = false), go('/demands/' + result.id)"
+                    class="underline pointer text-capitalize"
+                  >
+                    {{ result.data().title }}<br />
+                  </span>
+                </div>
               </div>
             </div>
-          </div>
-          <div v-else-if="keyword.length >= 5 && !searching">
-            <v-card tile flat class="ptd white">
-              <v-card-text class
-                >Sorry. This list does not exist yet. Be the first to create or
-                demand it.</v-card-text
-              >
-              <v-card-actions>
-                <v-spacer></v-spacer>
-                <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
-                <m-btn text small @click="goSearchedCreate()">Create</m-btn>
-              </v-card-actions>
-            </v-card>
-          </div>
-          <div v-else-if="keyword.length >= 5">
-            <v-layout justify-center>
-              <v-progress-circular
-                class="my-4"
-                size="20"
-                color="brand"
-                :width="3"
-                indeterminate
-              ></v-progress-circular>
-            </v-layout>
+            <div v-else-if="keyword.length >= 5 && !searching">
+              <v-card tile flat class="ptd white">
+                <v-card-text class
+                  >Sorry. This list does not exist yet. Be the first to create
+                  or demand it.</v-card-text
+                >
+                <v-card-actions>
+                  <v-spacer></v-spacer>
+                  <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
+                  <m-btn text small @click="goSearchedCreate()">Create</m-btn>
+                </v-card-actions>
+              </v-card>
+            </div>
+            <div v-else-if="keyword.length >= 5">
+              <v-layout justify-center>
+                <v-progress-circular
+                  class="my-4"
+                  size="20"
+                  color="brand"
+                  :width="3"
+                  indeterminate
+                ></v-progress-circular>
+              </v-layout>
+            </div>
           </div>
         </div>
-      </div>
-    </transition>
+      </transition>
 
-    <transition name="notification-bar">
-      <div v-if="notification" class="notification">
-        <Notifications @close="notification = false"></Notifications>
-      </div>
-    </transition>
+      <transition name="notification-bar">
+        <div v-if="notification" class="notification">
+          <Notifications @close="notification = false"></Notifications>
+        </div>
+      </transition>
+    </div>
   </div>
 </template>
 
@@ -394,6 +409,15 @@ export default {
     },
     emitSidebar() {
       this.$emit("showSidebar", !this.showSidebar);
+    },
+    encryptCategory(name) {
+      return name.replace(/\//g, "zzsl");
+    },
+    decryptCategory(name) {
+      return name.replace(/%sl/g, "/");
+    },
+    subLink(cat, sub) {
+      return "/categories/" + cat + "/" + this.encryptCategory(sub);
     }
   },
 
@@ -404,22 +428,6 @@ export default {
     search() {
       if (!this.search) {
         this.action();
-      }
-    },
-    login() {
-      this.loginDialog = this.login;
-    },
-    signup() {
-      this.signupDialog = this.signup;
-    },
-    loginDialog() {
-      if (this.loginDialog == false) {
-        this.setLogin(false);
-      }
-    },
-    signupDialog() {
-      if (this.signupDialog == false) {
-        this.setSignup(false);
       }
     }
   },
@@ -456,7 +464,7 @@ export default {
       if (!this.authenticated) {
         return false;
       }
-      return this.user.id == "w4NsNxycJtbGqSjpLsp9KuTln6B2";
+      return this.user.id == "c6F7pgDchSfyY931qz1kUUWDKOR2";
     }
   }
 };
@@ -543,13 +551,13 @@ export default {
   margin-right: 1.5em;
   font-family: "Oswald", sans-serif;
 }
-.cat-link:hover {
-  color: var(--brand) !important;
+.cat-display::scrollbar-track {
+  background-color: white;
 }
 
 .cat-display::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
+  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
   background-color: white;
   display: none;
 }
@@ -569,7 +577,7 @@ export default {
 .affix {
   position: fixed;
   top: 0;
-  z-index: 7;
+  /* z-index: 7; */
   width: 100%;
 }
 @media (min-width: 600px) {
@@ -578,9 +586,13 @@ export default {
   }
 }
 a {
+  text-decoration: none;
+}
+.nav {
   color: white !important;
   text-decoration: none;
-  line-height: 200%;
+  /* font-family: "Oswald", sans-serif; */
+  /* font-weight: bold; */
 }
 a:hover {
   color: #ffffffe6 !important;

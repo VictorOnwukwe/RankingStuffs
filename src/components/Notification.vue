@@ -1,115 +1,136 @@
 <template>
-  <v-list-item :class="{ recent: recent }" @click="$emit('close')" :to="link">
-    <v-list-item-avatar>
-      <dp v-if="notifier" :size="'2.5em'" :src="notifier.profile_pic"></dp>
-      <v-icon v-else-if="notification.type.includes('approved')" color="brand"
-        >$vuetify.icons.approved</v-icon
-      >
-      <v-icon
-        v-else-if="notification.type.includes('disapproved')"
-        color="brand"
-        >fa-times-circle</v-icon
-      >
-    </v-list-item-avatar>
-    <v-list-item-content>
-      <!-- <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div> -->
-      <div
-        v-if="
-          notification.type == 'reply' && notification.commenter.id === user.id
-        "
-      >
-        <span v-if="notification.user" class>{{
-          notification.user.username
-        }}</span>
-        replied to your comment on
-        <span class="font-weight-medium text-capitalize">{{
-          notification.item.name
-        }}</span>
-        on
-        <span class="font-weight-medium link--text text-capitalize">{{
-          notification.list.title
-        }}</span>
-      </div>
-      <div
-        v-else-if="
-          notification.type == 'reply' && notification.commenter.id !== user.id
-        "
-      >
-        <span v-if="notification.user" class>{{
-          notification.user.username
-        }}</span>
-        also replied to
-        <span>{{ notification.commenter.username }}</span
-        >'s comment on
-        <span class="font-weight-medium text-capitalize">{{
-          this.notification.item.name
-        }}</span>
-        on the list of
-        <span class="font-weight-medium link--text text-capitalize">{{
-          notification.list.title
-        }}</span>
-      </div>
-      <div v-if="notification.type == 'demand-created'">
-        A list you were waiting for,
-        <span class="text-capitalize link--text font-weight-medium">{{
-          notification.list.title
-        }}</span>
-        has been created by
-        <span v-if="notification.user" class="font-weight-medium">{{
-          notification.user.username
-        }}</span>
-      </div>
-      <div v-if="notification.type == 'follow'">
-        <span class="font-weight-medium">{{ notification.user.username }}</span>
-        started following you
-      </div>
-      <div v-if="notification.type == 'list-approved'">
-        Your submitted list
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.list.title }}&nbsp;</span
+  <router-link class="no-deco" :to="link">
+    <v-list-item link :class="{ recent: recent }" @click="$emit('close')">
+      <v-list-item-avatar>
+        <dp
+          v-if="notifier"
+          :size="'2.5em'"
+          :radius="'50%'"
+          :src="notifier.profile_pic"
+        ></dp>
+        <v-icon
+          v-else-if="notification.type.includes('approved')"
+          color="link lighten-2"
+          >$vuetify.icons.approved</v-icon
         >
-        has been approved
-      </div>
-      <div v-if="notification.type == 'list-disapproved'">
-        Your submitted list
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.list.title }}&nbsp;</span
+        <v-icon
+          v-else-if="notification.type.includes('disapproved')"
+          color="link lighten-2"
+          >fa-times-circle</v-icon
         >
-        was not approved for being {{ notification.reason }}
-      </div>
-      <div v-if="notification.type == 'demand-approved'">
-        Your demanded list
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.demand.title }}&nbsp;</span
+      </v-list-item-avatar>
+      <v-list-item-content>
+        <!-- <div style="line-height:1.5 !important;font-size:1.05em" v-html="message"></div> -->
+        <div
+          v-if="
+            notification.type == 'reply' &&
+              notification.commenter.id === user.id
+          "
         >
-        has been approved
-      </div>
-      <div v-if="notification.type == 'demand-disapproved'">
-        Your demanded list
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.demand.title }}&nbsp;</span
+          <span v-if="notification.user" class>{{
+            notification.user.username
+          }}</span>
+          replied to your comment on
+          <span class="font-weight-medium text-capitalize">{{
+            notification.item.name
+          }}</span>
+          on
+          <span class="font-weight-medium link--text text-capitalize">{{
+            notification.list.title
+          }}</span>
+        </div>
+        <div
+          v-else-if="
+            notification.type == 'reply' &&
+              notification.commenter.id !== user.id
+          "
         >
-        was not approved for being {{ notification.reason }}
-      </div>
-      <div v-if="notification.type == 'item-approved'">
-        Your submitted item {{ notification.item.name }} on the list of
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.list.title }}&nbsp;</span
-        >
-        has been approved
-      </div>
-      <div v-if="notification.type == 'item-approved'">
-        Your submitted item {{ notification.item.name }} on the list of
-        <span class="link--text font-weight-medium text-capitalize"
-          >{{ notification.list.title }}&nbsp;</span
-        >
-        was not approved for being {{ notification.reason }}
-      </div>
-    </v-list-item-content>
-    <v-list-item-action>
-      <v-list-item-action-text>{{ created }}</v-list-item-action-text>
-    </v-list-item-action>
-  </v-list-item>
+          <span v-if="notification.user" class>{{
+            notification.user.username
+          }}</span>
+          also replied to
+          <span>{{ notification.commenter.username }}</span
+          >'s comment on
+          <span class="font-weight-medium text-capitalize">{{
+            this.notification.item.name
+          }}</span>
+          on the list of
+          <span class="font-weight-medium link--text text-capitalize">{{
+            notification.list.title
+          }}</span>
+        </div>
+        <div v-if="notification.type == 'demand-created'">
+          A list you were waiting for,
+          <span class="text-capitalize link--text font-weight-medium">{{
+            notification.list.title
+          }}</span>
+          has been created by
+          <span v-if="notification.user" class="font-weight-medium">{{
+            notification.user.username
+          }}</span>
+        </div>
+        <div v-if="notification.type == 'follow'">
+          <span class="font-weight-medium link--text">{{
+            notification.user.username
+          }}</span>
+          started following you
+        </div>
+        <div v-if="notification.type == 'list-approved'">
+          Your submitted list
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.list.title }}&nbsp;</span
+          >
+          has been approved
+        </div>
+        <div v-if="notification.type == 'list-disapproved'">
+          Your submitted list
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.list.title }}&nbsp;</span
+          >
+          was not approved for being {{ notification.reason }}
+        </div>
+        <div v-if="notification.type == 'demand-approved'">
+          Your demanded list
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.demand.title }}&nbsp;</span
+          >
+          has been approved
+        </div>
+        <div v-if="notification.type == 'demand-disapproved'">
+          Your demanded list
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.demand.title }}&nbsp;</span
+          >
+          was not approved for being {{ notification.reason }}
+        </div>
+        <div v-if="notification.type == 'item-approved'">
+          Your submitted item
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          on the list of
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.list.title }}&nbsp;</span
+          >
+          has been approved
+        </div>
+        <div v-if="notification.type == 'item-disapproved'">
+          Your submitted item
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          on the list of
+          <span class="link--text font-weight-medium text-capitalize"
+            >{{ notification.list.title }}&nbsp;</span
+          >
+          was not approved for being {{ notification.reason }}
+        </div>
+      </v-list-item-content>
+      <v-list-item-action>
+        <v-list-item-action-text>{{ created }}</v-list-item-action-text>
+      </v-list-item-action>
+    </v-list-item>
+  </router-link>
 </template>
 
 <script>

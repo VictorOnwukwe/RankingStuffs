@@ -174,7 +174,7 @@ export default {
   border: 1px solid black;
 }
 .text:focus {
-  border: 2px solid var(--brand);
+  border: 2px solid var(--link);
   outline: none;
   /* box-shadow: 0px 0px 0px 1px var(--brand); */
   /* border-radius: 0.2em; */

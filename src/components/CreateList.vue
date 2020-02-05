@@ -1,13 +1,12 @@
 <template>
-  <div id="main" class>
+  <div id="main" class="mt">
     <div style="margin:0 auto;">
       <!-- <div class="page-title">Create List</div> -->
       <v-card
         flat
         style="border: 1px solid var(--brand)"
-        class="grey lighten-3 mt-4"
+        class="grey lighten-3"
         v-if="true"
-        tile
       >
         <!-- <v-card style="position:sticky; top:4.5em; z-index:3" tile flat> -->
         <v-card-title
@@ -20,6 +19,14 @@
         <v-card-text class="mt-4">
           <ul class="ptd">
             <li class="subtitle-1">
+              General lists should be relatable to the public. They should
+              contain content that people know well eniugh to vote on
+            </li>
+            <li class="subtitle-1">
+              List titles should be as specific and timeless as possible. (i.e.
+              "Best movies of 2020" as opposed to "best movies of this year")
+            </li>
+            <li class="subtitle-1">
               Be sure to check if a list already exists before creating yours.
             </li>
             <li class="subtitle-1">
@@ -30,7 +37,7 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3" tile v-if="!$route.query.demanded">
+      <v-card flat class="mt grey lighten-3" v-if="!$route.query.demanded">
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
           >Type</v-card-title
@@ -41,18 +48,18 @@
               <v-radio-group
                 color="accent"
                 class="ml-2"
-                v-model="list.personal"
+                v-model="list.type"
                 @change="setTypes()"
               >
                 <template v-slot:prepend>
                   <v-icon
                     size=""
                     class="mr-2 mt-1"
-                    :color="!list.personal ? 'green' : null"
+                    :color="list.type == 'general' ? 'green' : null"
                     >$vuetify.icons.people</v-icon
                   >
                 </template>
-                <v-radio color="accent" :value="false">
+                <v-radio color="accent" value="general">
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">General</span> - List
@@ -60,7 +67,7 @@
                     </div>
                   </template>
                 </v-radio>
-                <v-radio color="accent" :value="true">
+                <v-radio color="accent" value="personal">
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">Personal</span> - List
@@ -70,7 +77,7 @@
                 </v-radio>
               </v-radio-group>
               <v-radio-group
-                :disabled="!list.personal"
+                :disabled="list.type !== 'personal'"
                 color="accent"
                 v-model="list.votable"
               >
@@ -81,10 +88,10 @@
                 </template>
                 <v-radio color="accent" :value="true">
                   <template v-slot:label>
-                    <div :class="list.personal ? 'ptd' : 'htd'">
+                    <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                       <span
                         class="font-weight-bold"
-                        :class="list.personal ? 'ptd' : 'htd'"
+                        :class="list.type == 'personal' ? 'ptd' : 'htd'"
                         >Votable</span
                       >
                       - List can be voted on by everybody
@@ -93,10 +100,10 @@
                 </v-radio>
                 <v-radio color="accent" :value="false">
                   <template v-slot:label>
-                    <div :class="list.personal ? 'ptd' : 'htd'">
+                    <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                       <span
                         class="font-weight-bold"
-                        :class="list.personal ? 'ptd' : 'htd'"
+                        :class="list.type == 'personal' ? 'ptd' : 'htd'"
                         >Non-Votable</span
                       >
                       - List cannot be voted on by anybody
@@ -107,7 +114,7 @@
             </v-layout>
             <v-checkbox
               color="accent"
-              :disabled="!list.personal"
+              :disabled="list.type !== 'personal'"
               v-model="list.selfModerated"
             >
               <template v-slot:prepend>
@@ -119,10 +126,10 @@
                 >
               </template>
               <template v-slot:label>
-                <div :class="list.personal ? 'ptd' : 'htd'">
+                <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                   <span
                     class="font-weight-bold"
-                    :class="list.personal ? 'ptd' : 'htd'"
+                    :class="list.type == 'personal' ? 'ptd' : 'htd'"
                     >Self Moderated</span
                   >
                   - List can only be moderated by you
@@ -133,7 +140,7 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3" tile>
+      <v-card flat class="mt grey lighten-3">
         <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3;"> -->
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
@@ -208,8 +215,8 @@
                     color="brand"
                     v-model="list.description"
                     style="width:100%"
-                    counter="1000"
-                    :rules="[rules.maxLength(1000)]"
+                    counter="1500"
+                    :rules="[rules.maxLength(1500)]"
                   ></v-textarea>
                 </v-flex>
 
@@ -228,7 +235,14 @@
                     solo
                     flat
                     v-model="list.category"
-                  ></v-autocomplete>
+                  >
+                    <template v-slot:no-data>
+                      <v-layout class="px-2">
+                        <v-icon class="mr-2 grey--text">far fa-frown</v-icon>
+                        <span>Oops! This is new to us...</span>
+                      </v-layout>
+                    </template>
+                  </v-autocomplete>
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
@@ -247,7 +261,14 @@
                     solo
                     flat
                     v-model="list.subCategory"
-                  ></v-autocomplete>
+                  >
+                    <template v-slot:no-data>
+                      <v-layout class="px-2">
+                        <v-icon class="mr-2 grey--text">far fa-frown</v-icon>
+                        <span>Oops! This is new to us...</span>
+                      </v-layout>
+                    </template>
+                  </v-autocomplete>
                 </v-flex>
                 <!-- <v-flex xs12 mt-n5>
                   <v-textarea
@@ -280,7 +301,7 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3" tile>
+      <v-card flat class="mt grey lighten-3">
         <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3"> -->
         <v-card-title
           class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
@@ -374,7 +395,7 @@ export default {
           { name: "" },
           { name: "" }
         ],
-        personal: false,
+        type: "general",
         votable: true,
         selfModerated: false,
         keywords: [],
@@ -404,7 +425,7 @@ export default {
     },
 
     setTypes() {
-      if (!this.list.personal) {
+      if (this.list.type == "general") {
         this.list.votable = true;
         this.list.selfModerated = false;
       }
@@ -431,9 +452,14 @@ export default {
         this.$route.query.demanded
           ? (other = { demanded: true, demand_id: this.$route.query.id })
           : {};
-        if (this.list.personal) {
+        if (this.list.type == "personal") {
           await this.$store
-            .dispatch("upload_list", { ...other, ...this.list, id: this.id })
+            .dispatch("upload_list", {
+              ...other,
+              ...this.list,
+              id: this.id,
+              user: this.user
+            })
             .then(list_id => {
               this.$router.push({ path: "/lists/" + list_id });
             })
@@ -445,7 +471,8 @@ export default {
             .dispatch("upload_pending_list", {
               ...other,
               ...this.list,
-              id: this.id
+              id: this.id,
+              user: this.user
             })
             .then(uploaded => {
               this.listSubmitted = uploaded;
@@ -465,7 +492,7 @@ export default {
                   { name: "" },
                   { name: "" }
                 ],
-                personal: false,
+                type: "general",
                 votable: true,
                 selfModerated: false,
                 keywords: [],
@@ -478,7 +505,7 @@ export default {
             })
             .catch(error => {
               this.loading = false;
-              this.dispatch("setSnackbar", {
+              this.$store.dispatch("set_snackbar", {
                 show: true,
                 message: "sorry. An error occured",
                 type: "error"
@@ -583,7 +610,7 @@ export default {
         ${this.tempCategory} lists.`;
     },
     id() {
-      if (this.list.personal) {
+      if (this.list.type == "personal") {
         return (this.list.user.id + "-" + this.list.title.toLowerCase())
           .trim()
           .replace(/ /g, "-");

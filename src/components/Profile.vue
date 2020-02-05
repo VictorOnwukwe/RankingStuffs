@@ -34,6 +34,7 @@
                       @click="showDP = true"
                       tile
                       cover
+                      class="elevation-1"
                     >
                       <v-img
                         v-if="user.profile_pic"
@@ -202,20 +203,21 @@
                   >Creations</router-link
                 >
               </div>
+
               <div class="nav-item">
                 <router-link
                   tag="a"
                   :to="homeLink"
                   class="nav-link subtitle-1 font-weight-medium"
-                  >Favorites</router-link
+                  >Activities</router-link
                 >
               </div>
               <div class="nav-item">
                 <router-link
                   tag="a"
-                  :to="homeLink + 'activities'"
+                  :to="homeLink + 'favorites'"
                   class="nav-link subtitle-1 font-weight-medium"
-                  >Activities</router-link
+                  >Favorites</router-link
                 >
               </div>
               <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
@@ -314,11 +316,15 @@ export default {
   methods: {
     uploadProfile(data) {
       this.uploadingImage = true;
-      this.$store.dispatch("update_profile_pic", data.image).then(() => {
-        this.uploadingImage = false;
-      }).catch(_ => {
-        this.uploadingImage = false;
-      })
+      this.$store
+        .dispatch("update_profile_pic", data)
+        .then(pic => {
+          this.uploadingImage = false;
+          this.user.profile_pic = pic;
+        })
+        .catch(_ => {
+          this.uploadingImage = false;
+        });
     },
     async fetchUser(id) {
       await this.$store.dispatch("fetch_complete_user", id).then(user => {
@@ -464,7 +470,7 @@ export default {
     });
     this.$router.beforeEach((to, from, next) => {
       if (from.name === "user-creations") this.transitionName = "slide-left";
-      else if (from.name === "activities") this.transitionName = "slide-right";
+      else if (from.name === "favorites") this.transitionName = "slide-right";
       else {
         if (to.name === "user-creations") this.transitionName = "slide-right";
         else this.transitionName = "slide-left";
@@ -482,10 +488,10 @@ export default {
   text-decoration: none;
 }
 .nav-link.router-link-exact-active {
-  color: var(--brand);
+  color: var(--accent);
 }
 div .nav-link.router-link-exact-active {
-  border-bottom: 5px solid var(--brand);
+  border-bottom: 5px solid var(--accent);
 }
 
 .slide-left-enter-active,

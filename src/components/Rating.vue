@@ -1,5 +1,5 @@
 <template>
-  <div :style="{fontSize: size}">
+  <div :style="{ fontSize: size }">
     <v-layout class="">
       <v-flex shrink>
         <v-icon size="1.4em" :color="visual.color + ' ' + visual.tone"
@@ -9,7 +9,7 @@
       <v-flex shrink>
         <span
           class="caption font-weight-bold"
-          :style="{color: visual.color}"
+          :style="{ color: visual.color }"
           >{{ rate }}</span
         ></v-flex
       >
@@ -43,12 +43,12 @@ export default {
       }
     },
     size: {
-        type: Number | String,
-        default: "1em"
+      type: Number | String,
+      default: "1em"
     },
     textColor: {
-        type: String,
-        default: "ptd"
+      type: String,
+      default: "ptd"
     }
   },
   computed: {

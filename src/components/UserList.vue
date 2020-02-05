@@ -1,6 +1,10 @@
 <template>
   <v-list-item class="px-2" v-if="list" link :to="'/lists/' + list.id">
-    <v-list-item-avatar size="120" v-if="list.preview_image" tile>
+    <v-list-item-avatar
+      :size="$vuetify.breakpoint.xs ? 80 : 120"
+      v-if="list.preview_image"
+      tile
+    >
       <v-img :src="list.preview_image.url.low"></v-img>
     </v-list-item-avatar>
     <v-list-item-content align-with-title>
@@ -42,7 +46,7 @@ export default {
   },
   computed: {
     fontSize() {
-      return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
+      return this.$vuetify.breakpoint.xs ? "1.2em" : "1.3em";
     }
   },
   created() {
@@ -56,3 +60,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+*>*{
+  line-height: 1.6em !important;
+}
+</style>

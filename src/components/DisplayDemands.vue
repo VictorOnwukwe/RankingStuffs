@@ -5,6 +5,7 @@
         v-for="(demand, index) in demands"
         :key="index"
         :demand="{ id: demand.id, ...demand.data() }"
+        :sub="sub"
       ></PreviewDemand>
     </div>
   </div>
@@ -16,7 +17,11 @@ export default {
     PreviewDemand
   },
   props: {
-    demands: Array
+    demands: Array,
+    sub: {
+      type: Boolean,
+      default: false
+    }
   }
 };
 </script>

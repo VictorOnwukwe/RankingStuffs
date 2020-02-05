@@ -5,10 +5,7 @@
       :key="index"
       style="position:relative"
     >
-      <img
-        :src="require('../assets/' + name(category.name) + '.jpg')"
-        width="100%"
-      />
+      <img :src="require('../assets/' + name(category.name))" width="100%" />
       <v-card class="display">
         <prev :category="category"></prev>
       </v-card>
@@ -37,7 +34,10 @@ export default {
       return mlists;
     },
     name(name) {
-      return this.$vuetify.breakpoint.xs ? name + "-low" : name;
+      let data = this.$vuetify.breakpoint.xs
+        ? name + "-low.jpg"
+        : name + ".jpg";
+      return data.replace(/ /g, "");
     }
   },
   computed: {

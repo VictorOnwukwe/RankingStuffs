@@ -41,7 +41,7 @@
         </v-layout>
       </v-card-title>
       <v-card-text>
-        <p class="ptd subtitle-2">{{ user.bio }}</p>
+        <p class="ptd subtitle-2 pre-wrap">{{ user.bio }}</p>
         <v-layout class="mt-n2">
           <div v-if="user.DOB">
             <span class="std font-weight-medium">{{ DOB }}</span>

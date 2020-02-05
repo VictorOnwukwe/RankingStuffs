@@ -42,6 +42,7 @@ Vue.use(VueMasonryPlugin);
 Vue.use(VuePacker, {});
 
 Vue.use(VueRx);
+Vue.use(VuetifyLazyImagePlugin);
 
 window.Swal = Swal;
 

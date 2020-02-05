@@ -33,8 +33,9 @@
         :rules="[rules.minLength(1, 'Item')]"
         color="brand"
         v-model="item.name"
-        @keyup.delete="info = null"
-        @blur="emitItem()"
+        @paste="(item.info = null), (image = null)"
+        @keyup="blurEmit()"
+        @blur="hideSearch()"
       ></v-text-field>
       <div v-if="showSearch && item.name != ''" class="results elevation-3">
         <div
@@ -43,11 +44,17 @@
           v-for="(result, index) in results"
           :key="index"
         >
-          <v-layout>
-            <v-avatar tile size="2.5em">
-              <m-img :src="result.data().image.url.low" class="mr-4"></m-img>
+          <v-layout align-center>
+            <v-avatar tile size="2.5em" class="mr-1">
+              <m-img
+                v-if="result.data().image"
+                :src="result.data().image.url.low"
+                :width="'2.5em'"
+                class="mr-4"
+              ></m-img>
+              <m-img v-else :width="'2.5em'" class="mr-4"></m-img>
             </v-avatar>
-            <div class="pl-1 pt-1">
+            <div class="pt-1">
               <v-layout>
                 <span class="text-capitalize ptd" style="line-height:1em">{{
                   result.data().name
@@ -66,20 +73,19 @@
     <upload-image
       @save="setImage"
       :type="'addItem'"
-      class="mb-4"
+      class="mb-6"
+      v-if="!image"
     ></upload-image>
     <v-img
       class="mt-n4 mb-4"
       v-if="image"
       width="150px"
-      aspect-ratio="1"
       :src="image.url.low"
     ></v-img>
     <v-img
       v-if="displayImg"
       class="mt-n4 mb-4"
       width="150px"
-      aspect-ratio="1"
       :src="displayImg"
     ></v-img>
     <div class="mt-n1">
@@ -106,6 +112,7 @@
 import UploadImage from "./UploadImage";
 import Rules from "../rules";
 import { setTimeout } from "timers";
+let _ = require("lodash");
 export default {
   components: {
     UploadImage
@@ -132,10 +139,6 @@ export default {
       type: Boolean,
       default: true
     },
-    receivedImage: {
-      type: Boolean | Object,
-      default: false
-    },
     creation: {
       type: Boolean,
       default: false
@@ -158,6 +161,16 @@ export default {
     };
   },
   methods: {
+    blurEmit: _.debounce(function() {
+      this.image = null;
+      this.item.info = null;
+      this.emitItem();
+    }, 400),
+    hideSearch() {
+      setTimeout(() => {
+        this.showSearch = false;
+      }, 1000);
+    },
     emitItem() {
       setTimeout(() => {
         if (this.item.info) {
@@ -183,7 +196,7 @@ export default {
           };
         }
         this.$emit("receiveItem", this.index, this.item);
-      }, 200);
+      }, 1000);
     },
     emitComment() {
       this.$emit("receiveComment", this.index, this.comment);
@@ -201,7 +214,7 @@ export default {
         this.$emit("delete", this.index);
       }
     },
-    checkItem() {
+    checkItem: _.throttle(function() {
       if (this.item.name.length < 3) {
         if (this.item.name.length == 0) {
           this.results = [];
@@ -213,16 +226,21 @@ export default {
         .then(results => {
           this.results = results;
         });
-    },
-    async setInfo(result) {
-      this.userImage = false;
-      this.item.isLink = true;
-      this.item.info = result.id;
-      this.item.name = result.data().name;
-      this.showSearch = false;
-      if (result.data().image) {
-        this.image = result.data().image;
-      }
+    }, 200),
+    setInfo(result) {
+      new Promise(resolve => {
+        this.userImage = false;
+        this.item.isLink = true;
+        this.item.info = result.id;
+        this.item.name = result.data().name;
+        this.showSearch = false;
+        if (result.data().image) {
+          this.image = result.data().image;
+        }
+        resolve(true);
+      }).then(() => {
+        this.emitItem();
+      });
     },
     oneUp() {
       this.$emit("oneUp", this.index);
@@ -230,16 +248,23 @@ export default {
     setImage(obj) {
       let data = {};
       let reader = new FileReader();
-      reader.readAsDataURL(obj.image.high);
+      reader.readAsDataURL(obj.high);
       reader.onloadend = () => {
         this.displayImg = reader.result;
         data.high = reader.result;
       };
       setTimeout(() => {
-        reader.readAsDataURL(obj.image.low);
+        reader.readAsDataURL(obj.low);
         reader.onloadend = () => {
           data.low = reader.result;
-          this.userImage = { image: data, source: obj.source };
+          this.userImage = {
+            ...data,
+            source: obj.source,
+            user: {
+              id: this.$store.getters.getUser.id,
+              username: this.$store.getters.getUser.username
+            }
+          };
           this.emitItem();
         };
       }, 500);
@@ -247,8 +272,6 @@ export default {
   },
   watch: {
     "item.name"(val) {
-      this.item.info = null;
-      this.image = false;
       this.checkItem();
       val.length > 0 ? (this.valid = true) : (this.valid = false);
     },

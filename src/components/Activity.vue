@@ -2,7 +2,9 @@
   <div>
     <v-list-item v-if="activity.type == 'list'">
       <v-list-item-avatar tile>
-        <v-icon color="pink">$vuetify.icons.create</v-icon>
+        <v-icon size="2rem" color="accent"
+          >$vuetify.icons.createOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -18,7 +20,9 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'comment'">
       <v-list-item-avatar>
-        <v-icon color="blue darken-2" size="2rem">mdi-comment</v-icon>
+        <v-icon color="accent" size="2rem"
+          >$vuetify.icons.commentOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -33,7 +37,7 @@
             >{{ activity.list.title }}</router-link
           >
         </v-list-item-title>
-        <v-list-item-title class="italic font-weight-black text-wrap"
+        <v-list-item-title class="italic font-weight-bold text-wrap"
           >"{{ activity.comment }}"</v-list-item-title
         >
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
@@ -42,7 +46,7 @@
 
     <v-list-item v-if="activity.type == 'upvote'">
       <v-list-item-avatar>
-        <v-icon color="green" size="2rem">mdi-arrow-up-bold-box</v-icon>
+        <v-icon color="accent" size="2rem">$vuetify.icons.arrowUp</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -62,7 +66,7 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'downvote'">
       <v-list-item-avatar>
-        <v-icon color="red" size="2rem">mdi-arrow-down-bold-box</v-icon>
+        <v-icon color="accent" size="2rem">$vuetify.icons.arrowDown</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -82,7 +86,7 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'item'">
       <v-list-item-avatar>
-        <v-icon>mdi-arrow-up</v-icon>
+        <v-icon size="2rem" color="accent">$vuetify.icons.addItemOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -102,7 +106,7 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'rate'">
       <v-list-item-avatar>
-        <v-icon color="yellow darken-3">fa-star</v-icon>
+        <v-icon size="2rem" color="accent">$vuetify.icons.starOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -123,7 +127,9 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'demand'">
       <v-list-item-avatar tile>
-        <v-icon color="brown">$vuetify.icons.demand</v-icon>
+        <v-icon size="2rem" color="accent"
+          >$vuetify.icons.demandOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -140,11 +146,11 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'item-update'">
       <v-list-item-avatar>
-        <v-icon size="2rem" color="grey">mdi-plus-box</v-icon>
+        <v-icon size="2.3rem" color="accent">$vuetify.icons.contribute</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
-          Contribution to
+          {{ activity.item.image ? "Image " : "Info " }}Contribution to
           <span
             class="font-weight-medium pointer text-capitalize"
             @click="go('/lists/' + activity.list.id)"
@@ -152,11 +158,18 @@
           >
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
+        <v-list-item-subtitle v-if="activity.item.image">
+          <v-img
+            width="100px"
+            aspect-ratio="1"
+            :src="activity.item.image"
+          ></v-img>
+        </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
     <v-list-item v-if="activity.type == 'reply'">
       <v-list-item-avatar>
-        <v-icon color="blue" size="2rem">mdi-reply</v-icon>
+        <v-icon color="accent" size="2rem">$vuetify.icons.replyOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -171,7 +184,7 @@
             >{{ activity.list.title }}</router-link
           >
         </v-list-item-title>
-        <v-list-item-title class="italic font-weight-black text-wrap">
+        <v-list-item-title class="italic font-weight-bold text-wrap">
           "{{ activity.reply.content }}"
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
@@ -200,3 +213,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+*>*{
+  line-height: 1.6em !important;
+}
+</style>

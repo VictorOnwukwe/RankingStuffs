@@ -4,69 +4,56 @@
       <v-card v-if="fetched" flat tile class="mb-4">
         <v-layout column>
           <div max-width="" class="mb-8">
-            <v-card
-              tile
-              flat
-              outlined
-              width="30vw"
-              max-width="350px"
-              min-width="100px"
-              class="pa-4 mb-4 mr-4"
-              style="float:left"
-            >
+            <div style="float:right;position:relative" class="ml-4 mb-4">
               <img-prev
                 v-if="item.image"
                 :image="item.image"
-                :width="'100%'"
+                :width="'30vw'"
                 :aspectRatio="1"
+                :maxWidth="'300px'"
+                :minWidth="'150px'"
+                :high="true"
                 :path="{ item: itemID }"
-                class="elevation-3"
               ></img-prev>
               <v-img
                 v-else
                 :src="require('../assets/emptyimage.jpg')"
                 flat
-                width="100%"
+                min-width="150px"
+                max-width="300px"
+                width="30vw"
                 aspect-ratio="1"
               ></v-img>
 
               <upload-image
-                style="position:absolute; bottom:8px; right:8px;"
+                style="position:absolute; bottom:12px; left:12px;"
                 :type="'item'"
                 class
+                :successMessage="'Your image has been submitted successfully. Thanks for your contribution'"
                 v-if="!item.image"
                 @upload="uploadImage"
                 :uploading="uploading"
                 >mdi-camera</upload-image
               >
-            </v-card>
+            </div>
             <div>
-              <v-layout>
-                <v-flex>
-                  <h1 class="ptd text-capitalize font-weight-medium" style>
-                    {{ item.name }}
-                  </h1>
-                  <span class="subtitle-1 std font-weight-medium">{{
-                    item.category
-                  }}</span>
-                </v-flex>
-                <v-flex shrink>
-                  <v-layout @click="initContribute()" column>
-                    <v-icon size="1em" color="grey" class="pointer"
-                      >fa-pencil-alt</v-icon
-                    >
-                    <span class="pointer" style="font-size:0.7em"
-                      >Contribute</span
-                    >
-                  </v-layout>
-                </v-flex>
+              <v-layout column>
+                <h1
+                  class="ptd text-capitalize font-weight-medium mr-4"
+                  :style="{
+                    fontSize: $vuetify.breakpoint.xs ? '1.5em' : '2em'
+                  }"
+                >
+                  {{ item.name }}
+                </h1>
+                <span class="subtitle-1 std font-weight-medium">{{
+                  item.category
+                }}</span>
               </v-layout>
               <p
                 class="subtitle-1 ptd my-8"
                 style="white-space:pre-wrap; font-size:0.9em"
-              >
-                {{ item.about }}
-              </p>
+              >{{ item.about }}</p>
             </div>
             <div>
               <a
@@ -78,15 +65,21 @@
             </div>
           </div>
         </v-layout>
-        <!-- <v-card-title
-          class="text-capitalize top-bar pa-2"
-          style="font-size:1em; font-weight:normal"
-          v-if="featuredLists.length > 0"
+        <v-hover v-slot:default="{ hover }">
+          <v-btn color="accent" outlined @click="initContribute()">
+            <v-layout align-center>
+              <v-icon size="2em" class="mr-2" color="">fa-plus</v-icon>
+              <span>Contribute</span>
+            </v-layout>
+          </v-btn>
+        </v-hover>
+        <v-card-title
+          class="ptd pl-0 font-weight-bold text-capitalize"
+          style="font-size: 1em; margin-top:4em; margin-bottom:2em"
           >Lists Featuring {{ item.name }}</v-card-title
-        > -->
+        >
         <lists-preview :IDs="featuredLists" :item="item"></lists-preview>
       </v-card>
-      <div v-else>Loading...</div>
       <v-dialog
         :fullscreen="$vuetify.breakpoint.xs"
         max-width="600px"
@@ -187,25 +180,44 @@ export default {
     };
   },
   methods: {
-    uploadImage(data) {
+    uploadImage(obj) {
       this.uploading = true;
-      this.$store
-        .dispatch("upload_item_image", {
-          image: data.image,
-          source: data.source,
-          item: this.item
-        })
-        .then(() => {
-          this.uploading = false;
-        })
-        .catch(_ => {
-          this.dispatch("setSnackbar", {
-            show: true,
-            message: "sorry. An error occured",
-            type: "error"
-          });
-          this.uploading = false;
-        });
+      let data = {};
+      let reader = new FileReader();
+      reader.readAsDataURL(obj.high);
+      reader.onloadend = () => {
+        this.displayImg = reader.result;
+        data.high = reader.result;
+      };
+      setTimeout(() => {
+        reader.readAsDataURL(obj.low);
+        reader.onloadend = () => {
+          data.low = reader.result;
+          this.$store
+            .dispatch("upload_pending_item_image", {
+              image: {
+                ...data,
+                source: obj.source,
+                user: {
+                  id: this.$store.getters.getUser.id,
+                  username: this.$store.getters.getUser.username
+                }
+              },
+              item: this.item
+            })
+            .then(image => {
+              this.uploading = false;
+            })
+            .catch(_ => {
+              this.$store.dispatch("set_snackbar", {
+                show: true,
+                message: "sorry. An error occured",
+                type: "error"
+              });
+              this.uploading = false;
+            });
+        };
+      }, 500);
     },
     update() {
       this.updating = true;
@@ -232,13 +244,22 @@ export default {
       }
 
       this.$store
-        .dispatch("update_item", { update: upload, item: this.item })
+        .dispatch("upload_pending_item_info", { update: upload, item: this.item, user: {
+                  id: this.$store.getters.getUser.id,
+                  username: this.$store.getters.getUser.username
+                } })
         .then(() => {
           this.updating = false;
           this.updated = true;
-        }).catch(_ => {
-          this.updating = false;
         })
+        .catch(_ => {
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            type: "error",
+            message: "Sorry. An error occured"
+          });
+          this.updating = false;
+        });
     },
     initContribute() {
       if (!this.$store.getters.authenticated) {
@@ -258,6 +279,7 @@ export default {
           this.item = item;
           this.fetched = true;
           this.about = this.item.about;
+          this.$store.dispatch("set_loading", false);
         })
         .then(() => {
           this.fetchFeaturedLists();
@@ -283,7 +305,7 @@ export default {
   },
   computed: {
     itemID() {
-      return this.$route.query.id;
+      return this.$route.params.id;
     },
     wrap() {
       switch (this.$vuetify.breakpoint.name) {
@@ -296,14 +318,18 @@ export default {
     },
     categories() {
       return [
-        "Politician",
         "Song",
         "Sport",
         "Movie",
         "Animal",
         "Country",
+        "Tennis Player",
+        "Golf Player",
         "Album",
         "Soccer Player",
+        "Soccer Team",
+        "Basketball Team",
+        "City",
         "Basketball Player",
         "Youtuber",
         "Game",
@@ -322,17 +348,23 @@ export default {
         "Writer",
         "Rapper",
         "Singer",
-        "Song Writer"
-      ];
+        "Song Writer",
+        "Sportsperson",
+        "Animal",
+        "Model",
+        "Cricket Player",
+        "Cricket Team"
+      ].sort();
     },
     emptyphoto() {
       return this.$store.getters.noPhoto;
     },
     successMessage() {
-      return "Item Updated Successfully. Thanks for your contribution";
+      return "Item submitted successfully. Thanks for your contribution";
     }
   },
   created() {
+    this.$store.dispatch("set_loading", true);
     this.fetchItem();
   }
 };

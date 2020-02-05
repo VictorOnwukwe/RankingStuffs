@@ -22,7 +22,7 @@
     </div>
     <main-list class="mt-12" :list="topRated" :type="'Top Rated'"></main-list>
     <hr class="mt-12 mb-6 accent" />
-    <div class="grid">
+    <div class="grid mb-12">
       <div
         v-for="(list, index) in categoryLists.slice(
           divider * 2,
@@ -46,7 +46,9 @@ export default {
     subList: HomeSubList
   },
   data() {
-    return {};
+    return {
+      newEmail: ""
+    };
   },
   computed: {
     categories() {
@@ -65,7 +67,7 @@ export default {
       return this.$store.getters.categoryLists;
     },
     divider() {
-      return Math.round(this.categories.length / 3);
+      return Math.round(this.categoryLists.length / 3);
     }
   },
   created: function() {
@@ -74,3 +76,15 @@ export default {
   }
 };
 </script>
+<style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  grid-gap: 2em;
+}
+@media (min-width: 800px) {
+  .grid {
+    grid-gap: 1em;
+  }
+}
+</style>

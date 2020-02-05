@@ -15,25 +15,15 @@
                     class="link--text"
                     style="cursor:pointer"
                     >{{ !more ? "more" : "less" }}</span
-                  ><span
-                    class="brand--text text--lighten-1 pointer"
-                    v-if="comment.content.length < 600 || more"
-                    @click="
-                      comment.user.username.includes('visitor')
-                        ? null
-                        : (showUser = true)
-                    "
-                    >-&nbsp;{{
-                      comment.user.username.includes("visitor")
-                        ? ""
-                        : comment.user.username
-                    }}</span
-                  >
+                  >-&nbsp;<username :user="comment.user"></username>
                 </div>
               </div>
               <v-layout class="mt-2 mb-1" align-center>
-                <div class="std" style="display:flex; min-width:4.5em;">
+                <div class="std" style="display:flex; min-width:3em;">
                   {{ created }}
+                </div>
+                <div v-if="comment.likes" style="display:flex; min-width:4.5em;" class="std">
+                  {{comment.likes}} {{ comment.likes > 1 ? "likes" : "like" }}
                 </div>
 
                 <div style="display:flex; min-width:4.5em;">
@@ -144,9 +134,9 @@
             <div class="" style="position:relative">
               <v-layout>
                 <v-spacer></v-spacer>
-                <a class="std underline"
+                <span class="std mr-2"
                   >{{ comment.replies_count ? comment.replies_count : "0" }}
-                  {{ comment.replies_count == 1 ? "reply" : "replies" }}</a
+                  {{ comment.replies_count == 1 ? "reply" : "replies" }}</span
                 >
               </v-layout>
               <comment-box
@@ -173,13 +163,6 @@
         </v-flex>
       </v-layout>
     </v-card>
-
-    <v-dialog v-model="showUser" max-width="400px">
-      <PreviewUser
-        :id="comment.user.id"
-        @close="showUser = false"
-      ></PreviewUser>
-    </v-dialog>
     <v-dialog persistent v-model="showEdit" max-width="500px">
       <v-card flat class="grey lighten-3">
         <v-card-title
@@ -249,8 +232,7 @@
 
 <script>
 import Reply from "./Reply";
-import PreviewUser from "./PreviewUser";
-import PreviewComment from "./PreviewComment";
+// import PreviewComment from "./PreviewComment";
 import CommentBox from "./CommentBox";
 import { setTimeout } from "timers";
 import convertMoment from "../../public/my-modules/convertMoment";
@@ -260,8 +242,6 @@ let moment = require("moment");
 export default {
   components: {
     Reply,
-    PreviewUser,
-    PreviewComment,
     CommentBox,
     FlagComment
   },
@@ -354,9 +334,10 @@ export default {
         .then(() => {
           this.deleting = false;
           this.$emit("delete", this.index);
-        }).catch(_ => {
-          this.deleting = false;
         })
+        .catch(_ => {
+          this.deleting = false;
+        });
     },
 
     showBox() {
@@ -409,9 +390,11 @@ export default {
           });
         })
         .catch(error => {
-          this.dispatch("setSnackbar", {show: true,
-          message: "sorry. An error occured",
-          type: "error"})
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
           this.addingReply = false;
         });
     },
@@ -431,9 +414,11 @@ export default {
         })
         .catch(_ => {
           this.loading = false;
-         this.dispatch("setSnackbar", {show: true,
-          message: "sorry. An error occured",
-          type: "error"})
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
         });
     },
 
@@ -453,9 +438,11 @@ export default {
         })
         .catch(error => {
           this.loading = false;
-          this.dispatch("setSnackbar", {show: true,
-          message: "sorry. An error occured",
-          type: "error"})
+          this.dispatch("setSnackbar", {
+            show: true,
+            message: "sorry. An error occured",
+            type: "error"
+          });
         });
     },
 
@@ -501,9 +488,10 @@ export default {
           this.comment.content = this.newComment;
           this.editing = false;
           this.showEdit = false;
-        }).catch(_ => {
-          this.editing = false;
         })
+        .catch(_ => {
+          this.editing = false;
+        });
     }
   },
 
