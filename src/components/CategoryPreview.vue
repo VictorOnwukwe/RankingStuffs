@@ -5,7 +5,7 @@
       style="font-size:1.8em"
     >
       <router-link
-        class="no-deco black--text"
+        class="no-deco link--text"
         :to="'/categories/' + category.name"
       >
         {{ category.name }}
@@ -16,8 +16,8 @@
         <router-link
           tag="a"
           :to="'/lists/' + list.id"
-          class="link--text no-deco underline text-capitalize"
-          style="font-size:1.1em"
+          class="no-deco underline text-capitalize"
+          style="font-size:13px"
         >
           {{ list.data().title }}
         </router-link>

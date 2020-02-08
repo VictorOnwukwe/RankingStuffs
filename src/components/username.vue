@@ -1,7 +1,7 @@
 <template>
   <span>
     <span
-      @click="user.username.includes('visitor') ? null : (showUser = true)"
+      @click.prevent="user.username.includes('visitor') ? null : (showUser = true)"
       class="pointer"
       :class="color"
       >{{ user.username.includes("visitor") ? "" : user.username }}</span

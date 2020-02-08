@@ -90,8 +90,7 @@
     ></v-img>
     <div class="mt-n1">
       <p class="text-capitalize font-weight-medium grey--text text--darken-1">
-        <v-icon color="grey darken-1" size="1.5em">fa-comment</v-icon
-        >&nbsp;Comment
+        Note / Comment
       </p>
       <v-textarea
         :placeholder="commentPlaceholder"
@@ -202,15 +201,14 @@ export default {
       this.$emit("receiveComment", this.index, this.comment);
     },
     deleteItem() {
-      if (!this.creation) {
-        this.item.name = "";
-        this.comment = "";
-        this.image = false;
-        this.info = null;
-        this.showSearch = false;
-        this.userImage = false;
-        this.displayImg = false;
-      } else {
+      this.item.name = "";
+      this.comment = "";
+      this.image = false;
+      this.info = null;
+      this.showSearch = false;
+      this.userImage = false;
+      this.displayImg = false;
+      if (this.creation) {
         this.$emit("delete", this.index);
       }
     },

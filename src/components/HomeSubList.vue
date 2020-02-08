@@ -24,7 +24,7 @@
               style=""
             >
               <div
-                class="font-weight-medium pa-2 white--text text-uppercase cat-name"
+                class="font-weight-medium pa-2 text-uppercase cat-name"
                 style=""
               >
                 {{ list.category }}
@@ -42,14 +42,23 @@
           <v-card
             :style="
               $vuetify.breakpoint.xs
-                ? 'min-width:calc(100vw + 1em);margin-left:-0.5em'
+                ? 'min-width:calc(100% + 1em);margin-left:-0.5em'
                 : null
             "
           >
             <m-img
+              v-if="list.preview_image"
               :src="list.preview_image ? list.preview_image.url.high : false"
               :width="'100%'"
               :aspectRatio="'1.5'"
+              :radius="'0'"
+            ></m-img>
+            <m-img
+              v-else
+              :src="require('../assets/' + list.category + '-low.jpg')"
+              :width="'100%'"
+              :aspectRatio="'1.5'"
+              :radius="'0'"
             ></m-img>
           </v-card>
           <v-card
@@ -132,10 +141,13 @@ export default {
 }
 .cat-name {
   border: 1px solid white;
-  background-color: rgba(0, 0, 0, 0.3);
+  background-color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
+  color: white;
+  transition: all 0.2s ease-in;
 }
 .cat-name:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--accent);
 }
 </style>

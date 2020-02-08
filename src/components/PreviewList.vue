@@ -1,60 +1,73 @@
 <template>
-      <v-card :outlined="sub" :class="{ loading: !fetched }" width="100%">
-        <v-card-text v-if="fetched" class="pa-3">
-          <v-layout>
-            <v-flex shrink pr-2>
-              <m-img
-                :src="list.preview_image ? list.preview_image.url.low : false"
-                :minWidth="'100px'"
-                :maxWidth="'120px'"
-                :width="sub ? '10vw' : '20vw'"
-                :aspectRatio="'1'"
-              ></m-img>
-            </v-flex>
-            <v-flex>
-              <v-card height="100%" flat>
-                <v-card-title class="pa-0">
-                  <router-link
-                    :to="'/lists/' + list.id"
-                    class="text-capitalize no-deco brighten-1 oswald"
-                    :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
-                    style="font-size:0.8em"
+  <v-card
+    :to="'/lists/' + list.id"
+    :flat="sub"
+    :class="{ loading: !fetched }"
+    width="100%"
+  >
+    <v-card-text v-if="fetched" :class="{ 'pa-2': !sub, 'pa-0': sub }">
+      <v-layout>
+        <v-flex shrink pr-2>
+          <m-img
+            v-if="list.preview_image"
+            :src="list.preview_image ? list.preview_image.url.low : false"
+            :minWidth="'100px'"
+            :maxWidth="'120px'"
+            :width="sub ? '10vw' : '20vw'"
+            :aspectRatio="'1'"
+          ></m-img>
+          <m-img
+            v-else
+            :src="require('../assets/' + list.category + '-low.jpg')"
+            :minWidth="'100px'"
+            :maxWidth="'120px'"
+            :width="sub ? '10vw' : '20vw'"
+            :aspectRatio="'1'"
+          ></m-img>
+        </v-flex>
+        <v-flex>
+          <div>
+            <v-card-title class="pa-0">
+              <div
+                class="text-capitalize no-deco oswald"
+                :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
+                style="font-size:0.85em"
+              >
+                {{ list.title }}
+              </div>
+            </v-card-title>
+            <div class="pa-0 mt-1" v-if="!sub">
+              <rating
+                :rating="list.rating"
+                :ratersCount="list.raters_count"
+              ></rating>
+              <span>
+                <span class="">
+                  <span class="ptd font-weight-medium"> {{ list.votes }}</span>
+                  <span class="ptd"
+                    >&nbsp;votes<span class="htd">&nbsp;|</span>&nbsp;</span
                   >
-                    {{ list.title }}
-                  </router-link>
-                </v-card-title>
-                <div class="pa-0 mt-1" v-if="!sub">
-                  <rating
-                    :rating="list.rating"
-                    :ratersCount="list.raters_count"
-                  ></rating>
-                  <span>
-                    <span class="">
-                      <span class="ptd font-weight-medium">
-                        {{ list.votes }}</span
-                      >
-                      <span class="ptd">&nbsp;votes&nbsp;|&nbsp;</span>
-                    </span>
-                    <span>
-                      <span class="ptd font-weight-medium">{{
-                        list.item_count
-                      }}</span>
-                      <span class="ptd">&nbsp;items</span>
-                    </span>
-                  </span>
-                  <v-layout class="mt-2">
-                    <v-flex shrink>
-                      <dp class="mr-2" v-if="user" :src="user.profile_pic"></dp>
-                    </v-flex>
-                    <v-flex shrink>
-                      <username v-if="user" :user="user"></username>
-                    </v-flex>
-                  </v-layout>
-                </div>
-              </v-card>
-            </v-flex>
-          </v-layout>
-          <!-- <div v-if="list.description && !sub" class="mt-3">
+                </span>
+                <span>
+                  <span class="ptd font-weight-medium">{{
+                    list.item_count
+                  }}</span>
+                  <span class="ptd">&nbsp;items</span>
+                </span>
+              </span>
+              <v-layout class="mt-2">
+                <v-flex shrink>
+                  <dp class="mr-2" v-if="user" :src="user.profile_pic"></dp>
+                </v-flex>
+                <v-flex shrink>
+                  <username v-if="user" :user="user"></username>
+                </v-flex>
+              </v-layout>
+            </div>
+          </div>
+        </v-flex>
+      </v-layout>
+      <!-- <div v-if="list.description && !sub" class="mt-3">
             <v-layout class="mt-2">
               <v-flex shrink>
                 <dp class="mr-2" v-if="user" :src="user.profile_pic"></dp>
@@ -71,9 +84,9 @@
                 >...{{ !more ? "see more" : "see less" }}</span
               >
             </div> -->
-          </div>
-        </v-card-text>
-      </v-card>
+      <!-- </div> -->
+    </v-card-text>
+  </v-card>
 </template>
 
 <script>

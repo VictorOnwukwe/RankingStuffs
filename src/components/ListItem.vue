@@ -101,6 +101,7 @@
                   :aspect-ratio="1"
                   :path="{ item: info.id }"
                   :radius="'5px'"
+                  :name="item.name.replace(/ /g, '')"
                 ></img-prev>
                 <img-prev
                   class="mr-2"
@@ -124,10 +125,10 @@
           </v-layout>
         </v-flex>
         <v-flex id="comment-border">
-          <!-- <v-divider class=""></v-divider> -->
           <v-card flat height="100%" class="pa-0">
             <v-layout style="height:100%" class column justify-space-between>
               <v-card flat tile>
+                <div v-if="item.note" class="pre-wrap spacious mb-4 ml-2" style="font-style:italic">{{item.note}}-&nbsp;<username v-if="creator" :user="creator"></username></div>
                 <v-layout
                   justify-center
                   v-if="loadingComments || addingComment"
@@ -166,7 +167,7 @@
                   </v-layout>
                 </v-card>
               </v-card>
-              <v-card-actions v-if="votedThis.type=='upvote' || votedThis.type=='downvote'">
+              <v-card-actions v-if="votedThis.type=='upvote' || votedThis.type=='downvote' || isCreator">
                 <v-layout column reverse>
                   <v-flex>
                     <div style="position:relative;">
@@ -249,7 +250,8 @@ export default {
       infoFetched: false,
       addingComment: false,
       checkedVoted: false,
-      item: {}
+      item: {},
+      creator: null
     };
   },
 
@@ -393,6 +395,11 @@ export default {
           rank: this.index
         });
       }
+    },
+    fetchCreator(){
+      this.$store.dispatch("fetch_user", this.item.user).then(user => {
+        this.creator = user;
+      })
     }
   },
 
@@ -442,6 +449,9 @@ export default {
       this.fetchInfo();
     } else if (this.item.image) {
       this.$emit("hasImage", this.item.image);
+    }
+    if(this.item.note){
+      this.fetchCreator();
     }
     this.setRank();
   }

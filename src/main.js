@@ -28,7 +28,6 @@ import MyButton from "./components/MyButton";
 import MyAlert from "./components/MyAlert";
 import MyProgress from "./components/MyProgress";
 import ProfilePic from "./components/ProfilePic";
-import categories from "../public/my-modules/categories";
 import LoadingLists from "./components/LoadingLists";
 import { VueMasonryPlugin } from "vue-masonry";
 import PreviewImage from "./components/PreviewImage";
@@ -111,6 +110,12 @@ Vue.mixin({
         arr.push(str);
       });
       return arr;
+    },
+    encrypt: function(name) {
+      return name.replace(/\//g, "zzsl");
+    },
+    decrypt: function(name) {
+      return name.replace(/zzsl/g, "/");
     }
   }
 });

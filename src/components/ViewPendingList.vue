@@ -226,7 +226,7 @@ export default {
           message: "List approved successfully",
           type: "success"
         });
-        this.$store.dispatch("delete_pending_list", this.list.pend_id);
+        // this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-approved",
           data: {

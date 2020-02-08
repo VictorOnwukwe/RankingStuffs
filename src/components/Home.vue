@@ -22,7 +22,7 @@
     </div>
     <main-list class="mt-12" :list="topRated" :type="'Top Rated'"></main-list>
     <hr class="mt-12 mb-6 accent" />
-    <div class="grid mb-12">
+    <div class="grid">
       <div
         v-for="(list, index) in categoryLists.slice(
           divider * 2,

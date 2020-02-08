@@ -1,25 +1,32 @@
 <template>
   <div>
-    <div
-      class="cover"
-      :style="{
-        backgroundImage: 'url(' + require('../assets/' + name + '.jpg') + ')'
-      }"
-    >
-      <div class="tint">
-        <h1 class="text-capitalize ptl">
-          <router-link to="/categories" class="no-deco b-link">Categories</router-link> /
-          {{ category.name }}
-        </h1>
-        <router-link
-          :to="'/categories/' + category.name + '/' + encryptCategory(sub.name)"
-          v-for="(sub, index) in category.subs"
-          :key="index"
-          class="stl brighten-1 no-deco"
-          >{{ sub.name }}({{ sub.list_count }})&nbsp;&nbsp;
-        </router-link>
+    <credit :credit="credit">
+      <div
+        class="cover"
+        :style="{
+          backgroundImage: 'url(' + require('../assets/' + name + '.jpg') + ')'
+        }"
+      >
+        <div class="tint">
+          <h1 class="text-capitalize ptl">
+            <router-link to="/categories" class="no-deco b-link"
+              >Categories</router-link
+            >
+            /
+            {{ category.name }}
+          </h1>
+          <router-link
+            :to="
+              '/categories/' + category.name + '/' + encryptCategory(sub.name)
+            "
+            v-for="(sub, index) in category.subs"
+            :key="index"
+            class="stl brighten-1 no-deco"
+            >{{ sub.name }}({{ sub.list_count }})&nbsp;&nbsp;
+          </router-link>
+        </div>
       </div>
-    </div>
+    </credit>
 
     <div class="mt-8 brand--text" style="max-width:400px">
       <sorter v-if="newF" @change="refetch" :options="options"></sorter>
@@ -49,7 +56,7 @@
     <mugen-scroll
       :handler="fetchMore"
       :should-handle="!fetching"
-      :threshold="0.1"
+      :threshold="0"
     >
       <list-loading v-if="!complete && fetching"></list-loading
     ></mugen-scroll>
@@ -59,11 +66,14 @@
 import MugenScroll from "vue-mugen-scroll";
 import Sorter from "./Sorter";
 import DisplayDemands from "./DisplayDemands";
+import PhotoCredit from "./PhotoCredit";
+import imageLinks from "../../public/my-modules/image-links";
 export default {
   components: {
     Sorter,
     DisplayDemands,
-    MugenScroll
+    MugenScroll,
+    credit: PhotoCredit
   },
   data() {
     return {
@@ -213,6 +223,16 @@ export default {
         ? this.category.name + "-low"
         : this.category.name;
       return data.replace(/ /g, "");
+    },
+    credit() {
+      let result =
+        imageLinks[
+          this.category.name
+            .toLowerCase()
+            .replace(/\&/g, "_")
+            .replace(/ /g, "")
+        ];
+      return result;
     }
   },
   watch: {

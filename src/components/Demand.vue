@@ -227,8 +227,8 @@ export default {
             upload.subCategory !== ""
               ? upload.category + "/" + upload.subCategory
               : upload.category == ""
-              ? "miscellaneous"
-              : "/" + upload.category;
+              ? "Miscellaneous"
+              : upload.category;
         })
         .catch(_ => {
           this.dispatch("setSnackbar", {
@@ -299,10 +299,12 @@ export default {
       return this.categories.find(cat => cat.name == this.category).subs;
     },
     id() {
-      return this.title
-        .toLowerCase()
-        .trim()
-        .replace(/ /g, "-");
+      return this.encrypt(
+        this.title
+          .toLowerCase()
+          .trim()
+          .replace(/ /g, "-")
+      );
     },
     successMessage() {
       return `Your demand has been submitted. You will be notified on completion of

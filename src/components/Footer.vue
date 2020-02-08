@@ -43,7 +43,10 @@
                       encryptCategory(sub.name)
                   "
                 >
-                  {{ sub.name }}&nbsp;({{ sub.list_count }})
+                  {{ sub.name }}&nbsp;(<span class="stl">{{
+                    sub.list_count
+                  }}</span
+                  >)
                   <br />
                 </router-link>
               </div>
@@ -55,15 +58,14 @@
         class="py-2 grey--text text--lighten-2 text-center footer lighten-1"
       >
         <v-layout class="stl" align-center>
-          <router-link :to="'/'" class="py-1 no-deco" style="font-size:1em">
+          <router-link :to="'/'" class="no-deco" style="font-size:1em">
             <!-- <span class="white--text">the</span> -->
             <div style="font-size:1em">
               <div>
                 <span class="accent--text font-weight-black">Ranking</span>
               </div>
               <div class="mt-n3">
-                <span class="white--text font-weight-black">STUFFS</span>
-                <!-- <span class="accent--text font-weight-black">...</span> -->
+                <span class="white--text font-weight-black ml-n2">STUFFS</span>
               </div>
             </div>
             <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->

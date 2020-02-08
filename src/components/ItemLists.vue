@@ -1,7 +1,9 @@
 <template>
-  <div class="mt-4">
-    <div class="mt-4" v-for="(id, index) in IDs" :key="index">
-      <preview :id="id.id" :item="item"></preview>
+  <div>
+    <div class="grid">
+      <div class="mt-4" v-for="(id, index) in IDs" :key="index">
+        <preview :id="id.id" :item="item"></preview>
+      </div>
     </div>
   </div>
 </template>
@@ -18,3 +20,16 @@ export default {
   methods: {}
 };
 </script>
+<style scoped>
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-gap: 1em;
+}
+
+@media (min-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+</style>

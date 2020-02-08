@@ -21,8 +21,12 @@ import addItemOutline from "../icons/add-item-outline";
 import starOutline from "../icons/star-outline";
 import replyOutline from "../icons/reply-outline";
 import commentOutline from "../icons/comment-outline";
-import arrowUp from "../icons/arrow-up";
+import arrowUpOutline from "../icons/arrow-up-outline";
+import arrowDownOutline from "../icons/arrow-down-outline";
+import category from "../icons/category";
+import list from "../icons/list";
 import arrowDown from "../icons/arrow-down";
+import arrowUp from "../icons/arrow-up";
 
 Vue.use(Vuetify);
 
@@ -81,18 +85,30 @@ const vuetify = new Vuetify({
       commentOutline: {
         component: commentOutline
       },
-      arrowUp: {
-        component: arrowUp
+      arrowUpOutline: {
+        component: arrowUpOutline
+      },
+      arrowDownOutline: {
+        component: arrowDownOutline
       },
       arrowDown: {
         component: arrowDown
+      },
+      arrowUp: {
+        component: arrowUp
+      },
+      category: {
+        component: category
+      },
+      list: {
+        component: list
       }
     }
   },
   theme: {
     themes: {
       light: {
-        primary: "#388E3C",
+        primary: "#00A65A",
         brand: "#388E3C",
         form: "#60aaea",
         accent: "#FF9800",

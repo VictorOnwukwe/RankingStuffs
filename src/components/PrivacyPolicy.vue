@@ -7,7 +7,7 @@
       &quot;our&quot;) collects, protects and uses the personally identifiable
       information (&quot;Personal Information&quot;) you (&quot;User&quot;,
       &quot;you&quot; or &quot;your&quot;) may provide on the
-      <router-link to="/">top-ten-534ca.firebaseapp.com</router-link>
+      <router-link to="/">rankingstuffs.com</router-link>
       website and any of its products or services (collectively,
       &quot;Website&quot; or &quot;Services&quot;). It also describes the
       choices available to you regarding our use of your Personal Information
@@ -271,9 +271,7 @@
       If you would like to contact us to understand more about this Policy or
       wish to contact us concerning any matter relating to individual rights and
       your Personal Information, you may send an email to
-      <span class="font-weight-medium">
-        &#116;hetop&#116;&#101;n&#101;r&#115;offi&#99;&#105;&#97;l&#64;&#103;mai&#108;&#46;co&#109;</span
-      >
+      <span class=""> rankingstuffs@gmail.com</span>
     </p>
     <p>This document was last updated on January 8, 2020</p>
   </div>

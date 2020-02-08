@@ -16,7 +16,7 @@
         </v-layout>
         <p class="ptd pre-wrap spacious">{{ demand.comment }}</p>
         <v-layout align-center class="mt-4">
-          <span class="std" v-html="waitingMessage"></span>
+          <span class="std" style="font-style:italic" v-html="waitingMessage"></span>
           <v-spacer></v-spacer>
           <m-btn fab outlined depressed small @click="create()">
             <v-icon>$vuetify.icons.create</v-icon>
@@ -298,7 +298,7 @@ export default {
             return `You and <b>1</b> other person are waiting for this list`;
           }
         } else {
-          return "Only <b>you</b> are waiting for this list";
+          return "Only you are waiting for this list";
         }
       } else {
         if (this.demand.waiters_count === 1) {

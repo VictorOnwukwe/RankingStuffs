@@ -5,7 +5,15 @@
       :key="index"
       style="position:relative"
     >
-      <img :src="require('../assets/' + name(category.name))" width="100%" />
+      <credit :credit="credit(category.name)">
+        <div style="min-height:6.5em;min-width:100%">
+          <img
+            class="image"
+            :src="require('../assets/' + name(category.name))"
+            width="100%"
+          />
+        </div>
+      </credit>
       <v-card class="display">
         <prev :category="category"></prev>
       </v-card>
@@ -15,9 +23,12 @@
 
 <script>
 import CategoryPreview from "./CategoryPreview";
+import imageLinks from "../../public/my-modules/image-links";
+import PhotoCredit from "./PhotoCredit";
 export default {
   components: {
-    prev: CategoryPreview
+    prev: CategoryPreview,
+    credit: PhotoCredit
   },
   methods: {
     async Lists(name) {
@@ -38,6 +49,16 @@ export default {
         ? name + "-low.jpg"
         : name + ".jpg";
       return data.replace(/ /g, "");
+    },
+    credit(name) {
+      let result =
+        imageLinks[
+          name
+            .toLowerCase()
+            .replace(/\&/g, "_")
+            .replace(/ /g, "")
+        ];
+      return result;
     }
   },
   computed: {
@@ -51,7 +72,7 @@ export default {
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 0.5em;
+  grid-gap: 2em;
 }
 
 @media (min-width: 900px) {
@@ -64,6 +85,9 @@ export default {
   width: 86%;
   margin-left: 7%;
   min-height: 10em;
-  background-color: rgba(255, 255, 255, 0.9);
+  background-color: rgba(255, 255, 255, 0.97);
+}
+.image {
+  min-height: 12em;
 }
 </style>

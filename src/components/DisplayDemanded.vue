@@ -21,7 +21,7 @@
       <mugen-scroll
         :handler="fetchMore"
         :should-handle="!loading"
-        :threshold="0.1"
+        :threshold="0"
       >
         <list-loading v-if="!complete && loading"></list-loading>
       </mugen-scroll>
@@ -50,6 +50,7 @@ export default {
   },
   methods: {
     fetchDemands() {
+      this.loading = true;
       this.$store
         .dispatch("fetch_demanded", {
           limit: 20,
@@ -59,6 +60,7 @@ export default {
         .then(demands => {
           this.lastDoc = demands[demands.length - 1];
           this.demands = demands;
+          this.loading = false;
         });
     },
     fetchMore() {

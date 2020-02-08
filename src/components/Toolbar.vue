@@ -66,20 +66,30 @@
                     <v-icon
                       color="rgba(255, 255, 255, 0.902)"
                       class="mr-4"
-                      @click.stop="search = !search"
+                      @click.stop="
+                        notification ? (notification = false) : null,
+                          (search = !search)
+                      "
                       >{{ !search ? "search" : "mdi-close" }}</v-icon
                     >
-                    <a @click="$store.dispatch('set_login', true)" class="white--text"
+                    <a
+                      @click="$store.dispatch('set_login', true)"
+                      class="white--text"
                       >Login</a
                     >
-                    <a @click="$store.dispatch('set_signup', true)" class="white--text"
+                    <a
+                      @click="$store.dispatch('set_signup', true)"
+                      class="white--text"
                       >Signup</a
                     >
                   </v-layout>
                   <v-layout v-else justify-end align-center>
                     <v-icon
                       color="rgba(255, 255, 255, 0.902)"
-                      @click.stop="search = !search"
+                      @click.stop="
+                        notification ? (notification = false) : null,
+                          (search = !search)
+                      "
                       size="25"
                       >{{ !search ? "search" : "mdi-close" }}</v-icon
                     >
@@ -90,7 +100,10 @@
                         }}</span>
                       </template>
                       <v-icon
-                        @click.stop="notification = !notification"
+                        @click.stop="
+                          search ? (search = false) : null,
+                            (notification = !notification)
+                        "
                         color="rgba(255, 255, 255, 0.902)"
                         size="25"
                         >mdi-bell</v-icon
@@ -98,7 +111,7 @@
                     </v-badge>
                     <v-menu
                       offset-y
-                      open-on-hover
+                      open-on-click
                       close-on-content-click
                       close-on-click
                       max-width="250px"
@@ -248,14 +261,16 @@
                   Lists
                 </div>
                 <div class="px-2 mb-4">
-                  <span
+                  <router-link
+                    :to="'/lists/' + result.id"
                     v-for="(result, index) in lists"
                     :key="index"
-                    @click="(search = false), go('/lists/' + result.id)"
-                    class="underline pointer text-capitalize"
+                    class="underline pointer std ml-0 mt-1"
                   >
-                    {{ result.data().title }}<br />
-                  </span>
+                    <div class="mt-1" @click="(search = false), (keyword = '')">
+                      {{ result.data().title }}
+                    </div>
+                  </router-link>
                 </div>
               </div>
               <div v-if="demands.length > 0" class="ptd">
@@ -265,14 +280,17 @@
                   Demands
                 </div>
                 <div class="px-2 mb-4">
-                  <span
+                  <router-link
+                    :to="'/demands/' + result.id"
                     v-for="(result, index) in demands"
                     :key="index"
-                    @click="(search = false), go('/demands/' + result.id)"
-                    class="underline pointer text-capitalize"
+                    @click="search = false"
+                    class="underline std pointer no-deco ml-0"
                   >
-                    {{ result.data().title }}<br />
-                  </span>
+                    <div class="mt-1" @click="(search = false), (keyword = '')">
+                      {{ result.data().title }}<br />
+                    </div>
+                  </router-link>
                 </div>
               </div>
             </div>
@@ -291,13 +309,7 @@
             </div>
             <div v-else-if="keyword.length >= 5">
               <v-layout justify-center>
-                <v-progress-circular
-                  class="my-4"
-                  size="20"
-                  color="brand"
-                  :width="3"
-                  indeterminate
-                ></v-progress-circular>
+                <m-progress class="my-4"></m-progress>
               </v-layout>
             </div>
           </div>
@@ -306,7 +318,9 @@
 
       <transition name="notification-bar">
         <div v-if="notification" class="notification">
-          <Notifications @close="notification = false"></Notifications>
+          <Notifications
+            @close="(notification = false), setOverlay()"
+          ></Notifications>
         </div>
       </transition>
     </div>
@@ -418,6 +432,9 @@ export default {
     },
     subLink(cat, sub) {
       return "/categories/" + cat + "/" + this.encryptCategory(sub);
+    },
+    setOverlay() {
+      this.$emit("setOverlay", this.search || this.notification);
     }
   },
 
@@ -426,9 +443,10 @@ export default {
       this.closeSearch ? this.action() : null;
     },
     search() {
-      if (!this.search) {
-        this.action();
-      }
+      this.setOverlay();
+    },
+    notification() {
+      this.setOverlay();
     }
   },
 
@@ -594,7 +612,7 @@ a {
   /* font-family: "Oswald", sans-serif; */
   /* font-weight: bold; */
 }
-a:hover {
+.nav:hover {
   color: #ffffffe6 !important;
 }
 
@@ -636,7 +654,6 @@ div a + a {
 .nav.router-link-exact-active {
   color: var(--accent) !important;
   font-weight: bolder;
-  text-shadow: 0px 0px 8px var(--accent);
 }
 .block {
   display: block;

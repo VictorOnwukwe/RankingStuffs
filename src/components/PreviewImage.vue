@@ -3,12 +3,22 @@
     <v-img
       @click="previewImage()"
       :src="srcUrl"
+      :lazy-src="image.url.low"
       :width="width"
       :aspect-ratio="aspectRatio"
       :style="{ borderRadius: radius }"
       :min-width="minWidth"
       :max-width="maxWidth"
-    ></v-img>
+    >
+      <template v-slot:placeholder>
+        <v-row class="fill-height ma-0" align="center" justify="center">
+          <v-progress-circular
+            indeterminate
+            color="grey lighten-5"
+          ></v-progress-circular>
+        </v-row>
+      </template>
+    </v-img>
     <v-dialog v-model="preview" max-width="450px">
       <v-card tile>
         <v-layout class="close" style="">
@@ -36,7 +46,7 @@
                   <div class="label">
                     Added By:
                   </div>
-                  <div class="brand--text">{{ user.username }}</div>
+                  <div class="link--text">{{ user.username }}</div>
                 </v-layout>
               </div>
               <div>
@@ -160,7 +170,7 @@ export default {
       return moment(this.completeImage.created.toDate()).format("MMMM Do YYYY");
     },
     srcUrl() {
-      return this.intersected ? this.image.url.high : this.image.url.low;
+      return this.intersected ? this.image.url.high : "";
     }
   },
   mounted() {

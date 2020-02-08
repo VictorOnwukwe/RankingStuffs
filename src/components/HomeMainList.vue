@@ -5,13 +5,23 @@
         <v-layout>
           <v-flex shrink style="position:relative">
             <router-link :to="'/lists/' + list.id" class="no-deco">
-            <m-img
-              :src="list.preview_image ? list.preview_image.url.high : false"
-              :minWidth="'120px'"
-              :maxWidth="'250px'"
-              :width="'25vw'"
-              class="mr-3"
-            ></m-img>
+              <m-img
+                v-if="list.preview_image"
+                :src="list.preview_image ? list.preview_image.url.high : false"
+                :minWidth="'120px'"
+                :maxWidth="'250px'"
+                :width="'25vw'"
+                class="mr-3"
+              ></m-img>
+              <m-img
+                v-else
+                :src="require('../assets/' + list.category + '-low.jpg')"
+                :minWidth="'120px'"
+                :maxWidth="'250px'"
+                :width="'25vw'"
+                class="mr-3"
+                :aspectRatio="'1'"
+              ></m-img>
             </router-link>
           </v-flex>
           <v-flex>

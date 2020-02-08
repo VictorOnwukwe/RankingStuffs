@@ -38,7 +38,7 @@
                 >Demand</router-link
               >
               <div class="mt-2 ptl text-center">
-                Curious about top ten stuff? Place it on demand. Maybe a Rankers
+                Curious about top ten stuff? Place it on demand. Maybe a Ranker
                 could just help out
               </div>
             </div>
@@ -55,7 +55,7 @@ export default {};
 
 <style scoped>
 .top-view {
-  width: calc(100% + 1em);
+  width: calc(100% + 0.5em);
   margin-left: -0.5em;
   min-height: 80vh;
   background-position: top right;

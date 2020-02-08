@@ -5,9 +5,16 @@
         style="z-index: 9"
         @showSidebar="showSidebar = !showSidebar"
         :closeSearch="closeSearch"
+        @setOverlay="setOverlay"
       ></toolbar>
 
-      <div @click="setClose()">
+      <div
+        v-if="overlay"
+        @click="setClose()"
+        style="position:fixed;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:5"
+      ></div>
+
+      <div>
         <preview v-if="$route.name == 'home'" id="preview"></preview>
         <v-layout justify-center>
           <v-layout
@@ -18,9 +25,7 @@
             <v-flex
               xs12
               :class="{
-                sm9:
-                  !$route.name.includes('admin') &&
-                  !$route.name.includes('terms-and-conditions')
+                sm9: !$route.name.includes('admin')
               }"
             >
               <transition name="fade" mode="out-in">
@@ -90,7 +95,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>mdi-creation</v-icon>
+                <v-icon size="1.5em">mdi-creation</v-icon>
               </v-list-item-icon>
               <v-list-item-title>My Creations</v-list-item-title>
             </v-list-item>
@@ -100,7 +105,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>mdi-star</v-icon>
+                <v-icon size="1.5em">mdi-star</v-icon>
               </v-list-item-icon>
               <v-list-item-title>My Favorites</v-list-item-title>
             </v-list-item>
@@ -111,7 +116,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>mdi-view-list</v-icon>
+                <v-icon size="1.5em">mdi-view-list</v-icon>
               </v-list-item-icon>
               <v-list-item-title>My Activities</v-list-item-title>
             </v-list-item>
@@ -144,7 +149,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>fa-user-shield</v-icon>
+                <v-icon size="1em">mdi-shield-account</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Admin</v-list-item-title
@@ -169,7 +174,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1em">fa-list-alt</v-icon>
+                <v-icon size="1.1em">$vuetify.icons.list</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Lists</v-list-item-title
@@ -182,7 +187,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>$vuetify.icons.queue</v-icon>
+                <v-icon size="1.1em">$vuetify.icons.queue</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Demands</v-list-item-title
@@ -194,7 +199,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>$vuetify.icons.create</v-icon>
+                <v-icon size="1.1em">$vuetify.icons.create</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Create List</v-list-item-title
@@ -206,7 +211,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>$vuetify.icons.demand</v-icon>
+                <v-icon size="1.1em">$vuetify.icons.demand</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Demand List</v-list-item-title
@@ -218,7 +223,7 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon>fa-user-shield</v-icon>
+                <v-icon class="" size="1em">$vuetify.icons.category</v-icon>
               </v-list-item-icon>
               <v-list-item-title class="font-weight-medium"
                 >Categories</v-list-item-title
@@ -290,7 +295,8 @@ export default {
     return {
       closeSearch: false,
       showScroll: true,
-      showSidebar: false
+      showSidebar: false,
+      overlay: false
     };
   },
 
@@ -306,6 +312,9 @@ export default {
     },
     hideSnackbar() {
       this.$store.dispatch("set_snackbar", { show: false });
+    },
+    setOverlay(val) {
+      this.overlay = val;
     }
   },
 
@@ -434,7 +443,7 @@ html {
 .sub-note {
   font-size: 0.95em;
 }
-.spacious{
+.spacious {
   line-height: 1.9em;
 }
 .pre-wrap {
@@ -499,7 +508,7 @@ html {
   /* font-family: Georgia, "Times New Roman", Times, serif;
   font-family: "Overlock", cursive; */
   font-family: "Roboto", sans-serif;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   /* transition: all 0.15s ease-in; */
 }
 #body {

@@ -2,7 +2,7 @@
   <div>
     <m-btn v-if="btn" @click="showMenu()">Upload</m-btn>
     <v-icon v-if="icon" @click="showMenu()" size="2em" :color="actionColor"
-      >mdi-camera</v-icon
+      >mdi-image-plus</v-icon
     >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">

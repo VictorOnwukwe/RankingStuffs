@@ -2,9 +2,7 @@
   <div>
     <v-list-item v-if="activity.type == 'list'">
       <v-list-item-avatar tile>
-        <v-icon size="2rem" color="accent"
-          >$vuetify.icons.createOutline</v-icon
-        >
+        <v-icon size="2rem" color="accent">$vuetify.icons.createOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -27,9 +25,9 @@
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Comment on
-          <span class="font-weight-medium text-capitalize pointer">{{
-            activity.item.name
-          }}</span>
+          <span class="font-weight-medium text-capitalize pointer"
+            >"{{ activity.item.name }}"</span
+          >
           on the list of
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
@@ -46,14 +44,16 @@
 
     <v-list-item v-if="activity.type == 'upvote'">
       <v-list-item-avatar>
-        <v-icon color="accent" size="2rem">$vuetify.icons.arrowUp</v-icon>
+        <v-icon color="accent" size="2rem"
+          >$vuetify.icons.arrowUpOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Upvote for
-          <span class="font-weight-medium pointer text-capitalize">{{
-            activity.item.name
-          }}</span>
+          <span class="font-weight-medium pointer text-capitalize"
+            >"{{ activity.item.name }}"</span
+          >
           on the list of
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
@@ -66,14 +66,16 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'downvote'">
       <v-list-item-avatar>
-        <v-icon color="accent" size="2rem">$vuetify.icons.arrowDown</v-icon>
+        <v-icon color="accent" size="2rem"
+          >$vuetify.icons.arrowDownOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Downvote for
-          <span class="font-weight-medium pointer text-capitalize">{{
-            activity.item.name
-          }}</span>
+          <span class="font-weight-medium pointer text-capitalize"
+            >"{{ activity.item.name }}"</span
+          >
           on the list of
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
@@ -86,14 +88,16 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'item'">
       <v-list-item-avatar>
-        <v-icon size="2rem" color="accent">$vuetify.icons.addItemOutline</v-icon>
+        <v-icon size="2rem" color="accent"
+          >$vuetify.icons.addItemOutline</v-icon
+        >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Addition of item
-          <span class="font-weight-medium pointer">{{
-            activity.item.name
-          }}</span>
+          <span class="font-weight-medium pointer"
+            >"{{ activity.item.name }}"</span
+          >
           to the list of
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
@@ -110,7 +114,7 @@
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
-          Rated
+          Rating on
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
             :to="'/lists/' + activity.list.id"
@@ -127,9 +131,7 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'demand'">
       <v-list-item-avatar tile>
-        <v-icon size="2rem" color="accent"
-          >$vuetify.icons.demandOutline</v-icon
-        >
+        <v-icon size="2rem" color="accent">$vuetify.icons.demandOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -146,7 +148,7 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'item-update'">
       <v-list-item-avatar>
-        <v-icon size="2.3rem" color="accent">$vuetify.icons.contribute</v-icon>
+        <v-icon size="2rem" color="accent">$vuetify.icons.contribute</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -154,7 +156,7 @@
           <span
             class="font-weight-medium pointer text-capitalize"
             @click="go('/lists/' + activity.list.id)"
-            >{{ activity.item.name }}</span
+            >"{{ activity.item.name }}"</span
           >
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
@@ -174,9 +176,9 @@
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Reply to a comment on
-          <span class="font-weight-medium text-capitalize">{{
-            activity.item.name
-          }}</span>
+          <span class="font-weight-medium text-capitalize"
+            >"{{ activity.item.name }}"</span
+          >
           on the list of
           <router-link
             class="link--text font-weight-medium pointer text-capitalize no-deco"
@@ -214,7 +216,7 @@ export default {
 };
 </script>
 <style scoped>
-*>*{
+* > * {
   line-height: 1.6em !important;
 }
 </style>

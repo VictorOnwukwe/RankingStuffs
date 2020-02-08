@@ -1,18 +1,22 @@
 <template>
-  <v-card :class="{ loading: !fetched }" width="100%" :outlined="sub">
+  <v-card
+    :to="'/demands/' + demand.id"
+    :class="{ loading: !fetched }"
+    width="100%"
+    :outlined="sub"
+  >
     <div v-if="fetched">
       <v-card-title class style>
         <v-layout column>
           <v-layout align-start>
             <v-flex>
-              <router-link
-                :to="'/demands/' + demand.id"
+              <div
                 class="text-capitalize no-deco oswald"
                 :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
                 style="font-size:0.85em"
               >
                 {{ demand.title }}
-              </router-link>
+              </div>
             </v-flex>
             <v-flex shrink>
               <v-menu
@@ -22,7 +26,10 @@
                 max-width="90px"
               >
                 <template v-slot:activator="{ on }">
-                  <v-icon @click="setWaiting()" class="ml-2" color="" v-on="on"
+                  <v-icon
+                    @click.prevent="setWaiting()"
+                    class="ml-2 dots"
+                    v-on="on"
                     >mdi-dots-vertical</v-icon
                   >
                 </template>
@@ -65,7 +72,7 @@
           <div class="ptd oswald" style="font-size:0.6em">
             <span class="ptd">{{ created }}</span>
             <span class="ptd">
-              |
+              <span class="htd">&nbsp;|&nbsp;</span>
               <span>{{ demand.waiters_count }}</span>
               {{ demand.waiters_count > 1 ? "people" : "person" }}
               waiting</span
@@ -225,3 +232,8 @@ export default {
   }
 };
 </script>
+<style scoped>
+.dots:hover {
+  color: var(--accent);
+}
+</style>

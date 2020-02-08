@@ -20,13 +20,14 @@ const plugin = store => {
         store.commit("setCategories", storage.data);
         store.dispatch("fetch_home_category_lists");
       } else {
+        let exists = storage;
         if (new Date().getTime() >= storage.ts) {
           store.commit("setCategories", storage.data);
           store.dispatch("fetch_home_category_lists");
         }
         store.dispatch("fetchCategories").then(() => {
-          if (!storage) {
-            this.dispatch("fetch_home_category_lists");
+          if (!exists) {
+            store.dispatch("fetch_home_category_lists");
           }
         });
       }

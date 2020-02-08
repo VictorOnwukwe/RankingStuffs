@@ -144,7 +144,7 @@ export default {
         .dispatch("emailSignup", {
           email: this.email.toLowerCase().trim(),
           password: this.password,
-          username: this.username.toLowerCase().replace(/\s/g, "")
+          username: this.username.replace(/\s/g, "")
         })
         .then(() => {
           this.close();

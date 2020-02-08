@@ -206,7 +206,7 @@
                   <p
                     class="text-capitalize font-weight-medium grey--text text--darken-2"
                   >
-                    Description
+                    Description / Note
                   </p>
                   <v-textarea
                     no-resize
@@ -217,6 +217,7 @@
                     style="width:100%"
                     counter="1500"
                     :rules="[rules.maxLength(1500)]"
+                    placeholder="[optional] criterias, priorities, motivations"
                   ></v-textarea>
                 </v-flex>
 
@@ -230,7 +231,7 @@
                     :items="categories"
                     item-text="name"
                     class="text-capitalize"
-                    placeholder="Optional"
+                    placeholder="[Optional]"
                     color="brand"
                     solo
                     flat
@@ -255,7 +256,7 @@
                     :disabled="list.category == ''"
                     :items="subCategories"
                     item-text="name"
-                    placeholder="Optional"
+                    placeholder="[Optional]"
                     class="text-capitalize"
                     color="brand"
                     solo
@@ -324,6 +325,7 @@
               @setValid="setValid"
               @oneUp="oneUp"
               @delete="deleteItem"
+              :creation="true"
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
@@ -535,9 +537,6 @@ export default {
 
     setItem(index, item) {
       this.list.items[index] = item;
-      if (!this.list.preview_image && item.image) {
-        this.preview_image == item.image;
-      }
     },
     setItemComment(index, comment) {
       this.list.items[index].comment = comment;
@@ -610,16 +609,19 @@ export default {
         ${this.tempCategory} lists.`;
     },
     id() {
+      let data;
       if (this.list.type == "personal") {
-        return (this.list.user.id + "-" + this.list.title.toLowerCase())
+        data = (this.list.user.id + "-" + this.list.title.toLowerCase())
           .trim()
           .replace(/ /g, "-");
       } else {
-        return this.list.title
+        data = this.list.title
           .toLowerCase()
           .trim()
           .replace(/ /g, "-");
       }
+
+      return this.encrypt(data);
     },
     user() {
       return {

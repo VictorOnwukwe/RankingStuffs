@@ -32,20 +32,23 @@
                 ></rating>
               </v-layout>
               <div>
-                <span class="std"
+                <span class="ptd"
                   >{{ list.voters_count }}
                   {{ list.voters_count > 1 ? "voters" : "voter" }}</span
                 >
-                <span class="std">, {{ list.votes }} votes</span>
+                <span class="ptd"
+                  ><span class="htd">&nbsp;|</span> {{ list.votes }} votes</span
+                >
+                <span class="ptd"
+                  ><span class="htd">&nbsp;|</span>
+                  {{ list.item_count }} items</span
+                >
               </div>
               <v-layout v-if="creator" class="mt-4" align-center>
                 <dp class="mr-2" :src="creator.profile_pic"></dp>
                 <username :user="creator"></username>
               </v-layout>
-              <div
-                class="mt-4 pre-wrap spacious"
-                v-if="list.description"
-              >{{ list.description }}</div>
+              <div class="mt-4 pre-wrap spacious" v-if="list.description">{{ list.description }}</div>
             </div>
             <div></div>
           </div>
@@ -67,7 +70,10 @@
               <m-progress :size="'28'"></m-progress>
             </v-layout>
 
-            <v-layout v-if="list.item_count > list.items.length" style="margin-top:5em">
+            <v-layout
+              v-if="list.item_count > list.items.length"
+              style="margin-top:5em"
+            >
               <v-flex xs6 offset-xs3>
                 <m-btn @click="loadMore()" block outlined>
                   More
@@ -133,9 +139,7 @@
       </v-layout>
 
       <div class="mt-4">
-        <v-card-title
-          class="ptd pl-0 font-weight-bold"
-          style="font-size: 1em"
+        <v-card-title class="ptd pl-0 font-weight-bold" style="font-size: 1em"
           >Other Lists in {{ list.category }} category</v-card-title
         >
         <div class="mt-6">
@@ -564,8 +568,9 @@ export default {
     },
     async startUp() {
       this.$store.dispatch("set_loading", true);
-      await this.fetchList();
-      this.fetchCategoryLists();
+      await this.fetchList().then(() => {
+        this.fetchCategoryLists();
+      });
       this.checkVoted();
 
       if (this.$route.query.notification) {
@@ -725,8 +730,8 @@ export default {
   margin-top: 2em;
 }
 
-.sidebar{
-  box-shadow:3px 0px 9px rgba(0, 0, 0, 0.3)
+.sidebar {
+  box-shadow: 3px 0px 9px rgba(0, 0, 0, 0.3);
 }
 
 .pull-push {

@@ -7,7 +7,7 @@
       &quot;us&quot;, &quot;we&quot; or &quot;our&quot;) and you
       (&quot;User&quot;, &quot;you&quot; or &quot;your&quot;). This Agreement
       sets forth the general terms and conditions of your use of the
-      <router-link to="/">top-ten-534ca.firebaseapp.com</router-link>
+      <router-link to="/">rankingstuffs.com</router-link>
       website and any of its products or services (collectively,
       &quot;Website&quot; or &quot;Services&quot;).
     </p>
@@ -184,9 +184,7 @@
       If you would like to contact us to understand more about this Agreement or
       wish to contact us concerning any matter relating to it, you may send an
       email to
-      <span class="font-weight-medium">
-        t&#104;et&#111;p&#116;e&#110;&#101;&#114;&#115;&#111;f&#102;ici&#97;&#108;&#64;g&#109;&#97;il.&#99;om</span
-      >
+      <span class="font-weight-medium"> rankingstuffs@gmail.com</span>
     </p>
     <p>This document was last updated on January 8, 2020</p>
   </div>

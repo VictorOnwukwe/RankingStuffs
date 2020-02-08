@@ -75,7 +75,7 @@
         </v-hover>
         <v-card-title
           class="ptd pl-0 font-weight-bold text-capitalize"
-          style="font-size: 1em; margin-top:4em; margin-bottom:2em"
+          style="font-size: 1em; margin-top:4em;"
           >Lists Featuring {{ item.name }}</v-card-title
         >
         <lists-preview :IDs="featuredLists" :item="item"></lists-preview>

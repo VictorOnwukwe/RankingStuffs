@@ -3,11 +3,22 @@
     <v-img
       v-if="src"
       :src="src"
+      :lazy-src="require('../assets/emptyimage.jpg')"
       :width="width"
       :max-width="maxWidth"
       :min-width="minWidth"
       :aspect-ratio="aspectRatio"
-    ></v-img>
+      :style="{ borderRadius: radius }"
+    >
+      <template v-slot:placeholder>
+        <v-row class="fill-height ma-0" align="center" justify="center">
+          <v-progress-circular
+            indeterminate
+            color="grey lighten-5"
+          ></v-progress-circular>
+        </v-row>
+      </template>
+    </v-img>
     <v-img
       v-else
       :src="require('../assets/emptyimage.jpg')"
@@ -15,6 +26,7 @@
       :max-width="maxWidth"
       :min-width="minWidth"
       :aspect-ratio="aspectRatio"
+      :style="{ borderRadius: radius }"
     ></v-img>
   </div>
 </template>
@@ -40,11 +52,12 @@ export default {
     aspectRatio: {
       type: String,
       default: "1"
+    },
+    radius: {
+      type: String | Number,
+      default: "5px"
     }
   },
-  created(){
-    
-  }
+  created() {}
 };
-
 </script>

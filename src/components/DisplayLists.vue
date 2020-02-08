@@ -21,7 +21,7 @@
       <mugen-scroll
         :handler="fetchMore"
         :should-handle="!loading"
-        :threshold="0.1"
+        :threshold="0"
       >
         <list-loading v-if="!complete && loading"></list-loading>
       </mugen-scroll>
@@ -52,6 +52,7 @@ export default {
   },
   methods: {
     fetchlists() {
+      this.loading = true;
       this.$store
         .dispatch("fetch_lists", {
           limit: 20,
@@ -61,7 +62,7 @@ export default {
         .then(lists => {
           this.lastDoc = lists[lists.length - 1];
           this.lists = lists;
-          // this.$store.dispatch("set_loading", false);
+          this.loading = false;
         });
     },
     fetchMore() {
@@ -114,7 +115,7 @@ export default {
   },
   mounted() {
     this.fetchlists();
-    // this.$store.dispatch("set_loading", true);
+    this.$store.dispatch("set_loading", false);
     // this.$redrawVueMasonry();
   }
 };

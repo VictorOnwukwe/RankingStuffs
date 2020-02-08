@@ -7,7 +7,7 @@
           <div id="comment" style="display:flex">
             <div class style="position:relative">
               <div class>
-                <div style="white-space:pre-wrap;" class="ptd">{{ !more ? comment.content.slice(0, 600) : comment.content
+                <div style="white-space:pre-wrap;" class="ptd spacious">{{ !more ? comment.content.slice(0, 600) : comment.content
                   }}{{ comment.content.length > 600 ? "..." : " "
                   }}<span
                     @click="more = !more"
