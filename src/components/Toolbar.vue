@@ -3,8 +3,9 @@
     <div class="affix elevation-3">
       <v-progress-linear
         v-if="loading"
-        height="2"
+        height="3"
         color="accent"
+        striped
         indeterminate
         style="position:absolute;top:0"
       ></v-progress-linear>
@@ -22,9 +23,7 @@
                   <!-- <span class="white--text">the</span> -->
                   <div style="font-size:1em">
                     <div>
-                      <span class="accent--text font-weight-black"
-                        >Ranking</span
-                      >
+                      <span class="white--text font-weight-black">Ranking</span>
                     </div>
                     <div class="mt-n3">
                       <span class="white--text font-weight-black">STUFFS</span>
@@ -118,7 +117,7 @@
                       v-if="$vuetify.breakpoint.mdAndUp"
                     >
                       <template v-slot:activator="{ on }">
-                        <div v-on="on" class="ml-4">
+                        <div v-on="on" class="ml-4 dp pointer">
                           <dp :src="user.profile_pic"></dp>
                         </div>
                       </template>
@@ -213,9 +212,9 @@
           >
             <template v-slot:activator="{ on }">
               <a
-                style="white-space:nowrap"
+                style="white-space:nowrap;font-size:15px"
                 v-on="on"
-                class="text-capitalize cat-link brand--text text--lighten-4"
+                class="cat-link brand--text text--lighten-4"
               >
                 {{ category.name }}
               </a>
@@ -267,7 +266,11 @@
                     :key="index"
                     class="underline pointer std ml-0 mt-1"
                   >
-                    <div class="mt-1" @click="(search = false), (keyword = '')">
+                    <div
+                      class="mt-1"
+                      style="font-size:15px"
+                      @click="(search = false), (keyword = '')"
+                    >
                       {{ result.data().title }}
                     </div>
                   </router-link>
@@ -287,7 +290,11 @@
                     @click="search = false"
                     class="underline std pointer no-deco ml-0"
                   >
-                    <div class="mt-1" @click="(search = false), (keyword = '')">
+                    <div
+                      class="mt-1"
+                      style="font-size:15px"
+                      @click="(search = false), (keyword = '')"
+                    >
                       {{ result.data().title }}<br />
                     </div>
                   </router-link>
@@ -529,16 +536,16 @@ export default {
 .notification {
   position: absolute;
   padding: 0px;
-  top: 0;
+  top: 0em;
   width: calc(100%);
   background-color: #e3f2fd;
   z-index: 6;
   max-width: 700px;
 }
 
-@media (min-width: 600px) {
+@media (min-width: 500px) {
   .notification {
-    width: 70%;
+    width: 80%;
     right: 1em;
     top: 3.5em;
   }
@@ -581,6 +588,7 @@ export default {
 }
 
 .cat-display::-webkit-scrollbar {
+  margin-top: 1px;
   height: 5px;
 }
 
@@ -654,6 +662,8 @@ div a + a {
 .nav.router-link-exact-active {
   color: var(--accent) !important;
   font-weight: bolder;
+  /* outline-offset: 4px;
+  outline: 1px solid white; */
 }
 .block {
   display: block;
@@ -661,5 +671,11 @@ div a + a {
 .tile:active > * {
   color: var(--brand) !important;
   font-weight: bold;
+}
+.dp {
+  border-radius: 5px;
+}
+.dp:hover {
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
 }
 </style>

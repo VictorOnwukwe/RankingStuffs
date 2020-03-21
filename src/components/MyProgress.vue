@@ -12,7 +12,7 @@ export default {
   props: {
     color: {
       type: String,
-      default: "brand lighten-2"
+      default: "grey lighten-2"
     },
     size: {
       type: String | Number,

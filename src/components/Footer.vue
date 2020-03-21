@@ -1,5 +1,5 @@
 <template>
-  <v-footer padless class="mt-12">
+  <v-footer padless class="mt-0">
     <v-card class="flex" flat tile>
       <v-card tile color="#242729" flat>
         <v-card-title class="stl title-text">
@@ -62,7 +62,7 @@
             <!-- <span class="white--text">the</span> -->
             <div style="font-size:1em">
               <div>
-                <span class="accent--text font-weight-black">Ranking</span>
+                <span class="white--text font-weight-black">Ranking</span>
               </div>
               <div class="mt-n3">
                 <span class="white--text font-weight-black ml-n2">STUFFS</span>

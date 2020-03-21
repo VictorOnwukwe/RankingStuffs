@@ -11,7 +11,7 @@
       <div
         v-if="overlay"
         @click="setClose()"
-        style="position:fixed;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:5"
+        style="position:fixed;width:100vw;height:100vh;background:rgba(0,0,0,0.35);z-index:7"
       ></div>
 
       <div>
@@ -36,7 +36,7 @@
               xs12
               sm3
               class="side-preview"
-              v-if="
+              v-show="
                 (!loading || $vuetify.breakpoint.smAndUp) &&
                   !$route.name.includes('admin')
               "
@@ -95,9 +95,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.5em">mdi-creation</v-icon>
+                <v-icon class="nav-icon" size="1.5em">mdi-creation</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>My Creations</v-list-item-title>
+              <v-list-item-title class="font-weight-bold"
+                >My Creations</v-list-item-title
+              >
             </v-list-item>
             <v-list-item
               :to="profile + 'favorites'"
@@ -105,9 +107,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.5em">mdi-star</v-icon>
+                <v-icon class="nav-icon" size="1.5em">mdi-star</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>My Favorites</v-list-item-title>
+              <v-list-item-title class="font-weight-bold"
+                >My Favorites</v-list-item-title
+              >
             </v-list-item>
             <v-list-item
               :to="profile"
@@ -116,9 +120,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.5em">mdi-view-list</v-icon>
+                <v-icon class="nav-icon" size="1.5em">mdi-view-list</v-icon>
               </v-list-item-icon>
-              <v-list-item-title>My Activities</v-list-item-title>
+              <v-list-item-title class="font-weight-bold"
+                >My Activities</v-list-item-title
+              >
             </v-list-item>
           </v-list>
         </div>
@@ -141,7 +147,7 @@
         </v-layout>
         <v-divider></v-divider>
         <div style="font-size:20px">
-          <v-list dense class="pt-1 pb-0">
+          <v-list class="pt-1 pb-0">
             <v-list-item
               v-if="isAdmin"
               :to="'/admin'"
@@ -149,9 +155,9 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1em">mdi-shield-account</v-icon>
+                <v-icon class="nav-icon" size="1em">mdi-shield-account</v-icon>
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
+              <v-list-item-title class="font-weight-bold"
                 >Admin</v-list-item-title
               >
             </v-list-item>
@@ -161,11 +167,9 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1em">fa-home</v-icon>
+                <v-icon class="nav-icon" size="1em">fa-home</v-icon>
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Home</v-list-item-title
-              >
+              <v-list-item-title>Home</v-list-item-title>
             </v-list-item>
             <v-list-item
               :to="'/lists'"
@@ -174,11 +178,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.1em">$vuetify.icons.list</v-icon>
+                <v-icon class="nav-icon" size="1.1em"
+                  >$vuetify.icons.list</v-icon
+                >
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Lists</v-list-item-title
-              >
+              <v-list-item-title>Lists</v-list-item-title>
             </v-list-item>
             <v-list-item
               :to="'/demands'"
@@ -187,11 +191,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.1em">$vuetify.icons.queue</v-icon>
+                <v-icon class="nav-icon" size="1.1em"
+                  >$vuetify.icons.queue</v-icon
+                >
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Demands</v-list-item-title
-              >
+              <v-list-item-title>Demands</v-list-item-title>
             </v-list-item>
             <v-list-item
               :to="'/create'"
@@ -199,11 +203,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.1em">$vuetify.icons.create</v-icon>
+                <v-icon class="nav-icon" size="1.1em"
+                  >$vuetify.icons.create</v-icon
+                >
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Create List</v-list-item-title
-              >
+              <v-list-item-title>Create List</v-list-item-title>
             </v-list-item>
             <v-list-item
               :to="'/demand'"
@@ -211,11 +215,11 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon size="1.1em">$vuetify.icons.demand</v-icon>
+                <v-icon class="nav-icon" size="1.1em"
+                  >$vuetify.icons.demand</v-icon
+                >
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Demand List</v-list-item-title
-              >
+              <v-list-item-title>Demand List</v-list-item-title>
             </v-list-item>
             <v-list-item
               :to="'/categories'"
@@ -223,21 +227,21 @@
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
             >
               <v-list-item-icon>
-                <v-icon class="" size="1em">$vuetify.icons.category</v-icon>
+                <v-icon class="nav-icon" size="1em"
+                  >$vuetify.icons.category</v-icon
+                >
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-medium"
-                >Categories</v-list-item-title
-              >
+              <v-list-item-title>Categories</v-list-item-title>
             </v-list-item>
           </v-list>
           <v-divider></v-divider>
-          <v-list dense>
+          <v-list>
             <v-list-item
               v-if="authenticated"
               @click="$store.dispatch('logout')"
             >
               <v-list-item-icon>
-                <v-icon>mdi-logout</v-icon>
+                <v-icon class="nav-icon">mdi-logout</v-icon>
               </v-list-item-icon>
               <v-list-item-title>
                 Logout
@@ -505,11 +509,11 @@ html {
   box-sizing: inherit;
 }
 * > * {
-  /* font-family: Georgia, "Times New Roman", Times, serif;
-  font-family: "Overlock", cursive; */
   font-family: "Roboto", sans-serif;
   font-family: "Open Sans", sans-serif;
-  /* transition: all 0.15s ease-in; */
+}
+.roboto{
+  font-family: "Roboto", sans-serif !important;
 }
 #body {
   background: var(--background);
@@ -546,7 +550,7 @@ html {
 .view-container {
   padding: 0 0.5em;
   margin-top: 5.5em;
-  margin-bottom: 1em;
+  margin-bottom: 5em;
   width: 100%;
   max-width: 1200px !important;
 }

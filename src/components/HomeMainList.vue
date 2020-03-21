@@ -40,14 +40,14 @@
               :ratersCount="list.raters_count"
             ></rating>
 
-            <v-layout
+            <div
               class="font-weight-bold"
               v-for="(item, index) in list.items"
               :key="index"
             >
-              <div>{{ index + 1 }}&nbsp;</div>
-              <div class="text-capitalize">{{ item.data().name }}</div>
-            </v-layout>
+              <span>{{ index + 1 }}.&nbsp;</span>
+              <span class="text-capitalize font-weight-medium">{{ item.data().name }}</span>
+            </div>
             <div class="ptd mt-4 spacious pre-wrap" v-if="list.description">{{ list.description.slice(0, charCount)
               }}{{ list.description.length > charCount ? "..." : ""
               }}<router-link

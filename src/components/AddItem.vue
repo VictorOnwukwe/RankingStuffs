@@ -35,6 +35,8 @@
         v-model="item.name"
         @paste="(item.info = null), (image = null)"
         @keyup="blurEmit()"
+        :id="'item-name' + index"
+        @keyup.enter="focus('item-comment' + index)"
         @blur="hideSearch()"
       ></v-text-field>
       <div v-if="showSearch && item.name != ''" class="results elevation-3">
@@ -102,6 +104,7 @@
         auto-grow
         v-model="comment"
         @blur="emitComment()"
+        :id="'item-comment' + index"
       ></v-textarea>
     </div>
   </div>
@@ -266,6 +269,9 @@ export default {
           this.emitItem();
         };
       }, 500);
+    },
+    focus(elem) {
+      document.querySelector("#" + elem).focus();
     }
   },
   watch: {

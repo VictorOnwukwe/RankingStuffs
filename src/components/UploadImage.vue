@@ -2,7 +2,7 @@
   <div>
     <m-btn v-if="btn" @click="showMenu()">Upload</m-btn>
     <v-icon v-if="icon" @click="showMenu()" size="2em" :color="actionColor"
-      >mdi-image-plus</v-icon
+      >mdi-camera</v-icon
     >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">
@@ -23,13 +23,13 @@
               background-color="grey lighten-2"
               label="URL"
               placeholder="Enter URL"
-              v-model="imgURL"
+              v-model="linkUrl"
               clearable
             ></v-text-field>
             <v-icon
-              :disabled="imgURL.trim() == ''"
+              :disabled="!urlFetched"
               @click="showClipper()"
-              :color="imgURL.trim() !== '' ? 'green' : ''"
+              :color="urlFetched ? 'green' : ''"
               style="margin-top:-0.7em;margin-left:0.2em"
               large
               >mdi-check-circle</v-icon
@@ -158,7 +158,7 @@
           <alert
             class="mt-4"
             :type="'success'"
-            :value="uploading == false"
+            :value="successful"
             :message="successMessage"
             @act="uploadSuccess()"
           ></alert>
@@ -176,6 +176,31 @@
 <script>
 import Compressor from "compressorjs";
 import { clipperPreview, clipperUpload, clipperBasic } from "vuejs-clipper";
+
+function loadPcf(file, attr) {
+  var atr = attr || "",
+    id = (loadPcf.autoid = 1 + ~~loadPcf.autoid);
+  // document.write("<img id=pcf" + id + " " + atr + " />");
+  var xhr = new XMLHttpRequest();
+  xhr.responseType = "arraybuffer"; // IE 10+ only, sorry.
+  xhr.onload = function() {
+    // I am loading gif for demo, you can load anything.
+    var data = xhr.response;
+    if (!data instanceof ArrayBuffer) return;
+    var buf = new DataView(data),
+      head = buf.getUint32(0),
+      width = buf.getUint16(6, 1);
+    if (head !== 1195984440) return console.log("Not a GIF: " + file); // 'GIF8' = 1195984440
+    // Modify data, image width in this case, and push it to the <img> as gif.
+    buf.setInt16(6, ~~(width / 2), 1);
+    let image = URL.createObjectURL(
+      new Blob([buf.buffer], { type: "image/gif" })
+    );
+    console.log(image);
+  };
+  xhr.open("GET", file);
+  xhr.send();
+}
 
 export default {
   components: {
@@ -207,6 +232,10 @@ export default {
     type: {
       type: String,
       default: "profile"
+    },
+    successful: {
+      type: Boolean,
+      default: false
     }
   },
   data() {
@@ -223,7 +252,11 @@ export default {
       images: {},
       isLink: false,
       img: null,
-      hasImage: false
+      hasImage: false,
+      urlFetched: false,
+      linkUrl: "",
+      linkImg: "",
+      tempUrl: ""
     };
   },
   methods: {
@@ -236,37 +269,9 @@ export default {
         this.uploadMenu = false;
 
         let img = this.getBlob(canvas.toDataURL("image/jpeg", 1));
-        let that = this;
-        let minWidth, maxWidth;
 
-        if (this.type == "profile") {
-          minWidth = 50;
-          maxWidth = 500;
-        } else if (this.type == "item" || this.type == "addItem") {
-          minWidth = 250;
-          maxWidth = 500;
-        }
+        this.compress(img);
 
-        new Compressor(img, {
-          quality: 0.8,
-          maxWidth: maxWidth,
-          maxHeight: maxWidth,
-          convertSize: 5000000,
-          success(result) {
-            that.images.high = result;
-          },
-          error(err) {}
-        });
-        new Compressor(img, {
-          quality: 0.8,
-          maxWidth: minWidth,
-          maxHeight: minWidth,
-          convertSize: 5000000,
-          success(result) {
-            that.images.low = result;
-          },
-          error(err) {}
-        });
         this.cropping = false;
         this.result = true;
         this.clipper = false;
@@ -283,15 +288,21 @@ export default {
         this.cropping = false;
       }
     },
-    showClipper() {
+    async showClipper() {
+      this.imgURL = this.linkImg;
+      if (this.imageType(this.linkImg) == "gif") {
+        let img = this.getBlob(this.linkImg);
+        loadPcf(img);
+        console.log(img);
+        this.result = true;
+        this.clipper = false;
+        return;
+      }
+      this.tempUrl = this.linkUrl;
+      this.linkUrl = "";
       this.isLink = true;
       this.clipper = true;
-      let tempUrl = this.imgURL;
-      this.imgURL = "";
       this.cropping = false;
-      setTimeout(() => {
-        this.imgURL = tempUrl;
-      }, 100);
     },
     rotateLeft() {
       this.rotation -= 5;
@@ -303,7 +314,7 @@ export default {
       this.clipper = false;
       let data = {};
       this.isLink
-        ? (data = { source: this.imgURL })
+        ? (data = { source: this.tempUrl })
         : (data = { source: "user" });
       if (this.type == "addItem") {
         this.$emit("save", { ...this.images, ...data });
@@ -311,7 +322,41 @@ export default {
       }
       this.$emit("upload", { ...this.images, ...data });
     },
+    compress(img) {
+      let minWidth, maxWidth;
+      let that = this;
+
+      if (this.type == "profile") {
+        minWidth = 50;
+        maxWidth = 500;
+      } else if (this.type == "item" || this.type == "addItem") {
+        minWidth = 250;
+        maxWidth = 500;
+      }
+      new Compressor(img, {
+        quality: 0.8,
+        maxWidth: maxWidth,
+        maxHeight: maxWidth,
+        convertSize: 5000000,
+        success(result) {
+          that.images.high = result;
+        },
+        error(err) {}
+      });
+      new Compressor(img, {
+        quality: 0.8,
+        maxWidth: minWidth,
+        maxHeight: minWidth,
+        convertSize: 5000000,
+        success(result) {
+          that.images.low = result;
+        },
+        error(err) {}
+      });
+    },
     close() {
+      this.linkUrl = "";
+      this.imgURL = "";
       this.$emit("close");
     },
     uploadSuccess() {
@@ -371,6 +416,36 @@ export default {
         return;
       }
       this.uploadMenu = true;
+    },
+    async fetch() {
+      if (!this.linkUrl || this.linkUrl.trim() === "") {
+        return;
+      }
+      let url = await fetch(
+        "https://tvseriesjokesapi.herokuapp.com/api/v1/jokes/image?imageUrl=" +
+          this.linkUrl
+      );
+      url
+        .text()
+        .then(text => {
+          this.linkImg = text;
+          this.urlFetched = true;
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    },
+    imageType(link) {
+      return link.slice(link.indexOf("/") + 1, link.indexOf(";"));
+    }
+  },
+  watch: {
+    linkUrl(val) {
+      if (!val || val.trim() === "") {
+        this.urlFetched = false;
+        return;
+      }
+      this.fetch();
     }
   }
 };

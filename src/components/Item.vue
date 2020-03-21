@@ -29,10 +29,14 @@
                 style="position:absolute; bottom:12px; left:12px;"
                 :type="'item'"
                 class
-                :successMessage="'Your image has been submitted successfully. Thanks for your contribution'"
+                :successMessage="
+                  'Your image has been submitted successfully. Thanks for your contribution'
+                "
                 v-if="!item.image"
                 @upload="uploadImage"
                 :uploading="uploading"
+                :successful="successful"
+                @close="successful = false"
                 >mdi-camera</upload-image
               >
             </div>
@@ -53,7 +57,9 @@
               <p
                 class="subtitle-1 ptd my-8"
                 style="white-space:pre-wrap; font-size:0.9em"
-              >{{ item.about }}</p>
+              >
+                {{ item.about }}
+              </p>
             </div>
             <div>
               <a
@@ -176,7 +182,8 @@ export default {
       references: "",
       referenceArray: [],
       updating: false,
-      updated: false
+      updated: false,
+      successful: false
     };
   },
   methods: {
@@ -203,10 +210,11 @@ export default {
                   username: this.$store.getters.getUser.username
                 }
               },
-              item: this.item
+              item: { name: this.item.name, id: this.item.id }
             })
-            .then(image => {
+            .then(() => {
               this.uploading = false;
+              this.successful = true;
             })
             .catch(_ => {
               this.$store.dispatch("set_snackbar", {
@@ -244,10 +252,14 @@ export default {
       }
 
       this.$store
-        .dispatch("upload_pending_item_info", { update: upload, item: this.item, user: {
-                  id: this.$store.getters.getUser.id,
-                  username: this.$store.getters.getUser.username
-                } })
+        .dispatch("upload_pending_item_info", {
+          update: upload,
+          item: this.item,
+          user: {
+            id: this.$store.getters.getUser.id,
+            username: this.$store.getters.getUser.username
+          }
+        })
         .then(() => {
           this.updating = false;
           this.updated = true;

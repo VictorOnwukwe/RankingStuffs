@@ -1,9 +1,18 @@
 <template>
   <div id="main">
     <v-card tile class="" flat>
-      <v-divider class="grey lighten-1 mt-4 mb-2"></v-divider>
+      <div style="position:relative">
+        <v-divider class="grey lighten-1 mt-4 mb-2"></v-divider>
+        <div
+          style="position:absolute; right:1.7em;top:-1.1em"
+          class="std white subtitle-2 pa-1 font-weight-bold"
+          v-if="list.votable"
+        >
+          vote
+        </div>
+      </div>
       <v-card-title class="px-2 py-2">
-        <v-layout align-center>
+        <v-layout align-start>
           <v-flex shrink mr-2>
             <div
               :class="{
@@ -33,37 +42,47 @@
             >
           </v-flex>
           <v-spacer></v-spacer>
-          <v-flex shrink class>
-            <v-layout justify-center align-center>
-              <v-layout column align-center>
+          <v-flex v-if="list.votable" shrink class>
+            <v-layout>
+              <v-layout column align-center :class="'mr-2'">
                 <v-icon
-                  :size="downvoted ? '1.4em' : '1.8em'"
+                  class="upvote-icon"
                   @click="upvote()"
                   :class="{
                     'green--text': votedThis.type == 'upvote' || isCreator,
                     'grey--text': votedThis.type !== 'upvote' && !isCreator
                   }"
-                  :disabled="!checkedVoted"
+                  :disabled="!checkedVoted || votedThis.type == 'downvote'"
                   :style="{
                     cursor:
-                      votedThis !== false || isCreator ? 'default' : 'pointer'
+                      votedThis !== false || isCreator ? 'default' : 'pointer',
+                    transform: $vuetify.breakpoint.xs
+                      ? 'scale(1.4)'
+                      : 'scale(1.6)'
                   }"
                   >{{
                     votedThis.type == "upvote" || isCreator
-                      ? "mdi-arrow-up-bold-box"
-                      : "mdi-arrow-up-bold-box-outline"
+                      ? "$vuetify.icons.arrowUp"
+                      : "$vuetify.icons.arrowUpOutline"
                   }}</v-icon
                 >
-                <span class="caption std mt-n1">{{ item.upvotes }}</span>
+                <span class="caption std mt-1">{{ item.upvotes }}</span>
               </v-layout>
-              <v-layout column align-center>
+              <v-layout
+                column
+                align-center
+                :class="$vuetify.breakpoint.xs ? 'ml-1' : 'ml-3'"
+              >
                 <v-icon
-                  :size="upvoted || isCreator ? '1.4em' : '1.8em'"
+                  class="downvote-icon"
                   @click="downvote()"
-                  :disabled="!checkedVoted"
+                  :disabled="!checkedVoted || votedThis.type == 'upvote'"
                   :style="{
                     cursor:
-                      votedThis !== false || isCreator ? 'default' : 'pointer'
+                      votedThis !== false || isCreator ? 'default' : 'pointer',
+                    transform: $vuetify.breakpoint.xs
+                      ? 'scale(1.4)'
+                      : 'scale(1.6)'
                   }"
                   :class="{
                     'red--text': votedThis.type == 'downvote',
@@ -71,11 +90,11 @@
                   }"
                   >{{
                     votedThis.type == "downvote"
-                      ? "mdi-arrow-down-bold-box"
-                      : "mdi-arrow-down-bold-box-outline"
+                      ? "$vuetify.icons.arrowDown"
+                      : "$vuetify.icons.arrowDownOutline"
                   }}</v-icon
                 >
-                <span class="caption std mt-n1">{{ item.downvotes }}</span>
+                <span class="caption std mt-1">{{ item.downvotes }}</span>
               </v-layout>
             </v-layout>
           </v-flex>
@@ -112,8 +131,7 @@
                   :high="true"
                 ></img-prev>
               </div>
-              <p v-if="info.about" class="std pa-0" style="pre-wrap;">
-                {{ info.about.slice(0, 500) }}
+              <p v-if="info.about" class="std pa-0" style="pre-wrap;">{{ info.about.slice(0, 500) }}
                 <router-link
                   v-if="info.about.length > 500"
                   class="link--text underline no-deco"
@@ -128,7 +146,15 @@
           <v-card flat height="100%" class="pa-0">
             <v-layout style="height:100%" class column justify-space-between>
               <v-card flat tile>
-                <div v-if="item.note" class="pre-wrap spacious mb-4 ml-2" style="font-style:italic">{{item.note}}-&nbsp;<username v-if="creator" :user="creator"></username></div>
+                <div
+                  v-if="item.note"
+                  class="pre-wrap spacious my-4 ml-2"
+                  style="font-style:italic"
+                >{{ item.note }}-&nbsp;<username
+                    v-if="creator"
+                    :user="creator"
+                  ></username>
+                </div>
                 <v-layout
                   justify-center
                   v-if="loadingComments || addingComment"
@@ -139,12 +165,17 @@
                 <v-card
                   class="subtitle-1 px-4 py-1 htd"
                   flat
-                  v-else-if="item.comment_count == 0 && (votedThis.type=='upvote' || votedThis.type=='downvote')"
+                  v-else-if="
+                    item.comment_count == 0 &&
+                      (votedThis.type == 'upvote' ||
+                        votedThis.type == 'downvote' ||
+                        isCreator)
+                  "
                   >Be the first to comment...</v-card
                 >
                 <v-card flat v-else>
                   <display-comments
-                    :class="{'mt-4': info.about}"
+                    :class="{ 'mt-8': info.about }"
                     :comments="comments"
                     :list="list"
                     :item="item"
@@ -167,7 +198,14 @@
                   </v-layout>
                 </v-card>
               </v-card>
-              <v-card-actions v-if="votedThis.type=='upvote' || votedThis.type=='downvote' || isCreator">
+              <v-card-actions
+                v-if="
+                  votedThis.type == 'upvote' ||
+                    votedThis.type == 'downvote' ||
+                    isCreator ||
+                    list.type == 'factual'
+                "
+              >
                 <v-layout column reverse>
                   <v-flex>
                     <div style="position:relative;">
@@ -178,16 +216,17 @@
                         placeholder="Add Comment..."
                         :max-height="126"
                         @focused="setFocused"
+                        :id="'comment-box' + index"
                       />
                       <v-icon
-                        size="1.2em"
+                        size="1.5em"
                         @click="uploadComment()"
                         :class="
                           focused && comment.trim() != ''
                             ? 'accent--text'
                             : 'grey--text'
                         "
-                        style="position:absolute; bottom:1em; right:0.8em"
+                        style="position:absolute; bottom:0.65em; right:0.5em"
                         :disabled="comment.trim() == ''"
                         >fa-paper-plane</v-icon
                       >
@@ -294,11 +333,15 @@ export default {
       this.$emit("voted");
       this.votedThis = { type: "upvote" };
       this.item.upvotes++;
-      this.$store.dispatch("upvote", {
-        item: this.item,
-        list: this.list,
-        list_voted: this.list_voted
-      });
+      this.$store
+        .dispatch("upvote", {
+          item: this.item,
+          list: this.list,
+          list_voted: this.list_voted
+        })
+        .then(() => {
+          document.querySelector("#comment-box" + this.index).focus();
+        });
     },
     downvote() {
       if (this.votedThis !== false || this.isCreator) {
@@ -307,11 +350,15 @@ export default {
       this.$emit("voted");
       this.votedThis = { type: "downvote" };
       this.item.downvotes++;
-      this.$store.dispatch("downvote", {
-        item: this.item,
-        list: this.list,
-        list_voted: this.list_voted
-      });
+      this.$store
+        .dispatch("downvote", {
+          item: this.item,
+          list: this.list,
+          list_voted: this.list_voted
+        })
+        .then(() => {
+          document.querySelector("#comment-box" + this.index).focus();
+        });
     },
 
     async fetchComments(limit) {
@@ -381,11 +428,15 @@ export default {
         this.checkedVoted = true;
         return;
       }
-      this.votedThis = await this.$store.dispatch("check_item_voted", {
-        list_id: this.list.id,
-        item_id: this.item.id
-      });
-      this.checkedVoted = true;
+      this.$store
+        .dispatch("check_item_voted", {
+          list_id: this.list.id,
+          item_id: this.item.id
+        })
+        .then(voted => {
+          this.votedThis = voted;
+          this.checkedVoted = true;
+        });
     },
     setRank() {
       if (this.item.rank !== this.index) {
@@ -396,10 +447,10 @@ export default {
         });
       }
     },
-    fetchCreator(){
+    fetchCreator() {
       this.$store.dispatch("fetch_user", this.item.user).then(user => {
         this.creator = user;
-      })
+      });
     }
   },
 
@@ -421,14 +472,14 @@ export default {
       }
       return this.$store.getters.getUser.id == this.item.user;
     },
-    upvoted(){
-      if(!this.votedThis){
+    upvoted() {
+      if (!this.votedThis) {
         return;
       }
       return this.votedThis.type === "upvote";
     },
-    downvoted(){
-      if(!this.votedThis){
+    downvoted() {
+      if (!this.votedThis) {
         return;
       }
       return this.votedThis.type === "downvote";
@@ -450,10 +501,20 @@ export default {
     } else if (this.item.image) {
       this.$emit("hasImage", this.item.image);
     }
-    if(this.item.note){
+    if (this.item.note) {
       this.fetchCreator();
     }
     this.setRank();
   }
 };
 </script>
+<style scoped>
+.upvote-icon:hover {
+  color: #4caf50 !important;
+  transition: transform 0.2s ease-in;
+}
+.downvote-icon:hover {
+  color: #f44336 !important;
+  transition: transform 0.2s ease-in;
+}
+</style>

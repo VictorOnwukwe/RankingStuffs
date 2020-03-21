@@ -6,7 +6,7 @@
       </div>
       <v-layout align-center>
         <v-flex class="pl-2">
-          <div style="white-space:pre-wrap;" class="ptd">{{ !more ? reply.content.slice(0, 600) : reply.content
+          <div style="font-size:1em" class="ptd pre-wrap roboto spacious">{{ !more ? reply.content.slice(0, 600) : reply.content
             }}{{ reply.content.length > 600 ? "..." : " "
             }}<span
               @click="more = !more"
@@ -14,9 +14,9 @@
               class="link--text"
               style="cursor:pointer"
               >{{ !more ? "more" : "less" }}</span
-            >-&nbsp;<username :user="reply.user"></username>
+            ><span v-if="!reply.user.username.includes('visitor')">-&nbsp;</span><username :user="reply.user"></username>
           </div>
-          <v-layout class="mt-2 mb-1" align-center>
+          <v-layout class="mt-5 mb-1" align-center>
             <div class="std" style="display:flex; min-width:3em;">
               {{ created }}
             </div>

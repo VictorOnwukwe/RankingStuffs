@@ -113,6 +113,7 @@ export default {
 
   methods: {
     initialize() {
+    this.fetching = true;
       this.$store
         .dispatch("fetch_pending_lists", {
           limit: 20,
@@ -125,6 +126,7 @@ export default {
               ...list.data()
             };
           });
+          this.fetching = false;
         });
     },
     initView(list) {

@@ -20,7 +20,7 @@
           <ul class="ptd">
             <li class="subtitle-1">
               General lists should be relatable to the public. They should
-              contain content that people know well eniugh to vote on
+              contain content that people know well enough to vote on
             </li>
             <li class="subtitle-1">
               List titles should be as specific and timeless as possible. (i.e.
@@ -55,7 +55,10 @@
                   <v-icon
                     size=""
                     class="mr-2 mt-1"
-                    :color="list.type == 'general' ? 'green' : null"
+                    :class="{
+                      'green--text text--darken-1': list.type == 'general',
+                      'green--text text--lighten-2': list.type == 'factual'
+                    }"
                     >$vuetify.icons.people</v-icon
                   >
                 </template>
@@ -63,7 +66,7 @@
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">General</span> - List
-                      is open to everyone and is accessible by public search
+                      is public, votable, and can be moderated by other users
                     </div>
                   </template>
                 </v-radio>
@@ -71,7 +74,23 @@
                   <template v-slot:label>
                     <div class="ptd">
                       <span class="font-weight-bold ptd">Personal</span> - List
-                      is displayed only on your profile
+                      is private, and customizable by you
+                      <span class="caption"
+                        >(it only displays on your profile)</span
+                      >
+                    </div>
+                  </template>
+                </v-radio>
+                <v-radio color="accent" value="factual">
+                  <template v-slot:label>
+                    <div class="ptd">
+                      <span class="font-weight-bold ptd">Factual</span> - List
+                      is public, non-votable, and can't be moderated by other
+                      users
+                      <span class="caption"
+                        >(should contain objective, factual / statistical
+                        info)</span
+                      >
                     </div>
                   </template>
                 </v-radio>
@@ -133,6 +152,9 @@
                     >Self Moderated</span
                   >
                   - List can only be moderated by you
+                  <span class="caption"
+                    >(i.e. only you can add items to the list)</span
+                  >
                 </div>
               </template>
             </v-checkbox>
@@ -161,7 +183,10 @@
                   <v-text-field
                     validate-on-blur
                     :readonly="$route.query.demanded ? true : false"
-                    :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
+                    :rules="[
+                      rules.maxLength(150, 'Title'),
+                      rules.minLength(1, 'Title')
+                    ]"
                     counter="150"
                     small
                     color="brand"
@@ -169,7 +194,8 @@
                     flat
                     solo
                     v-model="list.title"
-                    @keyup="checkExistence()"
+                    id="title"
+                    @keyup.enter="focus('description')"
                   ></v-text-field>
                 </v-flex>
 
@@ -218,6 +244,7 @@
                     counter="1500"
                     :rules="[rules.maxLength(1500)]"
                     placeholder="[optional] criterias, priorities, motivations"
+                    id="description"
                   ></v-textarea>
                 </v-flex>
 
@@ -430,6 +457,9 @@ export default {
       if (this.list.type == "general") {
         this.list.votable = true;
         this.list.selfModerated = false;
+      } else if (this.list.type == "factual") {
+        this.list.votable = false;
+        this.list.selfModerated = true;
       }
       this.setKeywords();
     },
@@ -588,6 +618,9 @@ export default {
         return;
       }
       this.list.items.splice(index, 1);
+    },
+    focus(elem) {
+      document.querySelector("#" + elem).focus();
     }
   },
   computed: {
@@ -633,6 +666,9 @@ export default {
   watch: {
     authenticated() {
       this.authenticated ? (this.authDialog = false) : (this.authDialog = true);
+    },
+    "list.title"() {
+      this.checkExistence();
     }
   },
   created: function() {

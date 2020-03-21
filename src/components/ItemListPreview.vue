@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-card flat width="100%">
+    <v-card v-if="fetched" flat width="100%">
       <v-card-text class="pa-0">
         <v-layout>
           <v-flex shrink pr-2>
@@ -83,7 +83,8 @@ export default {
   data() {
     return {
       listItem: {},
-      list: {}
+      list: {},
+      fetched: false
     };
   },
   methods: {
@@ -96,10 +97,11 @@ export default {
     }
   },
   created() {
-    this.fetchItemRank();
     this.$store.dispatch("fetch_list", this.id).then(list => {
       this.list = list;
+      this.fetched = true;
     });
+    this.fetchItemRank();
   }
 };
 </script>

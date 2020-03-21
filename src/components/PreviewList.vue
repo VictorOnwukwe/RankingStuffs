@@ -18,7 +18,7 @@
           ></m-img>
           <m-img
             v-else
-            :src="require('../assets/' + list.category + '-low.jpg')"
+            :src="require('../assets/' + list.category.replace(/ /g, '') + '-low.jpg')"
             :minWidth="'100px'"
             :maxWidth="'120px'"
             :width="sub ? '10vw' : '20vw'"
@@ -28,10 +28,11 @@
         <v-flex>
           <div>
             <v-card-title class="pa-0">
+              <!-- <div class="caption std">{{list.type}}</div> -->
               <div
                 class="text-capitalize no-deco oswald"
                 :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
-                style="font-size:0.85em"
+                :style="{ 'font-size': !sub ? '0.85em' : '0.8em' }"
               >
                 {{ list.title }}
               </div>
@@ -42,7 +43,7 @@
                 :ratersCount="list.raters_count"
               ></rating>
               <span>
-                <span class="">
+                <span v-if="list.votable" class="">
                   <span class="ptd font-weight-medium"> {{ list.votes }}</span>
                   <span class="ptd"
                     >&nbsp;votes<span class="htd">&nbsp;|</span>&nbsp;</span
@@ -54,6 +55,10 @@
                   }}</span>
                   <span class="ptd">&nbsp;items</span>
                 </span>
+                <span class="ptd"
+                  ><span class="htd">&nbsp;|</span> {{ list.views }}
+                  {{ list.views == 1 ? "view" : "views" }}</span
+                >
               </span>
               <v-layout class="mt-2">
                 <v-flex shrink>

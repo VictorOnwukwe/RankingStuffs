@@ -16,21 +16,22 @@
     </v-layout> -->
     <div style="border-radius:3px" class="">
       <router-link :to="'/lists/' + list.id" class="no-deco">
-        <v-card flat tile>
-          <div class="img-overlay pa-2">
-            <router-link
-              :to="'/categories/' + list.category"
-              class="no-deco mx-auto"
-              style=""
-            >
-              <div
-                class="font-weight-medium pa-2 text-uppercase cat-name"
+        <v-hover v-slot:default="{ hover }">
+          <v-card :flat="!hover" tile>
+            <div class="img-overlay pa-2">
+              <router-link
+                :to="'/categories/' + list.category"
+                class="no-deco mx-auto"
                 style=""
               >
-                {{ list.category }}
-              </div>
-            </router-link>
-            <!-- <div>
+                <div
+                  class="font-weight-medium pa-2 text-uppercase cat-name"
+                  style=""
+                >
+                  {{ list.category }}
+                </div>
+              </router-link>
+              <!-- <div>
               <h2
                 class="text-capitalize white--text font-weight-medium"
                 style="font-family: 'Oswald', sans-serif;font-size:1.8em"
@@ -38,53 +39,42 @@
                 {{ list.title }}
               </h2>
             </div> -->
-          </div>
-          <v-card
-            :style="
-              $vuetify.breakpoint.xs
-                ? 'min-width:calc(100% + 1em);margin-left:-0.5em'
-                : null
-            "
-          >
-            <m-img
-              v-if="list.preview_image"
-              :src="list.preview_image ? list.preview_image.url.high : false"
-              :width="'100%'"
-              :aspectRatio="'1.5'"
-              :radius="'0'"
-            ></m-img>
-            <m-img
-              v-else
-              :src="require('../assets/' + list.category + '-low.jpg')"
-              :width="'100%'"
-              :aspectRatio="'1.5'"
-              :radius="'0'"
-            ></m-img>
-          </v-card>
-          <v-card
-            flat
-            tile
-            shaped
-            width="80%"
-            class="mx-auto elevation-1"
-            style="margin-top:-10%"
-          >
-            <div style="border: 1px solid grey">
-              <v-card-title
-                class="text-capitalize ptd"
-                style="font-family: 'Oswald', sans-serif"
-                >{{ list.title }}</v-card-title
-              >
-              <v-card-text class="">
-                <rating
-                  :rating="list.rating"
-                  :ratersCount="list.raters_count"
-                  :size="'1em'"
-                ></rating>
-              </v-card-text>
             </div>
+            <v-card
+              :style="
+                $vuetify.breakpoint.xs
+                  ? 'min-width:calc(100% + 1em);margin-left:-0.5em'
+                  : null
+              "
+              flat
+            >
+              <m-img
+                v-if="list.preview_image"
+                :src="list.preview_image ? list.preview_image.url.high : false"
+                :width="'100%'"
+                :aspectRatio="'1.5'"
+                :radius="'0'"
+              ></m-img>
+              <m-img
+                v-else
+                :src="require('../assets/' + list.category + '-low.jpg')"
+                :width="'100%'"
+                :aspectRatio="'1.5'"
+                :radius="'0'"
+              ></m-img>
+            </v-card>
+            <v-card flat tile>
+              <div style="">
+                <div
+                  class="text-capitalize std oswald px-2 py-2"
+                  style="font-size:1.2em"
+                >
+                  {{ list.title }}
+                </div>
+              </div>
+            </v-card>
           </v-card>
-        </v-card>
+        </v-hover>
       </router-link>
       <!-- <div class="">
         <div v-if="list.items.length > 0">

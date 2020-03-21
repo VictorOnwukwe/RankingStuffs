@@ -1,5 +1,11 @@
 <template>
-    <textarea class="text" @focus="resize, sendFocused(true)" @blur="sendFocused(false)" v-model="val" :style="computedStyles"></textarea>
+  <textarea
+    class="text"
+    @focus="resize, sendFocused(true)"
+    @blur="sendFocused(false)"
+    v-model="val"
+    :style="computedStyles"
+  ></textarea>
 </template>
 
 <script>
@@ -135,7 +141,7 @@ export default {
       this.$el.style.setProperty("height", heightVal, important);
       return this;
     },
-    sendFocused(bool){
+    sendFocused(bool) {
       this.$emit("focused", bool);
     }
   },
@@ -174,7 +180,7 @@ export default {
   border: 1px solid black;
 }
 .text:focus {
-  border: 2px solid var(--link);
+  border: 1px solid var(--link);
   outline: none;
   /* box-shadow: 0px 0px 0px 1px var(--brand); */
   /* border-radius: 0.2em; */

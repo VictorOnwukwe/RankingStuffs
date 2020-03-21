@@ -1,7 +1,11 @@
 <template>
   <div>
     <div class="main" v-if="fetched">
-      <v-breadcrumbs class="crumbs px-0" :items="linkItems">
+      <v-breadcrumbs
+        class="crumbs px-0"
+        :class="{ 'mt-n6': $vuetify.breakpoint.smAndDown }"
+        :items="linkItems"
+      >
         <template v-slot:divider>
           <v-icon>mdi-chevron-right</v-icon>
         </template>
@@ -32,23 +36,32 @@
                 ></rating>
               </v-layout>
               <div>
-                <span class="ptd"
+                <span class="ptd" v-if="list.votable"
                   >{{ list.voters_count }}
-                  {{ list.voters_count > 1 ? "voters" : "voter" }}</span
+                  {{ list.voters_count > 1 ? "voters" : "voter"
+                  }}<span class="htd">&nbsp;|</span></span
                 >
-                <span class="ptd"
-                  ><span class="htd">&nbsp;|</span> {{ list.votes }} votes</span
+                <span class="ptd" v-if="list.votable">
+                  {{ list.votes }} votes<span class="htd">&nbsp;|</span></span
                 >
+                <span class="ptd"> {{ list.item_count }} items</span>
                 <span class="ptd"
-                  ><span class="htd">&nbsp;|</span>
-                  {{ list.item_count }} items</span
+                  ><span class="htd">&nbsp;|</span> {{ list.views + 1 }}
+                  {{ list.views + 1 == 1 ? "view" : "views" }}</span
                 >
               </div>
-              <v-layout v-if="creator" class="mt-4" align-center>
+              <div class="subtitle-2 std mt-4 text-capitalize mb-2">
+                {{ list.type }} list created by:
+              </div>
+              <v-layout v-if="creator" align-center>
                 <dp class="mr-2" :src="creator.profile_pic"></dp>
                 <username :user="creator"></username>
               </v-layout>
-              <div class="mt-4 pre-wrap spacious" v-if="list.description">{{ list.description }}</div>
+              <div
+                class="mt-4 pre-wrap spacious"
+                style="margin-bottom:4em"
+                v-if="list.description"
+              >{{ list.description }}</div>
             </div>
             <div></div>
           </div>
@@ -87,7 +100,7 @@
               outlined
               style="margin-top:5em"
               class="grey lighten-3"
-              v-if="!list.self_moderated"
+              v-if="!list.self_moderated || isCreator"
             >
               <v-card-title
                 class="pa-1 title-text grey lighten-2 pointer"
@@ -99,8 +112,11 @@
                   :color="addItem ? 'brand' : null"
                   >mdi-plus-box</v-icon
                 >
-                Didn't find your option? Add to the List</v-card-title
-              >
+                <span v-if="!isCreator">
+                  Didn't find your option? Add to the List</span
+                >
+                <span v-else>Add another item to your List</span>
+              </v-card-title>
               <div v-if="addItem">
                 <v-card-text>
                   <AddItem
@@ -139,8 +155,8 @@
       </v-layout>
 
       <div class="mt-4">
-        <v-card-title class="ptd pl-0 font-weight-bold" style="font-size: 1em"
-          >Other Lists in {{ list.category }} category</v-card-title
+        <v-card-title class="ptd pl-0 oswald" style="font-size: 1.3em"
+          >Lists you may like</v-card-title
         >
         <div class="mt-6">
           <display-lists :lists="otherLists" :sub="true"></display-lists>
@@ -159,10 +175,10 @@
       <v-card class="pa-4">
         <social-sharing
           v-if="fetched"
-          url="https://top-ten-534ca.firebaseapp.com/"
+          url="https://rankingstuffs/"
           :title="list.title"
           :description="list.about"
-          quote="Visit trending top tens for more lists"
+          quote="Visit rankingstuffs.com for more lists"
           twitter-user="thetopteners"
           inline-template
         >
@@ -253,7 +269,11 @@
         zIndex: 5,
         height: $vuetify.breakpoint.smAndDown
           ? 'calc(100vh - 4.4em)'
-          : 'calc(100vh - 6em)'
+          : 'calc(100vh - 6em)',
+        boxShadow:
+          $vuetify.breakpoint.lgAndUp && showSidebar
+            ? '3px 0px 9px rgba(0, 0, 0, 0.3)'
+            : null
       }"
       v-model="showSidebar"
       fixed
@@ -348,6 +368,37 @@ import AddItem from "./AddItem";
 import SocialSharing from "vue-social-sharing";
 import Rate from "./Rate";
 
+function initialState() {
+  return {
+    index: null,
+    list: null,
+    item: {
+      name: "",
+      exists: false,
+      comment: ""
+    },
+    fetched: false,
+    creator: null,
+    showUser: false,
+    featured: [],
+    userRating: 0,
+    voted: undefined,
+    favorited: false,
+    rated: undefined,
+    share: false,
+    previewUpdated: false,
+    showSidebar: false,
+    checkedRated: false,
+    addingItem: false,
+    fetchingMore: false,
+    itemValid: false,
+    otherLists: [],
+    sidebarOpened: false,
+    addItem: false,
+    itemSubmitted: false
+  };
+}
+
 export default {
   components: {
     ListItem,
@@ -356,34 +407,7 @@ export default {
     rate: Rate
   },
   data() {
-    return {
-      index: null,
-      list: null,
-      item: {
-        name: "",
-        exists: false,
-        comment: ""
-      },
-      fetched: false,
-      creator: null,
-      showUser: false,
-      featured: [],
-      userRating: 0,
-      voted: undefined,
-      favorited: false,
-      rated: undefined,
-      share: false,
-      previewUpdated: false,
-      showSidebar: false,
-      checkedRated: false,
-      addingItem: false,
-      fetchingMore: false,
-      itemValid: false,
-      otherLists: [],
-      sidebarOpened: false,
-      addItem: false,
-      itemSubmitted: false
-    };
+    return initialState();
   },
 
   methods: {
@@ -581,21 +605,7 @@ export default {
       // this.setPreview();
     },
     reset() {
-      this.rated = false;
-      this.index = null;
-      this.list = null;
-      this.item = {
-        name: "",
-        exists: false,
-        comment: ""
-      };
-      (this.fetched = false), (this.n = 0);
-      this.showUser = false;
-      this.featured = [];
-      this.userRating = 0;
-      this.otherLists = [];
-      this.itemValid = false;
-      this.addItem = false;
+      Object.assign(this.$data, initialState());
     },
     async checkRated() {
       await this.$store.dispatch("check_rated", this.listID).then(rated => {
@@ -692,6 +702,9 @@ export default {
         return false;
       }
       return this.$store.state.user.id == this.list.creator.id;
+    },
+    authenticated() {
+      return this.$store.state.authenticated;
     }
   },
 
@@ -728,10 +741,6 @@ export default {
 }
 #item {
   margin-top: 2em;
-}
-
-.sidebar {
-  box-shadow: 3px 0px 9px rgba(0, 0, 0, 0.3);
 }
 
 .pull-push {

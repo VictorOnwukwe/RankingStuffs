@@ -1,101 +1,97 @@
+import systemcategories from "../../public/my-modules/categories";
 const persistInterval = 12 * 60 * 60 * 1000;
 
 const plugin = store => {
   store.subscribe(async (mutation, state) => {
     if ("initialize" === mutation.type) {
-      let storage;
+      let categories, hotDemands, hotLists, auth;
 
       try {
-        storage = localStorage.getItem("categories") || false;
-        if (storage) {
-          storage = JSON.parse(storage);
+        auth = localStorage.getItem("auth") || false;
+        if (auth) {
+          auth = JSON.parse(auth);
         }
       } catch (e) {}
 
-      if (
-        storage &&
-        new Date().getTime() < storage.ts &&
-        storage.data.length > 0
-      ) {
-        store.commit("setCategories", storage.data);
-        store.dispatch("fetch_home_category_lists");
-      } else {
-        let exists = storage;
-        if (new Date().getTime() >= storage.ts) {
-          store.commit("setCategories", storage.data);
-          store.dispatch("fetch_home_category_lists");
+      if (auth) {
+        if (auth.data.authenticated) {
+          store.commit("login", auth.data.user);
+          store
+            .dispatch("fetch_complete_user", auth.data.user.id)
+            .then(user => {
+              store.commit("login", user);
+            })
+            .catch(_ => {});
+        } else if (auth.data.anonymous) {
+          store.commit("anonymousLogin", auth.data.user);
         }
-        store.dispatch("fetchCategories").then(() => {
-          if (!exists) {
-            store.dispatch("fetch_home_category_lists");
-          }
-        });
       }
 
-      storage = false;
+      store.dispatch("fetch_home_contents");
 
       try {
-        storage = localStorage.getItem("hotLists") || false;
-        if (storage) {
-          storage = JSON.parse(storage);
+        categories = localStorage.getItem("categories") || false;
+        if (categories) {
+          categories = JSON.parse(categories);
         }
       } catch (e) {}
 
       if (
-        storage &&
-        new Date().getTime() < storage.ts &&
-        storage.data.length > 0
+        categories &&
+        new Date().getTime() < categories.ts &&
+        categories.data.length > 0
       ) {
-        store.commit("setHotLists", storage.data);
+        store.commit("setCategories", categories.data);
+        store.dispatch("fetch_home_category_lists");
       } else {
-        if (new Date().getTime() >= storage.ts) {
-          store.commit("setHotLists", storage.data);
+        if (new Date().getTime() >= categories.ts) {
+          store.commit("setCategories", categories.data);
+          store.dispatch("fetch_home_category_lists");
+          store.dispatch("fetchCategories");
+        } else {
+          store.dispatch("fetch_home_category_lists", systemcategories);
+          store.dispatch("fetchCategories");
+        }
+      }
+
+      try {
+        hotLists = localStorage.getItem("hotLists") || false;
+        if (hotLists) {
+          hotLists = JSON.parse(hotLists);
+        }
+      } catch (e) {}
+
+      if (
+        hotLists &&
+        new Date().getTime() < hotLists.ts &&
+        hotLists.data.length > 0
+      ) {
+        store.commit("setHotLists", hotLists.data);
+      } else {
+        if (new Date().getTime() >= hotLists.ts) {
+          store.commit("setHotLists", hotLists.data);
         }
         store.dispatch("fetch_sidebar_lists");
       }
 
-      storage = false;
-
       try {
-        storage = localStorage.getItem("hotDemands") || false;
-        if (storage) {
-          storage = JSON.parse(storage);
+        hotDemands = localStorage.getItem("hotDemands") || false;
+        if (hotDemands) {
+          hotDemands = JSON.parse(hotDemands);
         }
       } catch (e) {}
 
       if (
-        storage &&
-        new Date().getTime() < storage.ts &&
-        storage.data.length > 0
+        hotDemands &&
+        new Date().getTime() < hotDemands.ts &&
+        hotDemands.data.length > 0
       ) {
-        store.commit("setHotDemands", storage.data);
+        store.commit("setHotDemands", hotDemands.data);
       } else {
-        if (new Date().getTime() >= storage.ts) {
-          store.commit("setHotDemands", storage.data);
+        if (new Date().getTime() >= hotDemands.ts) {
+          store.commit("setHotDemands", hotDemands.data);
         }
         store.dispatch("fetch_sidebar_demands");
-      }
-
-      storage = false;
-
-      try {
-        storage = localStorage.getItem("auth") || false;
-        if (storage) {
-          storage = JSON.parse(storage);
-        }
-      } catch (e) {}
-
-      if (storage) {
-        if (storage.data.authenticated) {
-          store.commit("login", storage.data.user);
-          let user = await store.dispatch(
-            "fetch_complete_user",
-            storage.data.user.id
-          );
-          store.commit("login", user);
-        } else if (storage.data.anonymous) {
-          store.commit("anonymousLogin", storage.data.user);
-        }
       }
     } else if ("setCategories" === mutation.type) {
       let record = {

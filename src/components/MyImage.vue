@@ -38,15 +38,15 @@ export default {
       default: undefined
     },
     width: {
-      type: String,
+      type: String | Number,
       default: "100px"
     },
     maxWidth: {
-      type: String,
+      type: String | Number,
       default: "100%"
     },
     minWidth: {
-      type: String,
+      type: String | Number,
       default: "0px"
     },
     aspectRatio: {

@@ -1,13 +1,16 @@
 <template>
   <div id="main">
     <v-card tile class flat style="overflow:hidden">
-      <v-divider class="grey lighten-4 my-1"></v-divider>
+      <v-layout justify-end>
+      <div v-if="index==0" class="std my-4 ml-2">
+        <v-icon color="accent">mdi-comment-outline</v-icon>&nbsp;{{item.comment_count}} {{item.comment_count == 1 ? "comment" : "comments"}}</div></v-layout>
+      <v-divider class="grey lighten-2 my-2"></v-divider>
       <v-layout style="position:relative">
         <v-flex class="px-2">
           <div id="comment" style="display:flex">
             <div class style="position:relative">
               <div class>
-                <div style="white-space:pre-wrap;" class="ptd spacious">{{ !more ? comment.content.slice(0, 600) : comment.content
+                <div style="font-size:1em" class="ptd roboto spacious pre-wrap">{{ !more ? comment.content.slice(0, 600) : comment.content
                   }}{{ comment.content.length > 600 ? "..." : " "
                   }}<span
                     @click="more = !more"
@@ -15,10 +18,10 @@
                     class="link--text"
                     style="cursor:pointer"
                     >{{ !more ? "more" : "less" }}</span
-                  >-&nbsp;<username :user="comment.user"></username>
+                  ><span v-if="!comment.user.username.includes('visitor')">-&nbsp;</span><username :user="comment.user"></username>
                 </div>
               </div>
-              <v-layout class="mt-2 mb-1" align-center>
+              <v-layout class="mt-5" align-center>
                 <div class="std" style="display:flex; min-width:3em;">
                   {{ created }}
                 </div>
@@ -150,11 +153,11 @@
               />
               <v-icon
                 @click="replyComment()"
-                size="1.2em"
+                size="1.5em"
                 :class="
                   focused && reply.trim() != '' ? 'accent--text' : 'grey--text'
                 "
-                style="position:absolute; bottom:1em; right:0.8em"
+                style="position:absolute; bottom:0.4em; right:0.5em"
                 :disabled="reply.trim() == '' ? true : false"
                 >fa-paper-plane</v-icon
               >
@@ -515,9 +518,9 @@ export default {
 
 <style scoped>
 .replies-display {
-  border-left: 2px solid #a6fda1;
+  box-shadow: -2px 0px 0px rgba(0, 0, 0, 0.2);
   padding-left: 8px;
-}
+ }
 .shift {
   margin-left: 1em;
 }

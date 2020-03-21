@@ -25,7 +25,7 @@
                   {{ update.item.name }}
                 </h2>
                 <div class="mt-6">
-                  <div class="font-weight-bold brand--text">
+                  <div class="font-weight-bold brand--text mb-4">
                     Image
                   </div>
                   <m-img
@@ -34,6 +34,10 @@
                     :src="update.image.high"
                   ></m-img>
                 </div>
+                <div class="font-weight-bold brand--text">
+                  Created
+                </div>
+                <div>{{ created() }}</div>
               </v-card-text>
               <v-card-text v-if="showDisapproveOptions">
                 <div class="brand--text">Reason For Disapproval?</div>
@@ -64,10 +68,7 @@
                   showDisapproveOptions ? "Continue Disapproval" : "Disapprove"
                 }}</m-btn
               >
-              <m-btn
-                :loading="approving"
-                text
-                @click="approve()"
+              <m-btn :loading="approving" text @click="approve()"
                 >Approve</m-btn
               >
             </v-card-actions>
@@ -78,6 +79,7 @@
   </div>
 </template>
 <script>
+let moment = require("moment");
 export default {
   props: {
     update: Object
@@ -132,6 +134,9 @@ export default {
     },
     close() {
       this.$emit("close");
+    },
+    created() {
+      return moment(this.update.created.toDate()).toDate();
     }
   }
 };

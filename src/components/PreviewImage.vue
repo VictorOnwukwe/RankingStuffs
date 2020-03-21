@@ -1,24 +1,27 @@
 <template>
   <div>
-    <v-img
-      @click="previewImage()"
-      :src="srcUrl"
-      :lazy-src="image.url.low"
-      :width="width"
-      :aspect-ratio="aspectRatio"
-      :style="{ borderRadius: radius }"
-      :min-width="minWidth"
-      :max-width="maxWidth"
-    >
-      <template v-slot:placeholder>
-        <v-row class="fill-height ma-0" align="center" justify="center">
-          <v-progress-circular
-            indeterminate
-            color="grey lighten-5"
-          ></v-progress-circular>
-        </v-row>
-      </template>
-    </v-img>
+    <div class="img">
+      <v-img
+        @click="previewImage()"
+        :src="srcUrl"
+        :lazy-src="image.url.low"
+        :width="width"
+        :aspect-ratio="aspectRatio"
+        :style="{ borderRadius: radius }"
+        :min-width="minWidth"
+        :max-width="maxWidth"
+        class="pointer"
+      >
+        <template v-slot:placeholder>
+          <v-row class="fill-height ma-0" align="center" justify="center">
+            <v-progress-circular
+              indeterminate
+              color="grey lighten-5"
+            ></v-progress-circular>
+          </v-row>
+        </template>
+      </v-img>
+    </div>
     <v-dialog v-model="preview" max-width="450px">
       <v-card tile>
         <v-layout class="close" style="">
@@ -59,7 +62,7 @@
                   </div>
                 </v-layout>
               </div>
-              <!-- <div v-if="completeImage" class="">
+              <div v-if="completeImage" class="">
                 <v-layout>
                   <div class="label">
                     Source:
@@ -81,7 +84,7 @@
                     </div>
                   </div>
                 </v-layout>
-              </div> -->
+              </div>
             </div>
           </v-card-text>
         </div>
@@ -223,5 +226,11 @@ p {
 }
 .unblur {
   filter: blur(0);
+}
+.img {
+  border-radius: 5px;
+}
+.img:hover {
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.3);
 }
 </style>

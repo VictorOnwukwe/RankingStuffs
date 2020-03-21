@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-layout>
+    <v-row :column="$vuetify.breakpoint.smAndDown">
       <v-flex shrink>
         <v-navigation-drawer permanent class="mr-2">
           <v-list dense>
@@ -48,7 +48,11 @@
             </v-list-item>
           </v-list>
 
-          <v-btn :loading="categorizing" class="mt-4 ml-4" @click="categorize()"
+          <v-btn
+            :loading="categorizing"
+            class="my-4 ml-4"
+            @click="categorize()"
+            disabled
             >Categorize</v-btn
           >
         </v-navigation-drawer>
@@ -58,7 +62,7 @@
           <router-view></router-view>
         </v-card>
       </v-flex>
-    </v-layout>
+    </v-row>
   </div>
 </template>
 <script>

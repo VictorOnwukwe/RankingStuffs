@@ -85,11 +85,9 @@
                   </div>
 
                   <p
-                    class="ptd font-weight-medium text-justify mt-2"
+                    class="ptd font-weight-medium text-justify mt-2 pre-wrap"
                     v-if="user.bio"
-                  >
-                    {{ user.bio }}
-                  </p>
+                  >{{ user.bio }}</p>
                   <v-layout wrap class="mt-n2">
                     <div
                       class="mt-2"
@@ -327,9 +325,12 @@ export default {
         });
     },
     async fetchUser(id) {
-      await this.$store.dispatch("fetch_complete_user", id).then(user => {
-        this.user = user;
-      });
+      await this.$store
+        .dispatch("fetch_complete_user", id)
+        .then(user => {
+          this.user = user;
+        })
+        .catch(_ => {});
     },
     follow() {
       this.processing = true;

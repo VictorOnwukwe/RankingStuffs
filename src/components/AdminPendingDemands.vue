@@ -117,6 +117,7 @@ export default {
 
   methods: {
     initialize() {
+      this.fetching = true;
       this.$store
         .dispatch("fetch_pending_demands", {
           limit: 50,
@@ -129,6 +130,7 @@ export default {
               ...demand.data()
             };
           });
+          this.fetching = false;
         });
     },
     initView(demand) {

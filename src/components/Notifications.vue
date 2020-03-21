@@ -2,7 +2,7 @@
   <div id="main">
     <v-layout>
       <v-card
-        class="elevation-6"
+        class="elevation-6 notification"
         tile
         :max-height="$vuetify.breakpoint.xs ? '100vh' : 'calc(100vh - 3.5em)'"
         style="overflow-y:scroll"
@@ -85,11 +85,17 @@ export default {
     }
   },
   created() {
-    this.fetchNotifications().then(() => {
-      // this.$store.dispatch("update_notification_last_seen");
-    });
+    this.fetchNotifications();
   }
 };
 </script>
-
-<style scoped></style>
+<style scoped>
+.notification {
+  height: 100vh;
+}
+@media (min-width: 500px) {
+  .notification {
+    height: auto;
+  }
+}
+</style>

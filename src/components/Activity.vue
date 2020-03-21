@@ -1,6 +1,6 @@
 <template>
   <div>
-    <v-list-item v-if="activity.type == 'list'">
+    <v-list-item v-if="activity.type == 'list'" class="pl-0 pr-0">
       <v-list-item-avatar tile>
         <v-icon size="2rem" color="accent">$vuetify.icons.createOutline</v-icon>
       </v-list-item-avatar>
@@ -16,8 +16,8 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'comment'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'comment'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon color="accent" size="2rem"
           >$vuetify.icons.commentOutline</v-icon
         >
@@ -42,8 +42,8 @@
       </v-list-item-content>
     </v-list-item>
 
-    <v-list-item v-if="activity.type == 'upvote'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'upvote'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon color="accent" size="2rem"
           >$vuetify.icons.arrowUpOutline</v-icon
         >
@@ -64,8 +64,8 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'downvote'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'downvote'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon color="accent" size="2rem"
           >$vuetify.icons.arrowDownOutline</v-icon
         >
@@ -86,8 +86,8 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'item'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'item'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon size="2rem" color="accent"
           >$vuetify.icons.addItemOutline</v-icon
         >
@@ -108,8 +108,8 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'rate'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'rate'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon size="2rem" color="accent">$vuetify.icons.starOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
@@ -129,7 +129,7 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'demand'">
+    <v-list-item v-if="activity.type == 'demand'" class="pl-0 pr-0">
       <v-list-item-avatar tile>
         <v-icon size="2rem" color="accent">$vuetify.icons.demandOutline</v-icon>
       </v-list-item-avatar>
@@ -146,9 +146,9 @@
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'item-update'">
-      <v-list-item-avatar>
-        <v-icon size="2rem" color="accent">$vuetify.icons.contribute</v-icon>
+    <v-list-item v-if="activity.type == 'item-update'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
+        <v-icon size="2.3rem" color="accent">$vuetify.icons.contribute</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
@@ -161,16 +161,12 @@
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
         <v-list-item-subtitle v-if="activity.item.image">
-          <v-img
-            width="100px"
-            aspect-ratio="1"
-            :src="activity.item.image"
-          ></v-img>
+          <m-img :width="'100px'" :src="activity.item.image"></m-img>
         </v-list-item-subtitle>
       </v-list-item-content>
     </v-list-item>
-    <v-list-item v-if="activity.type == 'reply'">
-      <v-list-item-avatar>
+    <v-list-item v-if="activity.type == 'reply'" class="pl-0 pr-0">
+      <v-list-item-avatar tile>
         <v-icon color="accent" size="2rem">$vuetify.icons.replyOutline</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>

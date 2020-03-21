@@ -1,21 +1,56 @@
 <template>
   <div>
-    <v-list-item>
-      <v-list-item-avatar v-if="item.data().image || info.image" size="80" tile>
-        <v-img v-if="item.data().image" :src="item.data().image.url"></v-img>
-        <v-img v-else :src="info.image.url.low"></v-img>
-      </v-list-item-avatar>
-      <v-list-item-content>
-        <v-list-item-title
-          class="text-capitalize link--text text-wrap"
-          :style="{ fontSize: fontSize }"
-          >{{ item.data().name }}</v-list-item-title
+    <div v-if="fetched">
+      <v-list-item>
+        <v-list-item-avatar
+          v-if="item.data().image || info.image"
+          :size="$vuetify.breakpoint.xs ? 80 : 120"
+          tile
         >
-        <v-list-item-subtitle class="subtitle-2"
-          >Favorite {{ item.id }}</v-list-item-subtitle
-        >
-      </v-list-item-content>
-    </v-list-item>
+          <m-img
+            :width="$vuetify.breakpoint.xs ? '80' : '120'"
+            v-if="item.data().image"
+            :src="item.data().image.url"
+            :radius="'0'"
+          ></m-img>
+          <m-img
+            v-else
+            :width="$vuetify.breakpoint.xs ? '80' : '120'"
+            :src="info.image.url.high"
+            :radius="'0'"
+          ></m-img>
+        </v-list-item-avatar>
+        <v-list-item-content>
+          <v-list-item-title
+            class="text-capitalize link--text text-wrap"
+            :style="{ fontSize: fontSize }"
+            >{{ item.data().name }}</v-list-item-title
+          >
+          <v-list-item-subtitle class="subtitle-2"
+            >Favorite {{ item.id }}</v-list-item-subtitle
+          >
+          <v-hover v-slot:default="{ hover }">
+            <v-list-item-subtitle
+              @click="more = true"
+              class="subtitle-2 ptd"
+              :class="{ 'pre-wrap': more }"
+              :style="{ opacity: hover && !more ? '0.5' : null }"
+              >{{ item.data().comment }}</v-list-item-subtitle
+            >
+          </v-hover>
+        </v-list-item-content>
+      </v-list-item>
+    </div>
+    <div v-else>
+      <v-list-item>
+        <v-card
+          min-height="100px"
+          width="100%"
+          outlined
+          class="loading"
+        ></v-card>
+      </v-list-item>
+    </div>
   </div>
 </template>
 <script>
@@ -25,14 +60,22 @@ export default {
   },
   data() {
     return {
-      info: {}
+      info: {},
+      more: false,
+      fetched: false
     };
   },
   methods: {
     fetchInfo() {
-      this.$store.dispatch("fetch_item", this.item.info).then(info => {
-        this.info = info;
-      });
+      this.$store
+        .dispatch("fetch_item", this.item.data().name.toLowerCase())
+        .then(info => {
+          this.info = info;
+          this.fetched = true;
+        })
+        .catch(_ => {
+          this.fetched = true;
+        });
     }
   },
   computed: {
@@ -41,8 +84,10 @@ export default {
     }
   },
   created() {
-    if (this.item.info) {
+    if (!this.item.data().image) {
       this.fetchInfo();
+    } else {
+      this.fetched = true;
     }
   }
 };

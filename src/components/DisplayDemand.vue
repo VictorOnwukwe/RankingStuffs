@@ -16,7 +16,11 @@
         </v-layout>
         <p class="ptd pre-wrap spacious">{{ demand.comment }}</p>
         <v-layout align-center class="mt-4">
-          <span class="std" style="font-style:italic" v-html="waitingMessage"></span>
+          <span
+            class="std"
+            style="font-style:italic"
+            v-html="waitingMessage"
+          ></span>
           <v-spacer></v-spacer>
           <m-btn fab outlined depressed small @click="create()">
             <v-icon>$vuetify.icons.create</v-icon>
@@ -93,10 +97,10 @@
           </v-layout>
 
           <v-card-title
-          class="ptd pl-0 font-weight-bold mt-6 mb-4"
-          style="font-size: 1em"
-          >Other Demands in {{ demand.category }} category</v-card-title
-        >
+            class="ptd pl-0 font-weight-bold mt-6 mb-4"
+            style="font-size: 1em"
+            >Other Demands in {{ demand.category }} category</v-card-title
+          >
 
           <display-demands
             :demands="otherDemands"
@@ -112,33 +116,38 @@
 import commentBox from "./CommentBox";
 import DisplayDemands from "./DisplayDemands";
 let moment = require("moment");
+
+function initialState() {
+  return {
+    demand: {},
+    comments: [],
+    demander: null,
+    comment: "",
+    focused: false,
+    waiting: undefined,
+    toggling: false,
+    commenting: false,
+    fetching: false,
+    userPreview: false,
+    currentUser: null,
+    otherDemands: []
+  };
+}
 export default {
   components: {
     commentBox,
     DisplayDemands
   },
   data() {
-    return {
-      demand: {},
-      comments: [],
-      demander: null,
-      comment: "",
-      focused: false,
-      waiting: undefined,
-      toggling: false,
-      commenting: false,
-      fetching: false,
-      userPreview: false,
-      currentUser: null,
-      otherDemands: []
-    };
+    return initialState();
   },
   methods: {
     fetchDemand() {
+      this.$store.dispatch("set_loading", true);
       this.$store
-        .dispatch("fetch_complete_demand", this.$route.params.id)
+        .dispatch("fetch_complete_demand", this.id)
         .then(demand => {
-          this.demand = { id: this.$route.params.id, ...demand };
+          this.demand = { id: this.id, ...demand };
           this.$store.dispatch("set_loading", false);
           this.fetchDemander().then(() => {
             this.setWaiting();
@@ -282,11 +291,17 @@ export default {
         path: "/create",
         query: { demanded: true, id: this.demand.id, title: this.demand.title }
       });
+    },
+    reset() {
+      Object.assign(this.$data, initialState());
     }
   },
   computed: {
     created() {
       return moment(this.demand.created.toDate()).format("MMMM Do, YYYY");
+    },
+    id() {
+      return this.$route.params.id;
     },
     waitingMessage() {
       if (this.waiting) {
@@ -315,8 +330,13 @@ export default {
       return this.demand.user == this.$store.getters.getUser.id;
     }
   },
+  watch: {
+    id() {
+      this.reset();
+      this.fetchDemand();
+    }
+  },
   created() {
-    this.$store.dispatch("set_loading", true);
     this.fetchDemand();
   }
 };

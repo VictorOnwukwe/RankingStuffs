@@ -1,11 +1,18 @@
 <template>
   <v-list-item class="px-2" v-if="list" link :to="'/lists/' + list.id">
-    <v-list-item-avatar
-      :size="$vuetify.breakpoint.xs ? 80 : 120"
-      v-if="list.preview_image"
-      tile
-    >
-      <v-img :src="list.preview_image.url.low"></v-img>
+    <v-list-item-avatar :size="$vuetify.breakpoint.xs ? 80 : 120" tile>
+      <m-img
+        v-if="list.preview_image"
+        :src="list.preview_image.url.low"
+        :width="$vuetify.breakpoint.xs ? 80 : 120"
+        :radius="'0'"
+      ></m-img>
+      <m-img
+        v-else
+        :src="require('../assets/' + list.category + '-low.jpg')"
+        :width="$vuetify.breakpoint.xs ? 80 : 120"
+        :radius="'0'"
+      ></m-img>
     </v-list-item-avatar>
     <v-list-item-content align-with-title>
       <v-list-item-title
@@ -61,7 +68,7 @@ export default {
 };
 </script>
 <style scoped>
-*>*{
+* > * {
   line-height: 1.6em !important;
 }
 </style>

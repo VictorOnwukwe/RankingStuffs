@@ -113,6 +113,7 @@ export default {
 
   methods: {
     initialize() {
+      this.fetching = true;
       this.$store
         .dispatch("fetch_pending_item_images", {
           limit: 50,
@@ -120,6 +121,7 @@ export default {
         })
         .then(items => {
           this.items = items;
+          this.fetching = false;
         });
     },
     initView(item) {

@@ -21,6 +21,8 @@
             color="brand"
             outlined
             clearable
+            id="email"
+            @keyup.enter="focus('username')"
           ></v-text-field>
 
           <v-text-field
@@ -31,6 +33,8 @@
             :error-messages="usernameErrors"
             outlined
             clearable
+            id="username"
+            @keyup.enter="focus('password')"
           ></v-text-field>
 
           <v-text-field
@@ -43,6 +47,8 @@
             color="brand"
             outlined
             clearable
+            id="password"
+            @keyup.enter="focus('confirmpassword')"
           ></v-text-field>
 
           <v-text-field
@@ -56,6 +62,7 @@
             :disabled="password == ''"
             outlined
             clearable
+            id="confirmpassword"
           ></v-text-field>
 
           <m-btn
@@ -68,7 +75,15 @@
           >
         </v-form>
 
-        <div style="text-align:center;" class="mb-4 ptd"><br />OR</div>
+        <div class="mt-12 mb-8 px-6" style="position:relative">
+          <v-divider class="grey lighten-1"></v-divider>
+          <div
+            style="position:absolute;right:46.5%;top:-1.35em"
+            class="std white pa-2"
+          >
+            OR
+          </div>
+        </div>
         <v-layout justify-center>
           <v-hover v-slot:default="{ hover }">
             <v-btn
@@ -222,6 +237,9 @@ export default {
 
     close() {
       this.$store.dispatch("set_signup", false);
+    },
+    focus(elem) {
+      document.querySelector("#" + elem).focus();
     }
   },
   computed: {},

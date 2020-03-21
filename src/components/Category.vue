@@ -237,6 +237,9 @@ export default {
   },
   watch: {
     category() {
+      this.complete = false;
+      this.newF = true;
+      this.fetching = false;
       this.lists = this.demands = [];
       if (this.sort == "lists") {
         this.fetchLists();
@@ -254,10 +257,10 @@ export default {
 .cover {
   width: calc(100% + 1em);
   min-height: 50vh;
-  background-size: 100% auto;
+  background-size: cover;
   display: flex;
   position: relative;
-  background-repeat: repeat-y;
+  background-repeat: no-repeat;
   margin-top: -2em;
   margin-left: -0.5em;
 }

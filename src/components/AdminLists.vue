@@ -190,7 +190,7 @@ export default {
         sortable: false,
         value: "title"
       },
-      { text: "Creator", value: "user" },
+      { text: "Creator", value: "creator.username" },
       { text: "Rating", value: "rating" },
       { text: "Popularity", value: "popularity" },
       { text: "Category", value: "category" },
@@ -234,6 +234,7 @@ export default {
 
   methods: {
     initialize() {
+      this.fetching = true;
       this.$store
         .dispatch("fetch_lists", {
           limit: 20,
@@ -241,6 +242,7 @@ export default {
         })
         .then(lists => {
           this.lists = lists.map(list => list.data());
+          this.fetching = false;
         }).catch(_ => {})
     },
 

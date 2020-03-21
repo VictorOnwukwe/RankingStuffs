@@ -10,7 +10,7 @@
     </v-card-title>
     <v-card-text class="mt-4">
       <v-layout wrap>
-        <v-form ref="form">
+        <v-form v-model="valid" ref="form">
           <v-container grid-list-sm class="pa-0">
             <v-layout wrap pt-4>
               <v-flex xs12>
@@ -153,7 +153,7 @@
                   class="text-capitalize font-weight-medium grey--text text--darken-2"
                 >
                   <v-icon>mdi-account</v-icon>
-                  About
+                  Bio
                 </p>
                 <v-textarea
                   solo
@@ -162,6 +162,8 @@
                   auto-grow
                   color="brand"
                   v-model="bio"
+                  :rules="[rules.maxLength(250)]"
+                  counter="250"
                 ></v-textarea>
               </v-flex>
             </v-layout>
@@ -252,13 +254,19 @@
       ></alert>
     </v-card-text>
     <v-card-actions>
-      <m-btn :loading="uploading" @click="setProfile()">Save</m-btn>
+      <m-btn
+        :loading="uploading"
+        :disabled="!valid || !input"
+        @click="setProfile()"
+        >Save</m-btn
+      >
     </v-card-actions>
   </v-card>
 </template>
 
 <script>
 import countries from "../../public/my-modules/countries";
+import Rules from "../rules";
 export default {
   props: {
     user: Object
@@ -280,7 +288,9 @@ export default {
       city: "",
       state: "",
       uploading: false,
-      showSuccess: false
+      showSuccess: false,
+      rules: Rules,
+      valid: false
     };
   },
 
@@ -331,10 +341,10 @@ export default {
         .catch(_ => {
           this.uploading = false;
           this.$store.dispatch("set_snackbar", {
-                show: true,
-                message: "Sorry. An error occured while updating profile",
-                type: "error"
-              });
+            show: true,
+            message: "Sorry. An error occured while updating profile",
+            type: "error"
+          });
         });
     },
     setPermissions() {
@@ -383,6 +393,17 @@ export default {
   computed: {
     countries() {
       return countries;
+    },
+    input() {
+      return (
+        this.name.trim() !== "" ||
+        this.country !== null ||
+        this.sex.trim() !== "" ||
+        this.bio.trim() !== "" ||
+        this.date !== null ||
+        this.city.trim() !== "" ||
+        this.state.trim() !== ""
+      );
     }
   },
   watch: {

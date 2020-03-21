@@ -28,8 +28,7 @@
           </v-layout>
           <v-layout
             v-if="
-              favoriteItems.length !== user.favorite_items &&
-                favoriteItems.length > 0
+              favoriteItems.length < user.favorite_items && favoriteItems.length > 0
             "
             class="mt-4"
             justify-center

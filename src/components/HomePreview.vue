@@ -12,11 +12,11 @@
         <div class="foreground">
           <div style="font-size:2em">
             <div>
-            <span class="accent--text font-weight-black">Ranking</span>
+              <span class="white--text font-weight-black">Ranking</span>
             </div>
             <div class="mt-n4">
-            <span class="white--text font-weight-black">STUFFS</span>
-            <!-- <span class="accent--text font-weight-black">...</span> -->
+              <span class="white--text font-weight-black">STUFFS</span>
+              <!-- <span class="accent--text font-weight-black">...</span> -->
             </div>
           </div>
           <p class="ptl text-center">
@@ -38,8 +38,8 @@
                 >Demand</router-link
               >
               <div class="mt-2 ptl text-center">
-                Curious about top ten stuff? Place it on demand. Maybe a Ranker
-                could just help out
+                Curious about stuff? Place it on demand. Maybe a Ranker could
+                just help out
               </div>
             </div>
           </div>

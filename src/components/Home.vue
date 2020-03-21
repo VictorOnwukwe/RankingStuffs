@@ -72,7 +72,6 @@ export default {
   },
   created: function() {
     this.$store.dispatch("set_loading", false);
-    this.$store.dispatch("fetch_home_contents");
   }
 };
 </script>

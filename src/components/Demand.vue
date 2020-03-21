@@ -44,13 +44,14 @@
                     Title
                   </p>
                   <v-text-field
-                    @keyup="checkExistence()"
+                    @keyup.enter="focus('comment')"
                     counter="150"
                     :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
                     solo
                     flat
                     color="brand"
                     v-model="title"
+                    id="title"
                   ></v-text-field>
                 </v-flex>
 
@@ -97,6 +98,7 @@
                     v-model="comment"
                     class
                     no-resize
+                    id="comment"
                   ></v-textarea>
                 </v-flex>
                 <v-flex xs6 mt-n2>
@@ -105,7 +107,7 @@
                   >
                     Category
                   </p>
-                  <v-select
+                  <v-autocomplete
                     item-text="name"
                     v-model="category"
                     :items="categories"
@@ -113,7 +115,8 @@
                     color="brand"
                     solo
                     flat
-                  ></v-select>
+                    id="category"
+                  ></v-autocomplete>
                 </v-flex>
 
                 <v-flex xs6 mt-n2>
@@ -122,7 +125,7 @@
                   >
                     Sub-Category
                   </p>
-                  <v-select
+                  <v-autocomplete
                     :disabled="this.category == ''"
                     item-text="name"
                     v-model="subCategory"
@@ -131,7 +134,8 @@
                     color="brand"
                     solo
                     flat
-                  ></v-select>
+                    id="subcategory"
+                  ></v-autocomplete>
                 </v-flex>
               </v-layout>
             </v-form>
@@ -280,6 +284,9 @@ export default {
     },
     goCategory() {
       this.$router.push({ path: "/categories/" + this.tempCategory });
+    },
+    focus(elem){
+      document.querySelector("#" + elem).focus();
     }
   },
   computed: {
@@ -321,6 +328,9 @@ export default {
   watch: {
     authenticated() {
       this.authenticated ? (this.authDialog = false) : (this.authDialog = true);
+    },
+    title(){
+      this.checkExistence();
     }
   },
   created() {
