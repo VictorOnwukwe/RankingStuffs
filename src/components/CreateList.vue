@@ -2,15 +2,23 @@
   <div id="main" class="mt">
     <div style="margin:0 auto;">
       <!-- <div class="page-title">Create List</div> -->
+      <alert
+        v-if="authenticated"
+        :icon="'fa-exclamation-triangle'"
+        :type="'error'"
+        :message="
+          'You have not verified your email address. Without verification you cannot create a list. Please check your email and verify within the next 24 hours'
+        "
+        :action="false"
+        :value="!verified"
+      ></alert>
       <v-card
-        flat
-        style="border: 1px solid var(--brand)"
-        class="grey lighten-3"
-        v-if="true"
+        outlined
+        class=""
       >
         <!-- <v-card style="position:sticky; top:4.5em; z-index:3" tile flat> -->
         <v-card-title
-          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+          class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
         >
           Heads-Up
         </v-card-title>
@@ -37,10 +45,10 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3" v-if="!$route.query.demanded">
+      <v-card outlined class="mt" v-if="!$route.query.demanded">
         <v-card-title
-          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
-          >Type</v-card-title
+          class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
+          >Select List Type</v-card-title
         >
         <v-card-text class="mt-4">
           <div :class="{ 'compact left': $vuetify.breakpoint.xs }">
@@ -57,7 +65,7 @@
                     class="mr-2 mt-1"
                     :class="{
                       'green--text text--darken-1': list.type == 'general',
-                      'green--text text--lighten-2': list.type == 'factual'
+                      'green--text text--lighten-2': list.type == 'factual',
                     }"
                     >$vuetify.icons.people</v-icon
                   >
@@ -65,7 +73,7 @@
                 <v-radio color="accent" value="general">
                   <template v-slot:label>
                     <div class="ptd">
-                      <span class="font-weight-bold ptd">General</span> - List
+                      <span class="font-weight-medium ptd">General</span> - List
                       is public, votable, and can be moderated by other users
                     </div>
                   </template>
@@ -73,8 +81,8 @@
                 <v-radio color="accent" value="personal">
                   <template v-slot:label>
                     <div class="ptd">
-                      <span class="font-weight-bold ptd">Personal</span> - List
-                      is private, and customizable by you
+                      <span class="font-weight-medium ptd">Personal</span> -
+                      List is private, and customizable by you
                       <span class="caption"
                         >(it only displays on your profile)</span
                       >
@@ -84,7 +92,7 @@
                 <v-radio color="accent" value="factual">
                   <template v-slot:label>
                     <div class="ptd">
-                      <span class="font-weight-bold ptd">Factual</span> - List
+                      <span class="font-weight-medium ptd">Factual</span> - List
                       is public, non-votable, and can't be moderated by other
                       users
                       <span class="caption"
@@ -109,7 +117,7 @@
                   <template v-slot:label>
                     <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                       <span
-                        class="font-weight-bold"
+                        class="font-weight-medium"
                         :class="list.type == 'personal' ? 'ptd' : 'htd'"
                         >Votable</span
                       >
@@ -121,7 +129,7 @@
                   <template v-slot:label>
                     <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                       <span
-                        class="font-weight-bold"
+                        class="font-weight-medium"
                         :class="list.type == 'personal' ? 'ptd' : 'htd'"
                         >Non-Votable</span
                       >
@@ -147,7 +155,7 @@
               <template v-slot:label>
                 <div :class="list.type == 'personal' ? 'ptd' : 'htd'">
                   <span
-                    class="font-weight-bold"
+                    class="font-weight-medium"
                     :class="list.type == 'personal' ? 'ptd' : 'htd'"
                     >Self Moderated</span
                   >
@@ -162,14 +170,11 @@
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3">
-        <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3;"> -->
+      <v-card outlined class="mt ">
         <v-card-title
-          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
-          >Details</v-card-title
+          class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
+          >Add List Details</v-card-title
         >
-        <!-- <v-divider></v-divider> -->
-        <!-- </v-card> -->
         <v-card-text class="mt-4">
           <v-container grid-list-md pa-0>
             <v-form class="compact-form" v-model="valid">
@@ -180,23 +185,34 @@
                   >
                     Title
                   </p>
-                  <v-text-field
-                    validate-on-blur
-                    :readonly="$route.query.demanded ? true : false"
-                    :rules="[
-                      rules.maxLength(150, 'Title'),
-                      rules.minLength(1, 'Title')
-                    ]"
-                    counter="150"
-                    small
-                    color="brand"
-                    class="text-capitalize"
-                    flat
-                    solo
-                    v-model="list.title"
-                    id="title"
-                    @keyup.enter="focus('description')"
-                  ></v-text-field>
+                  <div style="position: relative">
+                    <v-text-field
+                      validate-on-blur
+                      :readonly="$route.query.demanded ? true : false"
+                      :rules="[
+                        rules.maxLength(150, 'Title'),
+                        rules.minLength(15, 'Title'),
+                      ]"
+                      counter="150"
+                      small
+                      color="brand"
+                      background-color="grey lighten-3"
+                      class="text-capitalize"
+                      flat
+                      solo
+                      v-model="list.title"
+                      id="title"
+                      @keyup.enter="focus('description')"
+                    ></v-text-field>
+                    <div
+                      style="position:absolute;z-index:2;box-shadow: 2px 2px 10px rgba(0,0,0,.5);top:4.5em;width:100%"
+                    >
+                      <search-display
+                        :keyword="list.title"
+                        :creation="true"
+                      ></search-display>
+                    </div>
+                  </div>
                 </v-flex>
 
                 <v-alert
@@ -239,10 +255,11 @@
                     solo
                     flat
                     color="brand"
+                    background-color="grey lighten-3"
                     v-model="list.description"
                     style="width:100%"
-                    counter="1500"
-                    :rules="[rules.maxLength(1500)]"
+                    counter="2500"
+                    :rules="[rules.maxLength(2500, 'Description')]"
                     placeholder="[optional] criterias, priorities, motivations"
                     id="description"
                   ></v-textarea>
@@ -260,6 +277,7 @@
                     class="text-capitalize"
                     placeholder="[Optional]"
                     color="brand"
+                    background-color="grey lighten-3"
                     solo
                     flat
                     v-model="list.category"
@@ -286,6 +304,7 @@
                     placeholder="[Optional]"
                     class="text-capitalize"
                     color="brand"
+                    background-color="grey lighten-3"
                     solo
                     flat
                     v-model="list.subCategory"
@@ -311,7 +330,7 @@
                     color="brand"
                     class
                   ></v-textarea>
-                </v-flex>-->
+                </v-flex>
                 <v-flex>
                   <v-layout wrap class="mt-n9">
                     <v-chip
@@ -322,18 +341,18 @@
                       >{{ tag }}</v-chip
                     >
                   </v-layout>
-                </v-flex>
+                </v-flex> -->
               </v-layout>
             </v-form>
           </v-container>
         </v-card-text>
       </v-card>
 
-      <v-card flat class="mt grey lighten-3">
+      <v-card outlined class="mt">
         <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3"> -->
         <v-card-title
-          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
-          >Add Items</v-card-title
+          class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
+          >Add List Items</v-card-title
         >
         <!-- <v-divider></v-divider> -->
         <!-- </v-card> -->
@@ -356,8 +375,8 @@
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
-              <v-icon color="grey" size="3em" @click="addItem()"
-                >mdi-plus-circle</v-icon
+              <v-icon color="grey darken-1" size="3em" @click="addItem()"
+                >mdi-plus-circle-outline</v-icon
               >
             </div>
           </v-container>
@@ -407,10 +426,12 @@
 import AddItem from "./AddItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
+import SearchDisplay from "./ListAndDemandSearch";
 let _ = require("lodash");
 export default {
   components: {
-    AddItem
+    AddItem,
+    SearchDisplay,
   },
   data() {
     return {
@@ -422,7 +443,7 @@ export default {
           { name: "" },
           { name: "" },
           { name: "" },
-          { name: "" }
+          { name: "" },
         ],
         type: "general",
         votable: true,
@@ -430,7 +451,7 @@ export default {
         keywords: [],
         preview_image: false,
         category: "",
-        subCategory: ""
+        subCategory: "",
       },
       n: 0,
       userTags: "",
@@ -444,7 +465,7 @@ export default {
       itemIndex: [0, 1, 2, 3, 4],
       listSubmitted: false,
       tempCategory: "",
-      existing: true
+      existing: true,
     };
   },
 
@@ -469,7 +490,7 @@ export default {
         this.existing = true;
         return;
       }
-      await this.$store.dispatch("fetch_list", this.id).then(list => {
+      await this.$store.dispatch("fetch_list", this.id).then((list) => {
         this.existing = list;
         if (!this.existing) {
           this.setKeywords();
@@ -478,6 +499,14 @@ export default {
     }, 2000),
 
     async upload() {
+      if (!this.verified) {
+        this.$store.dispatch("set_snackbar", {
+          show: true,
+          message: "Sorry. Your email has not been verified.",
+          type: "error",
+        });
+        return;
+      }
       this.loading = true;
       setTimeout(async () => {
         let other;
@@ -490,12 +519,12 @@ export default {
               ...other,
               ...this.list,
               id: this.id,
-              user: this.user
+              user: this.user,
             })
-            .then(list_id => {
+            .then((list_id) => {
               this.$router.push({ path: "/lists/" + list_id });
             })
-            .catch(_ => {
+            .catch((_) => {
               this.loading = false;
             });
         } else {
@@ -504,9 +533,9 @@ export default {
               ...other,
               ...this.list,
               id: this.id,
-              user: this.user
+              user: this.user,
             })
-            .then(uploaded => {
+            .then((uploaded) => {
               this.listSubmitted = uploaded;
               this.tempCategory =
                 this.list.subCategory !== ""
@@ -522,7 +551,7 @@ export default {
                   { name: "" },
                   { name: "" },
                   { name: "" },
-                  { name: "" }
+                  { name: "" },
                 ],
                 type: "general",
                 votable: true,
@@ -530,17 +559,17 @@ export default {
                 keywords: [],
                 preview_image: false,
                 category: "",
-                subCategory: ""
+                subCategory: "",
               };
 
               this.loading = false;
             })
-            .catch(error => {
+            .catch((error) => {
               this.loading = false;
               this.$store.dispatch("set_snackbar", {
                 show: true,
                 message: "sorry. An error occured",
-                type: "error"
+                type: "error",
               });
             });
         }
@@ -551,7 +580,7 @@ export default {
     },
     scrollTo(offset, target) {
       this.$vuetify.goTo(document.getElementById(target), {
-        offset: offset
+        offset: offset,
       });
     },
 
@@ -573,8 +602,8 @@ export default {
     },
 
     fetchCategories() {
-      this.$store.dispatch("fetch_categories").then(result => {
-        this.categories = result.map(category => category.name);
+      this.$store.dispatch("fetch_categories").then((result) => {
+        this.categories = result.map((category) => category.name);
       });
     },
     pushTag() {
@@ -582,7 +611,7 @@ export default {
         return;
       }
       this.tags = this.userTags.split(" ");
-      this.tags = this.tags.filter(tag => tag != " " && tag != "");
+      this.tags = this.tags.filter((tag) => tag != " " && tag != "");
     },
     setLogin(val) {
       this.$store.dispatch("set_login", val);
@@ -613,15 +642,18 @@ export default {
       this.list.items = [];
       this.list.items = medL;
     },
-    deleteItem(index) {
+    deleteItem(index, valid) {
       if (this.list.items.length < 6) {
         return;
       }
       this.list.items.splice(index, 1);
+      if (!valid) {
+        this.invalidItems--;
+      }
     },
     focus(elem) {
       document.querySelector("#" + elem).focus();
-    }
+    },
   },
   computed: {
     authenticated() {
@@ -634,7 +666,7 @@ export default {
       if (this.list.category == "") {
         return;
       }
-      return this.categories.find(cat => cat.name == this.list.category).subs;
+      return this.categories.find((cat) => cat.name == this.list.category).subs;
     },
     successMessage() {
       return `Your list has been submitted. You will be notified on completion of
@@ -659,9 +691,12 @@ export default {
     user() {
       return {
         id: this.$store.getters.getUser.id,
-        username: this.$store.getters.getUser.username
+        username: this.$store.getters.getUser.username,
       };
-    }
+    },
+    verified() {
+      return this.$store.getters.verified;
+    },
   },
   watch: {
     authenticated() {
@@ -669,7 +704,7 @@ export default {
     },
     "list.title"() {
       this.checkExistence();
-    }
+    },
   },
   created: function() {
     this.$store.dispatch("set_loading", false);
@@ -683,7 +718,7 @@ export default {
     if (!this.authenticated) {
       this.authDialog = true;
     }
-  }
+  },
 };
 </script>
 

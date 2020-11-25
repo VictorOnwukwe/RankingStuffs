@@ -14,20 +14,22 @@
           <v-layout justify-space-between align-center>
             <v-flex>
               <v-layout align-center>
-                <v-app-bar-nav-icon
-                  @click="emitSidebar()"
-                  color="rgba(255, 255, 255, 0.902)"
-                  class="hidden-md-and-up mr-2"
-                ></v-app-bar-nav-icon>
                 <router-link :to="'/'" class="py-1" style="font-size:1.5em">
                   <!-- <span class="white--text">the</span> -->
-                  <div style="font-size:1em">
-                    <div>
-                      <span class="white--text font-weight-black">Ranking</span>
-                    </div>
-                    <div class="mt-n3">
-                      <span class="white--text font-weight-black">STUFFS</span>
-                      <!-- <span class="accent--text font-weight-black">...</span> -->
+                  <div style="display:flex; align-items:center">
+                    <img src="../assets/logo-trans-high.png" class="logo"/>
+                    <div class="" style="font-size:0.6em">
+                      <div>
+                        <span class="accent--text font-weight-black"
+                          >Ranking</span
+                        >
+                      </div>
+                      <div class="mt-n3">
+                        <span class="white--text font-weight-black"
+                          >STUFFS</span
+                        >
+                        <!-- <span class="accent--text font-weight-black">...</span> -->
+                      </div>
                     </div>
                   </div>
                   <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
@@ -61,15 +63,18 @@
                   </v-layout>
                 </v-flex>
                 <v-flex>
-                  <v-layout v-if="!authenticated" justify-end class="">
+                  <v-layout v-if="!authenticated" justify-end align-center>
                     <v-icon
                       color="rgba(255, 255, 255, 0.902)"
                       class="mr-4"
                       @click.stop="
                         notification ? (notification = false) : null,
-                          (search = !search)
+                          (search = !search),
+                          (keyword = '')
                       "
-                      >{{ !search ? "search" : "mdi-close" }}</v-icon
+                      >{{
+                        !search ? "$vuetify.icons.search" : "mdi-close"
+                      }}</v-icon
                     >
                     <a
                       @click="$store.dispatch('set_login', true)"
@@ -87,10 +92,13 @@
                       color="rgba(255, 255, 255, 0.902)"
                       @click.stop="
                         notification ? (notification = false) : null,
-                          (search = !search)
+                          (search = !search),
+                          (keyword = '')
                       "
                       size="25"
-                      >{{ !search ? "search" : "mdi-close" }}</v-icon
+                      >{{
+                        !search ? "$vuetify.icons.search" : "mdi-close"
+                      }}</v-icon
                     >
                     <v-badge overlap class="ml-4" color="accent">
                       <template v-slot:badge>
@@ -104,8 +112,8 @@
                             (notification = !notification)
                         "
                         color="rgba(255, 255, 255, 0.902)"
-                        size="25"
-                        >mdi-bell</v-icon
+                        size="26"
+                        >$vuetify.icons.bell</v-icon
                       >
                     </v-badge>
                     <v-menu
@@ -188,6 +196,12 @@
                 </v-flex>
               </v-layout>
             </v-flex>
+                <v-icon
+                  @click="emitSidebar()"
+                  color="rgba(255, 255, 255, 0.902)"
+                  class="hidden-md-and-up ml-4 mr-1"
+                  >{{showSidebar ? "mdi-close" : "$vuetify.icons.menu"}}</v-icon
+                >
           </v-layout>
         </div>
       </div>
@@ -214,7 +228,7 @@
               <a
                 style="white-space:nowrap;font-size:15px"
                 v-on="on"
-                class="cat-link brand--text text--lighten-4"
+                class="cat-link brand--text text--lighten-4 font-weight-medium"
               >
                 {{ category.name }}
               </a>
@@ -222,7 +236,7 @@
             <div class="menu-display px-4 py-2">
               <router-link
                 :to="'/categories/' + category.name"
-                class="category block ptd"
+                class="category block ptd font-weight-medium mb-2"
                 >{{ category.name }}</router-link
               >
               <div v-for="(sub, index) in category.subs" :key="index">
@@ -230,7 +244,7 @@
                   tag="a"
                   style="line-height:200%"
                   :to="subLink(category.name, sub.name)"
-                  class="font-weight-medium sub-category block std"
+                  class="sub-category block std"
                   >{{ sub.name }}</router-link
                 >
               </div>
@@ -239,87 +253,23 @@
         </v-layout>
       </v-layout>
       <transition name="search-bar">
-        <div v-if="search" class="search elevation-3 grey lighten-3">
-          <div class="search-field">
+        <div v-if="search" class="search">
+          <div class="search-field elevation-3">
             <input
-              style="height:3em; padding: 0.2em 3em 0.2em 0.5em; width: 100%"
+              style="height:3em; padding: 0.2em 0.5em 0.2em 2.5em; width: 100%"
               type="text"
               v-model="keyword"
-              @keyup="fetchResults()"
             />
-            <v-icon style="position:absolute; right:0.5em; top:0.5em"
-              >search</v-icon
+            <v-icon style="position:absolute; left:0.3em; top:0.5em"
+              >$vuetify.icons.search</v-icon
             >
           </div>
-          <div class="search-results white">
-            <div v-if="demands.length > 0 || lists.length > 0" style="">
-              <div v-if="lists.length > 0" class="ptd">
-                <div
-                  class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
-                >
-                  Lists
-                </div>
-                <div class="px-2 mb-4">
-                  <router-link
-                    :to="'/lists/' + result.id"
-                    v-for="(result, index) in lists"
-                    :key="index"
-                    class="underline pointer std ml-0 mt-1"
-                  >
-                    <div
-                      class="mt-1"
-                      style="font-size:15px"
-                      @click="(search = false), (keyword = '')"
-                    >
-                      {{ result.data().title }}
-                    </div>
-                  </router-link>
-                </div>
-              </div>
-              <div v-if="demands.length > 0" class="ptd">
-                <div
-                  class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
-                >
-                  Demands
-                </div>
-                <div class="px-2 mb-4">
-                  <router-link
-                    :to="'/demands/' + result.id"
-                    v-for="(result, index) in demands"
-                    :key="index"
-                    @click="search = false"
-                    class="underline std pointer no-deco ml-0"
-                  >
-                    <div
-                      class="mt-1"
-                      style="font-size:15px"
-                      @click="(search = false), (keyword = '')"
-                    >
-                      {{ result.data().title }}<br />
-                    </div>
-                  </router-link>
-                </div>
-              </div>
-            </div>
-            <div v-else-if="keyword.length >= 5 && !searching">
-              <v-card tile flat class="ptd white">
-                <v-card-text class
-                  >Sorry. This list does not exist yet. Be the first to create
-                  or demand it.</v-card-text
-                >
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
-                  <m-btn text small @click="goSearchedCreate()">Create</m-btn>
-                </v-card-actions>
-              </v-card>
-            </div>
-            <div v-else-if="keyword.length >= 5">
-              <v-layout justify-center>
-                <m-progress class="my-4"></m-progress>
-              </v-layout>
-            </div>
-          </div>
+          <search-results
+            class="mt-3 elevation-3"
+            :keyword="keyword"
+            @closeSearch="search = false"
+            @clearKeyword="keyword = ''"
+          ></search-results>
         </div>
       </transition>
 
@@ -337,14 +287,16 @@
 <script>
 import { setTimeout } from "timers";
 import Notifications from "./Notifications";
+import SearchResults from "./ListAndDemandSearch";
 import "firebase/firestore";
 let _ = require("lodash");
 export default {
   components: {
-    Notifications
+    Notifications,
+    SearchResults,
   },
   props: {
-    closeSearch: Boolean
+    closeSearch: Boolean,
   },
   data() {
     return {
@@ -356,7 +308,6 @@ export default {
       showSidebar: false,
       demands: [],
       lists: [],
-      searching: false
     };
   },
 
@@ -370,26 +321,8 @@ export default {
       }, 200);
     },
 
-    goSearchedCreate() {
-      this.search = false;
-      this.$router.push({
-        path: "/create",
-        query: { searched: true, title: this.keyword }
-      });
-    },
-
     goList() {
       this.$router.push({ path: "/lists/pTt8MoCSxEyJxEYwEqRQ" });
-    },
-    goSearchedDemand() {
-      this.search = false;
-      this.$router.push({
-        path: "/demand",
-        query: {
-          searched: true,
-          title: this.keyword
-        }
-      });
     },
 
     go(link) {
@@ -402,26 +335,8 @@ export default {
       this.$store
         .dispatch("logout")
         .then(() => {})
-        .catch(_ => {});
+        .catch((_) => {});
     },
-    fetchResults: _.throttle(async function() {
-      if (this.keyword.length < 5) {
-        if (this.keyword.length == 0) {
-          this.lists = this.demands = [];
-        }
-        return;
-      }
-      this.searching = true;
-      this.lists = await this.$store.dispatch(
-        "search_lists",
-        this.keyword.toLowerCase()
-      );
-      this.demands = await this.$store.dispatch(
-        "search_demands",
-        this.keyword.toLowerCase()
-      );
-      this.searching = false;
-    }, 1000),
     setLogin(val) {
       this.$store.dispatch("set_login", val);
     },
@@ -429,7 +344,11 @@ export default {
       this.$store.dispatch("set_signup", val);
     },
     emitSidebar() {
-      this.$emit("showSidebar", !this.showSidebar);
+      this.showSidebar = !this.showSidebar;
+      this.$emit("showSidebar", this.showSidebar);
+    },
+    setSidebar(sidebar){
+      this.showSidebar = sidebar;
     },
     encryptCategory(name) {
       return name.replace(/\//g, "zzsl");
@@ -442,7 +361,7 @@ export default {
     },
     setOverlay() {
       this.$emit("setOverlay", this.search || this.notification);
-    }
+    },
   },
 
   watch: {
@@ -454,7 +373,7 @@ export default {
     },
     notification() {
       this.setOverlay();
-    }
+    },
   },
 
   computed: {
@@ -482,7 +401,7 @@ export default {
     },
     categories() {
       return this.$store.getters.categories.filter(
-        category => category.name !== "miscellaneous"
+        (category) => category.name !== "miscellaneous"
       );
     },
     isAdmin() {
@@ -490,8 +409,8 @@ export default {
         return false;
       }
       return this.user.id == "c6F7pgDchSfyY931qz1kUUWDKOR2";
-    }
-  }
+    },
+  },
 };
 </script>
 
@@ -660,10 +579,10 @@ div a + a {
   /* font-weight: bold; */
 }
 .nav.router-link-exact-active {
-  color: var(--accent) !important;
-  font-weight: bolder;
-  /* outline-offset: 4px;
-  outline: 1px solid white; */
+  background-image: linear-gradient(var(--accent), var(--accent));
+  background-repeat: no-repeat;
+  background-size: 100% 2px;
+  background-position: 100% 100%;
 }
 .block {
   display: block;
@@ -677,5 +596,10 @@ div a + a {
 }
 .dp:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
+}
+.logo{
+  margin-right: 0.2em;
+  background: transparent;
+  width: 2.5em;
 }
 </style>

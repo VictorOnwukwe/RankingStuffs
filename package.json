@@ -1,5 +1,5 @@
 {
-  "name": "topteners",
+  "name": "rankingstuffs",
   "version": "1.0.0",
   "private": true,
   "scripts": {
@@ -10,6 +10,7 @@
   "dependencies": {
     "@glidejs/glide": "^3.3.0",
     "@mdi/font": "^3.7.95",
+    "algoliasearch": "^4.2.0",
     "circular-json": "^0.5.9",
     "compressorjs": "^1.0.6",
     "core-js": "^2.6.5",
@@ -23,6 +24,7 @@
     "sweetalert2": "^8.14.0",
     "vue-autosize": "^1.0.2",
     "vue-country-flag": "^1.3.1",
+    "vue-head": "^2.2.0",
     "vue-masonry": "^0.11.8",
     "vue-mugen-scroll": "^0.2.6",
     "vue-packer": "^0.3.0",

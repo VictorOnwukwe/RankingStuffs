@@ -26,13 +26,12 @@
                 <v-layout
                   class="ml-4 mr-6 mb-6"
                   column
-                  :align-center="$vuetify.breakpoint.xs ? true : false"
+                  :align-center="$vuetify.breakpoint.smAndDown ? true : false"
                 >
                   <v-hover v-slot:default="{ hover }">
                     <v-avatar
                       :size="$vuetify.breakpoint.xs ? '150px' : '200px'"
                       @click="showDP = true"
-                      tile
                       cover
                       class="elevation-1"
                     >
@@ -68,7 +67,7 @@
               </v-flex>
               <v-layout
                 class="mt-4 px-2"
-                :justify-center="$vuetify.breakpoint.xs ? true : false"
+                :justify-center="$vuetify.breakpoint.smAndDown ? true : false"
               >
                 <div>
                   <h2 v-if="user.name" class="font-weight-black ptd">
@@ -85,7 +84,7 @@
                   </div>
 
                   <p
-                    class="ptd font-weight-medium text-justify mt-2 pre-wrap"
+                    class="ptd text-justify mt-2 pre-wrap"
                     v-if="user.bio"
                   >{{ user.bio }}</p>
                   <v-layout wrap class="mt-n2">
@@ -97,18 +96,18 @@
                         <v-icon color="grey" class="mr-2 fa-icon" size="1.3em"
                           >fa-map-marker-alt</v-icon
                         >
-                        <span class="std font-weight-medium" v-if="user.city"
+                        <span class="std" v-if="user.city"
                           >{{ user.city
                           }}{{
                             user.state || user.country ? ",&nbsp;" : ""
                           }}</span
                         >
-                        <span class="std font-weight-medium" v-if="user.state"
+                        <span class="std" v-if="user.state"
                           >{{ user.state
                           }}{{ user.country ? ",&nbsp;" : "" }}</span
                         >
                         <span
-                          class="std font-weight-medium"
+                          class="std"
                           v-if="user.country"
                           >{{ user.country.name }}</span
                         >
@@ -119,7 +118,7 @@
                         <v-icon color="grey" class="mr-2" size="1.3em"
                           >fa-birthday-cake</v-icon
                         >
-                        <span class="std font-weight-medium"
+                        <span class="std"
                           >Born {{ DOB }}</span
                         >
                       </v-layout>
@@ -130,14 +129,14 @@
                       <v-icon style="margin-left:-0.1em" color="grey"
                         >mdi-calendar-month</v-icon
                       >
-                      <span class="std font-weight-medium"
+                      <span class="std"
                         >&nbsp;Joined {{ joined }}</span
                       >
                     </div>
                   </v-layout>
                   <v-layout class="mt-2 black--text" style="width:170px" wrap>
                     <v-layout class="" column align-center>
-                      <span class="subtitle-1 ptd font-weight-black">{{
+                      <span class="subtitle-1 ptd font-weight-bold">{{
                         user.followers ? user.followers : 0
                       }}</span>
                       <follow
@@ -147,7 +146,7 @@
                       ></follow>
                     </v-layout>
                     <v-layout column align-center>
-                      <span class="subtitle-1 ptd font-weight-black">{{
+                      <span class="subtitle-1 ptd font-weight-bold">{{
                         user.following ? user.following : 0
                       }}</span>
                       <follow
@@ -178,17 +177,18 @@
                       >
                     </v-hover>
                   </div>
-                  <!-- <v-card v-if="user.bio" flat tile class="mt-4">
-                    <v-card-title class="pa-0" style="font-size:1em; font-weight:bold;">About</v-card-title>
-                    <v-card-text class="px-0">
-                      <div style="white-space:pre-wrap; max-width:40em">
-                        <p class="subtitle-2 ptd text-justify font-weight-medium">{{user.bio}}</p>
-                      </div>
-                    </v-card-text>
-                  </v-card> -->
                 </div>
               </v-layout>
             </v-layout>
+            <alert
+              :icon="'fa-exclamation-triangle'"
+              :type="'error'"
+              :message="
+                'You have not verified your email address. Please check your email and verify within the next 24 hours'
+              "
+              :value="unverified"
+              :action="false"
+            ></alert>
             <v-layout
               justify-space-around
               style="border-bottom:1px solid var(--dark-divider)"
@@ -288,7 +288,6 @@
 
 <script>
 import Settings from "./ProfileSetting";
-// import CountryFlag from "vue-country-flag";
 import UploadImage from "./UploadImage";
 import follow from "./Follow";
 let moment = require("moment");
@@ -296,7 +295,7 @@ export default {
   components: {
     "upload-image": UploadImage,
     Settings,
-    follow
+    follow,
   },
   data() {
     return {
@@ -308,7 +307,7 @@ export default {
       transitionName: "slide-left",
       uploadMenu: false,
       uploadingImage: undefined,
-      showDP: false
+      showDP: false,
     };
   },
   methods: {
@@ -316,21 +315,21 @@ export default {
       this.uploadingImage = true;
       this.$store
         .dispatch("update_profile_pic", data)
-        .then(pic => {
+        .then((pic) => {
           this.uploadingImage = false;
           this.user.profile_pic = pic;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.uploadingImage = false;
         });
     },
     async fetchUser(id) {
       await this.$store
         .dispatch("fetch_complete_user", id)
-        .then(user => {
+        .then((user) => {
           this.user = user;
         })
-        .catch(_ => {});
+        .catch((_) => {});
     },
     follow() {
       this.processing = true;
@@ -341,7 +340,7 @@ export default {
           this.user.followers++;
           this.processing = false;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.processing = false;
         });
     },
@@ -354,7 +353,7 @@ export default {
           this.user.followers--;
           this.processing = false;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.processing = false;
         });
     },
@@ -400,7 +399,7 @@ export default {
     },
     goFavorites() {
       this.$router.push({
-        path: this.homeLink + "/favorites"
+        path: this.homeLink + "/favorites",
       });
     },
     goTimeline() {},
@@ -410,7 +409,7 @@ export default {
     async checkFollowing() {
       await this.$store
         .dispatch("check_following", this.userID)
-        .then(result => {
+        .then((result) => {
           this.following = result;
         });
     },
@@ -420,7 +419,7 @@ export default {
     openEdit() {
       this.showDP = false;
       this.$refs.upload.open();
-    }
+    },
   },
   computed: {
     userID() {
@@ -448,6 +447,9 @@ export default {
         return false;
       }
       return this.userID === this.$store.getters.getUser.id;
+    },
+    unverified(){
+      return this.isProfile && !this.$store.getters.verified;
     }
   },
   watch: {
@@ -459,7 +461,7 @@ export default {
           this.fetched = true;
         });
       });
-    }
+    },
   },
   mounted: function() {
     this.$store.dispatch("set_loading", true);
@@ -469,7 +471,10 @@ export default {
         this.$store.dispatch("set_loading", false);
       });
     });
-    this.$router.beforeEach((to, from, next) => {
+    this.$router.beforeEach();
+  },
+
+  beforeRouteUpdate(to, from, next) {
       if (from.name === "user-creations") this.transitionName = "slide-left";
       else if (from.name === "favorites") this.transitionName = "slide-right";
       else {
@@ -478,8 +483,7 @@ export default {
       }
 
       next();
-    });
-  }
+    }
 };
 </script>
 

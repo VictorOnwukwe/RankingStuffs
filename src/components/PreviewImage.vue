@@ -26,13 +26,11 @@
       <v-card tile>
         <v-layout class="close" style="">
           <v-spacer></v-spacer>
-          <div class="close-button" style="">
             <v-icon class="close-btn" size="1.6em" @click="preview = false"
               >mdi-close</v-icon
             >
-          </div>
         </v-layout>
-        <div style="margin-top:-2em">
+        <div style="margin-top:">
           <v-img
             width="100%"
             :src="image.url.high"
@@ -78,6 +76,7 @@
                       {{ getSiteName(completeImage.source) }}[
                       <a
                         :href="completeImage.source"
+                        target="_blank"
                         class="no-deco underline link--text"
                         >view original</a
                       >]
@@ -204,16 +203,15 @@ p {
   transform: translateY(0%);
   z-index: 4;
 }
-.close-button {
-  background-color: rgba(0, 0, 0, 0.5);
-  width: 2em;
-  height: 2em;
-  z-index: 4;
-  display: flex;
-  justify-content: center;
-}
 .close-btn {
   color: white;
+  position: absolute;
+  z-index: 2;
+  right: 4px;
+  top: 4px;
+  background-color: rgba(0,0,0,0.4);
+  border-radius: 50%;
+  padding: 0.25em
 }
 .close-btn:hover {
   color: rgb(212, 12, 12);

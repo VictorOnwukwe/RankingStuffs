@@ -53,6 +53,8 @@ import AdminPendingListItems from "../components/AdminPendingListItems";
 import AdminPendingItemImages from "../components/AdminPendingItemImages";
 // @ts-ignore
 import AdminPendingItemInfos from "../components/AdminPendingItemInfos";
+// @ts-ignore
+import EmailVerification from "../components/EmailVerification";
 
 Vue.use(Router);
 
@@ -199,6 +201,20 @@ export default new Router({
       path: "/error",
       name: "error",
       component: ErrorPage
+    },
+    {
+      path: "/verify_email",
+      name: "verify_email",
+      component: EmailVerification,
+      beforeEnter(to, from, next) {
+        if (store.getters.authenticated && to.query.mode) {
+          next();
+        } else {
+          next({
+            name: "home"
+          });
+        }
+      },
     }
   ],
   scrollBehavior(to) {

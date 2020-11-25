@@ -3,7 +3,7 @@
     <v-img
       v-if="src"
       :src="src"
-      :lazy-src="require('../assets/emptyimage.jpg')"
+      :lazy-src="require('../assets/logo-high.png')"
       :width="width"
       :max-width="maxWidth"
       :min-width="minWidth"
@@ -14,7 +14,8 @@
         <v-row class="fill-height ma-0" align="center" justify="center">
           <v-progress-circular
             indeterminate
-            color="grey lighten-5"
+            color="grey lighten-3"
+            size="25"
           ></v-progress-circular>
         </v-row>
       </template>
@@ -39,7 +40,7 @@ export default {
     },
     width: {
       type: String | Number,
-      default: "100px"
+      default: 100
     },
     maxWidth: {
       type: String | Number,

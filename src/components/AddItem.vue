@@ -6,21 +6,15 @@
         <span>{{ parentLength + index + 1 }}</span>
       </div>
       <v-spacer></v-spacer>
-      <div
-        v-if="index > 0"
-        class="white py-1 br mr-3"
-        style="width:2.5em;display:flex;justify-content:center"
+      <upload-image
+        @save="setImage"
+        :type="'addItem'"
+        v-if="!image"
+      ></upload-image>
+      <v-icon v-if="index > 0" @click="oneUp()" class="ladder ml-5 grey--text"
+        >$vuetify.icons.ladder</v-icon
       >
-        <v-icon @click="oneUp()" class="" color="brand"
-          >$vuetify.icons.ladder</v-icon
-        >
-      </div>
-      <div
-        class="white py-1 br"
-        style="width:2.5em;display:flex;justify-content:center"
-      >
-        <v-icon @click="deleteItem()" class="close">fa-times</v-icon>
-      </div>
+      <v-icon @click="deleteItem()" class="ml-5 mr-1 grey--text">fa-times</v-icon>
     </v-layout>
     <div style="position:relative">
       <p class="text-capitalize font-weight-medium grey--text text--darken-2">
@@ -30,8 +24,9 @@
         @focus="showSearch = true"
         solo
         flat
-        :rules="[rules.minLength(1, 'Item')]"
+        :rules="[rules.minLength(1, 'Item name'),rules.maxLength(50, 'Item name')]"
         color="brand"
+        background-color="grey lighten-3"
         v-model="item.name"
         @paste="(item.info = null), (image = null)"
         @keyup="blurEmit()"
@@ -39,45 +34,12 @@
         @keyup.enter="focus('item-comment' + index)"
         @blur="hideSearch()"
       ></v-text-field>
-      <div v-if="showSearch && item.name != ''" class="results elevation-3">
-        <div
-          class="pointer"
-          @click="setInfo(result)"
-          v-for="(result, index) in results"
-          :key="index"
-        >
-          <v-layout align-center>
-            <v-avatar tile size="2.5em" class="mr-1">
-              <m-img
-                v-if="result.data().image"
-                :src="result.data().image.url.low"
-                :width="'2.5em'"
-                class="mr-4"
-              ></m-img>
-              <m-img v-else :width="'2.5em'" class="mr-4"></m-img>
-            </v-avatar>
-            <div class="pt-1">
-              <v-layout>
-                <span class="text-capitalize ptd" style="line-height:1em">{{
-                  result.data().name
-                }}</span>
-              </v-layout>
-              <v-layout>
-                <span v-if="result.category" class="std">{{
-                  result.data().category
-                }}</span>
-              </v-layout>
-            </div>
-          </v-layout>
+      <div v-show="showSearch && item.name != ''" class="results elevation-3 mt-2">
+        <div class="pointer" v-for="(result, index) in results" :key="index">
+          <searched-item @setInfo="setInfo" :rItem="result"></searched-item>
         </div>
       </div>
     </div>
-    <upload-image
-      @save="setImage"
-      :type="'addItem'"
-      class="mb-6"
-      v-if="!image"
-    ></upload-image>
     <v-img
       class="mt-n4 mb-4"
       v-if="image"
@@ -100,6 +62,7 @@
         flat
         rows="2"
         color="brand"
+        background-color="grey lighten-3"
         no-resize
         auto-grow
         v-model="comment"
@@ -112,54 +75,56 @@
 
 <script>
 import UploadImage from "./UploadImage";
+import SearchedItem from "./SearchedItem";
 import Rules from "../rules";
 import { setTimeout } from "timers";
 let _ = require("lodash");
 export default {
   components: {
-    UploadImage
+    UploadImage,
+    SearchedItem,
   },
   props: {
     parentLength: Number,
     index: {
       type: Number,
-      default: 0
+      default: 0,
     },
     commentPlaceholder: {
       type: String,
-      default: "[Optional] Tell us why you placed this item at this position"
+      default: "[Optional] Tell us why you placed this item at this position",
     },
     propItem: {
       type: Boolean | Object,
-      default: false
+      default: false,
     },
     multi: {
       type: Boolean,
-      default: true
+      default: true,
     },
     numeral: {
       type: Boolean,
-      default: true
+      default: true,
     },
     creation: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
       item: {
         name: "",
-        info: null
+        info: null,
       },
       comment: "",
-      results: [],
+      results: null,
       showSearch: true,
       image: undefined,
       rules: Rules,
       valid: false,
       userImage: undefined,
-      displayImg: false
+      displayImg: false,
     };
   },
   methods: {
@@ -183,7 +148,7 @@ export default {
           this.item = {
             ...other,
             ...this.item,
-            isLink: true
+            isLink: true,
           };
         } else {
           let data = {};
@@ -194,7 +159,7 @@ export default {
             keywords: this.generateKeywords(this.item.name.trim()),
             name: this.item.name,
             isLink: false,
-            ...data
+            ...data,
           };
         }
         this.$emit("receiveItem", this.index, this.item);
@@ -212,10 +177,10 @@ export default {
       this.userImage = false;
       this.displayImg = false;
       if (this.creation) {
-        this.$emit("delete", this.index);
+        this.$emit("delete", this.index, this.valid);
       }
     },
-    checkItem: _.throttle(function() {
+    checkItem: _.debounce(function() {
       if (this.item.name.length < 3) {
         if (this.item.name.length == 0) {
           this.results = [];
@@ -224,19 +189,19 @@ export default {
       }
       this.$store
         .dispatch("search_item", this.item.name.toLowerCase())
-        .then(results => {
+        .then((results) => {
           this.results = results;
         });
-    }, 200),
+    }, 2000),
     setInfo(result) {
-      new Promise(resolve => {
+      new Promise((resolve) => {
         this.userImage = false;
         this.item.isLink = true;
         this.item.info = result.id;
-        this.item.name = result.data().name;
+        this.item.name = result.name;
         this.showSearch = false;
-        if (result.data().image) {
-          this.image = result.data().image;
+        if (result.image) {
+          this.image = result.image;
         }
         resolve(true);
       }).then(() => {
@@ -263,16 +228,17 @@ export default {
             source: obj.source,
             user: {
               id: this.$store.getters.getUser.id,
-              username: this.$store.getters.getUser.username
-            }
+              username: this.$store.getters.getUser.username,
+            },
           };
           this.emitItem();
+          this.emitComment();
         };
       }, 500);
     },
     focus(elem) {
       document.querySelector("#" + elem).focus();
-    }
+    },
   },
   watch: {
     "item.name"(val) {
@@ -288,7 +254,7 @@ export default {
       this.keywords = this.propItem.keywords;
       this.comment = this.propItem.comment;
       this.image = this.propItem.image;
-    }
+    },
   },
   created() {
     if (this.propItem) {
@@ -298,7 +264,7 @@ export default {
       this.comment = this.propItem.comment;
       this.image = this.propItem.image;
     }
-  }
+  },
 };
 </script>
 
@@ -313,7 +279,13 @@ export default {
 .results > div {
   padding: 1em 1.5em;
 }
+.results > div:not(:last-child){
+  border-bottom: 1px solid rgba(0, 0, 0,.1);
+}
 .results > div:hover {
   background-color: rgb(223, 223, 226);
+}
+.ladder {
+  transform: scaleX(1.1);
 }
 </style>

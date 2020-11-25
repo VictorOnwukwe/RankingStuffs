@@ -4,9 +4,9 @@
       <div>
         <v-divider class="grey lighten-4 my-1"></v-divider>
       </div>
-      <v-layout align-center>
+      <v-layout align-center style="border-left: 2px solid rgba(0,0,0,.2)">
         <v-flex class="pl-2">
-          <div style="font-size:1em" class="ptd pre-wrap roboto spacious">{{ !more ? reply.content.slice(0, 600) : reply.content
+          <div style="font-size:0.95em" class="ptd pre-wrap roboto spacious">{{ !more ? reply.content.slice(0, 600) : reply.content
             }}{{ reply.content.length > 600 ? "..." : " "
             }}<span
               @click="more = !more"
@@ -16,7 +16,7 @@
               >{{ !more ? "more" : "less" }}</span
             ><span v-if="!reply.user.username.includes('visitor')">-&nbsp;</span><username :user="reply.user"></username>
           </div>
-          <v-layout class="mt-5 mb-1" align-center>
+          <v-layout class="mt-3 mb-1" align-center>
             <div class="std" style="display:flex; min-width:3em;">
               {{ created }}
             </div>

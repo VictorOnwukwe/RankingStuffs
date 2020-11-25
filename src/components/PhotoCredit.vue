@@ -7,11 +7,11 @@
     </template>
     <div class="tip pa-2 white--text">
       Photo by
-      <a :href="credit.creator.link" class="white--text">{{
+      <a :href="credit.creator.link" target="_blank" class="white--text">{{
         credit.creator.name
       }}</a>
       on
-      <a :href="credit.imageLink" class="white--text">unsplash</a>
+      <a :href="credit.imageLink" target="_blank" class="white--text">unsplash</a>
     </div>
   </v-menu>
 </template>

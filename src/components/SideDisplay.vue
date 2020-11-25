@@ -1,9 +1,13 @@
 <template>
-  <div>
+  <div id="side-display">
     <v-card-text
       class="pr-0 py-0"
-      :class="$vuetify.breakpoint.xs ? 'px-0 mt-12' : 'pl mt'"
+      :class="$vuetify.breakpoint.smAndDown ? 'px-0' : 'pl pr-2'"
     >
+      <v-divider
+        v-if="$vuetify.breakpoint.smAndDown"
+        class="mb-3 grey"
+      ></v-divider>
       <div class="">
         <v-card width="100%" flat>
           <v-card-title
@@ -15,35 +19,31 @@
           <v-card-text class="pl-3 pr-0">
             <div v-if="lists.length > 0">
               <div v-for="(list, index) in lists" :key="index">
-                <v-list-item class="pa-0">
-                  <v-list-item-avatar tile>
-                    <m-img
-                      v-if="list.preview_image"
-                      :src="list.preview_image.url.low"
-                      :width="'60px'"
-                      aspect-ratio="1"
-                      class="ml-3"
-                      :radius="'0'"
-                    ></m-img>
-                    <m-img
-                      v-else
-                      :src="require('../assets/' + list.category + '-low.jpg')"
-                      :width="'60px'"
-                      :aspectRatio="'1'"
-                      class="ml-3"
-                      :radius="'0'"
-                    ></m-img>
-                  </v-list-item-avatar>
-                  <v-list-item-content>
-                    <router-link
-                      :to="'/lists/' + list.id"
-                      class="no-deco"
-                      style="font-size:14px"
-                    >
-                      <a class="side-text text-capitalize">{{ list.title }}</a>
-                    </router-link>
-                  </v-list-item-content>
-                </v-list-item>
+                <v-layout align-start>
+                  <m-img
+                    v-if="list.preview_image"
+                    :src="list.preview_image.url.low"
+                    :width="'3em'"
+                    aspect-ratio="1"
+                    class="mr-3"
+                    :radius="'0'"
+                  ></m-img>
+                  <m-img
+                    v-else
+                    :src="require('../assets/' + list.category + '-low.jpg')"
+                    :width="'3em'"
+                    :aspectRatio="'1'"
+                    class="mr-3"
+                    :radius="'0'"
+                  ></m-img>
+                  <router-link
+                    :to="'/lists/' + list.id"
+                    class="no-deco"
+                    style="font-size:14px"
+                  >
+                    <a class="side-text text-capitalize">{{ list.title }}</a>
+                  </router-link>
+                </v-layout>
                 <v-divider
                   v-if="index !== lists.length - 1"
                   class="my-2 grey lighten-2"
@@ -97,9 +97,9 @@ export default {
     },
     demands() {
       return this.$store.getters.hotDemands;
-    }
+    },
   },
-  created() {}
+  created() {},
 };
 </script>
 <style scoped>
@@ -109,5 +109,56 @@ export default {
 }
 .side-text:hover {
   color: rgba(0, 0, 0, 0.87);
+}
+#side-display::scrollbar-track {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#side-display::scrollbar {
+  width: 3px;
+  position: absolute;
+}
+
+#side-display::scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 3px;
+}
+#side-display:hover::scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 3px;
+}
+#side-display::-webkit-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#side-display::-webkit-scrollbar {
+  width: 3px;
+  position: absolute;
+}
+
+#side-display::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 3px;
+}
+#side-display:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
+}
+#side-display::-moz-scrollbar-track {
+  background-color: rgba(255, 255, 255, 0);
+}
+
+#side-display::-moz-scrollbar {
+  width: 3px;
+  position: absolute;
+}
+
+#side-display::-moz-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0);
+  border-radius: 3px;
+}
+#side-display:hover::-moz-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.2);
+  border-radius: 3px;
 }
 </style>

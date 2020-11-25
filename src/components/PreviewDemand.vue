@@ -3,16 +3,17 @@
     :to="'/demands/' + demand.id"
     :class="{ loading: !fetched }"
     width="100%"
-    :outlined="sub"
+    outlined
+     v-if="fetched"
   >
-    <div v-if="fetched">
+    <div>
       <v-card-title class style>
         <v-layout column>
           <v-layout align-start>
             <v-flex>
               <div
                 class="text-capitalize no-deco oswald"
-                :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
+                :class="{ 'font-weight-medium ptd': !sub, 'std': sub }"
                 style="font-size:0.85em"
               >
                 {{ demand.title }}

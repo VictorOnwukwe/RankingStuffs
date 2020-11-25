@@ -27,26 +27,28 @@
                 <v-flex>
                   <router-link :to="'/lists/' + list.id" class="no-deco">
                     <h2
-                      class="font-weight-medium text-capitalize link--text"
+                      class="font-weight-medium text-capitalize std"
                       style="font-family: 'Oswald', sans-serif"
                     >
                       {{ list.title }}
                     </h2>
                   </router-link>
-                  <span class="ptd subtitle-2">
-                    {{ listItem.upvotes }}
-                    {{ listItem.upvotes > 1 ? "upvotes" : "upvote" }}
-                    <span class="htd">|</span> {{ listItem.downvotes }}
-                    {{ listItem.downvotes > 1 ? "downvotes" : "downvote" }}
-                  </span>
-                  <h4>
-                    <span
-                      class="font-weight-bold accent--text"
-                      style="font-size:1.7em"
-                      >#{{ listItem.rank }}</span
-                    >
-                    of {{ list.item_count }}
-                  </h4>
+                  <div v-if="!related">
+                    <span class="ptd subtitle-2">
+                      {{ listItem.upvotes }}
+                      {{ listItem.upvotes > 1 ? "upvotes" : "upvote" }}
+                      <span class="htd">|</span> {{ listItem.downvotes }}
+                      {{ listItem.downvotes > 1 ? "downvotes" : "downvote" }}
+                    </span>
+                    <h4>
+                      <span
+                        class="font-weight-bold accent--text"
+                        style="font-size:1.7em"
+                        >#{{ listItem.rank }}</span
+                      >
+                      of {{ list.item_count }}
+                    </h4>
+                  </div>
                 </v-flex>
               </v-layout>
             </v-card>
@@ -78,30 +80,34 @@
 export default {
   props: {
     id: String,
-    item: Object
+    item: Object,
+    related: {
+      type: Boolean,
+      default: false
+    },
   },
   data() {
     return {
       listItem: {},
       list: {},
-      fetched: false
+      fetched: false,
     };
   },
   methods: {
     fetchItemRank() {
       this.$store
         .dispatch("fetch_item_rank", { list_id: this.id, item: this.item })
-        .then(item => {
+        .then((item) => {
           this.listItem = item;
         });
-    }
+    },
   },
   created() {
-    this.$store.dispatch("fetch_list", this.id).then(list => {
+    this.$store.dispatch("fetch_list", this.id).then((list) => {
       this.list = list;
       this.fetched = true;
     });
-    this.fetchItemRank();
-  }
+    if (!this.related) this.fetchItemRank();
+  },
 };
 </script>

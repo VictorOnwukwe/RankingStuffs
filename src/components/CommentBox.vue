@@ -170,17 +170,17 @@ export default {
   padding: 0.5em;
   padding-right: 2.5em;
   width: 100%;
-  border-radius: 1em;
-  border: 1px solid #e6e6e6;
+  border-radius: 0.5em;
+  border: 2px solid #cfcdcd;
   transition: all 0.2s ease-in;
   color: black;
   /* background-color: red; */
 }
 .text:hover {
-  border: 1px solid black;
+  border: 2px solid rgb(90, 90, 90);
 }
 .text:focus {
-  border: 1px solid var(--link);
+  border: 2px solid var(--link);
   outline: none;
   /* box-shadow: 0px 0px 0px 1px var(--brand); */
   /* border-radius: 0.2em; */

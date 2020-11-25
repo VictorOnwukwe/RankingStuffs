@@ -1,13 +1,14 @@
 <template>
   <div>
     <m-btn v-if="btn" @click="showMenu()">Upload</m-btn>
-    <v-icon v-if="icon" @click="showMenu()" size="2em" :color="actionColor"
+    <v-icon v-if="icon" @click="showMenu()" size="2em" :color="type == 'addItem' ? 'grey' : 'accent'"
       >mdi-camera</v-icon
     >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">
         <v-card-title
-          class="title font-weight-bold brand lighten-2 white--text"
+              class="top-bar"
+          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           Select Image
           <v-spacer></v-spacer>
@@ -27,6 +28,7 @@
               clearable
             ></v-text-field>
             <v-icon
+              v-if="!fetchingImage"
               :disabled="!urlFetched"
               @click="showClipper()"
               :color="urlFetched ? 'green' : ''"
@@ -34,7 +36,11 @@
               large
               >mdi-check-circle</v-icon
             >
+            <m-progress v-else class="mt-4 ml-4"></m-progress>
           </v-layout>
+          <div v-if="fetchingImage" class="caption warning--text mt-n6">
+            Hold on. This may take a while...
+          </div>
           <v-layout column align-center>
             <div class="mb-4">OR</div>
             <clipper-upload
@@ -51,7 +57,8 @@
     <v-dialog persistent v-model="clipper" max-width="600px">
       <v-card :loading="cropping">
         <v-card-title
-          class="title font-weight-bold brand lighten-2 white--text"
+              class="top-bar"
+          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           Edit Image
           <v-spacer></v-spacer>
@@ -139,7 +146,8 @@
     <v-dialog max-width="600px" v-model="result">
       <v-card>
         <v-card-title
-          class="title font-weight-bold brand lighten-2 white--text"
+              class="top-bar"
+          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           {{ type == "addItem" ? "Save" : "Upload" }}
           <v-spacer></v-spacer>
@@ -196,7 +204,6 @@ function loadPcf(file, attr) {
     let image = URL.createObjectURL(
       new Blob([buf.buffer], { type: "image/gif" })
     );
-    console.log(image);
   };
   xhr.open("GET", file);
   xhr.send();
@@ -206,37 +213,37 @@ export default {
   components: {
     "clipper-basic": clipperBasic,
     "clipper-preview": clipperPreview,
-    "clipper-upload": clipperUpload
+    "clipper-upload": clipperUpload,
   },
   props: {
     btn: {
       type: Boolean,
-      default: false
+      default: false,
     },
     icon: {
       type: Boolean,
-      default: true
+      default: true,
     },
     actionColor: {
       type: String,
-      default: "accent"
+      default: "accent",
     },
     uploading: {
       type: Boolean,
-      default: undefined
+      default: undefined,
     },
     successMessage: {
       type: String,
-      default: "Upload Successful!"
+      default: "Upload Successful!",
     },
     type: {
       type: String,
-      default: "profile"
+      default: "profile",
     },
     successful: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   data() {
     return {
@@ -256,7 +263,8 @@ export default {
       urlFetched: false,
       linkUrl: "",
       linkImg: "",
-      tempUrl: ""
+      tempUrl: "",
+      fetchingImage: false,
     };
   },
   methods: {
@@ -283,7 +291,7 @@ export default {
         this.$store.dispatch("set_snackbar", {
           show: true,
           type: "error",
-          message: "Sorry. Invalid image"
+          message: "Sorry. Invalid image",
         });
         this.cropping = false;
       }
@@ -293,7 +301,6 @@ export default {
       if (this.imageType(this.linkImg) == "gif") {
         let img = this.getBlob(this.linkImg);
         loadPcf(img);
-        console.log(img);
         this.result = true;
         this.clipper = false;
         return;
@@ -341,7 +348,7 @@ export default {
         success(result) {
           that.images.high = result;
         },
-        error(err) {}
+        error(err) {},
       });
       new Compressor(img, {
         quality: 0.8,
@@ -351,7 +358,7 @@ export default {
         success(result) {
           that.images.low = result;
         },
-        error(err) {}
+        error(err) {},
       });
     },
     close() {
@@ -421,23 +428,26 @@ export default {
       if (!this.linkUrl || this.linkUrl.trim() === "") {
         return;
       }
+      this.fetchingImage = true;
       let url = await fetch(
         "https://tvseriesjokesapi.herokuapp.com/api/v1/jokes/image?imageUrl=" +
           this.linkUrl
       );
       url
         .text()
-        .then(text => {
+        .then((text) => {
           this.linkImg = text;
+          this.fetchingImage = false;
           this.urlFetched = true;
         })
-        .catch(error => {
+        .catch((error) => {
+          this.fetchingImage = false;
           console.log(error);
         });
     },
     imageType(link) {
       return link.slice(link.indexOf("/") + 1, link.indexOf(";"));
-    }
+    },
   },
   watch: {
     linkUrl(val) {
@@ -446,8 +456,8 @@ export default {
         return;
       }
       this.fetch();
-    }
-  }
+    },
+  },
 };
 </script>
 

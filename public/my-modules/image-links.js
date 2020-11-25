@@ -102,12 +102,12 @@ images = {
   },
   animals: {
     creator: {
-      name: "Harald Hofer",
+      name: "Matthew Cabret",
       link:
-        "https://unsplash.com/@numen?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+        "https://unsplash.com/@majinmdub?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
     },
     imageLink:
-      "https://unsplash.com/images/animals?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
+      "https://unsplash.com/s/photos/zoo?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText"
   },
   food: {
     creator: {

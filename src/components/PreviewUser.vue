@@ -1,30 +1,24 @@
 <template>
   <div>
-    <v-card tile v-if="fetched" style="position:relative">
-      <v-layout class="close" style="">
-        <v-spacer></v-spacer>
-        <div class="close-button" style="">
-          <v-icon class="close-btn" @click="closeUserDialog()"
-            >mdi-close</v-icon
-          >
+    <v-card tile v-if="fetched" style="position:relative;z-index:1">
+      <div style="width:100%; position:sticky;top:0" class="pb-2 white">
+        <v-icon class="close-btn" @click="closeUserDialog()">mdi-close</v-icon>
+        <div style="margin-top:-26px">
+          <v-img
+            v-if="user.profile_pic"
+            :src="user.profile_pic.high"
+            width="100%"
+            aspect-ratio="1.5"
+          ></v-img>
+          <v-img
+            v-else
+            :src="require('../assets/nophoto.jpg')"
+            width="100%"
+            aspect-ratio="1.5"
+          ></v-img>
         </div>
-      </v-layout>
-      <div style="width:100%; position:relative;margin-top:-26px">
-        <div></div>
-        <v-img
-          v-if="user.profile_pic"
-          :src="user.profile_pic.high"
-          width="100%"
-          aspect-ratio="1.5"
-        ></v-img>
-        <v-img
-          v-else
-          :src="require('../assets/nophoto.jpg')"
-          width="100%"
-          aspect-ratio="1.5"
-        ></v-img>
       </div>
-      <v-card-title>
+      <v-card-title class="mt-2">
         <v-layout column>
           <h2 v-if="user.name" class="title font-weight-black">
             {{ user.name }}
@@ -41,47 +35,43 @@
         </v-layout>
       </v-card-title>
       <v-card-text>
-        <p class="ptd subtitle-2 pre-wrap">{{ user.bio }}</p>
+        <p class="ptd pre-wrap">{{ user.bio }}</p>
         <v-layout class="mt-n2">
           <div v-if="user.DOB">
-            <span class="std font-weight-medium">{{ DOB }}</span>
+            <span class="std">{{ DOB }}</span>
           </div>
           <div v-if="user.sex">
-            <span class="std font-weight-medium"
+            <span class="std"
               >{{ user.DOB ? ",&nbsp;" : "" }}{{ user.sex }}</span
             >
           </div>
           <div v-if="user.country || user.city || user.state">
-            <span v-if="user.sex || user.DOB" class="std font-weight-medium"
-              >,&nbsp;</span
-            >
-            <span class="std font-weight-medium" v-if="user.city"
+            <span v-if="user.sex || user.DOB" class="std">,&nbsp;</span>
+            <span class="std" v-if="user.city"
               >{{ user.city
               }}{{ user.state || user.country ? ",&nbsp;" : "" }}</span
             >
-            <span class="std font-weight-medium" v-if="user.state"
+            <span class="std" v-if="user.state"
               >{{ user.state }}{{ user.country ? ",&nbsp;" : "" }}</span
             >
-            <span class="std font-weight-medium" v-if="user.country">{{
-              user.country.name
-            }}</span>
+            <span class="std" v-if="user.country">{{ user.country.name }}</span>
           </div>
         </v-layout>
-        <p class="subtitle-2 std">Joined {{ userCreated }}</p>
+        <p class="std">Joined {{ userCreated }}</p>
         <v-layout class="black--text mt-n4" wrap>
           <div class="mr-3">
-            <span class="subtitle-1 ptd font-weight-bold">{{
+            <span class="subtitle-1 ptd font-weight-medium">{{
               user.followers ? user.followers : 0
             }}</span>
-            <a class="subtitle-1 std font-weight-medium"
+            <a class="std"
               >&nbsp;{{ user.followers == 1 ? "Follower" : "Followers" }}</a
             >
           </div>
           <div>
-            <span class="subtitle-1 ptd font-weight-bold">{{
+            <span class="subtitle-1 ptd font-weight-medium">{{
               user.following ? user.following : 0
             }}</span>
-            <a class="subtitle-1 std font-weight-medium">&nbsp;Following</a>
+            <a class="std">&nbsp;Following</a>
           </div>
         </v-layout>
         <!-- <p v-for="n in 20">n</p> -->
@@ -111,7 +101,7 @@
                 class=""
                 v-if="!processing"
                 style="margin-top:0.15em"
-                size="1.3em"
+                size="1.15em"
                 color="white"
                 >{{
                   !following
@@ -142,7 +132,7 @@
 let moment = require("moment");
 export default {
   props: {
-    id: String
+    id: String,
   },
   data() {
     return {
@@ -150,7 +140,7 @@ export default {
       isProfile: false,
       fetched: false,
       user: null,
-      processing: false
+      processing: false,
     };
   },
   methods: {
@@ -175,11 +165,11 @@ export default {
             ? this.user.followers++
             : (this.user.followers = 1);
         })
-        .catch(_ => {
+        .catch((_) => {
           this.$store.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.following = false;
         });
@@ -193,11 +183,11 @@ export default {
           this.processing = false;
           this.user.followers--;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.$store.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.following = false;
         });
@@ -205,7 +195,7 @@ export default {
     async checkFollowing() {
       await this.$store
         .dispatch("check_following", this.user.id)
-        .then(result => {
+        .then((result) => {
           this.following = result;
         });
     },
@@ -220,10 +210,12 @@ export default {
       }
     },
     async fetchUser() {
-      await this.$store.dispatch("fetch_complete_user", this.id).then(user => {
-        this.user = user;
-      });
-    }
+      await this.$store
+        .dispatch("fetch_complete_user", this.id)
+        .then((user) => {
+          this.user = user;
+        });
+    },
   },
   computed: {
     userCreated() {
@@ -235,14 +227,14 @@ export default {
     DOB() {
       let years = moment(this.user.DOB).fromNow();
       return years.slice(0, years.indexOf(" "));
-    }
+    },
   },
   mounted: async function() {
     await this.fetchUser();
     this.matchUser().then(() => {
       this.fetched = true;
     });
-  }
+  },
 };
 </script>
 
@@ -256,22 +248,21 @@ export default {
 }
 .close {
   position: sticky;
-  top: 0;
+  top: 4px;
   background-color: rgba(0, 0, 0, 0);
-  right: 0;
+  right: 4px;
   transform: translateY(0%);
   z-index: 4;
 }
-.close-button {
-  background-color: rgba(0, 0, 0, 0.7);
-  width: 26px;
-  height: 26px;
-  z-index: 4;
-  display: flex;
-  justify-content: center;
-}
 .close-btn {
   color: white;
+  position: absolute;
+  z-index: 2;
+  right: 4px;
+  top: 4px;
+  background-color: rgba(0,0,0,0.4);
+  border-radius: 50%;
+  padding: 0.25em
 }
 .close-btn:hover {
   color: rgb(212, 12, 12);

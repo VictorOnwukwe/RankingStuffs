@@ -2,7 +2,7 @@
   <div>
     <span
       @click="fetchUsers(50)"
-      class="pointer std font-weight-medium text-capitalize"
+      class="pointer std text-capitalize"
       >{{ type }}</span
     >
     <v-dialog v-model="view" max-width="400px">
@@ -15,7 +15,7 @@
           <v-spacer></v-spacer>
           <v-icon @click="view = false" class="close">mdi-close</v-icon>
         </v-card-title>
-        <v-card-text class="mt-4">
+        <v-card-text class="mt-4 px-2">
           <v-list v-if="!fetching">
             <div v-for="(user, index) in users" :key="index">
               <user-mini :id="user.id"></user-mini>

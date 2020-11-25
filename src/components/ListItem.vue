@@ -19,7 +19,7 @@
                 golden: index === 1,
                 silver: index === 2,
                 'bronze white--text': index === 3,
-                plain: index > 3
+                plain: index > 3,
               }"
               class="numeric-box"
               style="font-size:0.5em"
@@ -50,15 +50,17 @@
                   @click="upvote()"
                   :class="{
                     'green--text': votedThis.type == 'upvote' || isCreator,
-                    'grey--text': votedThis.type !== 'upvote' && !isCreator
+                    'grey--text': votedThis.type !== 'upvote' && !isCreator,
                   }"
-                  :disabled="!checkedVoted || votedThis.type == 'downvote'"
+                  :disabled="
+                    !checkedVoted || votedThis.type == 'downvote' || isAdmin
+                  "
                   :style="{
                     cursor:
                       votedThis !== false || isCreator ? 'default' : 'pointer',
                     transform: $vuetify.breakpoint.xs
                       ? 'scale(1.4)'
-                      : 'scale(1.6)'
+                      : 'scale(1.6)',
                   }"
                   >{{
                     votedThis.type == "upvote" || isCreator
@@ -66,7 +68,11 @@
                       : "$vuetify.icons.arrowUpOutline"
                   }}</v-icon
                 >
-                <span class="caption std mt-1">{{ item.upvotes }}</span>
+                <span
+                  v-if="votedThis || isCreator || isAdmin"
+                  class="caption std mt-1"
+                  >{{ item.upvotes }}</span
+                >
               </v-layout>
               <v-layout
                 column
@@ -76,17 +82,19 @@
                 <v-icon
                   class="downvote-icon"
                   @click="downvote()"
-                  :disabled="!checkedVoted || votedThis.type == 'upvote'"
+                  :disabled="
+                    !checkedVoted || votedThis.type == 'upvote' || isAdmin
+                  "
                   :style="{
                     cursor:
                       votedThis !== false || isCreator ? 'default' : 'pointer',
                     transform: $vuetify.breakpoint.xs
                       ? 'scale(1.4)'
-                      : 'scale(1.6)'
+                      : 'scale(1.6)',
                   }"
                   :class="{
                     'red--text': votedThis.type == 'downvote',
-                    'grey--text': votedThis.type !== 'downvote'
+                    'grey--text': votedThis.type !== 'downvote',
                   }"
                   >{{
                     votedThis.type == "downvote"
@@ -94,7 +102,11 @@
                       : "$vuetify.icons.arrowDownOutline"
                   }}</v-icon
                 >
-                <span class="caption std mt-1">{{ item.downvotes }}</span>
+                <span
+                  v-if="votedThis || isCreator || isAdmin"
+                  class="caption std mt-1"
+                  >{{ item.downvotes }}</span
+                >
               </v-layout>
             </v-layout>
           </v-flex>
@@ -108,7 +120,7 @@
           <v-layout column style="height:100%">
             <v-card-text class="py-0">
               <div
-                style="margin:0 0.5em 0.1em 0; float:left"
+                style="margin:0 0.5em 0.5em 0; float:left"
                 v-if="info.image || item.image"
               >
                 <img-prev
@@ -150,61 +162,65 @@
                   v-if="item.note"
                   class="pre-wrap spacious my-4 ml-2"
                   style="font-style:italic"
-                >{{ item.note }}-&nbsp;<username
+                >{{ item.note }}&nbsp;-&nbsp;<username
                     v-if="creator"
                     :user="creator"
                   ></username>
                 </div>
-                <v-layout
-                  justify-center
-                  v-if="loadingComments || addingComment"
-                  class="my-4"
-                >
-                  <m-progress></m-progress>
-                </v-layout>
-                <v-card
-                  class="subtitle-1 px-4 py-1 htd"
-                  flat
-                  v-else-if="
-                    item.comment_count == 0 &&
-                      (votedThis.type == 'upvote' ||
-                        votedThis.type == 'downvote' ||
-                        isCreator)
-                  "
-                  >Be the first to comment...</v-card
-                >
-                <v-card flat v-else>
-                  <display-comments
-                    :class="{ 'mt-8': info.about }"
-                    :comments="comments"
-                    :list="list"
-                    :item="item"
-                  ></display-comments>
+                <div v-if="item.comment_count > 0">
                   <v-layout
-                    class="my-3"
-                    justify-center
-                    v-if="
-                      comments.length < item.comment_count &&
-                        comments.length > 0
-                    "
+                    @click="showComments = !showComments"
+                    class="grey lighten-4 py-1 pointer my-2"
+                    justify-space-between
+                    align-center
                   >
-                    <v-icon
-                      @click="fetchMoreComments(10)"
-                      size="1.8em"
-                      color="grey darken-1"
-                      class="ptd"
-                      >mdi-plus-circle-outline</v-icon
-                    >
+                    <div class="std grey--text ml-2 font-weight-medium">
+                      <v-icon size="1.5em" color="grey darken-1"
+                        >mdi-comment</v-icon
+                      >&nbsp; {{ item.comment_count }}
+                      {{ item.comment_count == 1 ? "comment" : "comments" }}
+                    </div>
+                    <v-icon size="2em" color="grey darken-1" class="">{{
+                      showComments ? "mdi-chevron-up" : "mdi-chevron-down"
+                    }}</v-icon>
                   </v-layout>
-                </v-card>
+                  <div v-if="showComments" class="comments">
+                    <display-comments
+                      :class="{ 'mt-8': info.about }"
+                      :comments="comments"
+                      :list="list"
+                      :item="item"
+                      @deleted="item.comment_count--"
+                    ></display-comments>
+                    <v-layout
+                      justify-center
+                      v-if="loadingComments || addingComment"
+                      class="my-4"
+                    >
+                      <m-progress></m-progress>
+                    </v-layout>
+                    <v-layout
+                      class="my-3"
+                      justify-center
+                      v-if="
+                        comments.length < item.comment_count &&
+                          comments.length > 0 &&
+                          !loadingComments
+                      "
+                    >
+                      <v-icon
+                        @click="fetchMoreComments(10)"
+                        size="1.8em"
+                        color="grey darken-1"
+                        class="ptd"
+                        >mdi-plus-circle-outline</v-icon
+                      >
+                    </v-layout>
+                  </div>
+                </div>
               </v-card>
               <v-card-actions
-                v-if="
-                  votedThis.type == 'upvote' ||
-                    votedThis.type == 'downvote' ||
-                    isCreator ||
-                    list.type == 'factual'
-                "
+                v-if="showComments"
               >
                 <v-layout column reverse>
                   <v-flex>
@@ -213,7 +229,12 @@
                         v-model="comment"
                         class="comment-box"
                         rows="1"
-                        placeholder="Add Comment..."
+                        :placeholder="commentable ?
+                          (item.comment_count == 0
+                            ? 'Start the conversation...'
+                            : 'Join the conversation...') : 'Cast your vote to add a comment'
+                        "
+                        :disabled="!commentable"
                         :max-height="126"
                         @focused="setFocused"
                         :id="'comment-box' + index"
@@ -263,19 +284,19 @@ export default {
   components: {
     comment,
     commentBox,
-    "display-comments": DisplayComments
+    "display-comments": DisplayComments,
   },
   props: {
     rItem: Object,
     list: Object,
     index: Number,
-    list_voted: Boolean
+    list_voted: Boolean,
   },
   data() {
     return {
       comment: "",
       comments: [],
-      display_comments: true,
+      showComments: true,
       loading: false,
       commentHeight: null,
       autoGrow: true,
@@ -290,7 +311,7 @@ export default {
       addingComment: false,
       checkedVoted: false,
       item: {},
-      creator: null
+      creator: null,
     };
   },
 
@@ -304,19 +325,19 @@ export default {
         .dispatch("upload_comment", {
           item: this.item,
           list: this.list,
-          comment: this.comment
+          comment: this.comment,
         })
-        .then(comment => {
+        .then((comment) => {
           this.addingComment = false;
           this.comments.push(comment);
           this.comment = "";
           this.item.comment_count++;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.$store.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.addingComment = false;
         });
@@ -330,6 +351,14 @@ export default {
       if (this.votedThis !== false || this.isCreator) {
         return;
       }
+      // else if (!this.verified) {
+      //   this.$store.dispatch("set_snackbar", {
+      //     show: true,
+      //     message: "Sorry. Your email has not been verified.",
+      //     type: "error",
+      //   });
+      //   return;
+      // }
       this.$emit("voted");
       this.votedThis = { type: "upvote" };
       this.item.upvotes++;
@@ -337,16 +366,24 @@ export default {
         .dispatch("upvote", {
           item: this.item,
           list: this.list,
-          list_voted: this.list_voted
+          list_voted: this.list_voted,
         })
         .then(() => {
-          document.querySelector("#comment-box" + this.index).focus();
+          // document.querySelector("#comment-box" + this.index).focus();
         });
     },
     downvote() {
       if (this.votedThis !== false || this.isCreator) {
         return;
       }
+      // else if (!this.verified) {
+      //   this.$store.dispatch("set_snackbar", {
+      //     show: true,
+      //     message: "Sorry. Your email has not been verified.",
+      //     type: "error",
+      //   });
+      //   return;
+      // }
       this.$emit("voted");
       this.votedThis = { type: "downvote" };
       this.item.downvotes++;
@@ -354,10 +391,10 @@ export default {
         .dispatch("downvote", {
           item: this.item,
           list: this.list,
-          list_voted: this.list_voted
+          list_voted: this.list_voted,
         })
         .then(() => {
-          document.querySelector("#comment-box" + this.index).focus();
+          // document.querySelector("#comment-box" + this.index).focus();
         });
     },
 
@@ -367,18 +404,18 @@ export default {
         .dispatch("fetch_comments", {
           item_id: this.item.id,
           list_id: this.list.id,
-          limit: limit
+          limit: limit,
         })
-        .then(comments => {
+        .then((comments) => {
           this.comments = comments;
           this.loadingComments = false;
         })
-        .catch(error => {
+        .catch((error) => {
           this.loadingComments = false;
           this.$store.dispatch("set_snackbar", {
             show: true,
             message: "Sorry. An error occured while fetching comments",
-            type: "error"
+            type: "error",
           });
         });
     },
@@ -390,18 +427,18 @@ export default {
           item_id: this.item.id,
           list_id: this.list.id,
           limit: limit,
-          lastDoc: this.comments[this.comments.length - 1]
+          lastDoc: this.comments[this.comments.length - 1],
         })
-        .then(comments => {
+        .then((comments) => {
           this.comments = this.comments.concat(comments);
           this.loadingComments = false;
         })
-        .catch(error => {
+        .catch((error) => {
           this.loadingComments = false;
           this.$store.dispatch("set_snackbar", {
             show: true,
             message: "Sorry. An error occured while fetching comments",
-            type: "error"
+            type: "error",
           });
         });
     },
@@ -409,7 +446,7 @@ export default {
     async fetchInfo() {
       this.$store
         .dispatch("fetch_item", this.item.info)
-        .then(info => {
+        .then((info) => {
           this.info = info;
           info.image
             ? this.$emit("hasImage", { item: this.item.info, ...info.image })
@@ -431,9 +468,9 @@ export default {
       this.$store
         .dispatch("check_item_voted", {
           list_id: this.list.id,
-          item_id: this.item.id
+          item_id: this.item.id,
         })
-        .then(voted => {
+        .then((voted) => {
           this.votedThis = voted;
           this.checkedVoted = true;
         });
@@ -443,27 +480,31 @@ export default {
         this.$store.dispatch("set_item_rank", {
           list_id: this.list.id,
           item_id: this.item.id,
-          rank: this.index
+          rank: this.index,
         });
       }
     },
     fetchCreator() {
-      this.$store.dispatch("fetch_user", this.item.user).then(user => {
+      this.$store.dispatch("fetch_user", this.item.user).then((user) => {
         this.creator = user;
       });
-    }
+    },
   },
 
   computed: {
     windowSmall() {
       return screen.width < 600;
     },
+    commentable(){
+      return this.votedThis.type == 'upvote' ||
+                    this.votedThis.type == 'downvote' || this.isCreator || this.list.type == 'factual';
+    },
     authenticated() {
       return this.$store.getters.authenticated;
     },
     itemPath() {
       return {
-        path: "/items/" + this.info.id
+        path: "/items/" + this.info.id,
       };
     },
     isCreator() {
@@ -483,18 +524,24 @@ export default {
         return;
       }
       return this.votedThis.type === "downvote";
-    }
+    },
+    verified() {
+      return this.$store.getters.emailVerified;
+    },
+    isAdmin() {
+      return this.$store.getters.isAdmin;
+    },
   },
 
   watch: {
     list_voted() {
       this.checkVoted();
-    }
+    },
   },
 
   created: function() {
     this.item = this.rItem;
-    this.fetchComments(5);
+    this.fetchComments(10);
     this.checkVoted();
     if (this.item.is_link) {
       this.fetchInfo();
@@ -505,7 +552,7 @@ export default {
       this.fetchCreator();
     }
     this.setRank();
-  }
+  },
 };
 </script>
 <style scoped>
@@ -516,5 +563,9 @@ export default {
 .downvote-icon:hover {
   color: #f44336 !important;
   transition: transform 0.2s ease-in;
+}
+.comments{
+  max-height: 50vh;
+  overflow-y: auto;
 }
 </style>

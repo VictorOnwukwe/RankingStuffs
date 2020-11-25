@@ -16,7 +16,7 @@
           <v-text-field
             v-model="email"
             label="E-mail"
-            :rules="rules.email"
+            :rules="[...rules.email]"
             required
             color="brand"
             outlined
@@ -29,7 +29,13 @@
             v-model="username"
             label="Username"
             color="brand"
-            :rules="[rules.required]"
+            :rules="[
+              rules.required,
+              rules.username,
+              rules.maxLength(15, 'Username'),
+              rules.minLength(3, 'Username'),
+              rules.username,
+            ]"
             :error-messages="usernameErrors"
             outlined
             clearable
@@ -65,9 +71,23 @@
             id="confirmpassword"
           ></v-text-field>
 
+          <v-layout align-center>
+            <v-checkbox required v-model="accepted"></v-checkbox>
+            <span class="caption ptd"
+              >I have read and accepted rankingstuffs'
+              <router-link target="_blank" :to="'/privacy-policy'"
+                >Privacy Policy</router-link
+              >
+              and
+              <router-link target="_blank" :to="'/terms-and-conditions'"
+                >Terms and Conditions</router-link
+              ></span
+            >
+          </v-layout>
+
           <m-btn
-            :dark="valid"
-            :disabled="!valid"
+            :dark="valid && accepted"
+            :disabled="!valid || !accepted"
             :loading="eloading"
             @click="emailSignup()"
             class="mx-0"
@@ -143,7 +163,8 @@ export default {
       eloading: false,
       usernameErrors: [],
       gloading: false,
-      floading: false
+      floading: false,
+      accepted: false,
     };
   },
 
@@ -159,12 +180,12 @@ export default {
         .dispatch("emailSignup", {
           email: this.email.toLowerCase().trim(),
           password: this.password,
-          username: this.username.replace(/\s/g, "")
+          username: this.username.replace(/\s/g, ""),
         })
         .then(() => {
           this.close();
         })
-        .catch(error => {
+        .catch((error) => {
           this.eloading = false;
           if (error.code === "auth/email-already-in-use") {
             Swal.fire({
@@ -196,13 +217,13 @@ export default {
                   this.socialSignup("G");
                   Swal.close();
                 });
-              }
+              },
             });
           } else {
             this.$store.dispatch("set_snackbar", {
               show: true,
               message: "Sorry. An error occured",
-              type: "error"
+              type: "error",
             });
           }
         });
@@ -216,12 +237,12 @@ export default {
           type === "G" ? (this.gloading = false) : (this.floading = false);
           this.close();
         })
-        .catch(_ => {
+        .catch((_) => {
           this.gloading = this.floading = false;
           this.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.close();
         });
@@ -230,7 +251,7 @@ export default {
     checkUsername: _.debounce(async function() {
       await this.$store
         .dispatch("username_valid", this.username)
-        .then(empty => {
+        .then((empty) => {
           this.usernameErrors = empty ? [] : "Sorry. Username already exists";
         });
     }, 1000),
@@ -240,14 +261,17 @@ export default {
     },
     focus(elem) {
       document.querySelector("#" + elem).focus();
-    }
+    },
   },
   computed: {},
   watch: {
     username() {
       this.checkUsername();
-    }
-  }
+    },
+    password() {
+      this.confirmPassword = "";
+    },
+  },
 };
 </script>
 

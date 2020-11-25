@@ -6,6 +6,7 @@
         @showSidebar="showSidebar = !showSidebar"
         :closeSearch="closeSearch"
         @setOverlay="setOverlay"
+        ref="toolbar"
       ></toolbar>
 
       <div
@@ -18,14 +19,15 @@
         <preview v-if="$route.name == 'home'" id="preview"></preview>
         <v-layout justify-center>
           <v-layout
-            :column="$vuetify.breakpoint.xs ? true : false"
-            :style="$route.name == 'home' ? 'margin-top: 2em' : null"
+            :column="$vuetify.breakpoint.smAndDown ? true : false"
+            :style="{ 'margin-top: 2em': $route.name }"
             class="view-container"
           >
             <v-flex
               xs12
+              sm8
               :class="{
-                sm9: !$route.name.includes('admin')
+                md9: !$route.name.includes('admin'),
               }"
             >
               <transition name="fade" mode="out-in">
@@ -34,27 +36,38 @@
             </v-flex>
             <v-flex
               xs12
-              sm3
+              sm8
+              md3
               class="side-preview"
               v-show="
-                (!loading || $vuetify.breakpoint.smAndUp) &&
-                  !$route.name.includes('admin')
+                (!loading || $vuetify.breakpoint.mdAndUp) &&
+                  !$route.name.includes('admin') &&
+                  !$route.name.includes('verify_email')
               "
             >
-              <side-display></side-display>
+              <side-display
+                :style="
+                  $vuetify.breakpoint.mdAndUp
+                    ? 'position: sticky; top: 120px; overflow-y:scroll; height: calc(100vh - 160px)'
+                    : ''
+                "
+                :class="{ mt: $vuetify.breakpoint.mdAndUp, 'mt-12': $vuetify.breakpoint.smAndDown }"
+              ></side-display>
             </v-flex>
           </v-layout>
         </v-layout>
         <Footer v-show="!loading || $vuetify.breakpoint.smAndUp"></Footer>
-        <v-btn
-          fab
-          :small="$vuetify.breakpoint.xs"
-          color="accent"
-          @click="scrollUp()"
-          style="position: fixed;bottom:16px;right:16px;z-index:4"
-        >
-          <v-icon size="2rem">mdi-chevron-up</v-icon>
-        </v-btn>
+        <transition name="bounce">
+          <v-btn
+            v-if="showScroll"
+            :small="$vuetify.breakpoint.xsOnly"
+            fab
+            class="scroller accent"
+            @click="scrollUp()"
+          >
+            <v-icon size="2rem">mdi-chevron-up</v-icon>
+          </v-btn>
+        </transition>
       </div>
       <v-navigation-drawer
         class="hidden-md-and-up"
@@ -65,13 +78,10 @@
         width="280px"
       >
         <div v-if="authenticated">
-          <div class="accent lighten-1" style="position:relative">
-            <v-icon
-              style="position:absolute;right:8px;top:8px"
-              color="white"
-              @click="showSidebar = false"
-              >mdi-close</v-icon
-            >
+          <div
+            class="accent lighten-1"
+            style="position:relative;background-image: linear-gradient(rgb(255, 152, 0), rgb(255, 135, 0))"
+          >
             <v-avatar class="ml-5 mt-7"
               ><dp :src="user.profile_pic" :size="'3.8em'"></dp
             ></v-avatar>
@@ -86,8 +96,6 @@
               </v-list-item-content>
             </v-list-item>
           </div>
-
-          <div class="std font-weight-bold ml-4 my-2">Profile</div>
 
           <v-list dense>
             <v-list-item
@@ -157,9 +165,7 @@
               <v-list-item-icon>
                 <v-icon class="nav-icon" size="1em">mdi-shield-account</v-icon>
               </v-list-item-icon>
-              <v-list-item-title class="font-weight-bold"
-                >Admin</v-list-item-title
-              >
+              <v-list-item-title>Admin</v-list-item-title>
             </v-list-item>
             <v-list-item
               to="/"
@@ -225,6 +231,7 @@
               :to="'/categories'"
               class="ml-0 nav-link py-0"
               exact-active-class="grey lighten-4 accent--text font-weight-bold"
+              exact
             >
               <v-list-item-icon>
                 <v-icon class="nav-icon" size="1em"
@@ -253,7 +260,7 @@
       <v-snackbar v-model="snackbar.show" :color="snackbar.type"
         >{{ snackbar.message }}
         <v-spacer></v-spacer>
-        <m-btn text :color="'white'" @click="hideSnackbar()">OK</m-btn>
+        <v-icon :color="'white'" @click="hideSnackbar()">mdi-close</v-icon>
       </v-snackbar>
       <v-dialog
         v-if="!authenticated"
@@ -293,14 +300,14 @@ export default {
     preview: HomePreview,
     SideDisplay,
     Login,
-    Signup
+    Signup,
   },
   data() {
     return {
       closeSearch: false,
-      showScroll: true,
+      showScroll: false,
       showSidebar: false,
-      overlay: false
+      overlay: false,
     };
   },
 
@@ -319,7 +326,15 @@ export default {
     },
     setOverlay(val) {
       this.overlay = val;
-    }
+    },
+    hideUpscroll() {
+      var y = window.scrollY;
+      if (y >= 500) {
+        this.showScroll = true;
+      } else {
+        this.showScroll = false;
+      }
+    },
   },
 
   computed: {
@@ -353,12 +368,19 @@ export default {
         return false;
       }
       return this.user.id == "c6F7pgDchSfyY931qz1kUUWDKOR2";
-    }
+    },
+  },
+
+  watch: {
+    showSidebar() {
+      this.$refs.toolbar.setSidebar(this.showSidebar);
+    },
   },
 
   created: function() {
     this.$store.dispatch("initialize").then(() => {});
-  }
+    window.addEventListener("scroll", this.hideUpscroll);
+  },
 };
 </script>
 
@@ -366,13 +388,13 @@ export default {
 :root {
   box-sizing: border-box;
   --primary: #f9f9fa;
-  --dark-primary: #000000de;
-  --dark-secondary: #0000198a;
-  --dark-hint: #00001961;
+  --dark-primary: rgba(0, 0, 0, 0.871);
+  --dark-secondary: rgba(0, 0, 25, 0.541);
+  --dark-hint: rgba(0, 0, 25, 0.38);
   --dark-divider: #0000191f;
   --light-primary: #ffffff;
-  --light-secondary: #ffffffb3;
-  --light-hint: #ffffff80;
+  --light-secondary: rgba(255, 255, 255, 0.702);
+  --light-hint: rgba(255, 255, 255, 0.502);
   --light-divider: #ffffff1f;
   --accent: rgb(255, 152, 0);
   --divider: #bdbdbd;
@@ -404,43 +426,29 @@ html {
 
 @media (min-width: 600px) {
   *::-webkit-scrollbar-track {
-    /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
     background-color: rgb(235, 231, 231);
-    /* display: none; */
-    /* position: absolute; */
   }
 
   *::-webkit-scrollbar {
     width: 8px;
     position: absolute;
-    /* background-color: #f5f5f5; */
   }
 
   *::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
-    /* background-color: white; */
-    /* background-color: rgba(255,255,255,0.7); */
     border-radius: 8px;
   }
   *::-moz-scrollbar-track {
-    /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-    /* -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
     background-color: white;
-    /* display: none; */
-    /* position: absolute; */
   }
 
   *::-moz-scrollbar {
     width: 8px;
     position: absolute;
-    /* background-color: #f5f5f5; */
   }
 
   *::-moz-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
-    /* background-color: white; */
-    /* background-color: rgba(255,255,255,0.7); */
     border-radius: 8px;
   }
 }
@@ -466,7 +474,6 @@ html {
 .page-title {
   margin: 0.5em 0em;
   padding: 0.2em 0.2em;
-  /* background: white; */
   font-size: 2em;
   color: rgba(0, 0, 0, 0.87);
 }
@@ -510,9 +517,10 @@ html {
 }
 * > * {
   font-family: "Roboto", sans-serif;
-  font-family: "Open Sans", sans-serif;
+  /* font-family: 'Open Sans', sans-serif; */
+  font-family: "Fira Sans", sans-serif;
 }
-.roboto{
+.roboto {
   font-family: "Roboto", sans-serif !important;
 }
 #body {
@@ -524,29 +532,6 @@ html {
   font-family: "Roboto", sans-serif;
   font-size: 0.9em;
 }
-.tile:hover {
-  /* color: var(--accent) !important; */
-}
-.tile:hover > * {
-  /* color: var(--accent) !important; */
-  /* font-weight: bold; */
-}
-.tile:hover > * > * {
-  /* color: var(--accent) !important; */
-  /* font-weight: bold; */
-}
-/* .tile:active{
-  background-color: #E2FFDA;
-  color: var(--brand) !important;
-}
-.tile:active>*{
-  color: var(--brand) !important;
-  font-weight: bold
-}
-.tile:active>*>*{
-  color: var(--brand) !important;
-  font-weight: bold
-} */
 .view-container {
   padding: 0 0.5em;
   margin-top: 5.5em;
@@ -713,11 +698,7 @@ html {
   filter: brightness(125%);
 }
 .top-bar {
-  /* background: linear-gradient(180deg, #1E88E5, #2196F3); */
-  /* background: rgba(224, 224, 230,.7); */
-  /* background: rgb(244, 244, 244); */
   background: #eeeeee;
-  /* background: rgb(132, 180, 255); */
   color: #454545;
   font-weight: normal;
 }
@@ -768,12 +749,10 @@ html {
 }
 
 .plain {
-  /* background: radial-gradient(1.5em at 25% 25%, #707070, #515151) !important; */
   background: rgb(158, 158, 158) !important;
 }
 
 .numeric-box {
-  /* background-color: hsl(0, 90%, 72%); */
   background: rgba(0, 0, 0, 0.5);
   min-width: 2.7em;
   min-height: 1.5em;
@@ -842,6 +821,9 @@ html {
 .pointer {
   cursor: pointer;
 }
+.default-cursor {
+  cursor: default;
+}
 
 .fade-enter-active,
 .fade-leave-active {
@@ -878,7 +860,37 @@ html {
 .pr-half {
   padding-right: 0.5em !important;
 }
-.block {
-  display: block;
+.scroller {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 4;
+  opacity: 0.8;
+}
+.bounce-enter-active {
+  animation: bounce-in 0.15s ease-in;
+}
+.bounce-leave-active {
+  animation: bounce-out 0.15s ease-in;
+  animation-fill-mode: forwards;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes bounce-out {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(0);
+  }
+}
+.hidden {
+  display: hidden !important;
 }
 </style>

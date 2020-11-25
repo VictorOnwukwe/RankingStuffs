@@ -27,6 +27,9 @@ import category from "../icons/category";
 import list from "../icons/list";
 import arrowDown from "../icons/arrow-down";
 import arrowUp from "../icons/arrow-up";
+import bell from "../icons/bell";
+import search from "../icons/search";
+import menu from "../icons/menu";
 
 Vue.use(Vuetify);
 
@@ -102,6 +105,15 @@ const vuetify = new Vuetify({
       },
       list: {
         component: list
+      },
+      bell: {
+        component: bell
+      },
+      search: {
+        component: search
+      },
+      menu: {
+        component: menu
       }
     }
   },

@@ -8,18 +8,18 @@
         }"
       >
         <div class="tint">
-          <h1 class="text-capitalize ptl">
-            <router-link to="/categories" class="no-deco b-link"
+          <h1 class="text-capitalize stl mb-2">
+            <router-link to="/categories" class="no-deco b-link brighten-1"
               >Categories</router-link
             >
             /
             <router-link
               :to="`/categories/${category.name}`"
-              class="no-deco b-link"
+              class="no-deco b-link brighten-1"
             >
               {{ category.name }}
             </router-link>
-            / <span class="">{{ subCategory.name }}</span>
+            / <span class="white--text">{{ subCategory.name }}</span>
           </h1>
           <router-link
             :to="
@@ -291,9 +291,9 @@ export default {
   padding: 1em;
 }
 .b-link {
-  color: white;
+  color: rgba(255,255,255,.5);
 }
-.b-link:hover {
+/* .b-link:hover {
   color: var(--accent);
-}
+} */
 </style>

@@ -1,8 +1,8 @@
 <template>
-  <v-card flat tile class="grey lighten-3">
+  <v-card flat tile class="">
     <v-card-title
-      class="font-weight-bold brand lighten-3 title white--text"
-      style="position:sticky;z-index:2;top:0;border-bottom:1px solid grey"
+      class="top-bar"
+          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
     >
       Edit Profile
       <v-spacer></v-spacer>
@@ -25,6 +25,7 @@
                   flat
                   required
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="name"
                 ></v-text-field>
               </v-flex>
@@ -54,6 +55,7 @@
                   full-width
                   min-width="290px"
                   color="brand"
+                  background-color="grey lighten-3"
                 >
                   <template v-slot:activator="{ on }">
                     <v-text-field
@@ -63,6 +65,7 @@
                       readonly
                       v-on="on"
                       color="brand"
+                  background-color="grey lighten-3"
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -73,6 +76,7 @@
                     min="1950-01-01"
                     @change="save"
                     color="brand"
+                  background-color="grey lighten-3"
                   ></v-date-picker>
                 </v-menu>
               </v-flex>
@@ -87,6 +91,7 @@
                   solo
                   flat
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="city"
                 ></v-text-field>
               </v-flex>
@@ -101,6 +106,7 @@
                   solo
                   flat
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="state"
                 ></v-text-field>
               </v-flex>
@@ -117,6 +123,7 @@
                   solo
                   flat
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="country"
                   return-object
                 ></v-autocomplete>
@@ -133,6 +140,7 @@
                   solo
                   flat
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="sex"
                 ></v-select>
               </v-flex>
@@ -161,9 +169,10 @@
                   no-resize
                   auto-grow
                   color="brand"
+                  background-color="grey lighten-3"
                   v-model="bio"
-                  :rules="[rules.maxLength(250)]"
-                  counter="250"
+                  :rules="[rules.maxLength(200)]"
+                  counter="200"
                 ></v-textarea>
               </v-flex>
             </v-layout>

@@ -24,15 +24,19 @@
           <v-list-item-title
             class="text-capitalize link--text text-wrap"
             :style="{ fontSize: fontSize }"
-            >{{ item.data().name }}</v-list-item-title
           >
+            <span style="line-height:100%" v-if="!info.name"> {{ item.data().name }}</span>
+            <router-link v-else :to="'/items/' + info.id" class="no-deco" style="line-height:100%">{{
+              item.data().name
+            }}</router-link>
+          </v-list-item-title>
           <v-list-item-subtitle class="subtitle-2"
             >Favorite {{ item.id }}</v-list-item-subtitle
           >
           <v-hover v-slot:default="{ hover }">
             <v-list-item-subtitle
-              @click="more = true"
-              class="subtitle-2 ptd"
+              @click="more = !more"
+              class="ptd mt-2"
               :class="{ 'pre-wrap': more }"
               :style="{ opacity: hover && !more ? '0.5' : null }"
               >{{ item.data().comment }}</v-list-item-subtitle
@@ -56,32 +60,32 @@
 <script>
 export default {
   props: {
-    item: Object
+    item: Object,
   },
   data() {
     return {
       info: {},
       more: false,
-      fetched: false
+      fetched: false,
     };
   },
   methods: {
     fetchInfo() {
       this.$store
         .dispatch("fetch_item", this.item.data().name.toLowerCase())
-        .then(info => {
+        .then((info) => {
           this.info = info;
           this.fetched = true;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.fetched = true;
         });
-    }
+    },
   },
   computed: {
     fontSize() {
       return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
-    }
+    },
   },
   created() {
     if (!this.item.data().image) {
@@ -89,6 +93,6 @@ export default {
     } else {
       this.fetched = true;
     }
-  }
+  },
 };
 </script>

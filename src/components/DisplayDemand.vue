@@ -97,7 +97,7 @@
           </v-layout>
 
           <v-card-title
-            class="ptd pl-0 font-weight-bold mt-6 mb-4"
+            class="ptd pl-0 font-weight-bold mt-8 mb-4"
             style="font-size: 1em"
             >Other Demands in {{ demand.category }} category</v-card-title
           >
@@ -116,6 +116,7 @@
 import commentBox from "./CommentBox";
 import DisplayDemands from "./DisplayDemands";
 let moment = require("moment");
+import _ from "lodash";
 
 function initialState() {
   return {
@@ -140,6 +141,14 @@ export default {
   },
   data() {
     return initialState();
+  },
+
+  head: {
+    title: function () {
+      return {
+        inner: "Demand: " + _.startCase(this.destructureID(this.$route.params.id))
+      }
+    }
   },
   methods: {
     fetchDemand() {
@@ -338,6 +347,11 @@ export default {
   },
   created() {
     this.fetchDemand();
+  },
+  
+  beforeRouteUpdate(to, from, next){
+    window.document.title = "Demand: " + _.startCase(this.destructureID(to.params.id));
+    next();
   }
 };
 </script>

@@ -10,15 +10,14 @@
     >
       <div class="overlay">
         <div class="foreground">
-          <div style="font-size:2em">
+          <!-- <div style="font-size:2em">
             <div>
               <span class="white--text font-weight-black">Ranking</span>
             </div>
             <div class="mt-n4">
               <span class="white--text font-weight-black">STUFFS</span>
-              <!-- <span class="accent--text font-weight-black">...</span> -->
             </div>
-          </div>
+          </div> -->
           <p class="ptl text-center">
             Journey with us! As we reach the very top of everything the mind can
             conceive...

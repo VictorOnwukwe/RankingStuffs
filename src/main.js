@@ -9,7 +9,7 @@ import router from "./routers/router-main";
 import firebase from "firebase/app";
 import store from "./store";
 import Swal from "sweetalert2";
-import autosize from "autosize";
+import vueHead from "vue-head";
 import { VuetifyLazyImagePlugin } from "vuetify-lazy-image";
 // @ts-ignore
 import PreviewUser from "./components/PreviewUser";
@@ -34,20 +34,17 @@ import PreviewImage from "./components/PreviewImage";
 import EmptyPage from "./components/EmptyPage";
 import username from "./components/username";
 
-const options = {}; // Optional options
-
 Vue.use(VueMasonryPlugin);
 
 Vue.use(VuePacker, {});
 
 Vue.use(VueRx);
 Vue.use(VuetifyLazyImagePlugin);
+Vue.use(vueHead);
 
 window.Swal = Swal;
 
 let moment = require("moment");
-
-// let SocialSharing = require("vue-social-sharing");
 
 Vue.config.productionTip = false;
 
@@ -116,6 +113,9 @@ Vue.mixin({
     },
     decrypt: function(name) {
       return name.replace(/zzsl/g, "/");
+    },
+    destructureID: function(id) {
+      return id.replace(/zzsl/g, "/").replace(/-/g, " ");
     }
   }
 });

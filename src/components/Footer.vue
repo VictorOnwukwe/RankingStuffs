@@ -59,16 +59,7 @@
       >
         <v-layout class="stl" align-center>
           <router-link :to="'/'" class="no-deco" style="font-size:1em">
-            <!-- <span class="white--text">the</span> -->
-            <div style="font-size:1em">
-              <div>
-                <span class="white--text font-weight-black">Ranking</span>
-              </div>
-              <div class="mt-n3">
-                <span class="white--text font-weight-black ml-n2">STUFFS</span>
-              </div>
-            </div>
-            <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
+            <img src="../assets/logo-trans-high.png" class="logo"/>
           </router-link>
           <router-link
             to="/terms-and-conditions"
@@ -141,5 +132,9 @@ export default {
   .cat-item {
     width: 16.6%;
   }
+}
+.logo{
+  background: transparent;
+  width: 2.5em;
 }
 </style>

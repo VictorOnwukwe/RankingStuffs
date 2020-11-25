@@ -99,11 +99,11 @@
               tile
               outlined
               style="margin-top:5em"
-              class="grey lighten-3"
+              class=""
               v-if="!list.self_moderated || isCreator"
             >
               <v-card-title
-                class="pa-1 title-text grey lighten-2 pointer"
+                class="pa-1 title-text grey lighten-4 pointer"
                 @click="addItem = !addItem"
               >
                 <v-icon
@@ -155,8 +155,10 @@
       </v-layout>
 
       <div class="mt-4">
-        <v-card-title class="ptd pl-0 oswald" style="font-size: 1.3em"
-          >Lists you may like</v-card-title
+        <v-card-title
+          class="ptd pl-0 font-weight-bold text-capitalize"
+          style="font-size: 1em;"
+          >Other lists you may like</v-card-title
         >
         <div class="mt-6">
           <display-lists :lists="otherLists" :sub="true"></display-lists>
@@ -175,11 +177,11 @@
       <v-card class="pa-4">
         <social-sharing
           v-if="fetched"
-          url="https://rankingstuffs/"
+          :url="'https://rankingstuffs.com/' + list.id"
           :title="list.title"
-          :description="list.about"
-          quote="Visit rankingstuffs.com for more lists"
-          twitter-user="thetopteners"
+          :description="list.description"
+          quote="Vote for your favorite songs, movies, brands, and more on rankingstuffs"
+          twitter-user="rankingstuffs"
           inline-template
         >
           <div>
@@ -367,6 +369,7 @@ import ListItem from "./ListItem";
 import AddItem from "./AddItem";
 import SocialSharing from "vue-social-sharing";
 import Rate from "./Rate";
+import _ from "lodash";
 
 function initialState() {
   return {
@@ -400,6 +403,7 @@ function initialState() {
 }
 
 export default {
+
   components: {
     ListItem,
     AddItem,
@@ -408,6 +412,14 @@ export default {
   },
   data() {
     return initialState();
+  },
+
+  head: {
+    title: function () {
+      return {
+        inner: "List: " + _.startCase(this.destructureID(this.$route.params.id))
+      }
+    }
   },
 
   methods: {
@@ -677,7 +689,7 @@ export default {
     linkItems() {
       let arr = [
         {
-          text: "categories",
+          text: "Categories",
           to: "/categories"
         },
         {
@@ -723,6 +735,11 @@ export default {
   },
   created() {
     this.startUp();
+    this.$router.beforeEach();
+  },
+  beforeRouteUpdate(to, from, next){
+        window.document.title = "List: " + _.startCase(this.destructureID(to.params.id));
+    next();
   }
 };
 </script>

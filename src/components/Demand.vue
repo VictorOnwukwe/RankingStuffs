@@ -2,11 +2,11 @@
   <div>
     <div style="margin:0 auto;">
       <!-- <div class="page-title">Demand List</div> -->
-      <v-card flat class="grey lighten-3 mt">
+      <v-card outlined class="mt">
         <v-card-title
-          class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
+          class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
         >
-          Just A Tip</v-card-title
+          Heads-Up</v-card-title
         >
         <v-card-text>
           <ul class="mt-4 ptd">
@@ -26,11 +26,11 @@
           </ul>
         </v-card-text>
       </v-card>
-      <v-card flat class="mt grey lighten-3">
+      <v-card outlined class="mt">
         <v-card flat tile>
           <v-card-title
-            class="grey lighten-2 pa-1 pl-4 title-text font-weight-medium"
-            >Details</v-card-title
+            class="grey lighten-4 pa-1 pl-4 title-text font-weight-medium"
+            >Add Demand Details</v-card-title
           >
         </v-card>
         <v-card-text class="mt-4">
@@ -46,10 +46,14 @@
                   <v-text-field
                     @keyup.enter="focus('comment')"
                     counter="150"
-                    :rules="[rules.maxLength(150), rules.minLength(1, 'Title')]"
+                    :rules="[
+                      rules.maxLength(150),
+                      rules.minLength(15, 'Title'),
+                    ]"
                     solo
                     flat
                     color="brand"
+                    background-color="grey lighten-3"
                     v-model="title"
                     id="title"
                   ></v-text-field>
@@ -92,11 +96,13 @@
                   </p>
                   <v-textarea
                     color="brand"
+                    background-color="grey lighten-3"
                     solo
                     flat
                     placeholder="[Optional] Tell us why this list is important to you..."
                     v-model="comment"
-                    class
+                    counter="2500"
+                    :rules="[rules.maxLength(2500, 'Comment')]"
                     no-resize
                     id="comment"
                   ></v-textarea>
@@ -113,6 +119,7 @@
                     :items="categories"
                     placeholder="Optional"
                     color="brand"
+                    background-color="grey lighten-3"
                     solo
                     flat
                     id="category"
@@ -132,6 +139,7 @@
                     :items="subCategories"
                     placeholder="Optional"
                     color="brand"
+                    background-color="grey lighten-3"
                     solo
                     flat
                     id="subcategory"
@@ -206,7 +214,7 @@ export default {
       existType: "",
       timer: null,
       submitted: false,
-      tempCategory: ""
+      tempCategory: "",
     };
   },
   methods: {
@@ -219,7 +227,7 @@ export default {
         subCategory: this.subCategory,
         comment: this.comment,
         id: this.id,
-        user: this.user
+        user: this.user,
       };
 
       this.$store
@@ -234,11 +242,11 @@ export default {
               ? "Miscellaneous"
               : upload.category;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.loading = false;
         });
@@ -249,7 +257,7 @@ export default {
       }
       await this.$store
         .dispatch("fetch_list", this.id)
-        .then(list => {
+        .then((list) => {
           if (list) {
             this.existType = "list";
             this.existing = list;
@@ -257,16 +265,18 @@ export default {
           }
           return false;
         })
-        .then(async exists => {
+        .then(async (exists) => {
           if (!exists) {
-            await this.$store.dispatch("fetch_demand", this.id).then(demand => {
-              this.existing = demand;
-              if (demand) {
-                this.existType = "demand";
-              } else {
-                this.getKeywords();
-              }
-            });
+            await this.$store
+              .dispatch("fetch_demand", this.id)
+              .then((demand) => {
+                this.existing = demand;
+                if (demand) {
+                  this.existType = "demand";
+                } else {
+                  this.getKeywords();
+                }
+              });
           }
         });
     }, 2500),
@@ -285,9 +295,9 @@ export default {
     goCategory() {
       this.$router.push({ path: "/categories/" + this.tempCategory });
     },
-    focus(elem){
+    focus(elem) {
       document.querySelector("#" + elem).focus();
-    }
+    },
   },
   computed: {
     semiAuthenticated() {
@@ -303,7 +313,7 @@ export default {
       if (this.category == "") {
         return;
       }
-      return this.categories.find(cat => cat.name == this.category).subs;
+      return this.categories.find((cat) => cat.name == this.category).subs;
     },
     id() {
       return this.encrypt(
@@ -321,17 +331,17 @@ export default {
     user() {
       return {
         id: this.$store.getters.getUser.id,
-        username: this.$store.getters.getUser.username
+        username: this.$store.getters.getUser.username,
       };
-    }
+    },
   },
   watch: {
     authenticated() {
       this.authenticated ? (this.authDialog = false) : (this.authDialog = true);
     },
-    title(){
+    title() {
       this.checkExistence();
-    }
+    },
   },
   created() {
     this.$store.dispatch("set_loading", false);
@@ -340,6 +350,6 @@ export default {
     } else if (this.$route.query.searched) {
       this.title = this.$route.query.title;
     }
-  }
+  },
 };
 </script>

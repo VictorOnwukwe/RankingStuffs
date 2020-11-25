@@ -40,6 +40,13 @@
               </v-list-item-icon>
               <v-list-item-content>View</v-list-item-content></v-list-item
             >
+            <v-list-item @click="deleteDemand(item)">
+              <v-list-item-icon>
+                <v-icon v-if="!deleting">fa-trash</v-icon>
+                <m-progress v-else></m-progress>
+              </v-list-item-icon>
+              <v-list-item-content>Delete</v-list-item-content></v-list-item
+            >
           </v-list>
         </v-menu>
       </template>
@@ -63,7 +70,7 @@ import ViewPendingDemand from "./ViewPendingDemand";
 export default {
   layout: "admin",
   components: {
-    "view-demand": ViewPendingDemand
+    "view-demand": ViewPendingDemand,
   },
   data: () => ({
     page: 1,
@@ -74,18 +81,18 @@ export default {
         text: "Title",
         align: "left",
         sortable: false,
-        value: "title"
+        value: "title",
       },
       { text: "Creator", value: "user.username" },
       { text: "Category", value: "category" },
-      { text: "Actions", value: "action", sortable: false, align: "center" }
+      { text: "Actions", value: "action", sortable: false, align: "center" },
     ],
     demands: [],
     demandTypes: [
       { text: "All demands", value: "all" },
       { text: "Admins", value: "admins" },
       { text: "Blocked demands", value: "blocked" },
-      { text: "Active demands", value: "active" }
+      { text: "Active demands", value: "active" },
     ],
     show: "all",
     adminDialog: false,
@@ -96,19 +103,20 @@ export default {
     fetching: false,
     successful: false,
     successMessage: "Action completed successfully!",
-    viewDialog: false
+    viewDialog: false,
+    deleting: false
   }),
 
   computed: {
     formTitle() {
       return this.editedIndex === -1 ? "New Item" : "Edit Item";
-    }
+    },
   },
 
   watch: {
     dialog(val) {
       val || this.close();
-    }
+    },
   },
 
   created() {
@@ -121,13 +129,13 @@ export default {
       this.$store
         .dispatch("fetch_pending_demands", {
           limit: 50,
-          lastDoc: false
+          lastDoc: false,
         })
-        .then(demands => {
-          this.demands = demands.map(demand => {
+        .then((demands) => {
+          this.demands = demands.map((demand) => {
             return {
               id: demand.id,
-              ...demand.data()
+              ...demand.data(),
             };
           });
           this.fetching = false;
@@ -136,7 +144,20 @@ export default {
     initView(demand) {
       this.currentDemand = demand;
       this.viewDialog = true;
-    }
-  }
+    },
+    deleteDemand(demand) {
+      this.deleting = true;
+      this.$store
+        .dispatch("delete_pending_demand", demand.id)
+        .then(() => {
+          const index = this.demands.indexOf((d) => d.id === demand.id);
+          this.demands.splice(index, 1);
+          this.deleting = false;
+        })
+        .catch((_) => {
+          this.deleting = false;
+        });
+    },
+  },
 };
 </script>

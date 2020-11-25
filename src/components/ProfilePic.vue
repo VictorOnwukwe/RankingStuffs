@@ -1,8 +1,12 @@
 <template>
   <div>
     <v-avatar :size="size" tile :style="{ borderRadius: radius }">
-      <img v-if="src" :src="src.low" />
-      <img v-else :src="require('../assets/nophoto.jpg')" />
+      <v-img
+        :lazy-src="require('../assets/nophoto.jpg')"
+        v-if="src"
+        :src="src.low"
+      ></v-img>
+      <v-img v-else :src="require('../assets/nophoto.jpg')"></v-img>
     </v-avatar>
   </div>
 </template>
@@ -11,16 +15,16 @@
 export default {
   props: {
     src: {
-      type: Object
+      type: Object,
     },
     size: {
       type: String,
-      default: "2em"
+      default: "2em",
     },
     radius: {
       type: String | Number,
-      default: "5px"
-    }
-  }
+      default: "5px",
+    },
+  },
 };
 </script>

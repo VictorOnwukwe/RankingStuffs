@@ -46,7 +46,7 @@
               :key="index"
             >
               <span>{{ index + 1 }}.&nbsp;</span>
-              <span class="text-capitalize font-weight-medium">{{ item.data().name }}</span>
+              <span class="text-capitalize font-weight-medium">{{ item.name }}</span>
             </div>
             <div class="ptd mt-4 spacious pre-wrap" v-if="list.description">{{ list.description.slice(0, charCount)
               }}{{ list.description.length > charCount ? "..." : ""

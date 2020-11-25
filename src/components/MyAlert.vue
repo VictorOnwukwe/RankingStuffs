@@ -10,7 +10,7 @@
   >
     <v-row align="center">
       <v-col class="grow">{{ message }}</v-col>
-      <v-col class="shrink">
+      <v-col class="shrink" v-if="action">
         <m-btn small @click="act()" outlined :color="type">{{ action }}</m-btn>
       </v-col>
     </v-row>
@@ -29,7 +29,7 @@ export default {
       default: "success"
     },
     action: {
-      type: String,
+      type: String | Boolean,
       default: "OK"
     },
     value: {
@@ -39,7 +39,7 @@ export default {
   },
   data() {
     return {
-      icon: "fa-check-circle"
+      icon: "fa-exclamation-triangle"
     };
   },
   methods: {

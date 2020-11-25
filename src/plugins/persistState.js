@@ -1,10 +1,11 @@
 import systemcategories from "../../public/my-modules/categories";
 const persistInterval = 12 * 60 * 60 * 1000;
+const circularJSON = require("circular-json");
 
-const plugin = store => {
+const plugin = (store) => {
   store.subscribe(async (mutation, state) => {
     if ("initialize" === mutation.type) {
-      let categories, hotDemands, hotLists, auth;
+      let categories, hotDemands, hotLists, auth, homeMain, homeCategory;
 
       try {
         auth = localStorage.getItem("auth") || false;
@@ -16,23 +17,60 @@ const plugin = store => {
       if (auth) {
         if (auth.data.authenticated) {
           store.commit("login", auth.data.user);
-          store
-            .dispatch("fetch_complete_user", auth.data.user.id)
-            .then(user => {
-              store.commit("login", user);
-            })
-            .catch(_ => {});
+          if (!auth.data.user.profile_pic) {
+            store
+              .dispatch("fetch_user", auth.data.user.id)
+              .then((user) => {
+                store.commit("login", user);
+              })
+              .catch((_) => {});
+          }
         } else if (auth.data.anonymous) {
           store.commit("anonymousLogin", auth.data.user);
+        } else {
+          store.commit("logout");
         }
+      } else if (store.getters.dbAuthenticated) {
+        store.dispatch("resign_social_user");
       }
 
-      store.dispatch("fetch_home_contents");
+      try {
+        homeMain = localStorage.getItem("homeMainLists") || false;
+        if (homeMain) {
+          homeMain = JSON.parse(homeMain);
+        }
+      } catch (e) {}
+
+      if (homeMain) {
+        store.commit("setPopularList", homeMain.popular);
+        store.commit("setLatestList", homeMain.latest);
+        store.commit("setTopRatedList", homeMain.topRated);
+      }
+      store.dispatch("fetch_home_contents").then((val) => {
+        if(!val.latest) return;
+        localStorage.setItem("homeMainLists", circularJSON.stringify(val));
+      });
 
       try {
         categories = localStorage.getItem("categories") || false;
         if (categories) {
           categories = JSON.parse(categories);
+        }
+      } catch (e) {}
+
+      let overrideHomeCategories = function(cat){
+        store.dispatch("fetch_home_category_lists").then((cat) => {
+          const record = {
+            data: cat
+          };
+          if (!cat[0].id) return;
+          localStorage.setItem("homeCategoryLists", JSON.stringify(record));
+        });
+      }
+      try {
+        homeCategory = localStorage.getItem("homeCategoryLists") || false;
+        if (homeCategory) {
+          homeCategory = JSON.parse(homeCategory);
         }
       } catch (e) {}
 
@@ -42,14 +80,23 @@ const plugin = store => {
         categories.data.length > 0
       ) {
         store.commit("setCategories", categories.data);
-        store.dispatch("fetch_home_category_lists");
+        if (homeCategory) {
+          store.commit("setCategoryLists", homeCategory.data);
+        }
+        overrideHomeCategories();
       } else {
         if (new Date().getTime() >= categories.ts) {
           store.commit("setCategories", categories.data);
-          store.dispatch("fetch_home_category_lists");
+          if (homeCategory) {
+            store.commit("setCategoryLists", homeCategory.data);
+          }
+          overrideHomeCategories();
           store.dispatch("fetchCategories");
         } else {
-          store.dispatch("fetch_home_category_lists", systemcategories);
+          if (homeCategory) {
+            store.commit("setCategoryLists", homeCategory.data);
+          }
+          overrideHomeCategories();
           store.dispatch("fetchCategories");
         }
       }
@@ -96,22 +143,30 @@ const plugin = store => {
     } else if ("setCategories" === mutation.type) {
       let record = {
         data: state.categories,
-        ts: new Date().getTime() + persistInterval
+        ts: new Date().getTime() + persistInterval,
       };
       try {
         localStorage.setItem("categories", JSON.stringify(record));
       } catch (e) {}
     } else if ("login" === mutation.type) {
       let record = {
-        data: { user: state.user, authenticated: state.authenticated }
+        data: {
+          user: state.user,
+          authenticated: state.authenticated,
+        },
       };
       try {
-        new Promise(resolve => {
+        new Promise((resolve) => {
           localStorage.setItem("auth", JSON.stringify(record));
           resolve();
         }).then(() => {
           setTimeout(() => {
-            store.dispatch("watch_notifications");
+            Promise.all([
+              store.dispatch("watch_notifications"),
+              store.dispatch("watch_auth_state"),
+            ]);
+
+            // store.dispatch("watch_user_status");
           }, 1000);
         });
       } catch (e) {}
@@ -120,8 +175,8 @@ const plugin = store => {
         data: {
           user: null,
           authenticated: false,
-          anonymous: false
-        }
+          anonymous: false,
+        },
       };
       try {
         localStorage.setItem("auth", JSON.stringify(record));
@@ -131,8 +186,8 @@ const plugin = store => {
         data: {
           user: state.user,
           authenticated: false,
-          anonymous: true
-        }
+          anonymous: true,
+        },
       };
       try {
         localStorage.setItem("auth", JSON.stringify(record));
@@ -140,7 +195,7 @@ const plugin = store => {
     } else if ("setHotLists" === mutation.type) {
       let record = {
         data: state.hotLists,
-        ts: new Date().getTime() + persistInterval / 12
+        ts: new Date().getTime() + persistInterval / 12,
       };
       try {
         localStorage.setItem("hotLists", JSON.stringify(record));
@@ -148,7 +203,7 @@ const plugin = store => {
     } else if ("setHotDemands" === mutation.type) {
       let record = {
         data: state.hotDemands,
-        ts: new Date().getTime() + persistInterval / 12
+        ts: new Date().getTime() + persistInterval / 12,
       };
       try {
         localStorage.setItem("hotDemands", JSON.stringify(record));

@@ -2,7 +2,7 @@
   <div>
     <div class="grid">
       <div class="mt-4" v-for="(id, index) in IDs" :key="index">
-        <preview :id="id.id" :item="item"></preview>
+        <preview :id="id.id" :item="item" :related="related"></preview>
       </div>
     </div>
   </div>
@@ -15,7 +15,11 @@ export default {
   },
   props: {
     IDs: Array,
-    item: Object
+    item: Object,
+    related: {
+      type: Boolean,
+      default: false
+    },
   },
   methods: {}
 };

@@ -1,10 +1,10 @@
 <template>
   <v-list-item :to="'/users/' + id">
     <v-list-item-avatar>
-      <dp :src="user.profile_pic" :size="'3em'"></dp>
+      <dp :src="user.profile_pic" :size="'3em'" :radius="'50%'"></dp>
     </v-list-item-avatar>
-    <v-list-item-content class="font-weight-medium">
-      <div v-if="user.username">@{{ user.username }}</div>
+    <v-list-item-content>
+      <div v-if="user.username">{{ user.username }}</div>
     </v-list-item-content>
   </v-list-item>
 </template>

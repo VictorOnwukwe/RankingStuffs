@@ -1,6 +1,7 @@
 <template>
   <v-card
     :to="'/lists/' + list.id"
+    :outlined="!sub"
     :flat="sub"
     :class="{ loading: !fetched }"
     width="100%"
@@ -31,7 +32,7 @@
               <!-- <div class="caption std">{{list.type}}</div> -->
               <div
                 class="text-capitalize no-deco oswald"
-                :class="{ 'font-weight-medium ptd': !sub, 'link--text': sub }"
+                :class="{ 'ptd': !sub, 'std': sub }"
                 :style="{ 'font-size': !sub ? '0.85em' : '0.8em' }"
               >
                 {{ list.title }}

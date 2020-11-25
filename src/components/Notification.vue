@@ -4,18 +4,20 @@
       <v-list-item-avatar>
         <dp
           v-if="notifier"
-          :size="'2.5em'"
+          :size="'2.6em'"
           :radius="'50%'"
           :src="notifier.profile_pic"
         ></dp>
         <v-icon
           v-else-if="notification.type.includes('approved')"
-          color="link lighten-2"
+          color="grey"
+          size="1.8em"
           >$vuetify.icons.approved</v-icon
         >
         <v-icon
           v-else-if="notification.type.includes('disapproved')"
-          color="link lighten-2"
+          size="1.6em"
+          color="grey"
           >fa-times-circle</v-icon
         >
       </v-list-item-avatar>
@@ -27,15 +29,13 @@
               notification.commenter.id === user.id
           "
         >
-          <span v-if="notification.user" class>{{
+          <span v-if="notification.user" class="link--text">{{
             notification.user.username
           }}</span>
           replied to your comment on
-          <span class="font-weight-medium text-capitalize">{{
-            notification.item.name
-          }}</span>
+          <span class="text-capitalize font-weight-medium">{{ notification.item.name }}</span>
           on
-          <span class="font-weight-medium link--text text-capitalize">{{
+          <span class="link--text text-capitalize">{{
             notification.list.title
           }}</span>
         </div>
@@ -51,76 +51,70 @@
           also replied to
           <span>{{ notification.commenter.username }}</span
           >'s comment on
-          <span class="font-weight-medium text-capitalize">{{
+          <span class=" text-capitalize font-weight-medium">{{
             this.notification.item.name
           }}</span>
           on the list of
-          <span class="font-weight-medium link--text text-capitalize">{{
+          <span class="link--text text-capitalize">{{
             notification.list.title
           }}</span>
         </div>
         <div v-if="notification.type == 'demand-created'">
           A list you were waiting for,
-          <span class="text-capitalize link--text font-weight-medium">{{
+          <span class="text-capitalize link--text">{{
             notification.list.title
           }}</span>
           has been created by
-          <span v-if="notification.user" class="font-weight-medium">{{
+          <span v-if="notification.user" class="">{{
             notification.user.username
           }}</span>
         </div>
         <div v-if="notification.type == 'follow'">
-          <span class="font-weight-medium link--text">{{
-            notification.user.username
-          }}</span>
+          <span class=" link--text">{{ notification.user.username }}</span>
           started following you
         </div>
         <div v-if="notification.type == 'list-approved'">
           Your submitted list
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
           has been approved
         </div>
         <div v-if="notification.type == 'list-disapproved'">
           Your submitted list
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
           was not approved for being {{ notification.reason }}
         </div>
         <div v-if="notification.type == 'demand-approved'">
           Your demanded list
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.demand.title }}&nbsp;</span
           >
           has been approved
         </div>
         <div v-if="notification.type == 'demand-disapproved'">
           Your demanded list
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.demand.title }}&nbsp;</span
           >
           was not approved for being {{ notification.reason }}
         </div>
         <div v-if="notification.type == 'item-approved'">
           Your submitted item
-          <span class="font-weight-medium ptd">{{
-            notification.item.name
-          }}</span>
+          <span class="font-weight-medium ptd">{{ notification.item.name }}</span>
           on the list of
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
           has been approved
         </div>
         <div v-if="notification.type == 'item-disapproved'">
           Your submitted item
-          <span class="font-weight-medium ptd">{{
-            notification.item.name
-          }}</span>
+          <span class="ptd font-weight-medium">{{ notification.item.name }}</span>
           on the list of
-          <span class="link--text font-weight-medium text-capitalize"
+          <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
           was not approved for being {{ notification.reason }}
@@ -139,12 +133,12 @@ export default {
   props: {
     notification: Object,
     recent: Boolean,
-    index: Number
+    index: Number,
   },
   data() {
     return {
       notifier: false,
-      link: ""
+      link: "",
     };
   },
   methods: {
@@ -155,38 +149,38 @@ export default {
             path: "/lists/" + this.notification.list.id,
             query: {
               notification: true,
-              item: this.notification.item.id
-            }
+              item: this.notification.item.id,
+            },
           };
           break;
 
         case "follow":
           this.link = {
-            path: "/users/" + this.notification.user.id
+            path: "/users/" + this.notification.user.id,
           };
           break;
 
         case "demand-created":
           this.link = {
-            path: "/lists/" + this.notification.list.id
+            path: "/lists/" + this.notification.list.id,
           };
           break;
         case "list-approved":
           this.link = {
-            path: "/lists/" + this.notification.list.id
+            path: "/lists/" + this.notification.list.id,
           };
           break;
         case "demand-approved":
           this.link = {
-            path: "/demands/" + this.notification.demand.id
+            path: "/demands/" + this.notification.demand.id,
           };
           break;
         case "item-approved":
           this.link = {
-            path: "/lists/" + this.notification.list.id
+            path: "/lists/" + this.notification.list.id,
           };
       }
-    }
+    },
   },
   computed: {
     created() {
@@ -194,25 +188,28 @@ export default {
     },
     user() {
       return this.$store.getters.getUser;
-    }
+    },
   },
   created() {
     if (this.notification.user) {
       this.$store
         .dispatch("fetch_user", this.notification.user.id)
-        .then(result => {
+        .then((result) => {
           this.notifier = result;
           this.setLink();
         });
     } else {
       this.setLink();
     }
-  }
+  },
 };
 </script>
 
 <style scoped>
 .recent {
   background-color: rgb(212, 247, 212);
+}
+* > * {
+  line-height: 1.6em !important;
 }
 </style>

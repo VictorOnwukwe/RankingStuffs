@@ -55,6 +55,20 @@
             disabled
             >Categorize</v-btn
           >
+          <v-btn
+            :loading="populating"
+            class="my-4 ml-4"
+            @click="populate()"
+            disabled
+            >Populate</v-btn
+          >
+          <v-btn
+            :loading="populating"
+            class="my-4 ml-4"
+            @click="setVotes()"
+            disabled
+            >Set Votes</v-btn
+          >
         </v-navigation-drawer>
       </v-flex>
       <v-flex grow>
@@ -70,7 +84,8 @@ import categories from "../../public/my-modules/categories";
 export default {
   data() {
     return {
-      categorizing: false
+      categorizing: false,
+      populating: false
     };
   },
   methods: {
@@ -79,6 +94,15 @@ export default {
       this.$store.dispatch("upload_categories", categories).then(() => {
         this.categorizing = false;
       });
+    },
+    populate() {
+      this.populating = true;
+      this.$store.dispatch("populateAlgolia", categories).then(() => {
+        this.populating = false;
+      });
+    },
+    setVotes(){
+      this.$store.dispatch("set_votes");
     }
   }
 };

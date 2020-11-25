@@ -8,12 +8,12 @@
         }"
       >
         <div class="tint">
-          <h1 class="text-capitalize ptl">
-            <router-link to="/categories" class="no-deco b-link"
+          <h1 class="text-capitalize stl mb-2">
+            <router-link to="/categories" class="no-deco b-link brighten-1"
               >Categories</router-link
             >
             /
-            {{ category.name }}
+            <span class="white--text">{{ category.name }}</span>
           </h1>
           <router-link
             :to="
@@ -267,6 +267,13 @@ export default {
 @media (min-width: 600px) {
   .cover {
     min-height: 70vh;
+    width: calc(100% + 2em);
+    margin-left: -1em;
+  }
+}
+@media (min-width: 960px) {
+  .cover {
+    min-height: 70vh;
     width: calc(100% + 1em);
     margin-left: -1em;
   }
@@ -279,9 +286,9 @@ export default {
   padding: 1em;
 }
 .b-link {
-  color: white;
+  color: rgba(255, 255, 255, .5);
 }
-.b-link:hover {
+/* .b-link:hover {
   color: var(--accent);
-}
+} */
 </style>

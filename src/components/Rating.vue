@@ -14,9 +14,8 @@
         ></v-flex
       >
       <v-flex shrink>
-        <span class="caption" :class="textColor + '--text'"
-          >&nbsp;({{ ratersCount }}
-          {{ ratersCount != 1 ? "reviews" : "review" }})</span
+        <span class="caption" :class="textColor"
+          >&nbsp;({{ ratersCount }})</span
         >
       </v-flex>
     </v-layout>
@@ -53,7 +52,7 @@ export default {
   },
   computed: {
     rate() {
-      if (this.rating % 1 == 0) {
+      if (this.rating % 1 == 0 && this.rating > 0) {
         return this.rating + ".0";
       }
       return this.rating;

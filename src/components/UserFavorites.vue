@@ -15,6 +15,7 @@
               v-for="(favItem, index) in favoriteItems"
               :key="index"
               :item="favItem"
+              class="mb-2"
             ></user-item>
           </v-list>
           <empty
@@ -28,7 +29,8 @@
           </v-layout>
           <v-layout
             v-if="
-              favoriteItems.length < user.favorite_items && favoriteItems.length > 0
+              favoriteItems.length < user.favorite_items &&
+                favoriteItems.length > 0
             "
             class="mt-4"
             justify-center
@@ -38,22 +40,17 @@
             >
           </v-layout>
 
-          <v-card tile flat v-if="isProfile">
-            <div :class="addFavorites ? 'grey lighten-3' : null">
-              <v-hover v-slot:default="{ hover }">
+          <v-card tile outlined v-if="isProfile">
+            <div>
                 <v-layout
-                  :class="{
-                    'grey lighten-2': addFavorites,
-                    'grey lighten-4': hover
-                  }"
                   pl-2
                   align-center
                   py-1
                   @click="addFavorites = !addFavorites"
-                  class="pointer"
+                  class="pointer grey lighten-4"
                 >
                   <v-icon
-                    :color="addFavorites ? 'brand' : 'grey lighten-1'"
+                    :color="addFavorites ? 'brand' : 'grey darken-1'"
                     size="2.5em"
                     >mdi-plus-box</v-icon
                   >
@@ -62,17 +59,16 @@
                     style="font-weight:normal"
                     :class="
                       addFavorites
-                        ? 'grey--text text--darken-3 font-weight-bold'
-                        : 'grey--text'
+                        ? 'title-text'
+                        : 'grey--text text--darken-1'
                     "
                   >
                     Add Favorite Item
                   </div>
                 </v-layout>
-              </v-hover>
 
               <div v-if="addFavorites" class="px-4">
-                <v-card class="grey lighten-3" tile flat>
+                <v-card class="pb-2" tile flat>
                   <v-layout column>
                     <v-flex mt-8>
                       <p
@@ -87,11 +83,14 @@
                         flat
                         :items="favoriteCategories()"
                         color="brand"
+                        background-color="grey lighten-3"
                         v-model="newFav.category"
                       >
                         <template v-slot:no-data>
                           <v-layout class="px-2">
-                            <v-icon class="mr-2 grey--text">far fa-frown</v-icon>
+                            <v-icon class="mr-2 grey--text"
+                              >far fa-frown</v-icon
+                            >
                             <span>Oops! This is new to us...</span>
                           </v-layout>
                         </template>
@@ -117,6 +116,13 @@
                       >Add</m-btn
                     >
                   </v-card-actions>
+                  <alert
+                    :type="'success'"
+                    :message="'Favorite Item Added'"
+                    class="mt-4"
+                    :value="showSuccess"
+                    @act="itemAdded()"
+                  ></alert>
                 </v-card>
               </div>
             </div>
@@ -180,12 +186,12 @@ export default {
   components: {
     AddItem,
     "list-preview": UserList,
-    UserItem
+    UserItem,
   },
   props: {
     id: String,
     user: Object,
-    isProfile: Boolean
+    isProfile: Boolean,
   },
   data() {
     return {
@@ -201,10 +207,12 @@ export default {
       newFav: {
         category: "",
         item: {},
-        comment: ""
+        comment: "",
+        existing: undefined,
       },
       valid: false,
-      favoriting: false
+      favoriting: false,
+      showSuccess: false
     };
   },
   methods: {
@@ -214,13 +222,13 @@ export default {
         .dispatch("fetch_favorite_items", {
           limit: limit,
           user: this.user.id,
-          timestamp: "now"
+          timestamp: "now",
         })
-        .then(results => {
+        .then((results) => {
           this.favoriteItems = results;
           this.fetchingItems = false;
         })
-        .catch(_ => {});
+        .catch((_) => {});
     },
     fetchMoreItems() {
       this.fetchingMoreItems = true;
@@ -229,15 +237,15 @@ export default {
           limit: 10,
           user: this.user.id,
           timestamp: this.favoriteItems[this.favoriteItems.length - 1].data()
-            .created
+            .created,
         })
-        .then(results => {
+        .then((results) => {
           for (let result of results) {
             this.favoriteItems = this.favoriteItems.concat(result);
           }
           this.fetchingMoreItems = false;
         })
-        .catch(_ => {});
+        .catch((_) => {});
     },
     setValid(val) {
       this.valid = val;
@@ -247,13 +255,13 @@ export default {
       this.$store
         .dispatch("fetch_favorite_lists", {
           limit: limit,
-          user: this.user.id
+          user: this.user.id,
         })
-        .then(results => {
+        .then((results) => {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingLists = false;
         })
-        .catch(_ => {});
+        .catch((_) => {});
     },
     fetchMoreLists() {
       this.fetchingMoreLists = true;
@@ -262,22 +270,32 @@ export default {
           limit: 10,
           timestamp: this.favoriteLists[this.favoriteLists.length - 1].data()
             .created,
-          user: this.user.id
+          user: this.user.id,
         })
-        .then(results => {
+        .then((results) => {
           this.favoriteLists = this.favoriteLists.concat(results);
           this.fetchingMoreLists = false;
         })
-        .catch(_ => {});
+        .catch((_) => {});
     },
     addFavorite() {
       this.favoriting = true;
+
+      this.newFav.existing = this.favoriteItems.find(
+        (item) => item.id === this.newFav.category
+      );
       this.$store
         .dispatch("favorite_item", this.newFav)
         .then(() => {
           this.favoriting = false;
+          this.newFav = {
+            category: "",
+            item: {},
+            comment: "",
+          };
+          this.showSuccess = true;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.favoriting = false;
         });
     },
@@ -295,9 +313,13 @@ export default {
       this.$router.push({
         path: "/items/" + item.name,
         query: {
-          id: item.info
-        }
+          id: item.info,
+        },
       });
+    },
+    itemAdded(){
+      this.showSuccess = false;
+      this.addFavorites = false;
     },
     favoriteCategories() {
       return [
@@ -336,18 +358,18 @@ export default {
         "Animal",
         "Model",
         "Cricket Player",
-        "Cricket Team"
+        "Cricket Team",
       ].sort();
-    }
+    },
   },
   computed: {
     fontSize() {
       return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
-    }
+    },
   },
   mounted: function() {
     this.getFavoriteItems(10, "now");
     this.getFavoriteLists(10);
-  }
+  },
 };
 </script>

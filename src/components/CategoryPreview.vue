@@ -4,15 +4,18 @@
       class="text-capitalize font-weight-medium"
       style="font-size:1.8em"
     >
-      <router-link
-        class="no-deco link--text"
-        :to="'/categories/' + category.name"
-      >
+      <router-link class="no-deco ptd" :to="'/categories/' + category.name">
         {{ category.name }}
       </router-link>
     </v-card-title>
     <v-card-text>
-      <div v-for="(list, index) in lists" :key="index" class="mt-1">
+      <div
+        v-for="(list, index) in lists"
+        :key="index"
+        class="mt-1"
+        style="display:flex"
+      >
+        <div class="accent--text mr-1 font-weight-bold" style="">-</div>
         <router-link
           tag="a"
           :to="'/lists/' + list.id"
@@ -28,23 +31,23 @@
 <script>
 export default {
   props: {
-    category: Object
+    category: Object,
   },
   data() {
     return {
-      lists: []
+      lists: [],
     };
   },
   created() {
     this.$store
       .dispatch("fetch_category_lists", {
         category: this.category.name,
-        limit: 10
+        limit: 10,
       })
-      .then(lists => {
+      .then((lists) => {
         this.lists = lists;
       })
-      .catch(_ => {});
-  }
+      .catch((_) => {});
+  },
 };
 </script>
