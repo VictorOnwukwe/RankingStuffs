@@ -1,13 +1,16 @@
 <template>
   <div id="main">
-    <v-card tile class flat style="overflow:hidden">
-      <v-divider v-if="index!=0" class="grey lighten-2 my-2"></v-divider>
+    <div style="overflow:hidden">
+      <v-divider class="grey lighten-2 my-2" v-if="index != 0"></v-divider>
       <v-layout style="position:relative">
         <v-flex class="px-2" style="border-left: 2px solid rgba(0,0,0,.2)">
           <div id="comment" style="display:flex">
             <div class style="position:relative">
               <div @click="showReplies(3)" class="default-cursor pb-5">
-                <div style="font-size:1em" class="ptd roboto spacious pre-wrap">{{ !more ? comment.content.slice(0, 600) : comment.content
+                <div
+                  style="font-size:0.9em"
+                  class="ptd roboto spacious pre-wrap"
+                >{{ !more ? comment.content.slice(0, 600) : comment.content
                   }}{{ comment.content.length > 600 ? "..." : " "
                   }}<span
                     @click="more = !more"
@@ -15,15 +18,21 @@
                     class="link--text"
                     style="cursor:pointer"
                     >{{ !more ? "more" : "less" }}</span
-                  ><span v-if="!comment.user.username.includes('visitor')">-&nbsp;</span><username :user="comment.user"></username>
+                  ><span v-if="!comment.user.username.includes('visitor')"
+                    >-&nbsp;</span
+                  ><username :user="comment.user"></username>
                 </div>
               </div>
               <v-layout class="" align-center>
                 <div class="std" style="display:flex; min-width:3em;">
                   {{ created }}
                 </div>
-                <div v-if="comment.likes" style="display:flex; min-width:4.5em;" class="std">
-                  {{comment.likes}} {{ comment.likes > 1 ? "likes" : "like" }}
+                <div
+                  v-if="comment.likes"
+                  style="display:flex; min-width:4.5em;"
+                  class="std"
+                >
+                  {{ comment.likes }} {{ comment.likes > 1 ? "likes" : "like" }}
                 </div>
 
                 <div style="display:flex; min-width:4.5em;">
@@ -99,8 +108,11 @@
                 v-if="(comment.replies_count > replies.length) & !loading"
                 justify-center
               >
-                <v-icon class="std" @click="fetchMoreReplies(5)"
-                  >mdi-plus-circle-outline</v-icon
+                <v-icon
+                  class="std"
+                  @click="fetchMoreReplies(5)"
+                  style="transform: scale(1.2)"
+                  >$vuetify.icons.plus-circle</v-icon
                 >
               </v-layout>
 
@@ -124,12 +136,6 @@
                   ></Reply>
                 </div>
               </v-layout>
-              <div
-                v-if="addingReply"
-                style="display:flex; justify-content:center"
-              >
-                <m-progress></m-progress>
-              </div>
             </div>
             <div class="" style="position:relative">
               <v-layout>
@@ -141,28 +147,40 @@
               </v-layout>
               <comment-box
                 v-model="reply"
-                :id="'reply-box' + index"
+                :id="`reply-box-${comment.id}-${index}`"
                 class="mr-2"
                 rows="1"
                 placeholder="Reply..."
                 :max-height="120"
                 @focused="setFocused"
               />
-              <v-icon
-                @click="replyComment()"
-                size="1.5em"
-                :class="
-                  focused && reply.trim() != '' ? 'accent--text' : 'grey--text'
-                "
-                style="position:absolute; bottom:0.65em; right:0.5em"
-                :disabled="reply.trim() == '' ? true : false"
-                >fa-paper-plane</v-icon
-              >
+              <div style="position:absolute; bottom:1em; right:1em">
+                <v-icon
+                  v-show="!addingReply"
+                  @click="replyComment()"
+                  size="1.5em"
+                  :class="
+                    focused && reply.trim() != ''
+                      ? 'accent--text'
+                      : 'grey--text'
+                  "
+                  :disabled="reply.trim() == '' ? true : false"
+                  >fa-paper-plane</v-icon
+                >
+                <v-progress-circular
+                  v-show="addingReply"
+                  :value="20"
+                  :width="2"
+                  color="accent"
+                  :size="16"
+                  indeterminate
+                ></v-progress-circular>
+              </div>
             </div>
           </div>
         </v-flex>
       </v-layout>
-    </v-card>
+    </div>
     <v-dialog persistent v-model="showEdit" max-width="500px">
       <v-card flat class="grey lighten-3">
         <v-card-title
@@ -201,7 +219,7 @@
       :path="{
         list: { id: list.id, title: list.title },
         item: { id: item.id, name: item.name },
-        comment: { id: comment.id }
+        comment: { id: comment.id },
       }"
       :flaggedItem="comment"
       @close="showFlag = false"
@@ -235,21 +253,20 @@ import Reply from "./Reply";
 // import PreviewComment from "./PreviewComment";
 import CommentBox from "./CommentBox";
 import { setTimeout } from "timers";
-import convertMoment from "../../public/my-modules/convertMoment";
+import convertMoment from "../my-modules/js/convertMoment";
 import FlagComment from "./FlagComment";
-let moment = require("moment");
 
 export default {
   components: {
     Reply,
     CommentBox,
-    FlagComment
+    FlagComment,
   },
   props: {
     comment: Object,
     list: Object,
     item: Object,
-    index: Number
+    index: Number,
   },
 
   data() {
@@ -277,7 +294,7 @@ export default {
       deleting: false,
       flagging: false,
       successful: false,
-      successMessage: ""
+      successMessage: "",
     };
   },
 
@@ -301,7 +318,7 @@ export default {
       this.$store.dispatch(action, {
         list_id: this.list.id,
         item_id: this.item.id,
-        comment_id: this.comment.id
+        comment_id: this.comment.id,
       });
     },
 
@@ -330,13 +347,13 @@ export default {
         .dispatch("delete_comment", {
           list_id: this.list.id,
           item_id: this.item.id,
-          comment_id: this.comment.id
+          comment_id: this.comment.id,
         })
         .then(() => {
           this.deleting = false;
           this.$emit("delete", this.index);
         })
-        .catch(_ => {
+        .catch((_) => {
           this.deleting = false;
           console.log(_);
         });
@@ -368,10 +385,10 @@ export default {
           reply: this.reply,
           commenter: {
             id: this.comment.user.id,
-            username: this.comment.user.username
-          }
+            username: this.comment.user.username,
+          },
         })
-        .then(reply => {
+        .then((reply) => {
           this.addingReply = false;
           this.replies.push(reply);
           this.reply = "";
@@ -384,18 +401,18 @@ export default {
             type: "reply",
             commenter: {
               id: this.comment.user.id,
-              username: this.comment.user.username
+              username: this.comment.user.username,
             },
             item: this.item,
             list: this.list,
-            comment: this.comment
+            comment: this.comment,
           });
         })
-        .catch(error => {
+        .catch((error) => {
           this.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
           this.addingReply = false;
         });
@@ -408,18 +425,18 @@ export default {
           list_id: this.list.id,
           item_id: this.item.id,
           comment_id: this.comment.id,
-          limit: limit
+          limit: limit,
         })
-        .then(replies => {
+        .then((replies) => {
           this.replies = replies;
           this.loading = false;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.loading = false;
           this.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
         });
     },
@@ -432,18 +449,18 @@ export default {
           item_id: this.item.id,
           comment_id: this.comment.id,
           limit: limit,
-          lastDoc: this.replies[this.replies.length - 1]
+          lastDoc: this.replies[this.replies.length - 1],
         })
-        .then(replies => {
+        .then((replies) => {
           this.replies = this.replies.concat(replies);
           this.loading = false;
         })
-        .catch(error => {
+        .catch((error) => {
           this.loading = false;
           this.dispatch("setSnackbar", {
             show: true,
             message: "sorry. An error occured",
-            type: "error"
+            type: "error",
           });
         });
     },
@@ -471,9 +488,9 @@ export default {
         .dispatch("comment_liked", {
           list_id: this.list.id,
           item_id: this.item.id,
-          comment_id: this.comment.id
+          comment_id: this.comment.id,
         })
-        .then(result => {
+        .then((result) => {
           this.liked = result;
         });
     },
@@ -484,17 +501,17 @@ export default {
           comment_id: this.comment.id,
           list_id: this.list.id,
           item_id: this.item.id,
-          newContent: this.newComment
+          newContent: this.newComment,
         })
         .then(() => {
           this.comment.content = this.newComment;
           this.editing = false;
           this.showEdit = false;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.editing = false;
         });
-    }
+    },
   },
 
   computed: {
@@ -506,12 +523,12 @@ export default {
         return false;
       }
       return this.comment.user.id == this.$store.getters.getUser.id;
-    }
+    },
   },
 
   created() {
     // this.setLiked();
-  }
+  },
 };
 </script>
 
@@ -519,7 +536,7 @@ export default {
 .replies-display {
   /* box-shadow: -2px 0px 0px rgba(0, 0, 0, 0.2); */
   padding-left: 8px;
- }
+}
 .shift {
   margin-left: 1em;
 }

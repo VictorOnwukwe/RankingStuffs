@@ -29,13 +29,15 @@
                 <template v-slot:activator="{ on }">
                   <v-icon
                     @click.prevent="setWaiting()"
-                    class="ml-2 dots"
+                    class="ml-2"
+                    color="grey"
                     v-on="on"
                     >mdi-dots-vertical</v-icon
                   >
                 </template>
                 <v-list class="pa-0">
-                  <v-list-item @click="create()" class="pt-2 tile">
+                  <v-list-item :to="{path: '/create',
+        query: { demanded: true, id: demand.id, title: demand.title }}" class="pt-2 tile">
                     <v-layout column align-center>
                       <v-icon>$vuetify.icons.create</v-icon>
                       <span class="caption std">Create</span>
@@ -54,15 +56,15 @@
                       <m-progress></m-progress>
                     </v-layout>
                     <v-layout v-else column align-center>
-                      <v-icon :color="waiting ? 'accent' : null">{{
+                      <v-icon :color="waiting ? 'accent' : ''">{{
                         waiting
                           ? "$vuetify.icons.leaveQueue"
                           : "$vuetify.icons.joinQueue"
                       }}</v-icon>
                       <span
-                        class="caption"
-                        :class="waiting ? 'accent--text' : 'std'"
-                        >{{ waiting ? "Queueing" : "Queue" }}</span
+                        class="caption std"
+                        style="white-space: nowrap"
+                        >{{ waiting ? "Leave Queue" : "Join Queue" }}</span
                       >
                     </v-layout>
                   </v-list-item>
@@ -234,7 +236,3 @@ export default {
 };
 </script>
 <style scoped>
-.dots:hover {
-  color: var(--accent);
-}
-</style>

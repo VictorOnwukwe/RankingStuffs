@@ -27,7 +27,7 @@
               <span>{{ index }}</span>
             </div>
           </v-flex>
-          <v-flex>
+          <v-flex mr-3>
             <router-link
               v-if="item.is_link"
               class="font-weight-medium text-capitalize ptd no-deco"
@@ -70,7 +70,7 @@
                 >
                 <span
                   v-if="votedThis || isCreator || isAdmin"
-                  class="caption std mt-1"
+                  class="caption ptd mt-1"
                   >{{ item.upvotes }}</span
                 >
               </v-layout>
@@ -104,7 +104,7 @@
                 >
                 <span
                   v-if="votedThis || isCreator || isAdmin"
-                  class="caption std mt-1"
+                  class="caption ptd mt-1"
                   >{{ item.downvotes }}</span
                 >
               </v-layout>
@@ -143,7 +143,8 @@
                   :high="true"
                 ></img-prev>
               </div>
-              <p v-if="info.about" class="std pa-0" style="pre-wrap;">{{ info.about.slice(0, 500) }}
+              <p v-if="info.about" class="std pa-0" style="pre-wrap;">
+                {{ info.about.slice(0, 500) }}
                 <router-link
                   v-if="info.about.length > 500"
                   class="link--text underline no-deco"
@@ -167,122 +168,130 @@
                     :user="creator"
                   ></username>
                 </div>
-                <div v-if="item.comment_count > 0">
-                  <v-layout
-                    @click="showComments = !showComments"
-                    class="grey lighten-4 py-1 pointer my-2"
-                    justify-space-between
-                    align-center
-                  >
-                    <div class="std grey--text ml-2 font-weight-medium">
-                      <v-icon size="1.5em" color="grey darken-1"
-                        >mdi-comment</v-icon
-                      >&nbsp; {{ item.comment_count }}
-                      {{ item.comment_count == 1 ? "comment" : "comments" }}
-                    </div>
-                    <v-icon size="2em" color="grey darken-1" class="">{{
-                      showComments ? "mdi-chevron-up" : "mdi-chevron-down"
-                    }}</v-icon>
-                  </v-layout>
-                  <div v-if="showComments" class="comments">
-                    <display-comments
-                      :class="{ 'mt-8': info.about }"
-                      :comments="comments"
-                      :list="list"
-                      :item="item"
-                      @deleted="item.comment_count--"
-                    ></display-comments>
-                    <v-layout
-                      justify-center
-                      v-if="loadingComments || addingComment"
-                      class="my-4"
-                    >
-                      <m-progress></m-progress>
-                    </v-layout>
-                    <v-layout
-                      class="my-3"
-                      justify-center
-                      v-if="
-                        comments.length < item.comment_count &&
-                          comments.length > 0 &&
-                          !loadingComments
-                      "
-                    >
-                      <v-icon
-                        @click="fetchMoreComments(10)"
-                        size="1.8em"
-                        color="grey darken-1"
-                        class="ptd"
-                        >mdi-plus-circle-outline</v-icon
-                      >
-                    </v-layout>
-                  </div>
-                </div>
               </v-card>
-              <v-card-actions
-                v-if="showComments"
-              >
-                <v-layout column reverse>
-                  <v-flex>
-                    <div style="position:relative;">
-                      <comment-box
-                        v-model="comment"
-                        class="comment-box"
-                        rows="1"
-                        :placeholder="commentable ?
-                          (item.comment_count == 0
-                            ? 'Start the conversation...'
-                            : 'Join the conversation...') : 'Cast your vote to add a comment'
-                        "
-                        :disabled="!commentable"
-                        :max-height="126"
-                        @focused="setFocused"
-                        :id="'comment-box' + index"
-                      />
-                      <v-icon
-                        size="1.5em"
-                        @click="uploadComment()"
-                        :class="
-                          focused && comment.trim() != ''
-                            ? 'accent--text'
-                            : 'grey--text'
-                        "
-                        style="position:absolute; bottom:0.65em; right:0.5em"
-                        :disabled="comment.trim() == ''"
-                        >fa-paper-plane</v-icon
-                      >
-                    </div>
-                  </v-flex>
-                  <v-flex class="mr-2">
-                    <v-layout class justify-end>
-                      <span v-if="item.comment_count > 0" class="std"
-                        >{{ item.comment_count }}
-                        {{
-                          item.comment_count > 1 ? "comments" : "comment"
-                        }}</span
-                      >
-                    </v-layout>
-                  </v-flex>
-                </v-layout>
-              </v-card-actions>
             </v-layout>
           </v-card>
         </v-flex>
       </v-layout>
+      <v-layout class="mt-4">
+        <v-flex>
+          <div v-if="item.comment_count > 0">
+            <div style="display:flex">
+              <div
+                @click="showComments = !showComments"
+                class="grey lighten-4 py-1 pointer my-2 ml-auto br"
+              >
+                <span
+                  class="std grey--text text--darken-1 ml-2 font-weight-medium"
+                >
+                  <v-icon size="1.5em" color="grey darken-1">mdi-comment</v-icon
+                  >&nbsp; {{ item.comment_count }}
+                  {{ item.comment_count == 1 ? "comment" : "comments" }}
+                </span>
+                <span>
+                  <v-icon size="2em" color="grey darken-1" class="">{{
+                    showComments ? "mdi-chevron-up" : "mdi-chevron-down"
+                  }}</v-icon></span
+                >
+              </div>
+            </div>
+            <div v-if="showComments" class="comments mt-4 px-3 py-4" style="background-color:rgba(0,0,0,0.02);">
+              <display-comments
+                :class="{ 'mt-8': info.about }"
+                :comments="comments"
+                :list="list"
+                :item="item"
+                @deleted="item.comment_count--"
+              ></display-comments>
+              <v-layout justify-center v-if="loadingComments" class="my-4">
+                <m-progress></m-progress>
+              </v-layout>
+              <v-layout
+                class="my-3"
+                justify-center
+                v-if="
+                  comments.length < item.comment_count &&
+                    comments.length > 0 &&
+                    !loadingComments
+                "
+              >
+                <v-icon
+                  @click="fetchMoreComments(10)"
+                  size="1.8em"
+                  color="grey darken-1"
+                  style="transform: scale(1.5)"
+                  class="ptd"
+                  >$vuetify.icons.plus-circle</v-icon
+                >
+              </v-layout>
+            </div>
+          </div>
+        </v-flex>
+      </v-layout>
+      <v-card-actions v-if="showComments">
+        <v-layout column reverse>
+          <v-flex>
+            <div style="position:relative">
+              <comment-box
+                v-model="comment"
+                class="comment-box"
+                rows="3"
+                :placeholder="
+                  commentable
+                    ? item.comment_count == 0
+                      ? 'Start the conversation...'
+                      : 'Join the conversation...'
+                    : 'Cast your vote to add a comment'
+                "
+                :disabled="!commentable"
+                :max-height="126"
+                @focused="setFocused"
+                :id="'comment-box' + index"
+              />
+              <div style="position:absolute; bottom:1em; right:1em">
+                <v-icon
+                  v-show="!addingComment"
+                  size="1.5em"
+                  @click="uploadComment()"
+                  :class="
+                    focused && comment.trim() != ''
+                      ? 'accent--text'
+                      : 'grey--text'
+                  "
+                  :disabled="comment.trim() == ''"
+                  >fa-paper-plane</v-icon
+                >
+                <v-progress-circular
+                  v-show="addingComment"
+                  :value="20"
+                  :width="2"
+                  color="accent"
+                  :size="16"
+                  indeterminate
+                ></v-progress-circular>
+              </div>
+            </div>
+          </v-flex>
+          <v-flex class="mr-2">
+            <v-layout class justify-end>
+              <span v-if="item.comment_count > 0" class="std"
+                >{{ item.comment_count }}
+                {{ item.comment_count > 1 ? "comments" : "comment" }}</span
+              >
+            </v-layout>
+          </v-flex>
+        </v-layout>
+      </v-card-actions>
     </v-card>
   </div>
 </template>
 
 <script>
-import comment from "./comment";
-import swalErrors from "../../public/my-modules/swalErrors";
-import { setTimeout } from "timers";
 import commentBox from "./CommentBox";
 import DisplayComments from "./DisplayComments";
 
 export default {
   components: {
-    comment,
     commentBox,
     "display-comments": DisplayComments,
   },
@@ -495,9 +504,13 @@ export default {
     windowSmall() {
       return screen.width < 600;
     },
-    commentable(){
-      return this.votedThis.type == 'upvote' ||
-                    this.votedThis.type == 'downvote' || this.isCreator || this.list.type == 'factual';
+    commentable() {
+      return (
+        this.votedThis.type == "upvote" ||
+        this.votedThis.type == "downvote" ||
+        this.isCreator ||
+        this.list.type == "factual"
+      );
     },
     authenticated() {
       return this.$store.getters.authenticated;
@@ -564,7 +577,7 @@ export default {
   color: #f44336 !important;
   transition: transform 0.2s ease-in;
 }
-.comments{
+.comments {
   max-height: 50vh;
   overflow-y: auto;
 }

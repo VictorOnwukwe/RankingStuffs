@@ -1,8 +1,8 @@
 <template>
-  <v-card flat tile class="">
+  <v-card tile class="">
     <v-card-title
       class="top-bar"
-          style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
+      style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
     >
       Edit Profile
       <v-spacer></v-spacer>
@@ -14,19 +14,13 @@
           <v-container grid-list-sm class="pa-0">
             <v-layout wrap pt-4>
               <v-flex xs12>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-account</v-icon>
-                  Name
-                </p>
                 <v-text-field
-                  solo
-                  flat
+                  outlined
                   required
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="name"
+                  prepend-inner-icon="mdi-account"
+                  label="Name"
                 ></v-text-field>
               </v-flex>
               <!-- <v-flex xs12 sm6 mt-n4>
@@ -39,13 +33,7 @@
                     v-model="username"
                   ></v-text-field>
                   </v-flex>-->
-              <v-flex xs12 sm6 mt-n4>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>event</v-icon>
-                  Date Of Birth
-                </p>
+              <v-flex xs12 sm6>
                 <v-menu
                   ref="menu"
                   v-model="menu"
@@ -55,17 +43,16 @@
                   full-width
                   min-width="290px"
                   color="brand"
-                  background-color="grey lighten-3"
                 >
                   <template v-slot:activator="{ on }">
                     <v-text-field
-                      solo
-                      flat
+                      outlined
                       v-model="date"
                       readonly
                       v-on="on"
                       color="brand"
-                  background-color="grey lighten-3"
+                      label="Date of Birth"
+                      prepend-inner-icon="event"
                     ></v-text-field>
                   </template>
                   <v-date-picker
@@ -76,72 +63,47 @@
                     min="1950-01-01"
                     @change="save"
                     color="brand"
-                  background-color="grey lighten-3"
                   ></v-date-picker>
                 </v-menu>
               </v-flex>
-              <v-flex xs12 sm6 mt-n4 pa>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-map-marker</v-icon>
-                  City
-                </p>
+              <v-flex xs12 sm6 pa>
                 <v-text-field
-                  solo
-                  flat
+                  outlined
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="city"
+                  prepend-inner-icon="mdi-map-marker"
+                  label="City"
                 ></v-text-field>
               </v-flex>
-              <v-flex xs12 sm6 mt-n4 pa>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-map-marker</v-icon>
-                  State
-                </p>
+              <v-flex xs12 sm6 pa>
                 <v-text-field
-                  solo
-                  flat
+                  outlined
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="state"
+                  label="State"
+                  prepend-inner-icon="mdi-map-marker"
                 ></v-text-field>
               </v-flex>
-              <v-flex xs12 sm6 mt-n4 pa>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-earth</v-icon>
-                  Country
-                </p>
+              <v-flex xs12 sm6 pa>
                 <v-autocomplete
                   :items="countries"
                   item-text="name"
-                  solo
-                  flat
+                  outlined
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="country"
+                  label="Country"
+                  prepend-inner-icon="mdi-earth"
                   return-object
                 ></v-autocomplete>
               </v-flex>
-              <v-flex xs12 sm6 mt-n4 pa>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-gender-male-female</v-icon>
-                  Sex
-                </p>
+              <v-flex xs12 sm6 pa>
                 <v-select
                   :items="['Male', 'Female']"
-                  solo
-                  flat
+                  outlined
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="sex"
+                  label="Sex"
+                  prepend-inner-icon="mdi-gender-male-female"
                 ></v-select>
               </v-flex>
               <!-- <v-flex xs12 sm6 mt-n4>
@@ -156,23 +118,17 @@
                   v-model="interests"
                 ></v-autocomplete>
                   </v-flex>-->
-              <v-flex xs12 mt-n4>
-                <p
-                  class="text-capitalize font-weight-medium grey--text text--darken-2"
-                >
-                  <v-icon>mdi-account</v-icon>
-                  Bio
-                </p>
+              <v-flex xs12>
                 <v-textarea
-                  solo
-                  flat
+                  outlined
                   no-resize
                   auto-grow
                   color="brand"
-                  background-color="grey lighten-3"
                   v-model="bio"
                   :rules="[rules.maxLength(200)]"
                   counter="200"
+                  label="Bio"
+                  prepend-inner-icon="mdi-account"
                 ></v-textarea>
               </v-flex>
             </v-layout>
@@ -180,7 +136,7 @@
         </v-form>
 
         <!-- <v-flex xs12 lg10 offset-lg-1>
-          <v-card tile flat class="mt-4">
+          <v-card tile  class="mt-4">
             <p class="headline">Permissions</p>
             <v-container grid-list-md class="pa-0">
               <v-layout wrap>
@@ -274,11 +230,11 @@
 </template>
 
 <script>
-import countries from "../../public/my-modules/countries";
+import countries from "../my-modules/js/countries";
 import Rules from "../rules";
 export default {
   props: {
-    user: Object
+    user: Object,
   },
   data() {
     return {
@@ -299,7 +255,7 @@ export default {
       uploading: false,
       showSuccess: false,
       rules: Rules,
-      valid: false
+      valid: false,
     };
   },
 
@@ -338,7 +294,7 @@ export default {
 
       data = {
         main: main,
-        ...data
+        ...data,
       };
 
       this.$store
@@ -347,12 +303,12 @@ export default {
           this.uploading = false;
           this.showSuccess = true;
         })
-        .catch(_ => {
+        .catch((_) => {
           this.uploading = false;
           this.$store.dispatch("set_snackbar", {
             show: true,
             message: "Sorry. An error occured while updating profile",
-            type: "error"
+            type: "error",
           });
         });
     },
@@ -386,7 +342,7 @@ export default {
       main = {
         g_favorites: this.g_favorites,
         g_lists: this.g_lists,
-        g_DOB: this.g_DOB
+        g_DOB: this.g_DOB,
       };
 
       this.$store.dispatch("set_permissions", main).then(() => {});
@@ -397,7 +353,7 @@ export default {
     uploadSuccess() {
       this.close();
       this.$emit("updated");
-    }
+    },
   },
   computed: {
     countries() {
@@ -413,12 +369,12 @@ export default {
         this.city.trim() !== "" ||
         this.state.trim() !== ""
       );
-    }
+    },
   },
   watch: {
     menu(val) {
       val && setTimeout(() => (this.$refs.picker.activePicker = "YEAR"));
-    }
-  }
+    },
+  },
 };
 </script>

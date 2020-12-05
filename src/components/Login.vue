@@ -196,5 +196,5 @@ export default {
 </script>
 
 <style scoped>
-@import url("../../public/my-modules/animations.css");
+@import url("../my-modules/css/animations.css");
 </style>

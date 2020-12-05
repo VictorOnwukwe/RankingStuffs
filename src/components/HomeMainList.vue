@@ -1,7 +1,7 @@
 <template>
   <div>
-    <v-card v-if="list.title" class="mt elevation-1" tile flat>
-      <v-card-text>
+    <v-card v-if="list.title" class="mt" tile flat>
+      <v-card-text class="px-0">
         <v-layout>
           <v-flex shrink style="position:relative">
             <router-link :to="'/lists/' + list.id" class="no-deco">
@@ -11,7 +11,7 @@
                 :minWidth="'120px'"
                 :maxWidth="'250px'"
                 :width="'25vw'"
-                class="mr-3"
+                class="mr-7"
               ></m-img>
               <m-img
                 v-else
@@ -19,13 +19,13 @@
                 :minWidth="'120px'"
                 :maxWidth="'250px'"
                 :width="'25vw'"
-                class="mr-3"
+                class="mr-7"
                 :aspectRatio="'1'"
               ></m-img>
             </router-link>
           </v-flex>
           <v-flex>
-            <h3 class="brand--text">{{ type }}</h3>
+            <h3 class="brand--text text--lighten-3">{{ type }}</h3>
             <router-link :to="'/lists/' + list.id" class="no-deco">
               <h2
                 class="text-capitalize ptd"

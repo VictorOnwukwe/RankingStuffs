@@ -10,6 +10,7 @@
   "dependencies": {
     "@glidejs/glide": "^3.3.0",
     "@mdi/font": "^3.7.95",
+    "@splidejs/vue-splide": "github:splidejs/vue-splide",
     "algoliasearch": "^4.2.0",
     "circular-json": "^0.5.9",
     "compressorjs": "^1.0.6",

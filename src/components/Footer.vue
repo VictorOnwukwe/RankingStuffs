@@ -19,15 +19,16 @@
             <div
               v-masonry-tile
               class="cat-item"
+              style="text-align:center"
               v-for="(category, index) in categories"
               :key="index"
             >
               <router-link
                 :to="'/categories/' + category.name"
                 style="font-size:0.9em"
-                class="text-uppercase underline font-weight-bold ptl main-cat no-deco block"
+                class="text-uppercase font-weight-bold ptl main-cat no-deco block"
               >
-                {{ category.name }}
+                {{ category.name }}&nbsp;({{category.list_count}})
                 <br />
               </router-link>
               <div>

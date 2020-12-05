@@ -1,5 +1,5 @@
 <template>
-  <v-card flat tile>
+  <div>
     <div v-show="showComments">
       <div class="px-0" v-for="(comment, index) in comments" :key="comment.id">
         <comment
@@ -11,7 +11,7 @@
         ></comment>
       </div>
     </div>
-  </v-card>
+  </div>
 </template>
 
 <script>

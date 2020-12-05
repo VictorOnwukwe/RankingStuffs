@@ -3,7 +3,7 @@
     <v-img
       v-if="src"
       :src="src"
-      :lazy-src="require('../assets/logo-high.png')"
+      :lazy-src="require('../assets/emptyimage.jpg')"
       :width="width"
       :max-width="maxWidth"
       :min-width="minWidth"

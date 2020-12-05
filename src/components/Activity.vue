@@ -36,7 +36,7 @@
           >
         </v-list-item-title>
         <v-list-item-title class="text-wrap mt-2 pl-2 scroll" style="border-left: 2px solid rgba(0,0,0,.2)"
-          ><span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.comment }} {{activity.comment.length > 150 ? "..." : ""}}</span></v-list-item-title
+          ><span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.comment }}</span></v-list-item-title
         >
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
@@ -184,7 +184,7 @@
         </v-list-item-title>
         <v-list-item-title class="text-wrap mt-2 pl-2 scroll" style="border-left: 2px solid rgba(0,0,0,.2)">
           <div class="grey lighten-3 pa-2 mb-1" style="font-size:0.85em">{{activity.comment.content}}</div>
-          <span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.reply.content }} {{activity.reply.content.length > 150 ? "..." : ""}}</span>
+          <span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.reply.content }}</span>
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>

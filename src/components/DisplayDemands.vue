@@ -28,13 +28,8 @@ export default {
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 0.5em;
-}
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
+  grid-template-columns: repeat(auto-fit, minmax(290px, 1fr));
+  grid-row-gap: 1em;
+  grid-column-gap: 1em;
 }
 </style>

@@ -73,8 +73,14 @@
               <v-card-text v-if="showDisapproveOptions">
                 <div class="brand--text">Reason For Disapproval?</div>
                 <v-radio-group v-model="disapprovalReason">
-                  <v-radio label="Does not belong" value="off-topic"></v-radio>
-                  <v-radio label="Already Exists" value="exists"></v-radio>
+                  <v-radio
+                    label="Does not belong"
+                    value="for being off topic"
+                  ></v-radio>
+                  <v-radio
+                    label="Already Exists"
+                    value="because it already exists on the list"
+                  ></v-radio>
                 </v-radio-group>
                 <m-btn
                   text
@@ -95,6 +101,7 @@
                 text
                 @click="disapprove()"
                 :disabled="showDisapproveOptions && disapprovalReason == ''"
+                :loading="disapproving"
                 >{{
                   showDisapproveOptions ? "Continue Disapproval" : "Disapprove"
                 }}</m-btn
@@ -116,17 +123,18 @@
 <script>
 export default {
   props: {
-    item: Object
+    item: Object,
   },
   data() {
     return {
       dialog: true,
       approving: false,
+      disapproving: false,
       oldItem: {},
       newItem: {},
       showEdit: false,
       showDisapproveOptions: false,
-      disapprovalReason: ""
+      disapprovalReason: "",
     };
   },
   methods: {
@@ -137,36 +145,48 @@ export default {
         this.$store.dispatch("set_snackbar", {
           show: true,
           message: "List approved successfully",
-          type: "success"
+          type: "success",
         });
         this.$store.dispatch("delete_pending_list_item", this.item.id);
+        this.$emit("success");
         this.$store.dispatch("send_notification", {
           type: "item-approved",
           data: {
             type: "item-approved",
             item: { id: this.id, name: this.newItem.item.name },
-            list: { id: this.item.list.id, title: this.item.list.title }
+            list: { id: this.item.list.id, title: this.item.list.title },
           },
-          recipient: this.newItem.user.id
+          recipient: this.newItem.user.id,
         });
       });
     },
-    disapprove() {
+    async disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_list_item", this.item.id);
-        this.$store.dispatch("send_notification", {
-          type: "item-disapproved",
-          data: {
-            type: "item-disapproved",
-            item: { id: this.id, title: this.newItem.item.name },
-            list: { id: this.item.list.id, title: this.item.list.title },
-            reason: this.disapprovalReason
-          },
-          recipient: this.newItem.user.id
+        this.disapproving = true;
+        // this.$store.dispatch("delete_pending_list_item", this.item.id);
+        this.$store.dispatch("update_pending_state", {
+          type: "pending_list_items",
+          id: this.item.id,
         });
+        console.log("disapproving");
+        await this.$store
+          .dispatch("send_notification", {
+            type: "item-disapproved",
+            data: {
+              type: "item-disapproved",
+              item: { id: this.id, name: this.newItem.item.name },
+              list: { id: this.item.list.id, title: this.item.list.title },
+              reason: this.disapprovalReason,
+            },
+            recipient: this.newItem.user.id,
+          })
+          .catch((e) => {
+            console.log(e);
+          });
+        this.disapproving = false;
+        this.showDisapproveOptions = false;
         return;
-      }
-      this.showDisapproveOptions = true;
+      } else this.showDisapproveOptions = true;
     },
     close() {
       this.$emit("close");
@@ -178,19 +198,16 @@ export default {
         return;
       }
       this.showEdit = true;
-    }
+    },
   },
   computed: {
     id() {
-      return this.newItem.item.name
-        .toLowerCase()
-        .trim()
-        .replace(/ /g, "-");
-    }
+      return this.encrypt(this.newItem.name.toLowerCase().trim());
+    },
   },
   created() {
     this.newItem = { ...this.item };
     this.oldItem = { ...this.item };
-  }
+  },
 };
 </script>

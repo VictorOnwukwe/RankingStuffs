@@ -161,7 +161,6 @@ let store = new vuex.Store({
     setTopRatedList(state, payload) {
       state.topRatedList = payload;
     },
-    initialize(_) {},
     setCategoryLists(state, payload) {
       state.categoryLists = payload;
     },
@@ -174,6 +173,7 @@ let store = new vuex.Store({
     setVerified(state, payload) {
       state.verified = payload;
     },
+    initialize(state) {},
   },
 
   getters: {
@@ -336,75 +336,11 @@ let store = new vuex.Store({
       });
     },
 
-    watch_auth_state({ commit }) {
-      let auth = firebase.auth();
-      auth.onAuthStateChanged(() => {
-        if (auth.currentUser) {
-          commit("setVerified", auth.currentUser.emailVerified);
-        }
-      });
-    },
-
-    watch_user_status({ state }) {
-      var uid = firebase.auth().currentUser.uid;
-      // ...
-      var userStatusFirestoreRef = firebase.firestore().doc("/status/" + uid);
-      var userStatusDatabaseRef = firebase.database().ref("/status/" + uid);
-
-      var isOfflineForDatabase = {
-        state: "offline",
-        last_changed: firebase.database.ServerValue.TIMESTAMP,
-      };
-
-      var isOnlineForDatabase = {
-        state: "online",
-        last_changed: firebase.database.ServerValue.TIMESTAMP,
-      };
-
-      // Firestore uses a different server timestamp value, so we'll
-      // create two more constants for Firestore state.
-      var isOfflineForFirestore = {
-        state: "offline",
-        last_changed: firebase.firestore.FieldValue.serverTimestamp(),
-      };
-
-      var isOnlineForFirestore = {
-        state: "online",
-        last_changed: firebase.firestore.FieldValue.serverTimestamp(),
-      };
-
-      firebase
-        .database()
-        .ref(".info/connected")
-        .on("value", function(snapshot) {
-          if (snapshot.val() == false) {
-            // Instead of simply returning, we'll also set Firestore's state
-            // to 'offline'. This ensures that our Firestore cache is aware
-            // of the switch to 'offline.'
-            userStatusFirestoreRef.set(isOfflineForFirestore);
-            return;
-          }
-
-          userStatusDatabaseRef
-            .onDisconnect()
-            .set(isOfflineForDatabase)
-            .then(function() {
-              userStatusDatabaseRef.set(isOnlineForDatabase);
-
-              // We'll also add Firestore set here for when we come online.
-              userStatusFirestoreRef.set(isOnlineForFirestore);
-            });
-        });
-    },
-
-    watch_notifications({ state, commit }) {
-      if (!state.authenticated) {
-        return;
-      }
+    watch_notifications({ state, commit }, user) {
       firebase
         .firestore()
         .collection("users")
-        .doc(state.user.id)
+        .doc(user.uid)
         .collection("updates")
         .doc("data")
         .onSnapshot(
@@ -596,7 +532,7 @@ let store = new vuex.Store({
                   this.dispatch("set_snackbar", {
                     show: true,
                     message:
-                      "A verification mail has been sent. Please verify your email",
+                      "A verification mail has been sent to your email. Please verify your email",
                     type: "info",
                   });
                 })
@@ -1173,7 +1109,9 @@ let store = new vuex.Store({
             ...documentSnapshot.data(),
           };
         })
-        .catch((_) => {});
+        .catch((e) => {
+          throw e;
+        });
     },
 
     async update_profile_pic({ commit, state }, upload) {
@@ -1464,7 +1402,7 @@ let store = new vuex.Store({
     },
 
     async delete_pending_list({ state }, id) {
-      firebase
+      await firebase
         .firestore()
         .collection("pending_lists")
         .doc(id)
@@ -1727,6 +1665,7 @@ let store = new vuex.Store({
       db.collection("pending_list_items").add({
         ...payload,
         user: { id: state.user.id, username: state.user.username },
+        created: firebase.firestore.FieldValue.serverTimestamp(),
       });
     },
 
@@ -1766,7 +1705,7 @@ let store = new vuex.Store({
         .firestore()
         .collection("lists")
         .doc(payload.list.id);
-      let itemID = encrypt(payload.item.name.toLowerCase());
+      let itemID = encrypt(payload.item.name.toLowerCase().trim());
       let user, low_url, high_url, others;
 
       payload.user
@@ -1849,7 +1788,8 @@ let store = new vuex.Store({
         downvotes: 0,
         list_id: payload.list.id,
         comment_count: 0,
-        created: firebase.firestore.FieldValue.serverTimestamp(),
+        created:
+          payload.created || firebase.firestore.FieldValue.serverTimestamp(),
         user: user.id,
         is_link: payload.item.isLink,
         ...others,
@@ -2188,7 +2128,8 @@ let store = new vuex.Store({
                 "/favorites/" +
                 payload.existing.id +
                 "/low.jpeg"
-            ).delete();
+            )
+            .delete();
       }
 
       await batch.commit().catch((error) => {
@@ -2506,6 +2447,18 @@ let store = new vuex.Store({
         });
     },
 
+    async update_pending_state({ state }, payload) {
+      firebase
+        .firestore()
+        .collection(payload.type)
+        .doc(payload.id)
+        .update(
+          payload.data || {
+            disapproved: firebase.firestore.FieldValue.increment(1),
+          }
+        );
+    },
+
     async fetch_pending_item_images({ state }) {
       return firebase
         .firestore()
@@ -2559,6 +2512,9 @@ let store = new vuex.Store({
       low_url = await low_image.ref.getDownloadURL();
       high_url = await high_image.ref.getDownloadURL();
       let media = itemLoc.collection("media").doc();
+      let contributor = itemLoc
+        .collection("contributors")
+        .doc(update.image.user.id);
 
       batch.set(media, {
         source: update.image.source,
@@ -2569,6 +2525,10 @@ let store = new vuex.Store({
         votes: 1,
         created: firebase.firestore.FieldValue.serverTimestamp(),
         user: update.image.user,
+      });
+      batch.set(contributor, {
+        id: update.image.user.id,
+        username: update.image.user.username,
       });
 
       let upload;
@@ -3460,27 +3420,7 @@ let store = new vuex.Store({
             type: payload.type,
           };
           break;
-        case "list-approved":
-          recipients = [payload.recipient];
-          sendData = payload.data;
-          break;
-        case "list-disapproved":
-          recipients = [payload.recipient];
-          sendData = payload.data;
-          break;
-        case "demand-approved":
-          recipients = [payload.recipient];
-          sendData = payload.data;
-          break;
-        case "demand-disapproved":
-          recipients = [payload.recipient];
-          sendData = payload.data;
-          break;
-        case "item-approved":
-          recipients = [payload.recipient];
-          sendData = payload.data;
-          break;
-        case "item-disapproved":
+        default:
           recipients = [payload.recipient];
           sendData = payload.data;
       }
@@ -4349,6 +4289,15 @@ let store = new vuex.Store({
                   id: docs[0].id,
                   ...docs[0].data(),
                 };
+
+                // let items = await dispatch("fetch_list_items", {
+                //   list_id: list.id,
+                //   limit: 3,
+                // });
+                // list.items = items.map((item) => {
+                //   return { id: item.id, ...item.data() };
+                // });
+
                 lists.push(list);
               }
             })
@@ -4406,46 +4355,41 @@ let store = new vuex.Store({
         //no action needed
       });
     },
-    async initialize({ commit }) {
-      // let auth = firebase.auth();
-      // if (auth.currentUser.uid) {
-      //   if (!auth.currentUser.isAnonymous) {
-      //     firebase
-      //       .firestore()
-      //       .collection("user_details")
-      //       .doc(auth.currentUser.uid)
-      //       .get()
-      //       .then(user => {
-      //         commit("login", { ...user.data(), id: auth.currentUser.uid });
-      //       });
-      //   } else {
-      //     firebase
-      //       .firestore()
-      //       .collection("user_details")
-      //       .doc(auth.currentUser.uid)
-      //       .get()
-      //       .then(user => {
-      //         commit("anonymousLogin", {
-      //           ...user.data(),
-      //           id: auth.currentUser.uid
-      //         });
-      //       });
-      //   }
-      // firebase
-      //   .firestore()
-      //   .enablePersistence()
-      //   .then(() => {
-
-      //   })
-      //   .catch(function(err) {
-      //     if (err.code == "failed-precondition") {
-      //       //
-      //     } else if (err.code == "unimplemented") {
-      //       //
-      //     }
-      //   });
-
+    async initialize({ commit, dispatch }) {
       commit("initialize");
+      let auth = await firebase.auth();
+      auth.onAuthStateChanged((user) => {
+        if (user) {
+          if (!user.isAnonymous) {
+            Promise.all([
+              dispatch("fetch_user", user.uid)
+                .then((user) => {
+                  commit("login", user);
+                })
+                .catch((e) => console.log(e)),
+              dispatch("watch_notifications", user),
+              commit("setVerified", user.emailVerified),
+            ]);
+          } else {
+            dispatch("fetch_user", user.uid)
+              .then((user) => {
+                commit("anonymousLogin", user);
+              })
+              .catch((e) => console.log(e));
+          }
+          // firebase
+          //   .firestore()
+          //   .enablePersistence()
+          //   .then(() => {})
+          //   .catch(function(err) {
+          //     if (err.code == "failed-precondition") {
+          //       //
+          //     } else if (err.code == "unimplemented") {
+          //       //
+          //     }
+          //   });
+        }
+      });
     },
     async fetch_user_activities({ state }, payload) {
       let db = firebase.firestore();

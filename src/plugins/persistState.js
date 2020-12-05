@@ -1,4 +1,3 @@
-import systemcategories from "../../public/my-modules/categories";
 const persistInterval = 12 * 60 * 60 * 1000;
 const circularJSON = require("circular-json");
 
@@ -17,14 +16,6 @@ const plugin = (store) => {
       if (auth) {
         if (auth.data.authenticated) {
           store.commit("login", auth.data.user);
-          if (!auth.data.user.profile_pic) {
-            store
-              .dispatch("fetch_user", auth.data.user.id)
-              .then((user) => {
-                store.commit("login", user);
-              })
-              .catch((_) => {});
-          }
         } else if (auth.data.anonymous) {
           store.commit("anonymousLogin", auth.data.user);
         } else {
@@ -47,7 +38,7 @@ const plugin = (store) => {
         store.commit("setTopRatedList", homeMain.topRated);
       }
       store.dispatch("fetch_home_contents").then((val) => {
-        if(!val.latest) return;
+        if (!val.latest) return;
         localStorage.setItem("homeMainLists", circularJSON.stringify(val));
       });
 
@@ -58,15 +49,21 @@ const plugin = (store) => {
         }
       } catch (e) {}
 
-      let overrideHomeCategories = function(cat){
-        store.dispatch("fetch_home_category_lists").then((cat) => {
-          const record = {
-            data: cat
-          };
-          if (!cat[0].id) return;
-          localStorage.setItem("homeCategoryLists", JSON.stringify(record));
-        });
-      }
+      let overrideHomeCategories = function(cat) {
+        store
+          .dispatch("fetch_home_category_lists")
+          .then((cat) => {
+            const record = {
+              data: cat,
+            };
+            if (!cat[0].id) return;
+            localStorage.setItem(
+              "homeCategoryLists",
+              circularJSON.stringify(record)
+            );
+          })
+          .catch((e) => {});
+      };
       try {
         homeCategory = localStorage.getItem("homeCategoryLists") || false;
         if (homeCategory) {
@@ -160,14 +157,12 @@ const plugin = (store) => {
           localStorage.setItem("auth", JSON.stringify(record));
           resolve();
         }).then(() => {
-          setTimeout(() => {
-            Promise.all([
-              store.dispatch("watch_notifications"),
-              store.dispatch("watch_auth_state"),
-            ]);
-
-            // store.dispatch("watch_user_status");
-          }, 1000);
+          // setTimeout(() => {
+          //   Promise.all([
+          //     store.dispatch("watch_notifications"),
+          //     store.dispatch("watch_auth_state"),
+          //   ]);
+          // }, 1000);
         });
       } catch (e) {}
     } else if ("logout" === mutation.type) {

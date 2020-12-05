@@ -1,57 +1,17 @@
 <template>
   <div>
-    <div class="top-view">
-      <img
-        :src="
-          $vuetify.breakpoint.smAndUp
-            ? require('../assets/background.jpg')
-            : require('../assets/background-low.jpg')
-        "
-        style="object-fit:cover; width:100%;height:100%"
-        class="my-auto"
-      />
+    <div
+      class="top-view"
+      :style="{
+        backgroundImage: `url(${require('../assets/background.jpg')})`,
+      }"
+    >
+      <div
+        style="position:absolute;top:0;right:0;bottom:0;left:0;background-color: rgba(0,0,0,0.6)"
+      ></div>
       <div class="overlay">
-        <div class="grid" style="width:100%">
-          <div class="grid-main">
-            <splide :options="mainSplide" ref="mainSplide">
-              <splide-slide
-                :id="`main${n}`"
-                @active="transform(n)"
-                v-for="(list, n) in hotLists"
-                :key="n"
-              >
-                <div
-                  style="width:100%;padding-top:100%;display:flex;position:relative;box-shadow: 0 0 20px rgba(0,0,0,0.8)"
-                >
-                  <div
-                    style="width:100%;position:absolute;top:0;left:0;bottom:0;right:0;z-index:1;padding:2em"
-                    class="slide-overlay"
-                  >
-                    <h1 class="ptl overlay-text text-capitalize">
-                      {{ list.title }}
-                    </h1>
-                  </div>
-                  <v-img
-                    v-if="list.preview_image"
-                    :src="
-                      list.preview_image ? list.preview_image.url.high : false
-                    "
-                    aspect-ratio="1"
-                    width="100%"
-                    style="position:absolute;top:0;left:0;"
-                  ></v-img>
-                  <v-img
-                    v-else
-                    :src="require('../assets/' + list.category + '.jpg')"
-                    width="100%"
-                    aspect-ratio="1"
-                    style="width:100%;position:absolute;top:0;left:0;"
-                  ></v-img>
-                </div>
-              </splide-slide>
-            </splide>
-          </div>
-          <div class="sub" v-if="$vuetify.breakpoint.smAndUp">
+        <v-layout v-if="mounted" column>
+          <v-flex xs12 style="margin-bottom:1.5em">
             <splide :options="sideSplide" ref="sideSplide">
               <splide-slide
                 v-for="(list, n) in hotLists"
@@ -64,42 +24,92 @@
                     list.preview_image ? list.preview_image.url.high : false
                   "
                   width="100%"
-                  height="100%"
+                  :aspect-ratio="0.8"
                 ></v-img>
                 <v-img
                   v-else
                   :src="require('../assets/' + list.category + '.jpg')"
                   width="100%"
-                  height="100%"
+                  :aspect-ratio="0.8"
                 ></v-img>
               </splide-slide>
             </splide>
-            <div
-              style="overflow:hidden"
-              class="mt-4 ptl list-details"
-              v-if="this.$refs.mainSplide"
-            >
-              <div
-                style="display:flex"
-                v-for="(item, n) in currentList.items"
-                :key="n"
-              >
-                <div
-                  style="min-width:20px;"
-                  :class="{
-                    'golden-text': n == 0,
-                    'silver-text': n == 1,
-                    'bronze-text': n == 2,
-                  }"
+          </v-flex>
+          <v-layout>
+            <v-flex xs12 sm10 offset-sm1 md8 offset-md2>
+              <splide :options="mainSplide" ref="mainSplide">
+                <splide-slide
+                  @active="transform(n)"
+                  v-for="(list, n) in hotLists"
+                  :key="n"
                 >
-                  {{ n + 1 }}.
-                </div>
-                <div
-                  style=""
-                >
-                  <span>{{ item.name }}</span>
-                </div>
-              </div>
+                  <div style="position:relative;width:100%;">
+                    <div
+                      style="width:100%;position:absolute;top:0;left:0;bottom:0;right:0;z-index:1;display:flex;flex-direction:column"
+                      class="slide-overlay"
+                    >
+                      <router-link :to="`/lists/${list.id}`" class="no-deco">
+                        <h1 class="ptl overlay-title text-capitalize">
+                          {{ list.title }}
+                        </h1>
+                      </router-link>
+                      <v-layout class="mt-3 overlay-details">
+                        <v-btn
+                          :to="`/categories/${list.category}`"
+                          outlined
+                          class="mx-auto"
+                          color="white"
+                          >{{ list.category }}</v-btn
+                        >
+                      </v-layout>
+                    </div>
+                    <v-img
+                      v-if="list.preview_image"
+                      :src="
+                        list.preview_image ? list.preview_image.url.high : false
+                      "
+                      :aspect-ratio="$vuetify.breakpoint.xs ? '0.9' : '1'"
+                    ></v-img>
+                    <v-img
+                      v-else
+                      :src="require('../assets/' + list.category + '.jpg')"
+                      :aspect-ratio="$vuetify.breakpoint.xs ? '0.9' : '1'"
+                    ></v-img>
+                  </div>
+                </splide-slide> </splide></v-flex
+          ></v-layout>
+        </v-layout>
+        <div v-else style="position:relative;" class="my-auto">
+          <h1 class="stl center-text welcome">WELCOME!</h1>
+          <h1 class="stl center-text to">To</h1>
+          <h1
+            class="center-text font-weight-bold accent--text ranking"
+            style="font-size:3.5em"
+          >
+            Ranking
+          </h1>
+          <h1
+            class="center-text white--text mt-n2 stuffs"
+            style="font-size:3.5em"
+          >
+            STUFFS
+          </h1>
+        </div>
+        <div
+          style="position:absolute;bottom:0;background-color: rgba(0,0,0,0.5);right:0;left:0;padding: 2px 0;"
+          class="under-text"
+        >
+          <div style="position:relative;overflow:hidden" class="text-house">
+            <v-style>
+              .text-house > div { animation: slide-text 20s linear infinite;
+              animation-fill-mode: backwards; animation-delay: 2.9s;
+              white-space: nowrap; position: relative; } @keyframes slide-text {
+              0% { left: 100vw; } 100% { left:
+              {{ `-${displayText.length * 7.8}px` }}
+              }
+            </v-style>
+            <div class="ptl">
+              {{ displayText }}
             </div>
           </div>
         </div>
@@ -111,11 +121,13 @@
 <script>
 import "@splidejs/splide/dist/css/themes/splide-default.min.css";
 import { Splide, SplideSlide } from "@splidejs/vue-splide";
+import Style from "./Style";
 
 export default {
   components: {
     Splide,
     SplideSlide,
+    "v-style": Style,
   },
   data() {
     return {
@@ -124,32 +136,51 @@ export default {
         perPage: 1,
         perMove: 1,
         pagination: false,
-        lazyLoad: "nearby",
         arrows: false,
-        autoplay: true,
-        breakpoints: {
-          600: {
-            autoplay: false,
-          },
-        },
+        speed: 500,
+        width: "100%",
       },
       sideSplide: {
         type: "loop",
-        height: "calc(100% + 20px)",
         width: "100%",
-        direction: "ttb",
-        perPage: 2,
+        direction: "rtl",
+        perPage: 10,
         autoplay: true,
-        cover: true,
         pagination: false,
         arrows: false,
         isNavigation: true,
         updateOnMove: true,
         focus: "center",
+        pauseOnFocus: false,
+        pauseOnHover: false,
+        breakpoints: {
+          600: {
+            perPage: 6,
+          },
+          960: {
+            perPage: 8
+          }
+        },
       },
+      mounted: false,
+      displayText:
+        "Vote on your favorite Movies, Singers, Footballers, Sports Teams, and more... Share your opinions on your favorites. Create Lists or demand for Lists. Have fun here at Ranking Stuffs...",
     };
   },
-  methods: {},
+  methods: {
+    sync() {
+      this.$refs.mainSplide.sync(this.$refs.sideSplide.splide);
+    },
+  },
+  watch: {
+    hotLists(val) {
+      if (this.mounted) return;
+      if (val.length > 0) {
+        this.mounted = true;
+        setTimeout(this.sync, 100);
+      }
+    },
+  },
   computed: {
     hotLists() {
       return this.$store.getters.categoryLists;
@@ -159,9 +190,10 @@ export default {
     },
   },
   mounted() {
-    this.$vuetify.breakpoint.smAndUp
-      ? this.$refs.mainSplide.sync(this.$refs.sideSplide.splide)
-      : null;
+    if (this.hotLists.length > 0) {
+      this.mounted = true;
+      setTimeout(this.sync, 100);
+    }
   },
 };
 </script>
@@ -169,100 +201,65 @@ export default {
 <style scoped>
 .top-view {
   width: 100%;
-  /* margin-left: -0.5em; */
   min-height: 80vh;
-  /* height: 80vh; */
   background-position: center center;
   -webkit-background-size: cover;
   -moz-background-size: cover;
   -o-background-size: cover;
-  background-size: contain;
+  background-size: cover;
   position: relative;
   display: flex;
-  overflow: hidden;
 }
 .overlay {
-  background: rgba(0, 0, 0, 0.4);
+  /* background: rgba(0, 0, 0, 0.4); */
   display: flex;
   align-content: center;
   justify-content: center;
-  padding: 6.5em 2em 3em 2em;
-  position: absolute;
+  padding: 4em 2em 3em 2em;
+  /* position: absolute;
   top: 0;
   right: 0;
   bottom: 0;
-  left: 0;
-}
-.foreground {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-.display-container {
+  left: 0; */
+  min-height: 80vh;
   width: 100%;
-  margin-top: 2em;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-gap: 1em;
-  max-width: 600px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
-.display {
-  width: 100%;
-  padding: 1em;
-  background-color: rgba(255, 255, 255, 0);
-  border-radius: 8px;
-}
-.header {
-  color: rgba(255, 255, 255, 0.87);
-  text-align: center;
-  font-size: 1.4em;
-  border-bottom: 2px solid rgba(255, 255, 255, 0.5);
-  transition: 0.2s ease-in;
-  display: block;
-}
-.header:hover {
-  color: var(--accent);
-  border-bottom: 2px solid var(--accent);
+@media (min-width: 1280px) {
+  .overlay {
+    padding: 4em 0 3em 0;
+  }
 }
 .list-details * {
   animation: enter 0.5s ease;
 }
-@media (min-width: 800px) {
-  .display-container {
-    grid-gap: 3em;
-  }
-}
-.grid {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-column-gap: 2em;
-}
-.grid > .grid-main {
-  grid-row: span 2;
-}
-.grid > .grid-main {
-  overflow: hidden;
-}
-.overlay-text {
-  animation: enter 0.5s ease;
-  font-size: 2em;
+.overlay-title {
+  font-size: 2.2em;
   font-family: "Oswald", sans-serif;
+  transition: all 0.5s ease;
+  text-shadow: 0 3px rgba(0,0,0,0.5);
+}
+.slide-overlay {
+  background: radial-gradient(circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
+  padding: 1em;
 }
 @media (min-width: 600px) {
-  .overlay-text {
-    font-size: 3em;
+  .overlay-title {
+    font-size: 3.2em;
+  text-shadow: 0 5px rgba(0,0,0,0.5);
   }
   .grid {
     grid-template-columns: 3fr 1fr;
   }
+  .slide-overlay {
+    padding: 2em;
+  }
 }
-.slide-overlay {
-  background: radial-gradient(
-    circle,
-    rgba(20, 20, 20, 0),
-    rgba(20, 20, 20, 0.9)
-  );
+@media (min-width: 900px) {
+  .overlay-title {
+    font-size: 3.8em;
+  }
 }
 @keyframes enter {
   0% {
@@ -275,5 +272,98 @@ export default {
 .splide--nav > .splide__track > .splide__list > .splide__slide.is-active {
   border-color: rgba(255, 255, 255, 0.5);
   opacity: 1;
+}
+.splide--fade > .splide__track > .splide__list > .splide__slide .overlay-title {
+  transform: translateY(20px);
+  opacity: 0;
+}
+.splide--fade
+  > .splide__track
+  > .splide__list
+  > .splide__slide.is-active
+  .overlay-title {
+  transform: translateY(0);
+  opacity: 1;
+}
+.overlay-details {
+  transition: all 0.7s ease;
+}
+.splide--fade
+  > .splide__track
+  > .splide__list
+  > .splide__slide
+  .overlay-details {
+  transform: translateY(20px);
+  opacity: 0;
+}
+.splide--fade
+  > .splide__track
+  > .splide__list
+  > .splide__slide.is-active
+  .overlay-details {
+  transform: translateY(0);
+  opacity: 1;
+}
+.center-text {
+  text-align: center;
+}
+.welcome {
+  animation: enter-top 0.6s cubic-bezier(0.45, 1.71, 0.56, 0.61);
+  animation-fill-mode: forwards;
+}
+@keyframes enter-top {
+  0% {
+    opacity: 0;
+    transform: translateY(-300px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.to {
+  animation: enter-bottom 0.6s ease;
+  animation-fill-mode: both;
+  animation-delay: 0.8s;
+}
+@keyframes enter-bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(300px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.ranking {
+  animation: enter-left 0.6s cubic-bezier(0.45, 1.71, 0.56, 0.61);
+  animation-fill-mode: both;
+  animation-delay: 1.6s;
+}
+@keyframes enter-left {
+  0% {
+    opacity: 0;
+    transform: translateX(-400px) scale(0);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.stuffs {
+  animation: enter-right 0.6s ease;
+  animation-fill-mode: both;
+  animation-delay: 2.2s;
+}
+@keyframes enter-right {
+  0% {
+    opacity: 0;
+    transform: translateX(400px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 </style>

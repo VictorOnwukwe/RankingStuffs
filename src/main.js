@@ -32,7 +32,7 @@ import LoadingLists from "./components/LoadingLists";
 import { VueMasonryPlugin } from "vue-masonry";
 import PreviewImage from "./components/PreviewImage";
 import EmptyPage from "./components/EmptyPage";
-import username from "./components/username";
+import Username from "./components/Username";
 
 Vue.use(VueMasonryPlugin);
 
@@ -63,7 +63,7 @@ Vue.component("m-progress", MyProgress);
 Vue.component("list-loading", LoadingLists);
 Vue.component("m-img", MyImage);
 Vue.component("empty", EmptyPage);
-Vue.component("username", username);
+Vue.component("username", Username);
 
 Vue.mixin({
   methods: {

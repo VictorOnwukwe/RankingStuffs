@@ -2,59 +2,59 @@ import Vue from "vue";
 import Router from "vue-router";
 import store from "../store";
 // @ts-ignore
-import Home from "../components/Home";
+import Home from "../pages/Home";
 // @ts-ignore
-import Profile from "../components/Profile";
+import Profile from "../pages/Profile";
 // @ts-ignore
-import CreateList from "../components/CreateList";
+import CreateList from "../pages/CreateList";
 // @ts-ignore
-import DisplayList from "../components/DisplayList";
+import DisplayList from "../pages/DisplayList";
 // @ts-ignore
-import UserCreations from "../components/UserCreations";
+import UserCreations from "../pages/UserCreations";
 // @ts-ignore
-import UserFavorites from "../components/UserFavorites";
+import UserFavorites from "../pages/UserFavorites";
 //@ts-ignore
-import Item from "../components/Item";
+import Item from "../pages/Item";
 //@ts-ignore
-import DisplayDemanded from "../components/DisplayDemanded";
+import DisplayDemanded from "../pages/DisplayDemanded";
 // @ts-ignore
-import Demand from "../components/Demand";
+import Demand from "../pages/Demand";
 // @ts-ignore
-import Activities from "../components/Activities";
+import Activities from "../pages/Activities";
 // @ts-ignore
-import DisplayDemand from "../components/DisplayDemand";
+import DisplayDemand from "../pages/DisplayDemand";
 // @ts-ignore
-import Category from "../components/Category";
+import Category from "../pages/Category";
 // @ts-ignore
-import SubCategory from "../components/SubCategory";
+import SubCategory from "../pages/SubCategory";
 // @ts-ignore
-import Categories from "../components/Categories";
+import Categories from "../pages/Categories";
 // @ts-ignore
-import Admin from "../components/Admin";
+import Admin from "../pages/Admin";
 // @ts-ignore
-import AdminLists from "../components/AdminLists";
+import AdminLists from "../pages/AdminLists";
 // @ts-ignore
-import AdminPendingLists from "../components/AdminPendingLists";
+import AdminPendingLists from "../pages/AdminPendingLists";
 // @ts-ignore
-import AdminPendingDemands from "../components/AdminPendingDemands";
+import AdminPendingDemands from "../pages/AdminPendingDemands";
 // @ts-ignore
-import AdminFlagged from "../components/AdminFlagged";
+import AdminFlagged from "../pages/AdminFlagged";
 // @ts-ignore
-import DisplayLists from "../components/DisplayLists";
+import DisplayLists from "../pages/DisplayLists";
 // @ts-ignore
-import TermsAndConditions from "../components/TermsAndConditions";
+import TermsAndConditions from "../pages/TermsAndConditions";
 // @ts-ignore
-import PrivacyPolicy from "../components/PrivacyPolicy";
+import PrivacyPolicy from "../pages/PrivacyPolicy";
 //@ts-ignore
-import ErrorPage from "../components/ErrorPage";
+import ErrorPage from "../pages/ErrorPage";
 // @ts-ignore
-import AdminPendingListItems from "../components/AdminPendingListItems";
+import AdminPendingListItems from "../pages/AdminPendingListItems";
 // @ts-ignore
-import AdminPendingItemImages from "../components/AdminPendingItemImages";
+import AdminPendingItemImages from "../pages/AdminPendingItemImages";
 // @ts-ignore
-import AdminPendingItemInfos from "../components/AdminPendingItemInfos";
+import AdminPendingItemInfos from "../pages/AdminPendingItemInfos";
 // @ts-ignore
-import EmailVerification from "../components/EmailVerification";
+import EmailVerification from "../pages/EmailVerification";
 
 Vue.use(Router);
 

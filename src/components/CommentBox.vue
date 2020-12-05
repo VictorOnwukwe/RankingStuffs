@@ -168,16 +168,15 @@ export default {
 <style scoped>
 .text {
   padding: 0.5em;
-  padding-right: 2.5em;
+  padding-right: 3em;
   width: 100%;
-  border-radius: 0.5em;
-  border: 2px solid #cfcdcd;
+  border-radius: 4px;
+  border: 1px solid #cfcdcd;
   transition: all 0.2s ease-in;
   color: black;
-  /* background-color: red; */
 }
 .text:hover {
-  border: 2px solid rgb(90, 90, 90);
+  border: 1px solid rgb(90, 90, 90);
 }
 .text:focus {
   border: 2px solid var(--link);

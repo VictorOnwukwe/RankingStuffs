@@ -1,32 +1,40 @@
 <template>
   <div>
     <v-layout align-center class="ptd">
-      <span v-if="text">Sort&nbsp;<span v-if="!subChoice">by&nbsp;</span></span>
-      <select v-model="choice" @change="sendVal()" class="select-css">
-        <option
-          :selected="index == 0"
-          v-for="(option, index) in options"
-          :value="option.value"
-          :key="index"
-          class="slct"
-          >{{ option.label }}</option
+      <div>
+        <span v-if="text" style="font-size:0.9em;display:block;text-align:center" class="font-weight-bold"
+          >Sort&nbsp;<span v-if="!subChoice">by</span></span
         >
-      </select>
-      <span v-if="subChoice">&nbsp;by&nbsp;</span>
-      <select
-        v-if="subChoice"
-        v-model="subChoice"
-        @change="sendSub()"
-        class="select-css"
-      >
-        <option
-          v-for="option in subs"
-          :value="option"
-          :key="option"
-          class="slct"
-          >{{ option }}</option
+        <select v-model="choice" @change="sendVal()" class="select-css">
+          <option
+            :selected="index == 0"
+            v-for="(option, index) in options"
+            :value="option.value"
+            :key="index"
+            class="slct"
+            >{{ option.label }}</option
+          >
+        </select>
+      </div>
+      <div>
+        <span v-if="subChoice" style="font-size:0.9em;display:block;text-align:center" class="font-weight-bold"
+          >By</span
         >
-      </select>
+        <select
+          v-if="subChoice"
+          v-model="subChoice"
+          @change="sendSub()"
+          class="select-css"
+        >
+          <option
+            v-for="option in subs"
+            :value="option"
+            :key="option"
+            class="slct"
+            >{{ option }}</option
+          >
+        </select>
+      </div>
     </v-layout>
   </div>
 </template>
@@ -36,13 +44,13 @@ export default {
     options: Array,
     text: {
       type: Boolean,
-      default: true
-    }
+      default: true,
+    },
   },
   data() {
     return {
       choice: this.options[0].value,
-      subChoice: ""
+      subChoice: "",
     };
   },
   methods: {
@@ -52,16 +60,16 @@ export default {
     },
     sendSub() {
       this.$emit("change", { choice: this.choice, subChoice: this.subChoice });
-    }
+    },
   },
   computed: {
     subs() {
-      return this.options.find(option => option.value == this.choice).sorts;
-    }
+      return this.options.find((option) => option.value == this.choice).sorts;
+    },
   },
   mounted() {
     this.subChoice = this.subs ? this.subs[0] : undefined;
-  }
+  },
 };
 </script>
 <style scoped>

@@ -66,11 +66,11 @@
                       {{ item.info }}
                     </p>
                     <p>
-                      <span class="grey--text text--darken-2 font-weight-medium pre-wrap"
+                      <span
+                        class="grey--text text--darken-2 font-weight-medium pre-wrap"
                         >Comment:</span
                       >
-                      <span class="italic ptd">
-                        {{ item.comment }}
+                      <span class="italic ptd">{{ item.comment }}
                       </span>
                     </p>
                     <v-checkbox
@@ -153,9 +153,20 @@
               <v-card-text v-if="showDisapproveOptions">
                 <div class="brand--text">Reason For Disapproval?</div>
                 <v-radio-group v-model="disapprovalReason">
-                  <v-radio label="Too many errors" value="error"></v-radio>
-                  <v-radio label="Too offensive" value="offensive"></v-radio>
-                  <v-radio label="List Already Exists" value="exists"></v-radio>
+                  <v-radio
+                    label="Too many errors"
+                    value="for having too many errors"
+                  ></v-radio>
+                  <v-radio
+                    label="Too offensive"
+                    value="for being offensive"
+                  ></v-radio>
+                  <v-radio
+                    label="List Already Exists"
+                    :value="
+                      `because a similar list already exists.`
+                    "
+                  ></v-radio>
                 </v-radio-group>
                 <m-btn
                   text
@@ -197,23 +208,24 @@
 <script>
 export default {
   props: {
-    list: Object
+    list: Object,
   },
   data() {
     return {
       dialog: true,
       approving: false,
+      disapproving: false,
       oldList: {},
       newList: {
         title: "",
         description: "",
         category: "",
-        subCategory: ""
+        subCategory: "",
       },
       showEdit: false,
       showDisapproveOptions: false,
       disapprovalReason: "",
-      allLinks: false
+      allLinks: false,
     };
   },
   methods: {
@@ -224,31 +236,39 @@ export default {
         this.$store.dispatch("set_snackbar", {
           show: true,
           message: "List approved successfully",
-          type: "success"
+          type: "success",
         });
+        this.$emit("success");
         this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-approved",
           data: {
             type: "list-approved",
-            list: { id: this.newList.id, title: this.newList.title }
+            list: { id: this.newList.id, title: this.newList.title },
           },
-          recipient: this.newList.user.id
+          recipient: this.newList.user.id,
         });
       });
     },
-    disapprove() {
+    async disapprove() {
       if (this.showDisapproveOptions) {
+        this.disapproving = true;
         // this.$store.dispatch("delete_pending_list", this.list.pend_id);
-        this.$store.dispatch("send_notification", {
+        this.$store.dispatch("update_pending_state", {
+          type: "pending_lists",
+          id: this.list.id,
+        });
+        await this.$store.dispatch("send_notification", {
           type: "list-disapproved",
           data: {
             type: "list-disapproved",
             list: { title: this.newList.title },
-            reason: this.disapprovalReason
+            reason: this.disapprovalReason,
           },
-          recipient: this.newList.user
+          recipient: this.newList.user.id,
         });
+        this.disapproving = false;
+        this.showDisapproveOptions = false;
         return;
       }
       this.showDisapproveOptions = true;
@@ -270,7 +290,7 @@ export default {
         return;
       }
       this.showEdit = true;
-    }
+    },
   },
   computed: {
     categories() {
@@ -280,13 +300,13 @@ export default {
       if (this.newList.category == "") {
         return;
       }
-      return this.categories.find(cat => cat.name == this.newList.category)
+      return this.categories.find((cat) => cat.name == this.newList.category)
         .subs;
-    }
+    },
   },
   created() {
     this.newList = { ...this.list };
     this.oldList = { ...this.list };
-  }
+  },
 };
 </script>

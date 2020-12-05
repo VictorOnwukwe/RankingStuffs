@@ -1,13 +1,17 @@
 <template>
   <div>
     <m-btn v-if="btn" @click="showMenu()">Upload</m-btn>
-    <v-icon v-if="icon" @click="showMenu()" size="2em" :color="type == 'addItem' ? 'grey' : 'accent'"
+    <v-icon
+      v-if="icon"
+      @click="showMenu()"
+      size="2em"
+      :color="type == 'addItem' ? 'grey darken-1' : 'accent'"
       >mdi-camera</v-icon
     >
     <v-dialog persistent v-model="uploadMenu" max-width="500px">
       <v-card class="pa-0">
         <v-card-title
-              class="top-bar"
+          class="top-bar"
           style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           Select Image
@@ -17,29 +21,43 @@
           >
         </v-card-title>
         <v-card-text class="mt-4">
-          <v-layout>
-            <v-text-field
-              flat
-              solo
-              background-color="grey lighten-2"
-              label="URL"
-              placeholder="Enter URL"
-              v-model="linkUrl"
-              clearable
-            ></v-text-field>
-            <v-icon
-              v-if="!fetchingImage"
-              :disabled="!urlFetched"
-              @click="showClipper()"
-              :color="urlFetched ? 'green' : ''"
-              style="margin-top:-0.7em;margin-left:0.2em"
-              large
-              >mdi-check-circle</v-icon
+          <v-form ref="url" v-model="urlValid">
+            <v-layout>
+              <v-text-field
+                flat
+                solo
+                background-color="grey lighten-2"
+                label="URL"
+                placeholder="Enter Image Link"
+                v-model="linkUrl"
+                clearable
+                :rules="[validateUrl]"
+              ></v-text-field>
+              <v-icon
+                v-if="!fetchingImage"
+                :disabled="!urlValid || !urlFetched || urlStatus !== 200"
+                @click="showClipper()"
+                :color="
+                  urlFetched && urlValid && urlStatus == 200 ? 'green' : ''
+                "
+                style="margin-top:-0.7em;margin-left:0.2em"
+                large
+                >mdi-check-circle</v-icon
+              >
+              <m-progress v-else class="mt-4 ml-4"></m-progress> </v-layout
+          ></v-form>
+          <div class="caption mt-n6">
+            <span class="info--text" v-if="fetchingImage"
+              >Hold on. This may take a while</span
             >
-            <m-progress v-else class="mt-4 ml-4"></m-progress>
-          </v-layout>
-          <div v-if="fetchingImage" class="caption warning--text mt-n6">
-            Hold on. This may take a while...
+            <span
+              v-else-if="!fetchingImage && urlStatus !== 200"
+              class="error--text"
+              >Sorry. Something went wrong.
+              <a class="underline pointer" @click="fetch()"
+                >Try again</a
+              ></span
+            >
           </div>
           <v-layout column align-center>
             <div class="mb-4">OR</div>
@@ -57,7 +75,7 @@
     <v-dialog persistent v-model="clipper" max-width="600px">
       <v-card :loading="cropping">
         <v-card-title
-              class="top-bar"
+          class="top-bar"
           style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           Edit Image
@@ -146,7 +164,7 @@
     <v-dialog max-width="600px" v-model="result">
       <v-card>
         <v-card-title
-              class="top-bar"
+          class="top-bar"
           style="position:sticky;z-index:2;top:0;background:#F4F4F4;border-bottom:1px solid grey; font-size:1em"
         >
           {{ type == "addItem" ? "Save" : "Upload" }}
@@ -184,6 +202,7 @@
 <script>
 import Compressor from "compressorjs";
 import { clipperPreview, clipperUpload, clipperBasic } from "vuejs-clipper";
+import Rules from "../rules";
 
 function loadPcf(file, attr) {
   var atr = attr || "",
@@ -265,6 +284,8 @@ export default {
       linkImg: "",
       tempUrl: "",
       fetchingImage: false,
+      urlValid: false,
+      urlStatus: 200,
     };
   },
   methods: {
@@ -306,7 +327,7 @@ export default {
         return;
       }
       this.tempUrl = this.linkUrl;
-      this.linkUrl = "";
+      // this.linkUrl = "";
       this.isLink = true;
       this.clipper = true;
       this.cropping = false;
@@ -335,13 +356,13 @@ export default {
 
       if (this.type == "profile") {
         minWidth = 50;
-        maxWidth = 500;
+        maxWidth = 800;
       } else if (this.type == "item" || this.type == "addItem") {
         minWidth = 250;
-        maxWidth = 500;
+        maxWidth = 800;
       }
       new Compressor(img, {
-        quality: 0.8,
+        quality: 1,
         maxWidth: maxWidth,
         maxHeight: maxWidth,
         convertSize: 5000000,
@@ -351,7 +372,7 @@ export default {
         error(err) {},
       });
       new Compressor(img, {
-        quality: 0.8,
+        quality: 1,
         maxWidth: minWidth,
         maxHeight: minWidth,
         convertSize: 5000000,
@@ -362,8 +383,11 @@ export default {
       });
     },
     close() {
-      this.linkUrl = "";
+      this.$refs.url.reset();
+      this.urlFetched = false;
       this.imgURL = "";
+      this.urlStatus = 200;
+      this.fetchingImage = false;
       this.$emit("close");
     },
     uploadSuccess() {
@@ -429,10 +453,20 @@ export default {
         return;
       }
       this.fetchingImage = true;
+      this.urlStatus = 200;
       let url = await fetch(
         "https://tvseriesjokesapi.herokuapp.com/api/v1/jokes/image?imageUrl=" +
           this.linkUrl
       );
+      if (!this.linkUrl || this.linkUrl.trim() == "") {
+        this.fetchingImage = false;
+        return;
+      }
+      if (url.status !== 200) {
+        this.urlStatus = url.status;
+        this.fetchingImage = false;
+        return;
+      }
       url
         .text()
         .then((text) => {
@@ -448,13 +482,17 @@ export default {
     imageType(link) {
       return link.slice(link.indexOf("/") + 1, link.indexOf(";"));
     },
+    validateUrl(val) {
+      return (
+        (!!val && /(http(s?):)([/|.|\w|\s|-])*\.(?:jpg|gif|png)/g.test(val)) ||
+        "The url is invalid"
+      );
+    },
   },
   watch: {
-    linkUrl(val) {
-      if (!val || val.trim() === "") {
-        this.urlFetched = false;
-        return;
-      }
+    linkUrl() {
+      let valid = this.$refs.url.validate();
+      if (!valid) return;
       this.fetch();
     },
   },

@@ -1,24 +1,46 @@
 <template>
   <router-link class="no-deco" :to="link">
     <v-list-item link :class="{ recent: recent }" @click="$emit('close')">
-      <v-list-item-avatar>
+      <v-list-item-avatar tile>
+        <dp v-if="notifier" :size="$vuetify.breakpoint.xs ? '2.4em' : '2.6em'" :src="notifier.profile_pic"></dp>
         <dp
-          v-if="notifier"
+          v-else-if="notification.displayImage"
           :size="'2.6em'"
-          :radius="'50%'"
-          :src="notifier.profile_pic"
+          :src="{ low: notification.displayImage }"
+          class="ml-n1"
         ></dp>
         <v-icon
-          v-else-if="notification.type.includes('approved')"
-          color="grey"
-          size="1.8em"
-          >$vuetify.icons.approved</v-icon
-        >
-        <v-icon
           v-else-if="notification.type.includes('disapproved')"
-          size="1.6em"
-          color="grey"
-          >fa-times-circle</v-icon
+          :size="$vuetify.breakpoint.xs ? '1.7em' : '1.7em'"
+          color="grey darken-1"
+          >{{
+            notification.type == "list-disapproved"
+              ? "$vuetify.icons.list-disapproved"
+              : notification.type.includes("item") &&
+                notification.type.includes("disapprove")
+              ? "$vuetify.icons.item-disapproved"
+              : notification.type == "demand-disapproved"
+              ? "$vuetify.icons.demand-disapproved"
+              : "$vuetify.icons.disapproved"
+          }}
+        </v-icon>
+        <v-icon
+          v-else-if="notification.type.includes('approved')"
+          color="grey darken-1"
+          :size="$vuetify.breakpoint.xs ? '1.6em' : '1.7em'"
+          >{{
+            notification.type == "list-approved"
+              ? "$vuetify.icons.list-approved"
+              : notification.type == "item-approved"
+              ? "$vuetify.icons.item-approved"
+              : notification.type == "demand-approved"
+              ? "$vuetify.icons.demand"
+              : notification.type == "item-info-approved"
+              ? "$vuetfiy.icons.item-info-approved"
+              : notification.type == "item-image-approved"
+              ? "$vuetify.icons.item-image-approved"
+              : "$vuetify.icons.approved"
+          }}</v-icon
         >
       </v-list-item-avatar>
       <v-list-item-content>
@@ -33,8 +55,10 @@
             notification.user.username
           }}</span>
           replied to your comment on
-          <span class="text-capitalize font-weight-medium">{{ notification.item.name }}</span>
-          on
+          <span class="text-capitalize font-weight-medium">{{
+            notification.item.name
+          }}</span>
+          on the list of&nbsp;
           <span class="link--text text-capitalize">{{
             notification.list.title
           }}</span>
@@ -85,7 +109,7 @@
           <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
-          was not approved for being {{ notification.reason }}
+          was not approved <span v-html="notification.reason"></span>
         </div>
         <div v-if="notification.type == 'demand-approved'">
           Your demanded list
@@ -99,11 +123,13 @@
           <span class="link--text text-capitalize"
             >{{ notification.demand.title }}&nbsp;</span
           >
-          was not approved for being {{ notification.reason }}
+          was not approved {{ notification.reason }}
         </div>
         <div v-if="notification.type == 'item-approved'">
           Your submitted item
-          <span class="font-weight-medium ptd">{{ notification.item.name }}</span>
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
           on the list of
           <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
@@ -112,12 +138,42 @@
         </div>
         <div v-if="notification.type == 'item-disapproved'">
           Your submitted item
-          <span class="ptd font-weight-medium">{{ notification.item.name }}</span>
+          <span class="ptd font-weight-medium">{{
+            notification.item.name
+          }}</span>
           on the list of
           <span class="link--text text-capitalize"
             >{{ notification.list.title }}&nbsp;</span
           >
-          was not approved for being {{ notification.reason }}
+          was not approved {{ notification.reason }}
+        </div>
+        <div v-if="notification.type == 'item-info-approved'">
+          Your info contribution to
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          has been approved. Thanks for your contribution
+        </div>
+        <div v-if="notification.type == 'item-info-disapproved'">
+          Your info contribution to
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          was not approved {{ notification.reason }}
+        </div>
+        <div v-if="notification.type == 'item-image-approved'">
+          Your image contribution to
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          has been approved. Thanks for your contribution
+        </div>
+        <div v-if="notification.type == 'item-image-disapproved'">
+          Your image contribution to
+          <span class="font-weight-medium ptd">{{
+            notification.item.name
+          }}</span>
+          was not approved {{ notification.reason }}
         </div>
       </v-list-item-content>
       <v-list-item-action>
@@ -128,7 +184,7 @@
 </template>
 
 <script>
-import convertMoment from "../../public/my-modules/convertMoment";
+import convertMoment from "../my-modules/js/convertMoment";
 export default {
   props: {
     notification: Object,

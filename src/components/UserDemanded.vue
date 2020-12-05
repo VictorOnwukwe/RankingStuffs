@@ -46,13 +46,13 @@
               <m-progress></m-progress>
             </v-layout>
             <v-layout v-else column align-center>
-              <v-icon :color="waiting ? 'accent' : null">{{
+              <v-icon :color="waiting ? 'accent' : ''">{{
                 waiting
                   ? "$vuetify.icons.leaveQueue"
                   : "$vuetify.icons.joinQueue"
               }}</v-icon>
-              <span class="caption" :class="waiting ? 'accent--text' : 'std'">{{
-                waiting ? "Queueing" : "Queue"
+              <span class="caption std" style="white-space:nowrap">{{
+                waiting ? "Leave Queue" : "Join Queue"
               }}</span>
             </v-layout>
           </v-list-item>

@@ -274,7 +274,3 @@ export default {
   },
 };
 </script>
-
-<style scoped>
-@import url("../../public/my-modules/animations.css");
-</style>

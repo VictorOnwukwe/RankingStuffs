@@ -44,9 +44,12 @@
                 <v-radio-group v-model="disapprovalReason">
                   <v-radio
                     label="Information is wrong"
-                    value="wrong-info"
+                    value="for containing wrong information"
                   ></v-radio>
-                  <v-radio label="Already Exists" value="exists"></v-radio>
+                  <v-radio
+                    label="Already Exists"
+                    value="because it already exists"
+                  ></v-radio>
                 </v-radio-group>
                 <m-btn
                   text
@@ -82,14 +85,16 @@
 let moment = require("moment");
 export default {
   props: {
-    update: Object
+    update: Object,
   },
   data() {
     return {
       dialog: true,
       approving: false,
       showDisapproveOptions: false,
-      disapprovalReason: ""
+      disapprovalReason: "",
+      newUpdate: {},
+      oldUpdate: {},
     };
   },
   methods: {
@@ -100,34 +105,45 @@ export default {
         this.$store.dispatch("set_snackbar", {
           show: true,
           message: "Image approved successfully",
-          type: "success"
+          type: "success",
         });
         this.$store.dispatch("delete_pending_item_image", this.update.id);
         this.$emit("success");
-        // this.$store.dispatch("send_notification", {
-        //   type: "item-approved",
-        //   data: {
-        //     type: "item-approved",
-        //     item: { id: this.id, name: this.newItem.item.name },
-        //     list: { id: this.item.list.id, title: this.item.list.title }
-        //   },
-        //   recipient: this.newItem.user.id
-        // });
+        this.$store.dispatch("send_notification", {
+          type: "item-image-approved",
+          data: {
+            type: "item-image-approved",
+            item: {
+              id: this.newUpdate.item.id,
+              name: this.newUpdate.item.name,
+            },
+            displayImage: this.update.image.low,
+          },
+          recipient: this.newUpdate.user.id,
+        });
       });
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_item_image", this.update.id);
-        // this.$store.dispatch("send_notification", {
-        //   type: "item-disapproved",
-        //   data: {
-        //     type: "item-disapproved",
-        //     item: { id: this.id, title: this.newItem.item.name },
-        //     list: { id: this.item.list.id, title: this.item.list.title },
-        //     reason: this.disapprovalReason
-        //   },
-        //   recipient: this.newItem.user.id
-        // });
+        // this.$store.dispatch("delete_pending_item_image", this.update.id);
+        this.$store.dispatch("update_pending_state", {
+          type: "pending_item_images",
+          id: this.update.id,
+        });
+        this.$store.dispatch("send_notification", {
+          type: "item-image-disapproved",
+          data: {
+            type: "item-image-disapproved",
+            item: {
+              id: this.newUpdate.item.id,
+              name: this.newUpdate.item.name,
+            },
+            displayImage: this.update.image.low,
+            reason: this.disapprovalReason,
+          },
+          recipient: this.newUpdate.user.id,
+        });
+        this.showDisapproveOptions = false;
         return;
       }
       this.showDisapproveOptions = true;
@@ -137,7 +153,11 @@ export default {
     },
     created() {
       return moment(this.update.created.toDate()).toDate();
-    }
-  }
+    },
+  },
+  created() {
+    this.newUpdate = { ...this.update };
+    this.oldUpdate = { ...this.update };
+  },
 };
 </script>

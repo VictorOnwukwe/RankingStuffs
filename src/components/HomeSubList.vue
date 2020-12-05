@@ -1,120 +1,67 @@
 <template>
   <div>
-    <!-- <v-layout justify-center class="mb-2">
-      <router-link
-        :to="'/categories/' + list.category"
-        class="no-deco mx-auto"
-        style=""
-      >
-        <div
-          class="font-weight-medium pa-2 blue--text text-uppercase cat-name"
-          style=""
-        >
-          {{ list.category }}
-        </div>
-      </router-link>
-    </v-layout> -->
-    <div style="border-radius:3px" class="">
+    <div style="border-radius:3px" class="cat-main">
       <router-link :to="'/lists/' + list.id" class="no-deco">
-        <v-hover v-slot:default="{ hover }">
-          <v-card :flat="!hover" tile>
-            <div class="img-overlay pa-2">
-              <router-link
-                :to="'/categories/' + list.category"
-                class="no-deco mx-auto"
+        <v-card flat tile>
+          <div class="img-overlay pa-2">
+            <router-link
+              :to="'/categories/' + list.category"
+              class="no-deco mx-auto"
+              style=""
+            >
+              <div
+                class="font-weight-medium pa-2 text-uppercase cat-name"
                 style=""
               >
-                <div
-                  class="font-weight-medium pa-2 text-uppercase cat-name"
-                  style=""
-                >
-                  {{ list.category }}
-                </div>
-              </router-link>
-              <!-- <div>
-              <h2
-                class="text-capitalize white--text font-weight-medium"
-                style="font-family: 'Oswald', sans-serif;font-size:1.8em"
+                {{ list.category }}
+              </div>
+            </router-link>
+          </div>
+          <div
+            :style="
+              $vuetify.breakpoint.xs
+                ? 'min-width:calc(100% + 1em);margin-left:-0.5em'
+                : null
+            "
+            style="overflow:hidden"
+          >
+            <m-img
+              v-if="list.preview_image"
+              :src="list.preview_image ? list.preview_image.url.high : false"
+              :width="'100%'"
+              :aspectRatio="'1.5'"
+              :radius="'0'"
+              class="img"
+            ></m-img>
+            <m-img
+              v-else
+              :src="require('../assets/' + list.category + '-low.jpg')"
+              :width="'100%'"
+              :aspectRatio="'1.5'"
+              :radius="'0'"
+              class="img"
+            ></m-img>
+          </div>
+          <v-card flat tile>
+            <div style="">
+              <div
+                class="text-capitalize font-weight-medium ptd py-2"
+                style="font-size:1em"
               >
                 {{ list.title }}
-              </h2>
-            </div> -->
-            </div>
-            <v-card
-              :style="
-                $vuetify.breakpoint.xs
-                  ? 'min-width:calc(100% + 1em);margin-left:-0.5em'
-                  : null
-              "
-              flat
-            >
-              <m-img
-                v-if="list.preview_image"
-                :src="list.preview_image ? list.preview_image.url.high : false"
-                :width="'100%'"
-                :aspectRatio="'1.5'"
-                :radius="'0'"
-              ></m-img>
-              <m-img
-                v-else
-                :src="require('../assets/' + list.category + '-low.jpg')"
-                :width="'100%'"
-                :aspectRatio="'1.5'"
-                :radius="'0'"
-              ></m-img>
-            </v-card>
-            <v-card flat tile>
-              <div style="">
-                <div
-                  class="text-capitalize std oswald px-2 py-2"
-                  style="font-size:1.2em"
-                >
-                  {{ list.title }}
-                </div>
               </div>
-            </v-card>
+            </div>
           </v-card>
-        </v-hover>
+        </v-card>
       </router-link>
-      <!-- <div class="">
-        <div v-if="list.items.length > 0">
-          <div
-            v-for="(item, index) in list.items"
-            :key="index"
-            align-center
-            style="display:flex;align-items:center"
-          >
-            <div
-              class="px-3 py-1 mr-2 grey lighten-4 font-weight-black"
-              style="display:inline-block"
-              :class="{
-                'golden-text': index == 0,
-                'silver-text': index == 1,
-                'bronze-text': index == 2
-              }"
-            >
-              #{{ index + 1 }}
-            </div>
-            <div
-              class="font-weight-medium text-capitalize"
-              style="overflow:hidden;flex:1;text-overflow:ellipsis;white-space:nowrap"
-            >
-              {{ item.data().name }}
-            </div>
-          </div>
-        </div>
-      </div> -->
     </div>
   </div>
 </template>
 <script>
 export default {
   props: {
-    list: {
-      type: Object,
-      default: () => {}
-    }
-  }
+    list: Object
+  },
 };
 </script>
 <style scoped>
@@ -134,10 +81,16 @@ export default {
   background-color: rgba(0, 0, 0, 0.5);
   cursor: pointer;
   color: white;
-  transition: all 0.2s ease-in;
+  transition: all 0.3s ease;
 }
-.cat-name:hover {
-  background-color: rgba(0, 0, 0, 0.3);
+.img {
+  transition: transform 0.3s ease;
+}
+.cat-main:hover .img {
+  transform: scale(1.2);
+}
+.cat-main:hover .cat-name {
   border: 1px solid var(--accent);
+  color: var(--accent);
 }
 </style>

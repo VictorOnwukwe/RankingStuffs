@@ -72,9 +72,20 @@
               <v-card-text v-if="showDisapproveOptions">
                 <div class="brand--text">Reason For Disapproval?</div>
                 <v-radio-group v-model="disapprovalReason">
-                  <v-radio label="Too many errors" value="error"></v-radio>
-                  <v-radio label="Too offensive" value="offensive"></v-radio>
-                  <v-radio label="List Already Exists" value="exists"></v-radio>
+                  <v-radio label="Too many errors" value="for having too many errors"></v-radio>
+                  <v-radio label="Too offensive" value="for being offensive"></v-radio>
+                  <v-radio
+                    label="Demand Already Exists"
+                    :value="
+                      `because a similar demand already exists`
+                    "
+                  ></v-radio>
+                  <v-radio
+                    label="List Already Exists"
+                    :value="
+                      `because the list already exists`
+                    "
+                  ></v-radio>
                 </v-radio-group>
                 <m-btn
                   text
@@ -140,6 +151,7 @@ export default {
       this.$store.dispatch("demand_list", this.newDemand).then(() => {
         this.approving = false;
         this.$store.dispatch("delete_pending_demand", this.demand.id);
+        this.$emit("success");
         this.$store.dispatch("send_notification", {
           type: "demand-approved",
           data: {
@@ -152,7 +164,11 @@ export default {
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_list", this.list.id);
+        // this.$store.dispatch("delete_pending_list", this.list.id);
+        this.$store.dispatch("update_pending_state", {
+          type: "pending_demands",
+          id: this.demand.id,
+        });
         this.$store.dispatch("send_notification", {
           type: "demand-disapproved",
           data: {

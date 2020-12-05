@@ -22,40 +22,49 @@
                   Name
                 </div>
                 <h2 class="ptd font-weight-medium">
-                  {{ payload.item.name }}
+                  {{ info.item.name }}
                 </h2>
                 <div class="mt-6">
-                  <div v-if="payload.update.about">
+                  <div v-if="info.update.about">
                     <div class="brand--text font-weight-medium">
                       Former About
                     </div>
-                    <div class="pre-wrap">{{ payload.item.about ? payload.item.about : "No former about" }}</div>
-                    <div class="brand--text font-weight-medium mt-3">New About</div>
-                    <div class="pre-wrap">{{ payload.update.about }}</div>
+                    <div class="pre-wrap">{{
+                        info.item.about
+                          ? info.item.about
+                          : "No former about"
+                      }}
+                    </div>
+                    <div class="brand--text font-weight-medium mt-3">
+                      New About
+                    </div>
+                    <div class="pre-wrap">{{ info.update.about }}</div>
                   </div>
 
-                  <div class="mt-6" v-if="payload.update.category">
+                  <div class="mt-6" v-if="info.update.category">
                     <div class="brand--text font-weight-medium">
                       Former Category
                     </div>
                     <div>
                       {{
-                        payload.item.category ? payload.item.category : "No former category"
+                        info.item.category
+                          ? info.item.category
+                          : "No former category"
                       }}
                     </div>
                     <div class="brand--text font-weight-medium mt-3">
                       New Category
                     </div>
-                    <div>{{ payload.update.category }}</div>
+                    <div>{{ info.update.category }}</div>
                   </div>
 
-                  <div class="mt-6" v-if="payload.update.references">
+                  <div class="mt-6" v-if="info.update.references">
                     <div class="brand--text font-weight-medium">
                       Former References
                     </div>
-                    <div v-if="payload.item.references">
+                    <div v-if="info.item.references">
                       <div
-                        v-for="(reference, index) in payload.item.references"
+                        v-for="(reference, index) in info.item.references"
                         :key="index"
                       >
                         <p>{{ reference }}</p>
@@ -65,9 +74,9 @@
                     <div class="brand--text font-weight-medium mt-3">
                       New References
                     </div>
-                    <div v-if="payload.update.references">
+                    <div v-if="info.update.references">
                       <div
-                        v-for="(reference, index) in payload.update.references"
+                        v-for="(reference, index) in info.update.references"
                         :key="index"
                       >
                         <p>{{ reference }}</p>
@@ -81,9 +90,16 @@
                 <v-radio-group v-model="disapprovalReason">
                   <v-radio
                     label="Information is wrong"
-                    value="wrong-info"
+                    value="for containing wrong information"
                   ></v-radio>
-                  <v-radio label="Already Exists" value="exists"></v-radio>
+                  <v-radio
+                    label="Already Exists"
+                    value="for containing no significantly new information"
+                  ></v-radio>
+                  <v-radio
+                    label="Info is not elaborate"
+                    value="for not being elaborate"
+                  ></v-radio>
                 </v-radio-group>
                 <m-btn
                   text
@@ -118,59 +134,75 @@
 <script>
 export default {
   props: {
-    payload: Object
+    info: Object,
   },
   data() {
     return {
       dialog: true,
       approving: false,
       showDisapproveOptions: false,
-      disapprovalReason: ""
+      disapprovalReason: "",
+      oldItem: {},
+      newInfo: {},
     };
   },
   methods: {
     approve() {
       this.approving = true;
-      this.$store.dispatch("update_item_info", this.payload).then(() => {
+      this.$store.dispatch("update_item_info", this.info).then(() => {
         this.approving = false;
         this.$store.dispatch("set_snackbar", {
           show: true,
-          message: "Image approved successfully",
-          type: "success"
+          message: "Info approved successfully",
+          type: "success",
         });
-        this.$store.dispatch("delete_pending_item_info", this.payload.id);
+        this.$store.dispatch("delete_pending_item_info", this.info.id);
         this.$emit("success");
-        // this.$store.dispatch("send_notification", {
-        //   type: "item-approved",
-        //   data: {
-        //     type: "item-approved",
-        //     item: { id: this.id, name: this.newItem.item.name },
-        //     list: { id: this.item.list.id, title: this.item.list.title }
-        //   },
-        //   recipient: this.newItem.user.id
-        // });
+        this.$store.dispatch("send_notification", {
+          type: "item-info-approved",
+          data: {
+            type: "item-info-approved",
+            item: { id: this.id, name: this.newInfo.item.name },
+          },
+          recipient: this.newInfo.user.id,
+        });
       });
     },
     disapprove() {
       if (this.showDisapproveOptions) {
-        this.$store.dispatch("delete_pending_item_info", this.payload.id);
-        // this.$store.dispatch("send_notification", {
-        //   type: "item-disapproved",
-        //   data: {
-        //     type: "item-disapproved",
-        //     item: { id: this.id, title: this.newItem.item.name },
-        //     list: { id: this.item.list.id, title: this.item.list.title },
-        //     reason: this.disapprovalReason
-        //   },
-        //   recipient: this.newItem.user.id
-        // });
+        // this.$store.dispatch("delete_pending_item_info", this.info.id);
+        this.$store.dispatch("update_pending_state", {
+          type: "pending_item_infos",
+          id: this.update.id,
+        });
+        this.$store.dispatch("send_notification", {
+          type: "item-info-disapproved",
+          data: {
+            type: "item-info-disapproved",
+            item: { id: this.id, name: this.newInfo.item.name },
+            reason: this.disapprovalReason,
+          },
+          recipient: this.newInfo.user.id,
+        });
         return;
       }
       this.showDisapproveOptions = true;
     },
     close() {
       this.$emit("close");
+    },
+  },
+  computed: {
+    id(){
+      return this.newInfo.item.name
+        .toLowerCase()
+        .trim()
+        .replace(/ /g, "-");
     }
+  },
+  created(){
+    this.newInfo = { ...this.info };
+    this.oldInfo = { ...this.info };
   }
 };
 </script>

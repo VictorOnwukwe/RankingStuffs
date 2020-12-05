@@ -15,9 +15,8 @@
             <v-flex>
               <v-layout align-center>
                 <router-link :to="'/'" class="py-1" style="font-size:1.5em">
-                  <!-- <span class="white--text">the</span> -->
                   <div style="display:flex; align-items:center">
-                    <img src="../assets/logo-trans-high.png" class="logo"/>
+                    <img src="../assets/logo-trans-high.png" class="logo" />
                     <div class="" style="font-size:0.6em">
                       <div>
                         <span class="accent--text font-weight-black"
@@ -28,11 +27,9 @@
                         <span class="white--text font-weight-black"
                           >STUFFS</span
                         >
-                        <!-- <span class="accent--text font-weight-black">...</span> -->
                       </div>
                     </div>
                   </div>
-                  <!-- <v-img width="100px" aspect-ratio="1" :src="require('../assets/logo.jpg')"></v-img> -->
                 </router-link>
               </v-layout>
             </v-flex>
@@ -147,10 +144,15 @@
                         <v-list-item
                           :to="profile + 'creations'"
                           class="ml-0"
-                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                          exact-active-class="grey lighten-4 accent--text font-weight-medium"
                         >
                           <v-list-item-icon>
-                            <v-icon color size="1.5em">mdi-creation</v-icon>
+                            <v-icon
+                              color
+                              size="1.5em"
+                              style="transform:scale(1.3)"
+                              >$vuetify.icons.creation</v-icon
+                            >
                           </v-list-item-icon>
                           <v-list-item-title class=""
                             >My Creations</v-list-item-title
@@ -159,10 +161,12 @@
                         <v-list-item
                           :to="profile + 'favorites'"
                           class="ml-0"
-                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                          exact-active-class="grey lighten-4 accent--text font-weight-medium"
                         >
                           <v-list-item-icon>
-                            <v-icon size="1.2em" color>fa-star</v-icon>
+                            <v-icon size="1.2em" color
+                              >$vuetify.icons.star</v-icon
+                            >
                           </v-list-item-icon>
                           <v-list-item-title class=""
                             >My Favorites</v-list-item-title
@@ -171,11 +175,11 @@
                         <v-list-item
                           class="ml-0"
                           :to="profile"
-                          exact-active-class="grey lighten-4 accent--text font-weight-bold"
+                          exact-active-class="grey lighten-4 accent--text font-weight-medium"
                           exact
                         >
                           <v-list-item-icon>
-                            <v-icon color>mdi-view-list</v-icon>
+                            <v-icon color>$vuetify.icons.timeline</v-icon>
                           </v-list-item-icon>
                           <v-list-item-title class=""
                             >My Activities</v-list-item-title
@@ -183,7 +187,7 @@
                         </v-list-item>
                         <v-list-item @click="logout()" class="tile">
                           <v-list-item-icon>
-                            <v-icon>mdi-logout</v-icon>
+                            <v-icon>$vuetify.icons.logout</v-icon>
                           </v-list-item-icon>
                           <v-list-item-title class="">Logout</v-list-item-title>
                         </v-list-item>
@@ -196,12 +200,12 @@
                 </v-flex>
               </v-layout>
             </v-flex>
-                <v-icon
-                  @click="emitSidebar()"
-                  color="rgba(255, 255, 255, 0.902)"
-                  class="hidden-md-and-up ml-4 mr-1"
-                  >{{showSidebar ? "mdi-close" : "$vuetify.icons.menu"}}</v-icon
-                >
+            <v-icon
+              @click="emitSidebar()"
+              color="rgba(255, 255, 255, 0.902)"
+              class="hidden-md-and-up ml-4 mr-1"
+              >{{ showSidebar ? "mdi-close" : "$vuetify.icons.menu" }}</v-icon
+            >
           </v-layout>
         </div>
       </div>
@@ -223,6 +227,7 @@
             bottom
             offset-y
             open-on-hover
+            class="cat-menu"
           >
             <template v-slot:activator="{ on }">
               <a
@@ -347,7 +352,7 @@ export default {
       this.showSidebar = !this.showSidebar;
       this.$emit("showSidebar", this.showSidebar);
     },
-    setSidebar(sidebar){
+    setSidebar(sidebar) {
       this.showSidebar = sidebar;
     },
     encryptCategory(name) {
@@ -474,6 +479,12 @@ export default {
     width: 50%;
   }
 }
+@media (min-width: 1280px) {
+  .search,
+  .notification {
+    right: calc((100% - 1200px) / 2);
+  }
+}
 .menu-display {
   background-color: rgba(255, 255, 255, 0.95);
 }
@@ -500,10 +511,7 @@ export default {
 }
 
 .cat-display::-webkit-scrollbar-track {
-  /* box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
-  -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3); */
-  background-color: white;
-  display: none;
+  background-color: #388e3c !important;
 }
 
 .cat-display::-webkit-scrollbar {
@@ -511,12 +519,22 @@ export default {
   height: 5px;
 }
 
+.cat-display::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 152, 0, 0) !important;
+}
+
 .cat-display:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.5);
+  background-color: rgba(255, 152, 0, 0.5) !important;
 }
 
 .cat-display::-webkit-scrollbar-thumb {
   background-color: #388e3c;
+}
+.cat-display {
+  scrollbar-color: rgba(255, 152, 0, 0) #388e3c !important;
+}
+.cat-display:hover {
+  scrollbar-color: rgba(255, 152, 0, 0.6) #388e3c !important;
 }
 
 .affix {
@@ -575,7 +593,7 @@ div a + a {
 }
 .nav {
   /* font-family: "Oswald", sans-serif; */
-  font-size: 1.2em;
+  font-size: 1.1em;
   /* font-weight: bold; */
 }
 .nav.router-link-exact-active {
@@ -597,7 +615,7 @@ div a + a {
 .dp:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
 }
-.logo{
+.logo {
   margin-right: 0.2em;
   background: transparent;
   width: 2.5em;

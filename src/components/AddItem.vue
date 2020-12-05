@@ -11,30 +11,41 @@
         :type="'addItem'"
         v-if="!image"
       ></upload-image>
-      <v-icon v-if="index > 0" @click="oneUp()" class="ladder ml-5 grey--text"
+      <v-icon
+        v-if="index > 0"
+        @click="oneUp()"
+        class="ladder ml-5"
+        color="grey darken-1"
         >$vuetify.icons.ladder</v-icon
       >
-      <v-icon @click="deleteItem()" class="ml-5 mr-1 grey--text">fa-times</v-icon>
+      <v-icon @click="deleteItem()" class="ml-5 mr-1" color="grey darken-1"
+        >fa-times</v-icon
+      >
     </v-layout>
     <div style="position:relative">
-      <p class="text-capitalize font-weight-medium grey--text text--darken-2">
-        Name
-      </p>
-      <v-text-field
-        @focus="showSearch = true"
-        solo
-        flat
-        :rules="[rules.minLength(1, 'Item name'),rules.maxLength(50, 'Item name')]"
-        color="brand"
-        background-color="grey lighten-3"
-        v-model="item.name"
-        @paste="(item.info = null), (image = null)"
-        @keyup="blurEmit()"
-        :id="'item-name' + index"
-        @keyup.enter="focus('item-comment' + index)"
-        @blur="hideSearch()"
-      ></v-text-field>
-      <div v-show="showSearch && item.name != ''" class="results elevation-3 mt-2">
+      <v-form ref="form">
+        <v-text-field
+          @focus="showSearch = true"
+          outlined
+          flat
+          label="Name*"
+          :rules="[
+            rules.minLength(1, 'Item name'),
+            rules.maxLength(50, 'Item name'),
+          ]"
+          color="brand"
+          v-model="item.name"
+          @paste="(item.info = null), (image = null)"
+          @keyup="blurEmit()"
+          :id="'item-name' + index"
+          @keyup.enter="focus('item-comment' + index)"
+          @blur="hideSearch()"
+        ></v-text-field
+      ></v-form>
+      <div
+        v-show="showSearch && item.name != ''"
+        class="results elevation-3 mt-2"
+      >
         <div class="pointer" v-for="(result, index) in results" :key="index">
           <searched-item @setInfo="setInfo" :rItem="result"></searched-item>
         </div>
@@ -52,17 +63,14 @@
       width="150px"
       :src="displayImg"
     ></v-img>
-    <div class="mt-n1">
-      <p class="text-capitalize font-weight-medium grey--text text--darken-1">
-        Note / Comment
-      </p>
+    <div>
       <v-textarea
         :placeholder="commentPlaceholder"
-        solo
         flat
-        rows="2"
+        rows="4"
         color="brand"
-        background-color="grey lighten-3"
+        label="Note / Comment"
+        outlined
         no-resize
         auto-grow
         v-model="comment"
@@ -93,10 +101,6 @@ export default {
     commentPlaceholder: {
       type: String,
       default: "[Optional] Tell us why you placed this item at this position",
-    },
-    propItem: {
-      type: Boolean | Object,
-      default: false,
     },
     multi: {
       type: Boolean,
@@ -156,7 +160,9 @@ export default {
             data = { userImage: this.userImage };
           }
           this.item = {
-            keywords: this.generateKeywords(this.item.name.trim()),
+            keywords: this.item.name
+              ? this.generateKeywords(this.item.name.trim())
+              : "null",
             name: this.item.name,
             isLink: false,
             ...data,
@@ -169,10 +175,10 @@ export default {
       this.$emit("receiveComment", this.index, this.comment);
     },
     deleteItem() {
-      this.item.name = "";
+      this.$refs.form.reset();
       this.comment = "";
       this.image = false;
-      this.info = null;
+      this.item.info = null;
       this.showSearch = false;
       this.userImage = false;
       this.displayImg = false;
@@ -181,6 +187,7 @@ export default {
       }
     },
     checkItem: _.debounce(function() {
+      if (!this.item.name) return;
       if (this.item.name.length < 3) {
         if (this.item.name.length == 0) {
           this.results = [];
@@ -243,17 +250,10 @@ export default {
   watch: {
     "item.name"(val) {
       this.checkItem();
-      val.length > 0 ? (this.valid = true) : (this.valid = false);
+      val && val.length > 0 ? (this.valid = true) : (this.valid = false);
     },
     valid() {
       this.$emit("setValid", this.valid, this.index);
-    },
-    propItem() {
-      this.item.name = this.propItem.name;
-      this.item.info = this.propItem.info ? this.propItem.info : null;
-      this.keywords = this.propItem.keywords;
-      this.comment = this.propItem.comment;
-      this.image = this.propItem.image;
     },
   },
   created() {
@@ -279,8 +279,8 @@ export default {
 .results > div {
   padding: 1em 1.5em;
 }
-.results > div:not(:last-child){
-  border-bottom: 1px solid rgba(0, 0, 0,.1);
+.results > div:not(:last-child) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
 .results > div:hover {
   background-color: rgb(223, 223, 226);

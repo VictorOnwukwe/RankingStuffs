@@ -6,7 +6,7 @@
       </div>
       <v-layout align-center style="border-left: 2px solid rgba(0,0,0,.2)">
         <v-flex class="pl-2">
-          <div style="font-size:0.95em" class="ptd pre-wrap roboto spacious">{{ !more ? reply.content.slice(0, 600) : reply.content
+          <div style="font-size:0.85em" class="ptd pre-wrap roboto spacious">{{ !more ? reply.content.slice(0, 600) : reply.content
             }}{{ reply.content.length > 600 ? "..." : " "
             }}<span
               @click="more = !more"
@@ -162,8 +162,6 @@
 </template>
 
 <script>
-import { setTimeout } from "timers";
-import swalErrors from "../../public/my-modules/swalErrors";
 import FlagComment from "./FlagComment";
 
 let moment = require("moment");
