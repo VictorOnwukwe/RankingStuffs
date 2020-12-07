@@ -214,46 +214,70 @@
       >
         <v-layout
           class="cat-display brand"
-          style="overflow-x:scroll; max-width: 1200px"
+          style="max-width: 1200px;position:relative"
         >
-          <v-menu
-            v-for="(category, index) in categories"
-            :key="index"
-            max-height="500px"
-            max-width="250px"
-            min-width="200px"
-            bottom
-            offset-y
-            open-on-hover
-            transition="slide-up"
-            class="cat-menu"
+          <v-icon
+            @click="$refs.slide.go('+')"
+            class="slide-icon"
+            size="2.3em"
+            style="position:absolute;right:-9px;z-index:1;margin-top:-0.15em"
+            >mdi-chevron-right</v-icon
           >
-            <template v-slot:activator="{ on }">
-              <a
-                style="white-space:nowrap;font-size:15px"
-                v-on="on"
-                class="cat-link brand--text text--lighten-4 font-weight-medium"
+          <v-icon
+            @click="$refs.slide.go('-')"
+            class="slide-icon"
+            size="2.3em"
+            style="position:absolute;left:-9px;z-index:1;margin-top:-0.15em"
+            >mdi-chevron-left</v-icon
+          >
+          <div style="width:100%" class="px-5">
+            <splide :options="splideOptions" ref="slide">
+              <splide-slide
+                v-for="(category, index) in categories"
+                :key="index"
               >
-                {{ category.name }}
-              </a>
-            </template>
-            <div class="menu-display px-4 py-2">
-              <router-link
-                :to="'/categories/' + category.name"
-                class="category block ptd font-weight-medium mb-2"
-                >{{ category.name }}</router-link
-              >
-              <div v-for="(sub, index) in category.subs" :key="index">
-                <router-link
-                  tag="a"
-                  style="line-height:200%"
-                  :to="subLink(category.name, sub.name)"
-                  class="sub-category block std"
-                  >{{ sub.name }}</router-link
+                <v-menu
+                  max-height="500px"
+                  max-width="250px"
+                  min-width="200px"
+                  bottom
+                  offset-y
+                  open-on-hover
+                  transition="slide-up"
+                  class="cat-menu"
                 >
-              </div>
-            </div>
-          </v-menu>
+                  <template v-slot:activator="{ on }">
+                    <a
+                      style="white-space:nowrap;font-size:15px"
+                      v-on="on"
+                      class="cat-link brand--text text--lighten-4 font-weight-medium"
+                      :style="{
+                        marginRight: index + 1 == categories.length ? '0' : '1.5em',
+                      }"
+                    >
+                      {{ category.name }}
+                    </a>
+                  </template>
+                  <div class="menu-display px-4 py-2">
+                    <router-link
+                      :to="'/categories/' + category.name"
+                      class="category block ptd font-weight-medium mb-2"
+                      >{{ category.name }}</router-link
+                    >
+                    <div v-for="(sub, index) in category.subs" :key="index">
+                      <router-link
+                        tag="a"
+                        style="line-height:200%"
+                        :to="subLink(category.name, sub.name)"
+                        class="sub-category block std"
+                        >{{ sub.name }}</router-link
+                      >
+                    </div>
+                  </div>
+                </v-menu>
+              </splide-slide>
+            </splide>
+          </div>
         </v-layout>
       </v-layout>
       <transition name="slide-up">
@@ -296,11 +320,14 @@ import { setTimeout } from "timers";
 import Notifications from "./Notifications";
 import SearchResults from "./ListAndDemandSearch";
 import "firebase/firestore";
-let _ = require("lodash");
+import "@splidejs/splide/dist/css/themes/splide-default.min.css";
+import { Splide, SplideSlide } from "@splidejs/vue-splide";
 export default {
   components: {
     Notifications,
     SearchResults,
+    Splide,
+    SplideSlide,
   },
   props: {
     closeSearch: Boolean,
@@ -315,6 +342,13 @@ export default {
       showSidebar: false,
       demands: [],
       lists: [],
+      splideOptions: {
+        type: "slide",
+        autoWidth: true,
+        width: "100%",
+        pagination: false,
+        arrows: false,
+      },
     };
   },
 
@@ -505,38 +539,7 @@ export default {
   color: var(--brand) !important;
 }
 .cat-link {
-  margin-right: 1.5em;
   font-family: "Oswald", sans-serif;
-}
-.cat-display::scrollbar-track {
-  background-color: white;
-}
-
-.cat-display::-webkit-scrollbar-track {
-  background-color: #388e3c !important;
-}
-
-.cat-display::-webkit-scrollbar {
-  margin-top: 1px;
-  height: 5px;
-}
-
-.cat-display::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 152, 0, 0) !important;
-}
-
-.cat-display:hover::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 152, 0, 0.5) !important;
-}
-
-.cat-display::-webkit-scrollbar-thumb {
-  background-color: #388e3c;
-}
-.cat-display {
-  scrollbar-color: rgba(255, 152, 0, 0) #388e3c !important;
-}
-.cat-display:hover {
-  scrollbar-color: rgba(255, 152, 0, 0.6) #388e3c !important;
 }
 
 .affix {
@@ -595,5 +598,11 @@ div a + a {
   margin-right: 0.2em;
   background: transparent;
   width: 2.5em;
+}
+.slide-icon {
+  color: rgba(0, 0, 0, 0.3);
+}
+.slide-icon:hover {
+  color: rgba(255, 255, 255, 0.8);
 }
 </style>

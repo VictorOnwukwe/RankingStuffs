@@ -22,7 +22,6 @@
                 <router-link
                   :to="'/lists/' + list.id"
                   class="no-deco side-text"
-                  style="font-size:14px"
                 >
                   <v-layout align-start :class="{'mb-4': $vuetify.breakpoint.mdAndUp}">
                     <m-img

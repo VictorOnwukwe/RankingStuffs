@@ -51,7 +51,7 @@
                   v-for="(list, n) in hotLists"
                   :key="n"
                 >
-                  <div style="position:relative;width:100%;">
+                  <div style="position:relative;width:100%;padding-top:110%">
                     <div
                       style="width:100%;position:absolute;top:0;left:0;bottom:0;right:0;z-index:1;display:flex;flex-direction:column"
                       class="slide-overlay"
@@ -74,18 +74,18 @@
                         >
                       </v-layout>
                     </div>
-                    <v-img
+                    <img
                       v-if="list.preview_image"
                       :src="
                         list.preview_image ? list.preview_image.url.high : false
                       "
-                      :aspect-ratio="$vuetify.breakpoint.xs ? '0.9' : '1'"
-                    ></v-img>
-                    <v-img
+                      style="position:absolute;width:100%;top:0;left:0;height:100%;object-fit:cover"
+                    >
+                    <img
                       v-else
                       :src="require('../assets/' + list.category + '.jpg')"
-                      :aspect-ratio="$vuetify.breakpoint.xs ? '0.9' : '1'"
-                    ></v-img>
+                      style="position:absolute;width:100%;top:0;left:0;height:100%;object-fit:cover"
+                    >
                   </div>
                 </splide-slide> </splide></v-flex
           ></v-layout>
@@ -246,7 +246,7 @@ export default {
   transition: all 0.5s ease;
 }
 .slide-overlay {
-  background: radial-gradient(circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
+  background: radial-gradient( rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.9));
   padding: 1em;
 }
 @media (min-width: 600px) {
