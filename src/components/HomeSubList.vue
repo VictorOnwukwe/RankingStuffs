@@ -4,18 +4,13 @@
       <router-link :to="'/lists/' + list.id" class="no-deco">
         <v-card flat tile>
           <div class="img-overlay pa-2">
-            <router-link
+            <v-btn
               :to="'/categories/' + list.category"
-              class="no-deco mx-auto"
-              style=""
+              outlined
+              class="cat-name"
             >
-              <div
-                class="font-weight-medium pa-2 text-uppercase cat-name"
-                style=""
-              >
-                {{ list.category }}
-              </div>
-            </router-link>
+              {{ list.category }}</v-btn
+            >
           </div>
           <div
             :style="
@@ -60,7 +55,7 @@
 <script>
 export default {
   props: {
-    list: Object
+    list: Object,
   },
 };
 </script>
@@ -72,14 +67,11 @@ export default {
   height: 100%;
   background: rgba(0, 0, 0, 0);
   display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+  justify-content: center;
   overflow: hidden;
 }
 .cat-name {
-  border: 1px solid white;
   background-color: rgba(0, 0, 0, 0.5);
-  cursor: pointer;
   color: white;
   transition: all 0.3s ease;
 }

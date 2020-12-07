@@ -163,9 +163,7 @@
                   ></v-radio>
                   <v-radio
                     label="List Already Exists"
-                    :value="
-                      `because a similar list already exists.`
-                    "
+                    :value="`because a similar list already exists.`"
                   ></v-radio>
                 </v-radio-group>
                 <m-btn

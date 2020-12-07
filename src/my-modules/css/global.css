@@ -461,6 +461,9 @@ html {
 .fade-leave-active {
   opacity: 0;
 }
+.text-shadow{
+  text-shadow: 4px 8px 6px rgba(0,0,0,0.5);
+}
 .mt-one {
   margin-top: 1em !important;
 }
@@ -515,3 +518,31 @@ html {
 .hidden {
   display: hidden !important;
 }
+.slide-up-enter-active {
+    animation: slide 0.2s ease;
+    transform-origin: top;
+  }
+  .slide-up-leave-active {
+    animation: slide 0.2s ease reverse;
+    transform-origin: top;
+  }
+  
+  @keyframes slide {
+    0% {
+      opacity: 0.7;
+      transform: translateY(20px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .category-top{
+      margin-top: 70vh;
+  }
+  @media (min-width: 1240px) {
+    .category-top{
+        margin-top: 80vh;
+    }
+  }

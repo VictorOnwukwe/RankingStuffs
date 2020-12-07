@@ -13,25 +13,33 @@
         <v-layout v-if="mounted" column>
           <v-flex xs12 style="margin-bottom:1.5em">
             <splide :options="sideSplide" ref="sideSplide">
-              <splide-slide
-                v-for="(list, n) in hotLists"
-                :key="n"
-                style="overflow:hidden"
-              >
-                <v-img
-                  v-if="list.preview_image"
-                  :src="
-                    list.preview_image ? list.preview_image.url.high : false
-                  "
-                  width="100%"
-                  :aspect-ratio="0.8"
-                ></v-img>
-                <v-img
-                  v-else
-                  :src="require('../assets/' + list.category + '.jpg')"
-                  width="100%"
-                  :aspect-ratio="0.8"
-                ></v-img>
+              <splide-slide v-for="(list, n) in hotLists" :key="n">
+                <div style="position:relative;width:100%;padding-top:115%;">
+                  <img
+                    v-if="list.preview_image"
+                    :src="
+                      list.preview_image ? list.preview_image.url.high : false
+                    "
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2"
+                  />
+                  <img
+                    v-else
+                    :src="require('../assets/' + list.category + '.jpg')"
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:2"
+                  />
+                  <v-layout
+                    style="position:absolute;top:0;left:0;width:100%;height:100%;border:1px solid white;z-index:1"
+                    align-center
+                    justify-center
+                  >
+                    <v-progress-circular
+                      :value="20"
+                      width="1"
+                      indeterminate
+                      color="white"
+                    ></v-progress-circular>
+                  </v-layout>
+                </div>
               </splide-slide>
             </splide>
           </v-flex>
@@ -49,16 +57,19 @@
                       class="slide-overlay"
                     >
                       <router-link :to="`/lists/${list.id}`" class="no-deco">
-                        <h1 class="ptl overlay-title text-capitalize">
+                        <h1
+                          class="ptl overlay-title text-capitalize text-shadow"
+                        >
                           {{ list.title }}
                         </h1>
                       </router-link>
-                      <v-layout class="mt-3 overlay-details">
+                      <v-layout class="mt-5 overlay-details">
                         <v-btn
                           :to="`/categories/${list.category}`"
                           outlined
                           class="mx-auto"
                           color="white"
+                          style="background-color:rgba(0,0,0,0.5)"
                           >{{ list.category }}</v-btn
                         >
                       </v-layout>
@@ -80,20 +91,24 @@
           ></v-layout>
         </v-layout>
         <div v-else style="position:relative;" class="my-auto">
-          <h1 class="stl center-text welcome">WELCOME!</h1>
-          <h1 class="stl center-text to">To</h1>
-          <h1
-            class="center-text font-weight-bold accent--text ranking"
-            style="font-size:3.5em"
+          <h1 class="stl center-text welcome text-shadow">WELCOME!</h1>
+          <h1 class="stl center-text to text-shadow">To</h1>
+          <v-layout justify-center>
+            <div>
+              <h1
+                class="font-weight-bold oswald accent--text ranking text-shadow"
+                style="font-size:3.5em"
+              >
+                Ranking
+              </h1>
+              <h1
+                class="white--text mt-n2 oswald stuffs text-shadow"
+                style="font-size:3.5em"
+              >
+                STUFFS
+              </h1>
+            </div></v-layout
           >
-            Ranking
-          </h1>
-          <h1
-            class="center-text white--text mt-n2 stuffs"
-            style="font-size:3.5em"
-          >
-            STUFFS
-          </h1>
         </div>
         <div
           style="position:absolute;bottom:0;background-color: rgba(0,0,0,0.5);right:0;left:0;padding: 2px 0;"
@@ -158,8 +173,8 @@ export default {
             perPage: 6,
           },
           960: {
-            perPage: 8
-          }
+            perPage: 8,
+          },
         },
       },
       mounted: false,
@@ -183,7 +198,7 @@ export default {
   },
   computed: {
     hotLists() {
-      return this.$store.getters.categoryLists;
+      return this.$store.getters.slideLists;
     },
     currentList() {
       return this.hotLists[this.$refs.mainSplide.index];
@@ -211,16 +226,10 @@ export default {
   display: flex;
 }
 .overlay {
-  /* background: rgba(0, 0, 0, 0.4); */
   display: flex;
   align-content: center;
   justify-content: center;
   padding: 4em 2em 3em 2em;
-  /* position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  left: 0; */
   min-height: 80vh;
   width: 100%;
   max-width: 1200px;
@@ -231,14 +240,10 @@ export default {
     padding: 4em 0 3em 0;
   }
 }
-.list-details * {
-  animation: enter 0.5s ease;
-}
 .overlay-title {
   font-size: 2.2em;
   font-family: "Oswald", sans-serif;
   transition: all 0.5s ease;
-  text-shadow: 0 3px rgba(0,0,0,0.5);
 }
 .slide-overlay {
   background: radial-gradient(circle, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.8));
@@ -247,7 +252,6 @@ export default {
 @media (min-width: 600px) {
   .overlay-title {
     font-size: 3.2em;
-  text-shadow: 0 5px rgba(0,0,0,0.5);
   }
   .grid {
     grid-template-columns: 3fr 1fr;
@@ -261,16 +265,13 @@ export default {
     font-size: 3.8em;
   }
 }
-@keyframes enter {
-  0% {
-    transform: translateY(30px);
-  }
-  100% {
-    transform: translateY(0);
-  }
-}
 .splide--nav > .splide__track > .splide__list > .splide__slide.is-active {
-  border-color: rgba(255, 255, 255, 0.5);
+  border: none;
+}
+.splide--nav > .splide__track > .splide__list > .splide__slide > div {
+  opacity: 0.7;
+}
+.splide--nav > .splide__track > .splide__list > .splide__slide.is-active > div {
   opacity: 1;
 }
 .splide--fade > .splide__track > .splide__list > .splide__slide .overlay-title {

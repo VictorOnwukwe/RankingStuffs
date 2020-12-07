@@ -12,7 +12,7 @@ export default {
   props: {
     color: {
       type: String,
-      default: "grey lighten-2"
+      default: "grey darken-2"
     },
     size: {
       type: String | Number,
@@ -20,7 +20,7 @@ export default {
     },
     width: {
       type: String | Number,
-      default: "3"
+      default: "2"
     }
   }
 };

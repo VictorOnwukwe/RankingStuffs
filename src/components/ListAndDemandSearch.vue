@@ -1,81 +1,83 @@
 <template>
   <div class="search-results white br">
-    <div v-if="demands.length > 0 || (lists.length > 0 && !searching)" style="">
-      <div v-if="lists.length > 0" class="ptd">
-        <div
-          class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
-        >
-          Lists
-        </div>
-        <div class="px-2 mb-4">
-          <div
-            v-for="(result, index) in lists"
-            :key="index"
-            style="display:flex"
-          >
-            <div class="mr-1 font-weight-bold">-</div>
-            <router-link
-              :to="'/lists/' + result.objectID"
-              class="pointer no-deco std ml-0"
-            >
-              <div
-                class="search-link"
-                style="font-size:15px"
-                @click="closeSearch(), clearKeyword()"
-              >
-                {{ result.title }}
-              </div>
-            </router-link>
-          </div>
-        </div>
-      </div>
-      <div v-if="demands.length > 0" class="ptd">
-        <div
-          class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
-        >
-          Demands
-        </div>
-        <div class="px-2 mb-4">
-          <div
-            v-for="(result, index) in demands"
-            :key="index"
-            style="display:flex"
-          >
-            <div class="mr-1 font-weight-bold">-</div>
-            <router-link
-              :to="'/demands/' + result.objectID"
-              @click="search = false"
-              class="std pointer no-deco ml-0"
-            >
-              <div
-                class="search-link"
-                style="font-size:15px"
-                @click="closeSearch(), clearKeyword()"
-              >
-                {{ result.title }}<br />
-              </div>
-            </router-link>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else-if="keyword.length >= 5 && searched && !creation">
-      <v-card tile flat class="ptd white">
-        <v-card-text class
-          >Sorry. This list does not exist yet. Be the first to create or demand
-          it.</v-card-text
-        >
-        <v-card-actions>
-          <v-spacer></v-spacer>
-          <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
-          <m-btn text small @click="goSearchedCreate()">Create</m-btn>
-        </v-card-actions>
-      </v-card>
-    </div>
-    <div v-else-if="keyword.length >= 5 && searching">
+    <div v-if="searching">
       <v-layout justify-center>
         <m-progress class="my-4"></m-progress>
       </v-layout>
+    </div>
+    <div v-else>
+      <div v-if="demands.length > 0 || lists.length > 0">
+        <div v-if="lists.length > 0" class="ptd">
+          <div
+            class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
+          >
+            Lists
+          </div>
+          <div class="px-2 mb-4">
+            <div
+              v-for="(result, index) in lists"
+              :key="index"
+              style="display:flex"
+            >
+              <div class="mr-1 font-weight-bold">-</div>
+              <router-link
+                :to="'/lists/' + result.objectID"
+                class="pointer no-deco std ml-0"
+              >
+                <div
+                  class="search-link"
+                  style="font-size:15px"
+                  @click="closeSearch(), clearKeyword()"
+                >
+                  {{ result.title }}
+                </div>
+              </router-link>
+            </div>
+          </div>
+        </div>
+        <div v-if="demands.length > 0" class="ptd">
+          <div
+            class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
+          >
+            Demands
+          </div>
+          <div class="px-2 mb-4">
+            <div
+              v-for="(result, index) in demands"
+              :key="index"
+              style="display:flex"
+            >
+              <div class="mr-1 font-weight-bold">-</div>
+              <router-link
+                :to="'/demands/' + result.objectID"
+                @click="search = false"
+                class="std pointer no-deco ml-0"
+              >
+                <div
+                  class="search-link"
+                  style="font-size:15px"
+                  @click="closeSearch(), clearKeyword()"
+                >
+                  {{ result.title }}<br />
+                </div>
+              </router-link>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div v-else-if="searched && !creation">
+        <v-card tile flat class="ptd white">
+          <v-card-text class
+            >Sorry. This list does not exist yet. Be the first to create or
+            demand it.</v-card-text
+          >
+          <v-card-actions>
+            <v-spacer></v-spacer>
+            <m-btn text small @click="goSearchedDemand()">Demand</m-btn>
+            <m-btn text small @click="goSearchedCreate()">Create</m-btn>
+          </v-card-actions>
+        </v-card>
+      </div>
     </div>
   </div>
 </template>
@@ -96,12 +98,6 @@ export default {
   },
   methods: {
     fetchResults: _.debounce(async function() {
-      if (this.keyword.length < 5) {
-        if (this.keyword.length == 0) {
-          this.lists = this.demands = [];
-        }
-        return;
-      }
       this.searching = true;
       let results = await this.$store.dispatch(
         "search_lists_and_demands",
@@ -142,6 +138,7 @@ export default {
   },
   watch: {
     keyword() {
+      this.searching = true;
       this.fetchResults();
       if (this.searched) this.searched = false;
     },
@@ -154,10 +151,9 @@ export default {
   overflow-y: scroll;
   overflow-x: hidden;
   max-height: calc(70vh);
-
 }
 .search-link:hover {
-  color: rgba(0,0,0,0.75);
+  color: rgba(0, 0, 0, 0.75);
   filter: brightness(90%);
 }
 </style>

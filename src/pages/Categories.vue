@@ -1,23 +1,38 @@
 <template>
   <div class="grid mt">
-    <div
-      v-for="(category, index) in categories"
-      :key="index"
-      style="position:relative"
-    >
-      <credit :credit="credit(category.name)">
-        <div style="min-height:6.5em;min-width:100%">
+    <v-card v-for="(category, index) in categories" :key="index">
+      <div style="position:relative;padding-top:58%;width:100%">
+        <credit :credit="credit(category.name)">
           <img
-            class="image"
             :src="require('../assets/' + name(category.name))"
-            width="100%"
+            style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1"
           />
+        </credit>
+        <div style="position:absolute;top:0;left:0;width:100%;height:100%;">
+          <div style="position:relative;height:100%;width:100%">
+            <img
+              :src="require('../assets/emptyimage.jpg')"
+              style="object-fit:cover;height:100%;width:100%;filter:blur(2px)"
+            />
+            <v-layout
+              style="position:absolute;top:0;left:0;width: 100%;height:100%;"
+              align-center
+              justify-center
+            >
+              <v-progress-circular
+                :value="20"
+                width="1"
+                color="white"
+                indeterminate
+              ></v-progress-circular>
+            </v-layout>
+          </div>
         </div>
-      </credit>
-      <v-card class="display">
+      </div>
+      <div>
         <prev :category="category"></prev>
-      </v-card>
-    </div>
+      </div>
+    </v-card>
   </div>
 </template>
 
@@ -28,7 +43,7 @@ import PhotoCredit from "../components/PhotoCredit";
 export default {
   components: {
     prev: CategoryPreview,
-    credit: PhotoCredit
+    credit: PhotoCredit,
   },
   methods: {
     async Lists(name) {
@@ -36,9 +51,9 @@ export default {
       await this.$store
         .dispatch("fetch_category_lists", {
           category: name,
-          limit: 10
+          limit: 10,
         })
-        .then(lists => {
+        .then((lists) => {
           mlists = lists;
         });
 
@@ -59,35 +74,20 @@ export default {
             .replace(/ /g, "")
         ];
       return result;
-    }
+    },
   },
   computed: {
     categories() {
       return this.$store.getters.categories;
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
 .grid {
   display: grid;
-  grid-template-columns: 1fr;
-  grid-gap: 2em;
-}
-
-@media (min-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr 1fr;
-  }
-}
-.display {
-  margin-top: -8em;
-  width: 86%;
-  margin-left: 7%;
-  min-height: 10em;
-  background-color: rgba(255, 255, 255, 0.97);
-}
-.image {
-  min-height: 12em;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-column-gap: 1em;
+  grid-row-gap: 2em;
 }
 </style>

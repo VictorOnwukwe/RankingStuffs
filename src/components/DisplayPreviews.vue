@@ -40,7 +40,7 @@ export default {
 .preview {
   display: grid;
   grid-template-columns: 1fr;
-  grid-row-gap: 1em;
+  grid-row-gap: 2em;
 }
 @media (min-width: 600px) {
   .preview {

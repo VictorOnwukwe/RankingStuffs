@@ -258,24 +258,14 @@ export default {
 <style scoped>
 .cover {
   width: calc(100% + 2em);
-  min-height: 50vh;
+  min-height: 60vh;
   background-size: cover;
+  background-position: center center;
   display: flex;
   position: relative;
   background-repeat: no-repeat;
   margin-top: -2em;
   margin-left: -1em;
-}
-@media (min-width: 600px) {
-  .cover {
-    min-height: 70vh;
-  }
-}
-@media (min-width: 960px) {
-  .cover {
-    width: calc(100% + 3.5em);
-    margin-left: -3.5em;
-  }
 }
 .tint {
   position: absolute;
@@ -283,6 +273,29 @@ export default {
   bottom: 0em;
   left: 2em;
   padding: 1em;
+}
+@media (min-width: 600px) {
+  .cover {
+    height: 70vh;
+    width: 100vw;
+  }
+}
+@media (min-width: 960px) {
+  .cover {
+    width: 100vw;
+    margin-left: -1.5em;
+  }
+}
+@media (min-width: 1240px) {
+  .cover{
+    margin-left: calc((100vw - 1200px) * -0.5);
+    /* width: calc(100% + ((100vw - 1200px) * 0.5)); */
+    width: 100vw;
+    height:80vh;
+  }
+  .tint{
+    left: calc((100vw - 1200px) * 0.5);
+  }
 }
 .b-link {
   color: rgba(255, 255, 255, 0.5);

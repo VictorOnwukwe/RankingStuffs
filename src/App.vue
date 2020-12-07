@@ -20,7 +20,7 @@
         <v-layout justify-center>
           <v-layout
             :column="$vuetify.breakpoint.smAndDown ? true : false"
-            :style="{ 'margin-top': $route.name=='home' ? '2em' : null }"
+            :style="{ 'margin-top': $route.name == 'home' ? '2em' : null }"
             class="view-container"
           >
             <v-flex
@@ -43,6 +43,12 @@
                 (!loading || $vuetify.breakpoint.mdAndUp) &&
                   !$route.name.includes('admin') &&
                   !$route.name.includes('verify_email')
+              "
+              :class="
+                ($route.name == 'category' || $route.name == 'subcategory') &&
+                $vuetify.breakpoint.mdAndUp
+                  ? 'category-top'
+                  : ''
               "
             >
               <side-display
@@ -172,7 +178,9 @@
               exact-active-class="grey lighten-4 accent--text"
             >
               <v-list-item-icon>
-                <v-icon class="nav-icon" size="1.1em">$vuetify.icons.admin</v-icon>
+                <v-icon class="nav-icon" size="1.1em"
+                  >$vuetify.icons.admin</v-icon
+                >
               </v-list-item-icon>
               <v-list-item-title>Admin</v-list-item-title>
             </v-list-item>

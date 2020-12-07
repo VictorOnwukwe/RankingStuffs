@@ -76,9 +76,7 @@
                   <v-radio label="Too offensive" value="for being offensive"></v-radio>
                   <v-radio
                     label="Demand Already Exists"
-                    :value="
-                      `because a similar demand already exists`
-                    "
+                    :value="`because a similar demand already exists`"
                   ></v-radio>
                   <v-radio
                     label="List Already Exists"

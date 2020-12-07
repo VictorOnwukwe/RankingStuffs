@@ -17,14 +17,14 @@
                 <router-link :to="'/'" class="py-1" style="font-size:1.5em">
                   <div style="display:flex; align-items:center">
                     <img src="../assets/logo-trans-high.png" class="logo" />
-                    <div class="" style="font-size:0.6em">
+                    <div class="" style="font-size:0.8em">
                       <div>
-                        <span class="accent--text font-weight-black"
+                        <span class="accent--text oswald font-weight-black"
                           >Ranking</span
                         >
                       </div>
                       <div class="mt-n3">
-                        <span class="white--text font-weight-black"
+                        <span class="white--text font-weight-black oswald"
                           >STUFFS</span
                         >
                       </div>
@@ -36,16 +36,12 @@
             <v-flex>
               <v-layout style="height:4.5em" align-center justify-space-around>
                 <v-flex grow class="hidden-sm-and-down">
-                  <v-layout justify-center class="">
+                  <v-layout justify-space-between class="">
                     <router-link tag="a" class="nav" to="/">Home</router-link>
                     <router-link tag="a" class="nav" to="/lists"
                       >Lists</router-link
                     >
-                    <router-link
-                      tag="a"
-                      class="nav"
-                      style="margin-left:1em"
-                      to="/demands"
+                    <router-link tag="a" class="nav" to="/demands"
                       >Demands</router-link
                     >
                     <router-link tag="a" class="nav" to="/create"
@@ -115,11 +111,13 @@
                     </v-badge>
                     <v-menu
                       offset-y
+                      nudge-top="-4px"
                       open-on-click
                       close-on-content-click
                       close-on-click
                       max-width="250px"
-                      v-if="$vuetify.breakpoint.mdAndUp"
+                      transition="slide-up"
+                      v-if="$vuetify.breakpoint.smAndUp"
                     >
                       <template v-slot:activator="{ on }">
                         <div v-on="on" class="ml-4 dp pointer">
@@ -133,7 +131,7 @@
                           </v-list-item-avatar>
                           <v-list-item-content>
                             <v-list-item-title
-                              class="font-weight-black subtitle-1 "
+                              class="font-weight-bold subtitle-1"
                               >{{ user.username }}</v-list-item-title
                             >
                             <v-list-item-subtitle>{{
@@ -227,6 +225,7 @@
             bottom
             offset-y
             open-on-hover
+            transition="slide-up"
             class="cat-menu"
           >
             <template v-slot:activator="{ on }">
@@ -257,7 +256,7 @@
           </v-menu>
         </v-layout>
       </v-layout>
-      <transition name="search-bar">
+      <transition name="slide-up">
         <div v-if="search" class="search">
           <div class="search-field elevation-3">
             <input
@@ -269,16 +268,19 @@
               >$vuetify.icons.search</v-icon
             >
           </div>
-          <search-results
-            class="mt-3 elevation-3"
-            :keyword="keyword"
-            @closeSearch="search = false"
-            @clearKeyword="keyword = ''"
-          ></search-results>
+          <transition name="slide-up">
+            <search-results
+              class="mt-3 elevation-3"
+              v-show="keyword.length > 4"
+              :keyword="keyword"
+              @closeSearch="search = false"
+              @clearKeyword="keyword = ''"
+            ></search-results
+          ></transition>
         </div>
       </transition>
 
-      <transition name="notification-bar">
+      <transition name="slide-up">
         <div v-if="notification" class="notification">
           <Notifications
             @close="(notification = false), setOverlay()"
@@ -565,35 +567,9 @@ div a + a {
   margin-left: 1em;
 }
 
-.search-bar-enter-active {
-  animation: slide 0.1s ease-in;
-  transform-origin: top;
-}
-.search-bar-leave-active {
-  animation: slide 0.1s ease-in reverse;
-  transform-origin: top;
-}
-
-.notification-bar-enter-active {
-  animation: slide 0.1s ease-in;
-  transform-origin: top;
-}
-.notification-bar-leave-active {
-  animation: slide 0.1s ease-in reverse;
-  transform-origin: top;
-}
-
-@keyframes slide {
-  0% {
-    transform: scaleY(0);
-  }
-  100% {
-    transform: scaleY(1);
-  }
-}
 .nav {
   /* font-family: "Oswald", sans-serif; */
-  font-size: 1.1em;
+  font-size: 1em;
   /* font-weight: bold; */
 }
 .nav.router-link-exact-active {

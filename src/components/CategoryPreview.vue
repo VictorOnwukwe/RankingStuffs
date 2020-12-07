@@ -2,7 +2,7 @@
   <div>
     <v-card-title
       class="text-capitalize font-weight-medium"
-      style="font-size:1.8em"
+      style="font-size:1.5em"
     >
       <router-link class="no-deco ptd" :to="'/categories/' + category.name">
         {{ category.name }}
@@ -15,7 +15,7 @@
         class="mt-1"
         style="display:flex"
       >
-        <div class="accent--text mr-1 font-weight-bold" style="">-</div>
+        <div class="ptd mr-1 font-weight-bold" style="">-</div>
         <router-link
           tag="a"
           :to="'/lists/' + list.id"
@@ -42,7 +42,7 @@ export default {
     this.$store
       .dispatch("fetch_category_lists", {
         category: this.category.name,
-        limit: 10,
+        limit: 5,
       })
       .then((lists) => {
         this.lists = lists;

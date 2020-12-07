@@ -42,14 +42,24 @@
           @blur="hideSearch()"
         ></v-text-field
       ></v-form>
-      <div
-        v-show="showSearch && item.name != ''"
-        class="results elevation-3 mt-2"
-      >
-        <div class="pointer" v-for="(result, index) in results" :key="index">
-          <searched-item @setInfo="setInfo" :rItem="result"></searched-item>
-        </div>
-      </div>
+      <transition name="slide-up">
+        <div
+          v-show="showSearch && item.name.length > 2"
+          class="elevation-5 search-menu"
+        >
+          <v-layout v-if="checkingItem" justify-center>
+            <m-progress class="my-4" :color="'grey darken-2'"></m-progress>
+          </v-layout>
+          <div v-else>
+            <div
+              class="pointer results"
+              v-for="(result, index) in results"
+              :key="index"
+            >
+              <searched-item @setInfo="setInfo" :rItem="result"></searched-item>
+            </div>
+          </div></div
+      ></transition>
     </div>
     <v-img
       class="mt-n4 mb-4"
@@ -129,6 +139,7 @@ export default {
       valid: false,
       userImage: undefined,
       displayImg: false,
+      checkingItem: true,
     };
   },
   methods: {
@@ -198,6 +209,7 @@ export default {
         .dispatch("search_item", this.item.name.toLowerCase())
         .then((results) => {
           this.results = results;
+          this.checkingItem = false;
         });
     }, 2000),
     setInfo(result) {
@@ -249,6 +261,7 @@ export default {
   },
   watch: {
     "item.name"(val) {
+      this.checkingItem = true;
       this.checkItem();
       val && val.length > 0 ? (this.valid = true) : (this.valid = false);
     },
@@ -269,20 +282,20 @@ export default {
 </script>
 
 <style scoped>
-.results {
+.search-menu {
   position: absolute;
-  top: 90px;
+  top: 75%;
   background: rgb(233, 233, 237);
   width: 100%;
   z-index: 3;
 }
-.results > div {
+.search-menu .results {
   padding: 1em 1.5em;
 }
-.results > div:not(:last-child) {
+.search-menu .results:not(:last-child) {
   border-bottom: 1px solid rgba(0, 0, 0, 0.1);
 }
-.results > div:hover {
+.search-menu .results:hover {
   background-color: rgb(223, 223, 226);
 }
 .ladder {

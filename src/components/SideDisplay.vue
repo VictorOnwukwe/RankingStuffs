@@ -41,7 +41,7 @@
                       class="mr-3"
                       :radius="'0'"
                     ></m-img>
-                    <a class="text-capitalize link--text text--darken-1" style="font-size:">{{ list.title }}</a>
+                    <a class="text-capitalize link--text text--darken-1" style="font-size:0.95em">{{ list.title }}</a>
                   </v-layout>
                 </router-link>
                 <!-- <v-divider
@@ -66,7 +66,7 @@
             <div v-if="demands.length > 0" class="grids">
               <div v-for="(demand, index) in demands" :key="index" :class="{'mb-4': $vuetify.breakpoint.mdAndUp}">
                 <router-link :to="'/demands/' + demand.id" class="no-deco">
-                  <a class="text-capitalize link--text text--darken-1" style="font-size:14px">{{
+                  <a class="text-capitalize link--text text--darken-1" style="font-size:0.95em">{{
                     demand.title
                   }}</a>
                 </router-link>

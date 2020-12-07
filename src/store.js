@@ -86,6 +86,7 @@ let store = new vuex.Store({
     popularList: {},
     topRatedList: {},
     categoryLists: [],
+    slideLists: [],
     snackbar: {
       show: false,
       message: "",
@@ -164,6 +165,9 @@ let store = new vuex.Store({
     setCategoryLists(state, payload) {
       state.categoryLists = payload;
     },
+    setSlideLists(state, payload) {
+      state.slideLists = payload;
+    },
     setSnackbar(state, payload) {
       state.snackbar = payload;
     },
@@ -193,6 +197,7 @@ let store = new vuex.Store({
     latestList: (state) => state.latestList,
     popularList: (state) => state.popularList,
     categoryLists: (state) => state.categoryLists,
+    slideLists: (state) => state.slideLists,
     snackbar: (state) => state.snackbar,
     anonymous: () => firebase.auth().currentUser.isAnonymous,
     verified: (state) => {
@@ -4249,31 +4254,35 @@ let store = new vuex.Store({
     async fetchCategories({ commit, state, dispatch }) {
       let categories;
       let db = firebase.firestore();
+      let promises = [];
 
       await db
         .collection("categories")
         .get()
         .then(async (cat) => {
           categories = cat.docs.map((cat) => cat.data());
-          for (let i = 0; i < categories.length; i++) {
-            await db
-              .collection("categories")
-              .doc(categories[i].name)
+          let populateCategory = async function(index) {
+            await db.collection("categories")
+              .doc(categories[index].name)
               .collection("subs")
               .get()
               .then((subs) => {
-                categories[i].subs = subs.docs.map((sub) => sub.data());
+                categories[index].subs = subs.docs.map((sub) => sub.data());
               });
+          };
+          for (let i = 0; i < categories.length; i++) {
+            promises.push(populateCategory(i));
           }
-        })
-        .then(() => {
-          if (categories.length > 0) {
-            commit("setCategories", categories);
-          }
+          Promise.all(promises).then(() => {
+            if (categories.length > 0) {
+              commit("setCategories", categories);
+            }
+          });
         });
     },
     async fetch_home_category_lists({ state, dispatch, commit }, payload) {
-      let lists = [];
+      let pageLists = [];
+      let slideLists = [];
       let categories = payload ? payload : state.categories;
       let promises = [];
 
@@ -4281,24 +4290,23 @@ let store = new vuex.Store({
         promises.push(
           dispatch("fetch_category_lists", {
             category: category.name,
-            limit: 1,
+            limit: 2,
           })
             .then(async (docs) => {
               if (docs.length > 0) {
-                let list = {
+                let listOne = {
                   id: docs[0].id,
                   ...docs[0].data(),
                 };
 
-                // let items = await dispatch("fetch_list_items", {
-                //   list_id: list.id,
-                //   limit: 3,
-                // });
-                // list.items = items.map((item) => {
-                //   return { id: item.id, ...item.data() };
-                // });
-
-                lists.push(list);
+                slideLists.push(listOne);
+                if (docs.length > 1) {
+                  let listTwo = {
+                    id: docs[1].id,
+                    ...docs[1].data(),
+                  };
+                  pageLists.push(listTwo);
+                }
               }
             })
             .catch((_) => {
@@ -4308,8 +4316,11 @@ let store = new vuex.Store({
       }
 
       return Promise.all(promises).then(() => {
-        if (lists[0]) commit("setCategoryLists", lists);
-        return lists;
+        if (pageLists[0]) commit("setCategoryLists", pageLists);
+        let result = { pageLists: pageLists, slideLists: slideLists };
+        return result.pageLists.length == 0 || result.slideLists.length == 0
+          ? false
+          : result;
       });
     },
     async update_happening({ commit, state }, payload) {
@@ -4377,17 +4388,6 @@ let store = new vuex.Store({
               })
               .catch((e) => console.log(e));
           }
-          // firebase
-          //   .firestore()
-          //   .enablePersistence()
-          //   .then(() => {})
-          //   .catch(function(err) {
-          //     if (err.code == "failed-precondition") {
-          //       //
-          //     } else if (err.code == "unimplemented") {
-          //       //
-          //     }
-          //   });
         }
       });
     },

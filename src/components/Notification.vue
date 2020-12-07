@@ -2,16 +2,16 @@
   <router-link class="no-deco" :to="link">
     <v-list-item link :class="{ recent: recent }" @click="$emit('close')">
       <v-list-item-avatar tile>
-        <dp v-if="notifier" :size="$vuetify.breakpoint.xs ? '2.4em' : '2.6em'" :src="notifier.profile_pic"></dp>
+        <dp v-if="notifier" :size="$vuetify.breakpoint.xs ? '2.4em' : '2.6em'" :radius="'50%'" :src="notifier.profile_pic"></dp>
         <dp
           v-else-if="notification.displayImage"
-          :size="'2.6em'"
+          :size="$vuetify.breakpoint.xs ? '2.5em' : '2.6em'"
           :src="{ low: notification.displayImage }"
           class="ml-n1"
         ></dp>
         <v-icon
           v-else-if="notification.type.includes('disapproved')"
-          :size="$vuetify.breakpoint.xs ? '1.7em' : '1.7em'"
+          :size="notification.type.includes('item') ? '1.65em' : '1.7em'"
           color="grey darken-1"
           >{{
             notification.type == "list-disapproved"
