@@ -42,7 +42,7 @@
             </v-list-item>
             <v-list-item to="/admin/flagged">
               <v-list-item-icon>
-                <v-icon color="grey">far fa-flag</v-icon>
+                <v-icon>$vuetify.icons.flag</v-icon>
               </v-list-item-icon>
               <v-list-item-content>Flagged</v-list-item-content>
             </v-list-item>

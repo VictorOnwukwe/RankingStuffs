@@ -93,6 +93,7 @@
             </div>
             <v-card-actions>
               <m-btn text @click="close()">Cancel</m-btn>
+              <m-btn :loading="deleting" text @click="deleteItem()">Delete</m-btn>
               <v-spacer></v-spacer>
               <m-btn text @click="edit()"
                 >{{ showEdit ? "Save " : "" }}Edit</m-btn
@@ -135,6 +136,7 @@ export default {
       showEdit: false,
       showDisapproveOptions: false,
       disapprovalReason: "",
+      deleting: false
     };
   },
   methods: {
@@ -148,7 +150,7 @@ export default {
           type: "success",
         });
         this.$store.dispatch("delete_pending_list_item", this.item.id);
-        this.$emit("success");
+      this.$emit("deleteCurrent");
         this.$store.dispatch("send_notification", {
           type: "item-approved",
           data: {
@@ -199,6 +201,12 @@ export default {
       }
       this.showEdit = true;
     },
+    async deleteItem(){
+      this.deleting = true;
+      await this.$store.dispatch("delete_pending_list_item", this.item.id);
+      this.deleting = false;
+      this.$emit("deleteCurrent");
+    }
   },
   computed: {
     id() {

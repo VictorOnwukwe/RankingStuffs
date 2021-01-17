@@ -12,14 +12,14 @@
       <div
         v-for="(list, index) in lists"
         :key="index"
-        class="mt-1"
+        class="mt-1 category-line"
         style="display:flex"
       >
-        <div class="ptd mr-1 font-weight-bold" style="">-</div>
+        <div class="mr-1 font-weight-bold">-</div>
         <router-link
           tag="a"
           :to="'/lists/' + list.id"
-          class="no-deco underline text-capitalize"
+          class="no-deco text-capitalize"
           style="font-size:13px"
         >
           {{ list.data().title }}
@@ -51,3 +51,8 @@ export default {
   },
 };
 </script>
+<style scoped>
+.category-line:hover > div{
+  color: var(--accent);
+}
+</style>

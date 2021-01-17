@@ -96,6 +96,9 @@
             </div>
             <v-card-actions>
               <m-btn text @click="close()">Cancel</m-btn>
+              <m-btn :loading="deleting" text @click="deleteDemand()"
+                >Delete</m-btn
+              >
               <v-spacer></v-spacer>
               <m-btn text @click="edit()"
                 >{{ showEdit ? "Save " : "" }}Edit</m-btn
@@ -140,7 +143,8 @@ export default {
       },
       showEdit: false,
       showDisapproveOptions: false,
-      disapprovalReason: ""
+      disapprovalReason: "",
+      deleting: false
     };
   },
   methods: {
@@ -149,7 +153,7 @@ export default {
       this.$store.dispatch("demand_list", this.newDemand).then(() => {
         this.approving = false;
         this.$store.dispatch("delete_pending_demand", this.demand.id);
-        this.$emit("success");
+      this.$emit("deleteCurrent");
         this.$store.dispatch("send_notification", {
           type: "demand-approved",
           data: {
@@ -190,6 +194,12 @@ export default {
         return;
       }
       this.showEdit = true;
+    },
+    async deleteDemand(){
+      this.deleting = true;
+      await this.$store.dispatch("delete_pending_demand", this.demand.id);
+      this.deleting = false;
+      this.$emit("deleteCurrent");
     }
   },
   computed: {

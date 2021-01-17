@@ -2,7 +2,7 @@
   <div id="main">
     <v-card tile class="" flat>
       <div style="position:relative">
-        <v-divider class="grey lighten-1 mt-4 mb-2"></v-divider>
+        <v-divider class="grey lighten-2 mt-4 mb-2"></v-divider>
         <div
           style="position:absolute; right:1.7em;top:-1.1em"
           class="std white subtitle-2 pa-1 font-weight-bold"
@@ -31,14 +31,15 @@
             <router-link
               v-if="item.is_link"
               class="font-weight-medium text-capitalize ptd no-deco"
-              style="font-size:1em;line-height:1em !important;"
+              style="font-size:1em;line-height:1 !important;"
               :to="itemPath"
-              >{{ item.name }}</router-link
+              >{{ revisedName }}</router-link
             >
             <span
               v-else
               class="font-weight-medium text-capitalize ptd no-deco"
-              >{{ item.name }}</span
+              style="font-size:1em;line-height:1 !important;"
+              >{{ revisedName }}</span
             >
           </v-flex>
           <v-spacer></v-spacer>
@@ -143,8 +144,7 @@
                   :high="true"
                 ></img-prev>
               </div>
-              <p v-if="info.about" class="std pa-0" style="pre-wrap;">
-                {{ info.about.slice(0, 500) }}
+              <p v-if="info.about" class="std pa-0" style="pre-wrap;">{{ info.about.slice(0, 500) }}
                 <router-link
                   v-if="info.about.length > 500"
                   class="link--text underline no-deco"
@@ -162,8 +162,8 @@
                 <div
                   v-if="item.note"
                   class="pre-wrap spacious my-4 ml-2"
-                  style="font-style:italic"
-                >{{ item.note }}&nbsp;-&nbsp;<username
+                  style="font-family: 'Noticia Text', serif;"
+                >{{ item.note }} - <username
                     v-if="creator"
                     :user="creator"
                   ></username>
@@ -195,7 +195,11 @@
                 >
               </div>
             </div>
-            <div v-if="showComments" class="comments mt-4 px-3 py-4" style="background-color:rgba(0,0,0,0.02);">
+            <div
+              v-if="showComments"
+              class="comments mt-4 px-3 py-4"
+              style="background-color:rgba(0,0,0,0.02);"
+            >
               <display-comments
                 :class="{ 'mt-8': info.about }"
                 :comments="comments"
@@ -261,14 +265,8 @@
                   :disabled="comment.trim() == ''"
                   >fa-paper-plane</v-icon
                 >
-                <v-progress-circular
-                  v-show="addingComment"
-                  :value="20"
-                  :width="2"
-                  color="accent"
-                  :size="16"
-                  indeterminate
-                ></v-progress-circular>
+                <m-progress
+                  v-show="addingComment" :size="16"></m-progress>
               </div>
             </div>
           </v-flex>
@@ -543,6 +541,13 @@ export default {
     },
     isAdmin() {
       return this.$store.getters.isAdmin;
+    },
+    revisedName() {
+      let lastIndex = this.item.name.lastIndexOf("(");
+      let type = this.item.name.slice(lastIndex + 1, this.item.name.length - 1);
+      if (this.list.category.toLowerCase().includes(type.toLowerCase()))
+        return this.item.name.slice(0, lastIndex).trim();
+      return this.item.name;
     },
   },
 

@@ -73,8 +73,7 @@
                       {{ completeImage.source }}
                     </div>
                     <div v-else>
-                      {{ getSiteName(completeImage.source) }}[
-                      <a
+                      {{ getSiteName(completeImage.source) }}&nbsp;[<a
                         :href="completeImage.source"
                         target="_blank"
                         class="no-deco underline link--text"

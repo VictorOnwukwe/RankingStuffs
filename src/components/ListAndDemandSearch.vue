@@ -8,25 +8,24 @@
     <div v-else>
       <div v-if="demands.length > 0 || lists.length > 0">
         <div v-if="lists.length > 0" class="ptd">
-          <div
-            class="title-text pl-2 pt-2 grey--text text--darken-2 font-weight-bold"
-          >
+          <div class="title-text pl-2 pt-2 ptd mb-2 font-weight-bold">
             Lists
           </div>
           <div class="px-2 mb-4">
             <div
               v-for="(result, index) in lists"
               :key="index"
-              style="display:flex"
+              style="display:flex;"
+              class="search-line pointer mt-1"
             >
-              <div class="mr-1 font-weight-bold">-</div>
+              <div class="mr-1 font-weight-bold" style="margin-top:-2px">-</div>
               <router-link
                 :to="'/lists/' + result.objectID"
-                class="pointer no-deco std ml-0"
+                class="no-deco ml-0"
               >
                 <div
-                  class="search-link"
-                  style="font-size:15px"
+                  class="search-link text-capitalize"
+                  style="font-size:14px"
                   @click="closeSearch(), clearKeyword()"
                 >
                   {{ result.title }}
@@ -37,7 +36,7 @@
         </div>
         <div v-if="demands.length > 0" class="ptd">
           <div
-            class="title-text grey--text text--darken-2 pl-2 pt-2 font-weight-bold"
+            class="title-text ptd mb-2 pl-2 pt-2 font-weight-bold"
           >
             Demands
           </div>
@@ -46,16 +45,17 @@
               v-for="(result, index) in demands"
               :key="index"
               style="display:flex"
+              class="search-line pointer mt-1"
             >
-              <div class="mr-1 font-weight-bold">-</div>
+              <div class="mr-1 font-weight-bold" style="margin-top:-2px">-</div>
               <router-link
                 :to="'/demands/' + result.objectID"
                 @click="search = false"
-                class="std pointer no-deco ml-0"
+                class="std no-deco ml-0"
               >
                 <div
-                  class="search-link"
-                  style="font-size:15px"
+                  class="search-link text-capitalize"
+                  style="font-size:14px"
                   @click="closeSearch(), clearKeyword()"
                 >
                   {{ result.title }}<br />
@@ -152,8 +152,10 @@ export default {
   overflow-x: hidden;
   max-height: calc(70vh);
 }
-.search-link:hover {
-  color: rgba(0, 0, 0, 0.75);
-  filter: brightness(90%);
+.search-link {
+  color: var(--link);
+}
+.search-line:hover > div{
+  color: var(--accent);
 }
 </style>

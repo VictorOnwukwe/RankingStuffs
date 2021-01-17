@@ -1,11 +1,12 @@
 <template>
   <div>
     <div v-if="fetched">
-      <v-list-item>
+      <v-list-item class="px-0">
         <v-list-item-avatar
           v-if="item.data().image || info.image"
           :size="$vuetify.breakpoint.xs ? 80 : 120"
           tile
+          class="mb-auto"
         >
           <m-img
             :width="$vuetify.breakpoint.xs ? '80' : '120'"
@@ -20,15 +21,32 @@
             :radius="'0'"
           ></m-img>
         </v-list-item-avatar>
-        <v-list-item-content>
+        <v-list-item-avatar
+          v-else
+          :size="$vuetify.breakpoint.xs ? 80 : 120"
+          tile
+          class="mb-auto"
+        >
+          <m-img
+            :width="$vuetify.breakpoint.xs ? '80' : '120'"
+            :radius="'0'"
+          ></m-img>
+        </v-list-item-avatar>
+        <v-list-item-content class="mb-auto">
           <v-list-item-title
             class="text-capitalize link--text text-wrap"
             :style="{ fontSize: fontSize }"
           >
-            <span style="line-height:100%" v-if="!info.name"> {{ item.data().name }}</span>
-            <router-link v-else :to="'/items/' + info.id" class="no-deco" style="line-height:100%">{{
-              item.data().name
-            }}</router-link>
+            <span style="line-height:100%" v-if="!info.name">
+              {{ item.data().name }}</span
+            >
+            <router-link
+              v-else
+              :to="'/items/' + info.id"
+              class="no-deco"
+              style="line-height:100%"
+              >{{ item.data().name }}</router-link
+            >
           </v-list-item-title>
           <v-list-item-subtitle class="subtitle-2"
             >Favorite {{ item.id }}</v-list-item-subtitle
@@ -84,7 +102,7 @@ export default {
   },
   computed: {
     fontSize() {
-      return this.$vuetify.breakpoint.xs ? "1.3em" : "1.5em";
+      return this.$vuetify.breakpoint.xs ? "1.2em" : "1.3em";
     },
   },
   created() {

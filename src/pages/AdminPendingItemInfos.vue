@@ -40,13 +40,6 @@
               </v-list-item-icon>
               <v-list-item-content>View</v-list-item-content></v-list-item
             >
-            <v-list-item @click="deleteItemInfo(item.id)">
-              <v-list-item-icon>
-                <v-icon v-if="!deleting">fa-trash</v-icon>
-                <m-progress v-else></m-progress>
-              </v-list-item-icon>
-              <v-list-item-content>Delete</v-list-item-content></v-list-item
-            >
           </v-list>
         </v-menu>
       </template>
@@ -54,7 +47,7 @@
     <view-item
       v-if="viewDialog"
       @close="viewDialog = false"
-      @success="deleteItemInfo(currentItem.id)"
+      @deleteCurrent="deleteItemInfo(currentItem.id)"
       :info="currentItem"
     ></view-item>
     <v-snackbar v-model="successful" top

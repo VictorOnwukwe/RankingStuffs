@@ -112,6 +112,7 @@
             </div>
             <v-card-actions>
               <m-btn text @click="close()">Cancel</m-btn>
+              <m-btn :loading="deleting" text @click="deleteInfo()">Delete</m-btn>
               <v-spacer></v-spacer>
               <m-btn
                 text
@@ -144,6 +145,7 @@ export default {
       disapprovalReason: "",
       oldItem: {},
       newInfo: {},
+      deleting: false
     };
   },
   methods: {
@@ -157,7 +159,7 @@ export default {
           type: "success",
         });
         this.$store.dispatch("delete_pending_item_info", this.info.id);
-        this.$emit("success");
+      this.$emit("deleteCurrent");
         this.$store.dispatch("send_notification", {
           type: "item-info-approved",
           data: {
@@ -191,6 +193,12 @@ export default {
     close() {
       this.$emit("close");
     },
+    async deleteInfo(){
+      this.deleting = true;
+      await this.$store.dispatch("delete_pending_item_info", this.info.id);
+      this.deleting = false;
+      this.$emit("deleteCurrent");
+    }
   },
   computed: {
     id(){

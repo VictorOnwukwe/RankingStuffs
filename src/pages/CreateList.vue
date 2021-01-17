@@ -1,7 +1,6 @@
 <template>
-  <div id="main" class="mt">
+  <div class="mt creation-main">
     <div style="margin:0 auto;">
-      <!-- <div class="page-title">Create List</div> -->
       <alert
         v-if="authenticated"
         :icon="'$vuetify.icons.user-unverified'"
@@ -238,11 +237,6 @@
                 </v-alert>
 
                 <v-flex xs12>
-                  <!-- <p
-                    class="text-capitalize font-weight-medium grey--text text--darken-2"
-                  >
-                    Description / Note
-                  </p> -->
                   <v-textarea
                     no-resize
                     color="brand"
@@ -257,11 +251,6 @@
                 </v-flex>
 
                 <v-flex xs6>
-                  <!-- <p
-                    class="text-capitalize font-weight-medium grey--text text--darken-2"
-                  >
-                    Category
-                  </p> -->
                   <v-autocomplete
                     :items="categories"
                     item-text="name"
@@ -333,12 +322,9 @@
       </v-card>
 
       <v-card outlined class="mt-10">
-        <!-- <v-card flat tile style="position:sticky; top:4.5em; z-index:3"> -->
         <div class="card-title">
           List Items
         </div>
-        <!-- <v-divider></v-divider> -->
-        <!-- </v-card> -->
         <v-card-text class="mt-4 pt-8">
           <v-container grid-list-md pa-0>
             <AddItem
@@ -358,7 +344,7 @@
             ></AddItem>
 
             <div v-if="list.items.length <= 9" id="plus-button">
-              <v-icon color="grey darken-1" @click="addItem()"
+              <v-icon color="grey darken-1" style="transform:scale(1.5)" @click="addItem()"
                 >$vuetify.icons.plus-circle</v-icon
               >
             </div>
@@ -456,7 +442,7 @@ export default {
 
   methods: {
     async setKeywords() {
-      this.list.keywords = this.generateKeywords(this.list.title);
+      // this.list.keywords = this.generateKeywords(this.list.title);
     },
 
     setTypes() {
@@ -467,7 +453,6 @@ export default {
         this.list.votable = false;
         this.list.selfModerated = true;
       }
-      this.setKeywords();
     },
 
     checkExistence: _.debounce(async function() {
@@ -477,9 +462,9 @@ export default {
       }
       await this.$store.dispatch("fetch_list", this.id).then((list) => {
         this.existing = list;
-        if (!this.existing) {
-          this.setKeywords();
-        }
+        // if (!this.existing) {
+        //   this.setKeywords();
+        // }
       });
     }, 2000),
 
@@ -537,7 +522,6 @@ export default {
                 type: "general",
                 votable: true,
                 selfModerated: false,
-                keywords: [],
                 preview_image: false,
                 category: "",
                 subCategory: "",
@@ -581,7 +565,7 @@ export default {
     },
 
     setItem(index, item) {
-      this.list.items[index] = item;
+      this.list.items[index] = { ...this.list.items[index], ...item };
     },
     setItemComment(index, comment) {
       this.list.items[index].comment = comment;
@@ -698,9 +682,9 @@ export default {
       this.list.title = this.$route.query.title;
     }
 
-    if (this.$route.query.demanded) {
-      this.setKeywords();
-    }
+    // if (this.$route.query.demanded) {
+    //   this.setKeywords();
+    // }
     if (!this.authenticated) {
       this.authDialog = true;
     }
@@ -713,7 +697,6 @@ export default {
   display: flex;
   margin: 1em 0;
   justify-content: center;
-  transform: scale(1.7);
 }
 .compact {
   transform: scale(0.875);

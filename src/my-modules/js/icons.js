@@ -10,8 +10,6 @@ import unfollow from "../../icons/unfollow";
 import approved from "../../icons/approved";
 import people from "../../icons/people";
 import demandOutline from "../../icons/demand-outline";
-import contribute from "../../icons/contribute";
-import addItemOutline from "../../icons/add-item-outline";
 import starOutline from "../../icons/star-outline";
 import replyOutline from "../../icons/reply-outline";
 import commentOutline from "../../icons/comment-outline";
@@ -41,6 +39,7 @@ import detailArrowUp from "../../icons/detail-arrow-up";
 import detailArrowDown from "../../icons/detail-arrow-down";
 import itemInfoApproved from "../../icons/item-info-approved";
 import itemImageApproved from "../../icons/item-image-approved";
+import flag from "../../icons/flag";
 
 export default {
   queue: {
@@ -78,12 +77,6 @@ export default {
   },
   createOutline: {
     component: createOutline,
-  },
-  contribute: {
-    component: contribute,
-  },
-  addItemOutline: {
-    component: addItemOutline,
   },
   starOutline: {
     component: starOutline,
@@ -172,4 +165,7 @@ export default {
   "item-image-approved": {
     component: itemImageApproved,
   },
+  flag: {
+    component: flag
+  }
 };

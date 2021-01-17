@@ -5,7 +5,7 @@
       :key="item"
       :min-height="random(120, 60)"
       class="loading"
-      outlined
+      flat
     ></v-card>
   </div>
 </template>
@@ -25,12 +25,13 @@ export default {
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  grid-gap: 0.5em;
+  grid-row-gap: 2em;
 }
 
 @media (min-width: 900px) {
   .grid {
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    grid-column-gap: 1em;
   }
 }
 </style>

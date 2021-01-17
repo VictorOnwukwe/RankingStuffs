@@ -127,9 +127,9 @@
                       <v-list dense color="">
                         <v-list-item>
                           <v-list-item-avatar>
-                            <dp :src="user.profile_pic"></dp>
+                            <dp :src="user.profile_pic" class="ml-n4"></dp>
                           </v-list-item-avatar>
-                          <v-list-item-content>
+                          <v-list-item-content class="ml-n2">
                             <v-list-item-title
                               class="font-weight-bold subtitle-1"
                               >{{ user.username }}</v-list-item-title
@@ -210,27 +210,20 @@
       <v-layout
         v-if="$vuetify.breakpoint.mdAndUp"
         justify-center
-        class="brand px-4"
+        class="brand px-4 cat-house"
       >
         <v-layout
           class="cat-display brand"
           style="max-width: 1200px;position:relative"
         >
           <v-icon
-            @click="$refs.slide.go('+')"
-            class="slide-icon"
-            size="2.3em"
-            style="position:absolute;right:-9px;z-index:1;margin-top:-0.15em"
-            >mdi-chevron-right</v-icon
-          >
-          <v-icon
             @click="$refs.slide.go('-')"
             class="slide-icon"
             size="2.3em"
-            style="position:absolute;left:-9px;z-index:1;margin-top:-0.15em"
+            style="position:relative;margin-top:-0.15em;margin-left:-9px"
             >mdi-chevron-left</v-icon
           >
-          <div style="width:100%" class="px-5">
+          <div style="width:calc(100% - 3.3em)" class="slide-parent">
             <splide :options="splideOptions" ref="slide">
               <splide-slide
                 v-for="(category, index) in categories"
@@ -278,6 +271,13 @@
               </splide-slide>
             </splide>
           </div>
+          <v-icon
+            @click="$refs.slide.go('+')"
+            class="slide-icon"
+            size="2.3em"
+            style="position:relative;margin-top:-0.15em;margin-right:-9px"
+            >mdi-chevron-right</v-icon
+          >
         </v-layout>
       </v-layout>
       <transition name="slide-up">
@@ -562,9 +562,6 @@ a {
   /* font-family: "Oswald", sans-serif; */
   /* font-weight: bold; */
 }
-.nav:hover {
-  color: #ffffffe6 !important;
-}
 
 div a + a {
   margin-left: 1em;
@@ -589,7 +586,7 @@ div a + a {
   font-weight: bold;
 }
 .dp {
-  border-radius: 5px;
+  border-radius: 50%;
 }
 .dp:hover {
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);

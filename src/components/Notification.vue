@@ -2,16 +2,21 @@
   <router-link class="no-deco" :to="link">
     <v-list-item link :class="{ recent: recent }" @click="$emit('close')">
       <v-list-item-avatar tile>
-        <dp v-if="notifier" :size="$vuetify.breakpoint.xs ? '2.4em' : '2.6em'" :radius="'50%'" :src="notifier.profile_pic"></dp>
         <dp
-          v-else-if="notification.displayImage"
-          :size="$vuetify.breakpoint.xs ? '2.5em' : '2.6em'"
-          :src="{ low: notification.displayImage }"
-          class="ml-n1"
+          v-if="notification.user"
+          :size="$vuetify.breakpoint.xs ? '2.4em' : '2.6em'"
+          :radius="'50%'"
+          :src="notifier.profile_pic"
         ></dp>
+        <m-img
+          v-else-if="notification.displayImage"
+          :width="$vuetify.breakpoint.xs ? '2.5em' : '2.6em'"
+          :src="notification.displayImage"
+          class="ml-n1"
+        ></m-img>
         <v-icon
           v-else-if="notification.type.includes('disapproved')"
-          :size="notification.type.includes('item') ? '1.65em' : '1.7em'"
+          :size="notification.type.includes('item') ? '1.6em' : '1.7em'"
           color="grey darken-1"
           >{{
             notification.type == "list-disapproved"
@@ -27,7 +32,7 @@
         <v-icon
           v-else-if="notification.type.includes('approved')"
           color="grey darken-1"
-          :size="$vuetify.breakpoint.xs ? '1.6em' : '1.7em'"
+          :size="notification.type.includes('item') ? '1.6em' : '1.7em'"
           >{{
             notification.type == "list-approved"
               ? "$vuetify.icons.list-approved"
@@ -36,7 +41,7 @@
               : notification.type == "demand-approved"
               ? "$vuetify.icons.demand"
               : notification.type == "item-info-approved"
-              ? "$vuetfiy.icons.item-info-approved"
+              ? "$vuetify.icons.item-info-approved"
               : notification.type == "item-image-approved"
               ? "$vuetify.icons.item-image-approved"
               : "$vuetify.icons.approved"
@@ -193,7 +198,7 @@ export default {
   },
   data() {
     return {
-      notifier: false,
+      notifier: { profile_pic: { low: "" } },
       link: "",
     };
   },

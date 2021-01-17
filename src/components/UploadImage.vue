@@ -21,7 +21,7 @@
           >
         </v-card-title>
         <v-card-text class="mt-4">
-          <v-form ref="url" v-model="urlValid">
+          <v-form ref="url">
             <v-layout>
               <v-text-field
                 flat
@@ -31,15 +31,12 @@
                 placeholder="Enter Image Link"
                 v-model="linkUrl"
                 clearable
-                :rules="[validateUrl]"
               ></v-text-field>
               <v-icon
                 v-if="!fetchingImage"
-                :disabled="!urlValid || !urlFetched || urlStatus !== 200"
+                :disabled="!urlFetched || urlStatus !== 200"
                 @click="showClipper()"
-                :color="
-                  urlFetched && urlValid && urlStatus == 200 ? 'green' : ''
-                "
+                :color="urlFetched && urlStatus == 200 ? 'green' : ''"
                 style="margin-top:-0.7em;margin-left:0.2em"
                 large
                 >mdi-check-circle</v-icon
@@ -54,9 +51,7 @@
               v-else-if="!fetchingImage && urlStatus !== 200"
               class="error--text"
               >Sorry. Something went wrong.
-              <a class="underline pointer" @click="fetch()"
-                >Try again</a
-              ></span
+              <a class="underline pointer" @click="fetch()">Try again</a></span
             >
           </div>
           <v-layout column align-center>
@@ -95,8 +90,8 @@
               :src="imgURL"
               :width="50"
               :rotate="rotation"
-              :initWidth="'100'"
-              :initHeight="'100'"
+              :initWidth="100"
+              :initHeight="100"
               :ratio="type == 'profile' ? 1 : null"
               :bg-color="color"
               preview="my-preview"
@@ -114,7 +109,9 @@
           <v-layout class="my-3">
             <v-flex xs4>
               <v-layout column align-center>
-                <v-icon @click="rotateRight()">mdi-rotate-right</v-icon>
+                <v-icon @click="rotateRight()" class="rotate"
+                  >mdi-rotate-right</v-icon
+                >
                 <div @click="rotateRight()" class="std caption pointer">
                   rotate-right
                 </div>
@@ -122,13 +119,21 @@
             </v-flex>
             <v-flex xs4>
               <v-layout column align-center>
-                <v-icon @click="crop()">mdi-crop</v-icon>
+                <v-icon @click="crop()" class="continue">mdi-check</v-icon>
+                <div @click="crop()" class="std caption pointer">Continue</div>
+              </v-layout>
+            </v-flex>
+            <v-flex xs4>
+              <v-layout column align-center>
+                <v-icon @click="crop()" class="crop">mdi-crop</v-icon>
                 <div @click="crop()" class="std caption pointer">Crop</div>
               </v-layout>
             </v-flex>
             <v-flex xs4>
               <v-layout column align-center>
-                <v-icon @click="rotateLeft()">mdi-rotate-left</v-icon>
+                <v-icon @click="rotateLeft()" class="rotate"
+                  >mdi-rotate-left</v-icon
+                >
                 <div @click="rotateLeft()" class="std caption pointer">
                   rotate-left
                 </div>
@@ -202,31 +207,6 @@
 <script>
 import Compressor from "compressorjs";
 import { clipperPreview, clipperUpload, clipperBasic } from "vuejs-clipper";
-import Rules from "../rules";
-
-function loadPcf(file, attr) {
-  var atr = attr || "",
-    id = (loadPcf.autoid = 1 + ~~loadPcf.autoid);
-  // document.write("<img id=pcf" + id + " " + atr + " />");
-  var xhr = new XMLHttpRequest();
-  xhr.responseType = "arraybuffer"; // IE 10+ only, sorry.
-  xhr.onload = function() {
-    // I am loading gif for demo, you can load anything.
-    var data = xhr.response;
-    if (!data instanceof ArrayBuffer) return;
-    var buf = new DataView(data),
-      head = buf.getUint32(0),
-      width = buf.getUint16(6, 1);
-    if (head !== 1195984440) return console.log("Not a GIF: " + file); // 'GIF8' = 1195984440
-    // Modify data, image width in this case, and push it to the <img> as gif.
-    buf.setInt16(6, ~~(width / 2), 1);
-    let image = URL.createObjectURL(
-      new Blob([buf.buffer], { type: "image/gif" })
-    );
-  };
-  xhr.open("GET", file);
-  xhr.send();
-}
 
 export default {
   components: {
@@ -284,7 +264,6 @@ export default {
       linkImg: "",
       tempUrl: "",
       fetchingImage: false,
-      urlValid: false,
       urlStatus: 200,
     };
   },
@@ -352,7 +331,7 @@ export default {
     },
     compress(img) {
       let minWidth, maxWidth;
-      let that = this;
+      let $this = this;
 
       if (this.type == "profile") {
         minWidth = 50;
@@ -364,20 +343,18 @@ export default {
       new Compressor(img, {
         quality: 1,
         maxWidth: maxWidth,
-        maxHeight: maxWidth,
         convertSize: 5000000,
         success(result) {
-          that.images.high = result;
+          $this.images.high = result;
         },
         error(err) {},
       });
       new Compressor(img, {
         quality: 1,
         maxWidth: minWidth,
-        maxHeight: minWidth,
         convertSize: 5000000,
         success(result) {
-          that.images.low = result;
+          $this.images.low = result;
         },
         error(err) {},
       });
@@ -450,6 +427,7 @@ export default {
     },
     async fetch() {
       if (!this.linkUrl || this.linkUrl.trim() === "") {
+        this.fetchingImage = false;
         return;
       }
       this.fetchingImage = true;
@@ -491,8 +469,6 @@ export default {
   },
   watch: {
     linkUrl() {
-      let valid = this.$refs.url.validate();
-      if (!valid) return;
       this.fetch();
     },
   },
@@ -508,5 +484,15 @@ export default {
   .my-clipper {
     width: 50%;
   }
+}
+
+.rotate:hover {
+  color: purple;
+}
+.continue:hover {
+  color: green;
+}
+.crop:hover {
+  color: orange;
 }
 </style>

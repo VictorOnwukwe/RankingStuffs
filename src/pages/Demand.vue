@@ -165,7 +165,7 @@
 
 <script>
 import Rules from "../rules";
-import keyword from "../my-modules/js/generateKeywords";
+// import keyword from "../my-modules/js/generateKeywords";
 
 let _ = require("lodash");
 
@@ -175,7 +175,6 @@ export default {
     return {
       title: "",
       comment: "",
-      keywords: [],
       valid: false,
       rules: Rules,
       loading: false,
@@ -195,7 +194,6 @@ export default {
       this.loading = true;
       let upload = {
         title: this.title.toLowerCase(),
-        keywords: this.keywords,
         category: this.category,
         subCategory: this.subCategory,
         comment: this.comment,
@@ -247,15 +245,13 @@ export default {
                 this.existing = demand;
                 if (demand) {
                   this.existType = "demand";
-                } else {
-                  this.getKeywords();
                 }
               });
           }
         });
     }, 2500),
     getKeywords() {
-      this.keywords = keyword.generateKeywords(this.title);
+      // this.keywords = keyword.generateKeywords(this.title);
     },
     setLogin(val) {
       this.$store.dispatch("set_login", val);

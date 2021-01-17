@@ -1,12 +1,11 @@
 <template>
   <v-card
     :to="'/lists/' + list.id"
-    :outlined="!sub"
-    :flat="sub"
+    flat
     :class="{ loading: !fetched }"
     width="100%"
   >
-    <v-card-text v-if="fetched" :class="{ 'pa-2': !sub, 'pa-0': sub }">
+    <v-card-text v-if="fetched" class="pa-0">
       <v-layout>
         <v-flex shrink pr-2>
           <m-img

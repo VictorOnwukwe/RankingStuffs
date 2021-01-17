@@ -1,6 +1,7 @@
 import Vue from "vue";
 import Vuetify from "vuetify/lib";
 // import 'vuetify/src/stylus/app.styl'
+import "@mdi/font/css/materialdesignicons.css";
 import "vuetify/src/styles/main.sass";
 import "@fortawesome/fontawesome-free/css/all.css";
 import icons from "../my-modules/js/icons";
@@ -10,7 +11,7 @@ Vue.use(Vuetify);
 const vuetify = new Vuetify({
   icons: {
     iconfont: "mdi",
-    values: icons
+    values: icons,
   },
   theme: {
     themes: {
@@ -23,10 +24,10 @@ const vuetify = new Vuetify({
         link: "#00A65A",
         button: "#0060AC",
         item_title: "#BBDEFB",
-        footer: "#242729"
-      }
-    }
-  }
+        footer: "#242729",
+      },
+    },
+  },
 });
 
 export default vuetify;

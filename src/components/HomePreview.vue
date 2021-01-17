@@ -44,7 +44,7 @@
             </splide>
           </v-flex>
           <v-layout>
-            <v-flex xs12 sm10 offset-sm1 md8 offset-md2>
+            <v-flex xs12 sm10 offset-sm1 md6 offset-md3>
               <splide :options="mainSplide" ref="mainSplide">
                 <splide-slide
                   @active="transform(n)"
@@ -246,7 +246,7 @@ export default {
   transition: all 0.5s ease;
 }
 .slide-overlay {
-  background: radial-gradient( rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.9));
+  background: linear-gradient( rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0));
   padding: 1em;
 }
 @media (min-width: 600px) {
@@ -258,11 +258,6 @@ export default {
   }
   .slide-overlay {
     padding: 2em;
-  }
-}
-@media (min-width: 900px) {
-  .overlay-title {
-    font-size: 3.8em;
   }
 }
 .splide--nav > .splide__track > .splide__list > .splide__slide.is-active {

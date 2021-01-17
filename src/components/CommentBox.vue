@@ -179,7 +179,7 @@ export default {
   border: 1px solid rgb(90, 90, 90);
 }
 .text:focus {
-  border: 2px solid var(--link);
+  border: 2px solid #cfcdcd;
   outline: none;
   /* box-shadow: 0px 0px 0px 1px var(--brand); */
   /* border-radius: 0.2em; */

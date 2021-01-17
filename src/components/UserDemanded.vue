@@ -1,5 +1,5 @@
 <template>
-  <v-list-item class="pl-2 pr-0">
+  <v-list-item class="px-0">
     <v-list-item-content>
       <v-list-item-title
         class="text-capitalize text-wrap"
@@ -22,12 +22,11 @@
         min-width="90px"
         max-width="90px"
         left
-        class="mt-n4"
       >
         <template v-slot:activator="{ on }">
           <v-icon
             @click.stop="fetchWaiting()"
-            class="mr-2"
+            class="mr-1 mb-auto"
             color="grey"
             v-on="on"
             >mdi-dots-vertical</v-icon
@@ -199,7 +198,7 @@ export default {
     },
     authenticated() {
       return this.$store.getters.authenticated;
-    }
+    },
   }
 };
 </script>

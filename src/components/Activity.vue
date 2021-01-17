@@ -25,9 +25,9 @@
       <v-list-item-content class="ml-1">
         <v-list-item-title class="text-wrap">
           Comment on
-          <span class="font-weight-medium text-capitalize pointer"
-            >{{ activity.item.name }}</span
-          >
+          <span class="font-weight-medium text-capitalize pointer">{{
+            activity.item.name
+          }}</span>
           on the list of
           <router-link
             class="link--text pointer text-capitalize no-deco"
@@ -35,8 +35,12 @@
             >{{ activity.list.title }}</router-link
           >
         </v-list-item-title>
-        <v-list-item-title class="text-wrap mt-2 pl-2 scroll" style="border-left: 2px solid rgba(0,0,0,.2)"
-          ><span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.comment }}</span></v-list-item-title
+        <v-list-item-title
+          class="text-wrap mt-2 pl-2 scroll"
+          style="border-left: 2px solid rgba(0,0,0,.2)"
+          ><span class="pre-wrap roboto" style="font-size:1.1em">{{
+            activity.comment
+          }}</span></v-list-item-title
         >
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
@@ -51,9 +55,9 @@
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Upvote for
-          <span class="font-weight-medium pointer text-capitalize"
-            >{{ activity.item.name }}</span
-          >
+          <span class="font-weight-medium pointer text-capitalize">{{
+            activity.item.name
+          }}</span>
           on the list of
           <router-link
             class="link--text pointer text-capitalize no-deco"
@@ -73,9 +77,9 @@
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Downvote for
-          <span class="font-weight-medium pointer text-capitalize"
-            >{{ activity.item.name }}</span
-          >
+          <span class="font-weight-medium pointer text-capitalize">{{
+            activity.item.name
+          }}</span>
           on the list of
           <router-link
             class="link--text pointer text-capitalize no-deco"
@@ -89,15 +93,15 @@
     <v-list-item v-if="activity.type == 'item'" class="pl-0 pr-0">
       <v-list-item-avatar tile class="mt-2" style="align-self:flex-start">
         <v-icon size="2rem" color="accent"
-          >$vuetify.icons.addItemOutline</v-icon
+          >$vuetify.icons.item-approved</v-icon
         >
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           Addition of item
-          <span class="font-weight-medium pointer"
-            >{{ activity.item.name }}</span
-          >
+          <span class="font-weight-medium">{{
+            activity.item.name
+          }}</span>
           to the list of
           <router-link
             class="link--text pointer text-capitalize no-deco"
@@ -137,10 +141,9 @@
         <v-list-item-title class="text-wrap">
           Demand for
           <router-link :to="'/demands/' + activity.demand.id" class="no-deco">
-            <span
-              class="link--text pointer text-capitalize"
-              >{{ activity.demand.title }}</span
-            ></router-link
+            <span class="link--text pointer text-capitalize">{{
+              activity.demand.title
+            }}</span></router-link
           >
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
@@ -148,15 +151,19 @@
     </v-list-item>
     <v-list-item v-if="activity.type == 'item-update'" class="pl-0 pr-0">
       <v-list-item-avatar tile class="mt-2" style="align-self:flex-start">
-        <v-icon size="2.3rem" color="accent">$vuetify.icons.contribute</v-icon>
+        <v-icon size="2rem" color="accent">{{
+          activity.item.image
+            ? "$vuetify.icons.item-image-approved"
+            : "$vuetify.icons.item-info-approved"
+        }}</v-icon>
       </v-list-item-avatar>
       <v-list-item-content>
         <v-list-item-title class="text-wrap">
           {{ activity.item.image ? "Image " : "Info " }}Contribution to
-          <span
-            class="font-weight-medium pointer text-capitalize"
-            @click="go('/lists/' + activity.list.id)"
-            >{{ activity.item.name }}</span
+          <router-link
+            class="font-weight-medium text-capitalize no-deco ptd"
+            :to="'/items/' + activity.item.info"
+            >{{ activity.item.name }}</router-link
           >
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
@@ -172,9 +179,9 @@
       <v-list-item-content class="ml-1">
         <v-list-item-title class="text-wrap">
           Reply to a comment on
-          <span class="font-weight-medium text-capitalize"
-            >{{ activity.item.name }}</span
-          >
+          <span class="font-weight-medium text-capitalize">{{
+            activity.item.name
+          }}</span>
           on the list of
           <router-link
             class="link--text pointer text-capitalize no-deco"
@@ -182,9 +189,16 @@
             >{{ activity.list.title }}</router-link
           >
         </v-list-item-title>
-        <v-list-item-title class="text-wrap mt-2 pl-2 scroll" style="border-left: 2px solid rgba(0,0,0,.2)">
-          <div class="grey lighten-3 pa-2 mb-1" style="font-size:0.85em">{{activity.comment.content}}</div>
-          <span class="pre-wrap roboto" style="font-size:1.1em">{{ activity.reply.content }}</span>
+        <v-list-item-title
+          class="text-wrap mt-2 pl-2 scroll"
+          style="border-left: 2px solid rgba(0,0,0,.2)"
+        >
+          <div class="grey lighten-3 pa-2 mb-1" style="font-size:0.85em">
+            {{ activity.comment.content }}
+          </div>
+          <span class="pre-wrap roboto" style="font-size:1.1em">{{
+            activity.reply.content
+          }}</span>
         </v-list-item-title>
         <v-list-item-subtitle>{{ created }}</v-list-item-subtitle>
       </v-list-item-content>
@@ -198,25 +212,20 @@ let moment = require("moment");
 export default {
   props: {
     activity: Object,
-    isProfile: Boolean
-  },
-  methods: {
-    go(link) {
-      return this.$router.go({ path: link });
-    }
+    isProfile: Boolean,
   },
   computed: {
     created() {
       return moment(this.activity.created.toDate()).fromNow();
-    }
-  }
+    },
+  },
 };
 </script>
 <style scoped>
 * > * {
   line-height: 1.6em !important;
 }
-.scroll{
+.scroll {
   max-height: 30vh;
   overflow-y: auto;
 }

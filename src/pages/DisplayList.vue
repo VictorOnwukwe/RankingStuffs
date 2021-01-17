@@ -61,7 +61,9 @@
                 class="mt-4 pre-wrap spacious"
                 style="margin-bottom:4em"
                 v-if="list.description"
-              >{{ list.description }}</div>
+              >
+                {{ list.description }}
+              </div>
             </div>
             <div></div>
           </div>
@@ -565,6 +567,7 @@ export default {
       this.$store.dispatch("check_list_voted", this.listID).then((voted) => {
         this.voted = voted;
       });
+      this.$store.dispatch("update_popularity", this.listID);
     },
 
     async toggleFavorite() {

@@ -29,12 +29,12 @@
               <m-progress></m-progress>
             </v-layout>
             <v-layout
-              v-if="lists.length !== user.lists"
+              v-if="lists.length < user.lists && !fetchingMoreLists"
               justify-center
               class="my-4"
             >
-              <v-icon @click="fetchMoreLists()" size="30"
-                >mdi-plus-circle-outline</v-icon
+              <v-icon style="transform:scale(1.4)" @click="fetchMoreLists()"
+                >$vuetify.icons.plus-circle</v-icon
               >
             </v-layout>
           </div>
@@ -78,12 +78,12 @@
               <m-progress></m-progress>
             </v-layout>
             <v-layout
-              v-if="demands.length !== user.demands"
+              v-if="demands.length < user.demands && !fetchingMoreDemands"
               justify-center
               class="my-4"
             >
-              <v-icon @click="fetchMoreDemands()" size="30"
-                >mdi-plus-circle-outline</v-icon
+              <v-icon style="transform:scale(1.4)" @click="fetchMoreDemands()"
+                >$vuetify.icons.plus-circle</v-icon
               >
             </v-layout>
           </div>

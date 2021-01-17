@@ -98,39 +98,23 @@ export default {
 };
 </script>
 <style scoped>
-#side-display::scrollbar-track {
-  background-color: rgba(255, 255, 255, 0);
-}
-
-#side-display::scrollbar {
-  width: 3px;
-  position: absolute;
-}
-
-#side-display::scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 3px;
-}
-#side-display:hover::scrollbar-thumb {
-  background-color: rgba(0, 0, 0, 0);
-  border-radius: 3px;
-}
 #side-display::-webkit-scrollbar-track {
   background-color: rgba(255, 255, 255, 0);
 }
 
 #side-display::-webkit-scrollbar {
-  width: 3px;
+  width: 6px;
   position: absolute;
 }
 
 #side-display::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0);
-  border-radius: 3px;
 }
 #side-display:hover::-webkit-scrollbar-thumb {
   background-color: rgba(0, 0, 0, 0.2);
-  border-radius: 3px;
+}
+#side-display{
+  scrollbar-color: rgba(0,0,0,0) white !important;
 }
 #side-display:hover {
   scrollbar-color: rgba(0, 0, 0, 0.2) white !important;

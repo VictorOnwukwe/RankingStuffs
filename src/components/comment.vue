@@ -167,14 +167,8 @@
                   :disabled="reply.trim() == '' ? true : false"
                   >fa-paper-plane</v-icon
                 >
-                <v-progress-circular
-                  v-show="addingReply"
-                  :value="20"
-                  :width="2"
-                  color="accent"
-                  :size="16"
-                  indeterminate
-                ></v-progress-circular>
+                <m-progress
+                  v-show="addingReply" :size="16"></m-progress>
               </div>
             </div>
           </div>

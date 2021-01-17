@@ -29,43 +29,40 @@
           </v-layout>
           <v-layout
             v-if="
-              favoriteItems.length < user.favorite_items &&
-                favoriteItems.length > 0
+              favoriteItems.length < user.favorite_items && !fetchingMoreItems && !fetchingItems
             "
-            class="mt-4"
+            class="my-4"
             justify-center
           >
-            <v-icon @click="fetchMoreItems()" size="32"
-              >mdi-plus-circle-outline</v-icon
+            <v-icon style="transform:scale(1.4)" @click="fetchMoreItems()"
+              >$vuetify.icons.plus-circle</v-icon
             >
           </v-layout>
 
           <v-card tile outlined v-if="isProfile">
             <div>
-                <v-layout
-                  pl-2
-                  align-center
-                  py-1
-                  @click="addFavorites = !addFavorites"
-                  class="pointer grey lighten-4"
+              <v-layout
+                pl-2
+                align-center
+                py-1
+                @click="addFavorites = !addFavorites"
+                class="pointer grey lighten-4"
+              >
+                <v-icon
+                  :color="addFavorites ? 'brand' : 'grey darken-1'"
+                  size="2.5em"
+                  >mdi-plus-box</v-icon
                 >
-                  <v-icon
-                    :color="addFavorites ? 'brand' : 'grey darken-1'"
-                    size="2.5em"
-                    >mdi-plus-box</v-icon
-                  >
-                  <div
-                    class="ml-2"
-                    style="font-weight:normal"
-                    :class="
-                      addFavorites
-                        ? 'title-text'
-                        : 'grey--text text--darken-1'
-                    "
-                  >
-                    Add Favorite Item
-                  </div>
-                </v-layout>
+                <div
+                  class="ml-2"
+                  style="font-weight:normal"
+                  :class="
+                    addFavorites ? 'title-text' : 'grey--text text--darken-1'
+                  "
+                >
+                  Add Favorite Item
+                </div>
+              </v-layout>
 
               <div v-if="addFavorites" class="px-4">
                 <v-card class="pb-2" tile flat>
@@ -151,12 +148,14 @@
               <m-progress></m-progress>
             </v-layout>
             <v-layout
-              v-if="favoriteLists.length !== user.favorite_lists"
+              v-if="
+                favoriteLists.length < user.favorite_lists && !fetchingMoreLists
+              "
               class="mt-4"
               justify-center
             >
-              <v-icon @click="fetchMoreLists()" size="32"
-                >mdi-plus-circle-outline</v-icon
+              <v-icon @click="fetchMoreLists()" style="transform:scale(1.4)"
+                >$vuetify.icons.plus-circle</v-icon
               >
             </v-layout>
           </div>
@@ -206,7 +205,7 @@ export default {
       },
       valid: false,
       favoriting: false,
-      showSuccess: false
+      showSuccess: false,
     };
   },
   methods: {
@@ -311,7 +310,7 @@ export default {
         },
       });
     },
-    itemAdded(){
+    itemAdded() {
       this.showSuccess = false;
       this.addFavorites = false;
     },

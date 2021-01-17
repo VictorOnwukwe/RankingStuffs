@@ -6,9 +6,13 @@
           <img
             :src="require('../assets/' + name(category.name))"
             style="position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;z-index:1"
+            class="category-image"
           />
         </credit>
-        <div style="position:absolute;top:0;left:0;width:100%;height:100%;">
+        <div
+          v-if="!imageLoaded[index]"
+          style="position:absolute;top:0;left:0;width:100%;height:100%;"
+        >
           <div style="position:relative;height:100%;width:100%">
             <img
               :src="require('../assets/emptyimage.jpg')"
@@ -45,6 +49,11 @@ export default {
     prev: CategoryPreview,
     credit: PhotoCredit,
   },
+  data() {
+    return {
+      imageLoaded: [],
+    };
+  },
   methods: {
     async Lists(name) {
       let mlists;
@@ -80,6 +89,16 @@ export default {
     categories() {
       return this.$store.getters.categories;
     },
+  },
+  mounted() {
+    let $this = this;
+    let elements = document.getElementsByClassName("category-image");
+
+    for (let i = 0; i < elements.length; i++) {
+      elements[i].addEventListener("load", function() {
+        $this.imageLoaded[i] = true;
+      });
+    }
   },
 };
 </script>

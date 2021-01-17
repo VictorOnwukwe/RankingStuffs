@@ -1384,7 +1384,10 @@ let store = new vuex.Store({
       let pending = firebase.firestore().collection("pending_lists");
 
       return await pending
-        .add(list)
+        .add({
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          ...list,
+        })
         .then(() => {
           return true;
         })
@@ -1451,7 +1454,7 @@ let store = new vuex.Store({
         //add properties to list
         title: list.title,
         votes: votes,
-        created: firebase.firestore.FieldValue.serverTimestamp(),
+        created: list.created || firebase.firestore.FieldValue.serverTimestamp(),
         creator: list.user,
         rating: 0,
         raters_count: 0,
@@ -1633,7 +1636,7 @@ let store = new vuex.Store({
           //     ...image
           //   }
           // });
-          this.dispatch("update_popularity", payload.list.id);
+          // this.dispatch("update_popularity", payload.list.id);
           return newRating;
         });
     },
@@ -1884,13 +1887,12 @@ let store = new vuex.Store({
               .set({
                 name: payload.item.name,
                 media_count: 0,
-                keywords: payload.item.keywords,
               })
               .then(() => {
                 const algoliaIndex = algoliaClient.initIndex("items");
                 algoliaIndex.saveObject({
                   objectID: id,
-                  title: payload.item.name,
+                  name: payload.item.name,
                 });
                 db.collection("items")
                   .doc(id)
@@ -2699,7 +2701,7 @@ let store = new vuex.Store({
             },
             recipient: user.id,
           });
-          this.dispatch("update_popularity", payload.list.id);
+          // this.dispatch("update_popularity", payload.list.id);
           return {
             id: comment.id,
             data() {
@@ -3159,7 +3161,7 @@ let store = new vuex.Store({
               },
             });
           }
-          this.dispatch("update_popularity", payload.list.id);
+          // this.dispatch("update_popularity", payload.list.id);
         })
         .catch((_) => {
           this.dispatch("set_snackbar", {
@@ -3247,7 +3249,7 @@ let store = new vuex.Store({
             });
           }
 
-          this.dispatch("update_popularity", payload.list.id);
+          // this.dispatch("update_popularity", payload.list.id);
         })
         .catch((_) => {
           this.dispatch("set_snackbar", {
@@ -3531,9 +3533,14 @@ let store = new vuex.Store({
         .doc(demand.id);
       let batch = firebase.firestore().batch();
 
-      await pendingDemand.set(demand).catch((_) => {
-        throw error;
-      });
+      await pendingDemand
+        .set({
+          created: firebase.firestore.FieldValue.serverTimestamp(),
+          ...demand,
+        })
+        .catch((_) => {
+          throw error;
+        });
     },
 
     async fetch_pending_demands({ state }) {
@@ -3573,15 +3580,15 @@ let store = new vuex.Store({
 
       batch.set(db.collection("demands").doc(demand.id), {
         waiters_count: 1,
-        created: firebase.firestore.FieldValue.serverTimestamp(),
+        created: demand.created || firebase.firestore.FieldValue.serverTimestamp(),
         user: demand.user.id,
         title: demand.title,
         ...others,
       });
-      batch.set(db.collection("demand_keywords").doc(demand.id), {
-        words: demand.keywords,
-        title: demand.title,
-      });
+      // batch.set(db.collection("demand_keywords").doc(demand.id), {
+      //   words: demand.keywords,
+      //   title: demand.title,
+      // });
       batch.set(db.collection("demand_waiters").doc(demand.id), {
         demanders: [demand.user.id],
       });
@@ -3890,9 +3897,9 @@ let store = new vuex.Store({
           db.collection("demand_waiters")
             .doc(id)
             .delete();
-          db.collection("demand_keywords")
-            .doc(id)
-            .delete();
+          // db.collection("demand_keywords")
+          //   .doc(id)
+          //   .delete();
           db.collection("demands")
             .doc(id)
             .collection("comments")
@@ -4262,7 +4269,8 @@ let store = new vuex.Store({
         .then(async (cat) => {
           categories = cat.docs.map((cat) => cat.data());
           let populateCategory = async function(index) {
-            await db.collection("categories")
+            await db
+              .collection("categories")
               .doc(categories[index].name)
               .collection("subs")
               .get()

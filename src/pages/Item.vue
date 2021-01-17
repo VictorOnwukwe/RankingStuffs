@@ -57,12 +57,12 @@
               <p
                 class="subtitle-1 ptd my-8"
                 style="white-space:pre-wrap; font-size:0.9em"
-              >
-                {{ item.about }}
+                v-if="item.about"
+              ><span style="font-size:3.6em;float:left;line-height:0.8;margin-top:0.1em" class="mr-1 ml-n1">{{item.about.trim().slice(0, 1)}}</span>{{ item.about.trim().slice(1, item.about.length) }}
               </p>
             </div>
             <div v-if="item.references && item.references.length > 0">
-              <p class="ptd font-weight-medium">Links & References</p>
+              <p class="ptd font-weight-medium">Links &amp; References</p>
               <a
                 v-for="(ref, index) in item.references"
                 :key="index"

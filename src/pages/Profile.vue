@@ -190,9 +190,8 @@
               :action="false"
             ></alert>
             <v-layout
-              justify-space-around
               style="border-bottom:1px solid var(--dark-divider)"
-              class="mt-8"
+              class="mt-8 nav-menu"
             >
               <div class="nav-item">
                 <router-link
@@ -218,9 +217,6 @@
                   >Favorites</router-link
                 >
               </div>
-              <!-- <div @click="goActivities(), toggleActive('act')" class="nav-item brand" :class="{'darken-2': act, brand: !act}">
-            <a>Activities</a>
-              </div>-->
             </v-layout>
 
             <transition :name="transitionName" mode="out-in">
@@ -483,7 +479,7 @@ export default {
       }
 
       next();
-    }
+  }
 };
 </script>
 
@@ -491,9 +487,6 @@ export default {
 .nav-link {
   color: rgba(0, 0, 0, 0.87);
   text-decoration: none;
-}
-.nav-link.router-link-exact-active {
-  color: var(--accent);
 }
 div .nav-link.router-link-exact-active {
   border-bottom: 5px solid var(--accent);
@@ -556,5 +549,14 @@ div .nav-link.router-link-exact-active {
 }
 .close-btn:hover {
   color: rgb(212, 12, 12);
+}
+.nav-menu{
+  justify-content: space-between;
+  padding: 0 4px;
+}
+@media (min-width:500px) {
+  .nav-menu{
+    justify-content: space-around;
+  }
 }
 </style>

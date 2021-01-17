@@ -37,13 +37,19 @@ html {
   overflow-y: auto;
 }
 
+.text-shadow{
+  text-shadow: 4px 8px 6px rgba(0,0,0,0.5);
+}
+
 @media (min-width: 600px) {
   #main *::-webkit-scrollbar-track {
-    background-color: white;
+    background-color: rgb(235,235,235);
   }
-
+  #main .v-textarea *::-webkit-scrollbar-track,#main textarea::-webkit-scrollbar-track{
+    background-color: rgba(0,0,0,0);
+}
   #main *::-webkit-scrollbar {
-    width: 4px;
+    width: 8px;
     position: absolute;
   }
 
@@ -53,29 +59,35 @@ html {
   #main *:hover::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
   }
-  html {
-    scrollbar-color: rgba(0, 0, 0, 0.2) rgba(235, 231, 231, 1);
-    scrollbar-width: thin;
+  #main .v-textarea *::-webkit-scrollbar-thumb,#main textarea::-webkit-scrollbar-thumb{
+    background-color: rgba(0,0,0,0.2);
   }
   #main * {
-    scrollbar-color: rgba(0, 0, 0, 0) white;
+    scrollbar-color: rgba(0, 0, 0, 0) rgb(235, 235, 235);
     scrollbar-width: thin;
   }
   #main *:hover {
-    scrollbar-color: rgba(0, 0, 0, 0.2) white;
+    scrollbar-color: rgba(0, 0, 0, 0.2) rgb(235, 235, 235);
   }
-  body::-webkit-scrollbar-track {
+  #main .v-textarea *,#main textarea{
+    scrollbar-color: rgba(0,0,0,0.2) rgba(0,0,0,0) !important;
+  }
+  /* body::-webkit-scrollbar-track {
     background-color: rgba(235, 231, 231, 1);
-  }
+  } */
 
-  body::-webkit-scrollbar {
-    width: 8px;
+  /* body::-webkit-scrollbar {
+    width: 16px;
     position: absolute;
-  }
+  } */
 
-  body::-webkit-scrollbar-thumb {
+  /* body::-webkit-scrollbar-thumb {
     background-color: rgba(0, 0, 0, 0.2);
-  }
+  } */
+  
+.text-shadow{
+  text-shadow: 2px 4px 5px rgba(0,0,0,0.5);
+}
 }
 .sub-note {
   font-size: 0.95em;
@@ -188,11 +200,6 @@ html {
 .pb {
   padding-bottom: 0.5em !important;
 }
-@media (min-width: 960px) {
-  .view-container {
-    margin-top: 7.5em;
-  }
-}
 @media (min-width: 800px) {
   .view-container {
     padding: 0 1em;
@@ -222,7 +229,12 @@ html {
     padding-bottom: 1em !important;
   }
 }
-@media (min-width: 1200px) {
+@media (min-width: 960px) {
+  .view-container {
+    margin-top: 7.5em;
+  }
+}
+@media (min-width: 1350px) {
   .view-container {
     padding: 0;
   }
@@ -460,9 +472,6 @@ html {
 .fade-enter,
 .fade-leave-active {
   opacity: 0;
-}
-.text-shadow{
-  text-shadow: 4px 8px 6px rgba(0,0,0,0.5);
 }
 .mt-one {
   margin-top: 1em !important;

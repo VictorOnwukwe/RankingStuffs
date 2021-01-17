@@ -397,7 +397,14 @@ export default {
 
   created: function() {
     this.$store.dispatch("initialize").then(() => {});
-    window.addEventListener("scroll", this.hideUpscroll);
+    let timeout;
+    let $this = this;
+    window.addEventListener("scroll", () => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => {
+        $this.hideUpscroll();
+      }, 50);
+    });
   },
 };
 </script>

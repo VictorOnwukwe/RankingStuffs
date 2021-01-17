@@ -22,24 +22,24 @@
                   Title
                 </div>
                 <p class="ptd font-weight-medium" style="font-size:1.4em">
-                  {{ oldList.title }}
+                  {{ newList.title }}
                 </p>
                 <div class="font-weight-bold brand--text">
                   Description
                 </div>
-                <p class="ptd" style="white-space:pre-wrap">{{ oldList.description }}</p>
+                <p class="ptd" style="white-space:pre-wrap">{{ newList.description }}</p>
 
                 <p>
                   <span class="font-weight-bold brand--text">Category: </span
-                  ><span class="ptd">{{ oldList.category }}</span>
+                  ><span class="ptd">{{ newList.category }}</span>
                 </p>
                 <p>
                   <span class="font-weight-bold brand--text">SubCategory: </span
-                  ><span class="ptd">{{ oldList.subCategory }}</span>
+                  ><span class="ptd">{{ newList.subCategory }}</span>
                 </p>
                 <div class="mt-12">
                   <p class="font-weight-bold brand--text">Items:</p>
-                  <div v-for="(item, index) in oldList.items" :key="index">
+                  <div v-for="(item, index) in newList.items" :key="index">
                     <v-divider class="grey lighten-2"></v-divider>
                     <p class="font-weight-bold ptd">Item {{ index + 1 }}</p>
                     <p>
@@ -70,8 +70,7 @@
                         class="grey--text text--darken-2 font-weight-medium pre-wrap"
                         >Comment:</span
                       >
-                      <span class="italic ptd">{{ item.comment }}
-                      </span>
+                      <span class="italic ptd">{{ item.comment }} </span>
                     </p>
                     <v-checkbox
                       v-if="!newList.items[index].info"
@@ -177,6 +176,7 @@
             </div>
             <v-card-actions>
               <m-btn text @click="close()">Cancel</m-btn>
+              <m-btn :loading="deleting" text @click="deleteList()">delete</m-btn>
               <v-spacer></v-spacer>
               <m-btn text @click="edit()"
                 >{{ showEdit ? "Save " : "" }}Edit</m-btn
@@ -204,6 +204,7 @@
   </div>
 </template>
 <script>
+import _ from "lodash";
 export default {
   props: {
     list: Object,
@@ -224,6 +225,7 @@ export default {
       showDisapproveOptions: false,
       disapprovalReason: "",
       allLinks: false,
+      deleting: false
     };
   },
   methods: {
@@ -236,7 +238,7 @@ export default {
           message: "List approved successfully",
           type: "success",
         });
-        this.$emit("success");
+      this.$emit("deleteCurrent");
         this.$store.dispatch("delete_pending_list", this.list.pend_id);
         this.$store.dispatch("send_notification", {
           type: "list-approved",
@@ -275,7 +277,6 @@ export default {
       for (let i = 0; i < this.newList.items.length; i++) {
         if (this.newList.items[i].info) continue;
         this.newList.items[i].isLink = this.allLinks;
-        this.oldList.items[i].isLink = this.allLinks;
       }
     },
     close() {
@@ -283,12 +284,21 @@ export default {
     },
     edit() {
       if (this.showEdit) {
-        this.oldList = { ...this.newList };
+        for (let a = 0; a < this.newList.items.length; a++) {
+          if (this.newList.items[a].name != this.oldList.items[a].name)
+            this.newList.items[a].info = null;
+        }
         this.showEdit = false;
         return;
       }
       this.showEdit = true;
     },
+    async deleteList(){
+      this.deleting = true;
+      await this.$store.dispatch("delete_pending_list", this.list.pend_id);
+      this.deleting = false;
+      this.$emit("deleteCurrent");
+    }
   },
   computed: {
     categories() {
@@ -303,8 +313,8 @@ export default {
     },
   },
   created() {
-    this.newList = { ...this.list };
-    this.oldList = { ...this.list };
+    this.newList = _.cloneDeep(this.list);
+    this.oldList = _.cloneDeep(this.list);
   },
 };
 </script>

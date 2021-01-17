@@ -9,7 +9,7 @@
       <upload-image
         @save="setImage"
         :type="'addItem'"
-        v-if="!image"
+        v-if="!image && !creation"
       ></upload-image>
       <v-icon
         v-if="index > 0"
@@ -50,7 +50,7 @@
           <v-layout v-if="checkingItem" justify-center>
             <m-progress class="my-4" :color="'grey darken-2'"></m-progress>
           </v-layout>
-          <div v-else>
+          <div v-else style="max-height: 300px;overflow-y:scroll">
             <div
               class="pointer results"
               v-for="(result, index) in results"
@@ -171,9 +171,6 @@ export default {
             data = { userImage: this.userImage };
           }
           this.item = {
-            keywords: this.item.name
-              ? this.generateKeywords(this.item.name.trim())
-              : "null",
             name: this.item.name,
             isLink: false,
             ...data,
@@ -273,7 +270,6 @@ export default {
     if (this.propItem) {
       this.item.name = this.propItem.name;
       this.item.info = this.propItem.info;
-      this.keywords = this.propItem.keywords;
       this.comment = this.propItem.comment;
       this.image = this.propItem.image;
     }

@@ -62,6 +62,11 @@
             </div>
             <v-card-actions>
               <m-btn text @click="close()">Cancel</m-btn>
+              <m-btn :loading="deleting"
+                text
+                @click="deleteImage()"
+                >Delete</m-btn
+              >
               <v-spacer></v-spacer>
               <m-btn
                 text
@@ -95,33 +100,36 @@ export default {
       disapprovalReason: "",
       newUpdate: {},
       oldUpdate: {},
+      deleting: false
     };
   },
   methods: {
-    approve() {
+    async approve() {
       this.approving = true;
-      this.$store.dispatch("upload_item_image", this.update).then(() => {
-        this.approving = false;
-        this.$store.dispatch("set_snackbar", {
-          show: true,
-          message: "Image approved successfully",
-          type: "success",
-        });
-        this.$store.dispatch("delete_pending_item_image", this.update.id);
-        this.$emit("success");
-        this.$store.dispatch("send_notification", {
-          type: "item-image-approved",
-          data: {
+      await this.$store
+        .dispatch("upload_item_image", this.update)
+        .then((item) => {
+          this.approving = false;
+          this.$store.dispatch("set_snackbar", {
+            show: true,
+            message: "Image approved successfully",
+            type: "success",
+          });
+          this.$store.dispatch("delete_pending_item_image", this.update.id);
+      this.$emit("deleteCurrent");
+          this.$store.dispatch("send_notification", {
             type: "item-image-approved",
-            item: {
-              id: this.newUpdate.item.id,
-              name: this.newUpdate.item.name,
+            data: {
+              type: "item-image-approved",
+              item: {
+                id: this.newUpdate.item.id,
+                name: this.newUpdate.item.name,
+              },
+              displayImage: item.url.low,
             },
-            displayImage: this.update.image.low,
-          },
-          recipient: this.newUpdate.user.id,
+            recipient: this.newUpdate.user.id,
+          });
         });
-      });
     },
     disapprove() {
       if (this.showDisapproveOptions) {
@@ -154,6 +162,12 @@ export default {
     created() {
       return moment(this.update.created.toDate()).toDate();
     },
+    async deleteImage(){
+      this.deleting = true;
+      await this.$store.dispatch("delete_pending_item_image", this.update.id);
+      this.deleting = false;
+      this.$emit("deleteCurrent");
+    }
   },
   created() {
     this.newUpdate = { ...this.update };
