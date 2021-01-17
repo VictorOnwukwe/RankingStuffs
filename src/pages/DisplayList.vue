@@ -61,9 +61,7 @@
                 class="mt-4 pre-wrap spacious"
                 style="margin-bottom:4em"
                 v-if="list.description"
-              >
-                {{ list.description }}
-              </div>
+              >{{ list.description }}</div>
             </div>
             <div></div>
           </div>
