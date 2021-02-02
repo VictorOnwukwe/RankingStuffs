@@ -31,11 +31,6 @@ Your profile contains your basic details, activities, creations, and favorites. 
 <img src="screenshots/List.png">
 
 
-### List Item
-
-<img src="screenshots/List Item.png">
-
-
 ### Display Demands
 
 <img src="screenshots/Demands.png">
@@ -56,44 +51,14 @@ Your profile contains your basic details, activities, creations, and favorites. 
 <img src="screenshots/Category.png">
 
 
-### SubCategory
-
-<img src="screenshots/Subcategory.png">
-
-
-### Create List
-
-<img src="screenshots/Create List.png">
-
-
-### Demand List
-
-<img src="screenshots/Demand List.png">
-
-
 ### User Profile
 
 <img src="screenshots/Profile.png">
 
 
-### User Favorites
-
-<img src="screenshots/User Favorites.png">
-
-
-### Search
-
-<img src="screenshots/Search.png">
-
-
 ### Notifications
 
 <img src="screenshots/Notifications.png">
-
-
-### User Preview
-
-<img src="screenshots/User Popup.png">
 
 
 ### Item
