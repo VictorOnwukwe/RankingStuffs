@@ -23,7 +23,7 @@ Your profile contains your basic details, activities, creations, and favorites. 
 
 ### Display Lists
 
-<img src="screenshots/Lists.png">
+<img src="screenshots/Lists.png" style="border:1px solid grey">
 
 
 ### List
